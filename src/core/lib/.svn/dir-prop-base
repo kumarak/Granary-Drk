@@ -1,0 +1,22 @@
+K 10
+svn:ignore
+V 191
+*.ko
+*.mod.c
+*.o.cmd
+*.S
+*.ko.cmd
+*_unittest
+tags
+.gdbscript
+.gdbscript-eclipse
+.sconsign.dblite
+modules.order
+Module.symvers
+.tmp_versions
+modules.order
+.tmp_versions
+Module.symvers
+include
+
+END
