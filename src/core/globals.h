@@ -43,6 +43,10 @@
 
 #include "configure.h"
 
+//#define DIRECT_CALL_OPTIMIZATION
+
+typedef void (*module_exit_callback_t)(void *);
+
 #ifdef WINDOWS
 /* Vista SDK compiler default is to set NTDDI_VERSION to NTDDI_LONGHORN, causing
  * problems w/ new Vista-only flags like in PROCESS_ALL_ACCESS in win32/injector.c.
@@ -248,7 +252,7 @@ typedef struct _trace_t trace_t;
 struct _linkstub_t;
 typedef struct _linkstub_t linkstub_t;
 struct _dcontext_t;
-typedef struct _dcontext_t dcontext_t;
+//typedef struct _dcontext_t dcontext_t;
 struct vm_area_vector_t;
 typedef struct vm_area_vector_t vm_area_vector_t;
 struct _coarse_info_t;
@@ -464,6 +468,8 @@ bool is_on_initstack(byte *esp);
 
 bool is_on_dstack(dcontext_t *dcontext, byte *esp);
 bool is_currently_on_dstack(dcontext_t *dcontext);
+void
+dr_hotpatch_interface(void *addr);
 
 #ifdef WINDOWS
 extern bool    dr_early_injected;
@@ -558,7 +564,7 @@ extern recursive_lock_t change_linking_lock;
 
 /* where the current app thread's control is */
 typedef enum {
-    WHERE_APP=0, 
+    WHERE_NATIVE=0,
     WHERE_INTERP,
     WHERE_DISPATCH,
     WHERE_MONITOR,
@@ -571,9 +577,6 @@ typedef enum {
     WHERE_UNKNOWN,
 #ifdef HOT_PATCHING_INTERFACE
     WHERE_HOTPATCH,
-#endif
-#ifdef LINUX_KERNEL
-    WHERE_USERMODE,
 #endif
     WHERE_LAST
 } where_am_i_t;
@@ -614,6 +617,11 @@ typedef struct {
      * since dr_mcontext_t is 8-byte aligned */
 #endif
 } unprotected_context_t;
+
+typedef void (*func_ptr)(void);
+
+typedef func_ptr (*wrapper_callback)(func_ptr);
+
 
 /* dynamo-specific context associated with each active app thread 
  * N.B.: make sure to update these routines as necessary if
@@ -850,6 +858,8 @@ struct _dcontext_t {
 #ifdef CLIENT_INTERFACE
     /* client interface-specific data */
     client_data_t *client_data;
+    bool is_drk_running;
+    app_pc app_start_next_tag;
 #endif
 
     /* FIXME trace_sysenter_exit is used to capture an exit from a trace that
@@ -933,6 +943,30 @@ struct _dcontext_t {
      * next_tag, this is not overwritten with a code cache address. */
     app_pc         next_app_tag;
     bool emulating_interrupt_return;
+
+    exit_direct_call_stub   exit_address_target;
+    exit_direct_call_stub	exit_target_return;
+    void *(*get_untracked_address)(void *);
+    void (*notify_exit_module_context)(void);
+    wrapper_callback	    func_ptr;
+    void 	*return_func;
+    int (*is_granary_code)(void *);
+    int (*is_instrumented_module_code)(void *);
+    int (*get_symbol_name)(void *);
+    void (*hotpatch_callback)(void *);
+
+    bool is_general_fault;
+    unsigned long count;
+    reg_t gp_xflags;
+    app_pc gp_pc;
+    instr_t *gp_instr;
+
+    /* client extensions to the dcontext type */
+#ifdef LINUX_KERNEL
+#   define E(x) x
+#   include "kernel_linux/clients/dcontext_extend.h"
+#   undef E
+#endif
 };
 
 /* sentinel value for dcontext_t* used to indicate
@@ -949,6 +983,9 @@ get_mcontext(dcontext_t *dcontext)
     else
         return &(dcontext->upcontext.upcontext.mcontext);
 }
+
+
+void break_on_fault(void);
 
 /* A number of routines (dump_mbi*, dump_mcontext, dump_callstack, 
  * print_modules) have an argument on whether to dump in an xml friendly format

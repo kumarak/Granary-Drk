@@ -1503,7 +1503,7 @@ HTNAME(hashtable_,NAME_KEY,_unlinked_remove)(dcontext_t *dcontext,
     uint i;
     ENTRY_TYPE e;
     uint entries_removed = 0;
-
+    (void) e;
     ASSERT(!TEST(HASHTABLE_READ_ONLY, table->table_flags));
     if (TEST(HASHTABLE_READ_ONLY, table->table_flags))
         return 0;

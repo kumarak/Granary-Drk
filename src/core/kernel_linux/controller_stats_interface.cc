@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #define NOT_DYNAMORIO_CORE_PROPER
 #define NOT_DYNAMORIO_CORE
-typedef void* dcontext_t;
+//typedef void* dcontext_t;
 typedef unsigned long timestamp_t;
 typedef pid_t thread_id_t;
 typedef int file_t;

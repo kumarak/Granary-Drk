@@ -70,6 +70,12 @@ thread_starting(dcontext_t *dcontext)
 #endif
 }
 
+noinline void
+break_dynamo_null(dr_mcontext_t *mc)
+{
+	(void)mc;
+}
+
 /* Initializes a dcontext with the supplied state and calls dispatch */
 void
 dynamo_start(dr_mcontext_t *mc)
@@ -81,7 +87,13 @@ dynamo_start(dr_mcontext_t *mc)
 
     /* Set return address */
     dcontext->next_tag = mc->pc;
+    if(dcontext->next_tag == NULL){
+    	break_dynamo_null(mc);
+    }
+    dcontext->app_start_next_tag = dcontext->next_tag;
     ASSERT(dcontext->next_tag != NULL);
+
+    dcontext->is_drk_running = 1;
 
     /* transfer exec state to mcontext */
     mcontext = get_mcontext(dcontext);
@@ -346,7 +358,7 @@ entering_native()
     }
     set_last_exit(dcontext, (linkstub_t *) get_native_exec_linkstub());
     /* now we're in app! */
-    dcontext->whereami = WHERE_APP;
+    dcontext->whereami = WHERE_NATIVE;
     SYSLOG_INTERNAL_WARNING_ONCE("entered at least one module natively");
     LOG(THREAD, LOG_ASYNCH, 1, "!!!! Entering module NATIVELY, retaddr="PFX"\n\n",
         dcontext->native_exec_retval);
@@ -370,7 +382,7 @@ back_from_native_C(dr_mcontext_t *mc)
     /* ASSUMPTION: was native entire time, don't need to initialize dcontext
      * or anything, and next_tag is still there!
      */
-    ASSERT(dcontext->whereami == WHERE_APP);
+    ASSERT(dcontext->whereami == WHERE_NATIVE);
     ASSERT(dcontext->native_exec_retval != NULL);
     ASSERT(dcontext->last_exit == get_native_exec_linkstub());
     dcontext->next_tag = dcontext->native_exec_retval;

@@ -1,6 +1,10 @@
 EXTRA_CFLAGS= -O3 -g $(DR_INCLUDE_FLAGS)  -Wframe-larger-than=4096
 #EXTRA_CFLAGS=-O3 -g $(DR_INCLUDE_FLAGS) -Werror -Wframe-larger-than=4096
 
+
+CXX_FLAGS = -nostdlib -fno-exceptions -fno-rtti -std=c++0x -O0 -g3 \
+			-funit-at-a-time -fno-rtti -fno-exceptions -fno-omit-frame-pointer #-foptimize-sibling-calls
+
 EXTRA_AFLAGS=$(DR_INCLUDE_FLAGS)\
  -Xassembler -mmnemonic=intel -Xassembler -msyntax=intel -Xassembler -mnaked-reg\
  -Xassembler --noexecstack -Xassembler --64
@@ -79,60 +83,91 @@ EXTRA_AFLAGS=$(DR_INCLUDE_FLAGS)\
 
 obj-m += dr_kernel_utils.o
 	dr_kernel_utils-objs :=\
-../../kernel_linux/dr_kernel_utils.o
+../../kernel_linux/dr_kernel_utils.o\
+../../kernel_linux/trace/granary_trace.o\
+../../kernel_linux/trace/trace_file.o\
+../../kernel_linux/trace/trace_buffer.o
 
 obj-m += instrcount.o
 	instrcount-objs :=\
 ../../kernel_linux/clients/instrcount_module.o
 
-obj-m += stress_dead_reg.o
-	stress_dead_reg-objs :=\
-../../kernel_linux/clients/stress_dead_reg_module.o
-
-obj-m += cleancall.o
-	cleancall-objs :=\
-../../kernel_linux/clients/cleancall_module.o
-
-obj-m += client_codecache.o
-	client_codecache-objs :=\
-../../kernel_linux/clients/client_codecache.o
-
-obj-m += client_cleancall_codecache.o
-	client_cleancall_codecache-objs :=\
-../../kernel_linux/clients/client_cleancall_codecache.o
+#obj-m += stress_dead_reg.o
+#	stress_dead_reg-objs :=\
+#../../kernel_linux/clients/stress_dead_reg_module.o
+#
+#obj-m += cleancall.o
+#	cleancall-objs :=\
+#../../kernel_linux/clients/cleancall_module.o
+#
+#obj-m += client_codecache.o
+#	client_codecache-objs :=\
+#../../kernel_linux/clients/client_codecache.o
+#
+#obj-m += client_cleancall_codecache.o
+#	client_cleancall_codecache-objs :=\
+#../../kernel_linux/clients/client_cleancall_codecache.o
 
 #obj-m += umbra.o
 #	umbra-objs :=\
-../../kernel_linux/clients/umbra/analyzer.o\
-../../kernel_linux/clients/umbra/cfg.o\
-../../kernel_linux/clients/umbra/dr_client.o\
-../../kernel_linux/clients/umbra/instrument.o\
-../../kernel_linux/clients/umbra/optimize.o\
-../../kernel_linux/clients/umbra/shadow.o\
-../../kernel_linux/clients/umbra/table.o\
-../../kernel_linux/clients/umbra/umbra.o\
-../../kernel_linux/clients/umbra/utils.o\
-../../kernel_linux/clients/umbra/memcheck.o\
-../../kernel_linux/clients/umbra/memcheck_test.o\
-../../kernel_linux/clients/umbra/pagepool.o
+#../../kernel_linux/clients/umbra/analyzer.o\
+#../../kernel_linux/clients/umbra/cfg.o\
+#../../kernel_linux/clients/umbra/dr_client.o\
+#../../kernel_linux/clients/umbra/instrument.o\
+#../../kernel_linux/clients/umbra/optimize.o\
+#../../kernel_linux/clients/umbra/shadow.o\
+#../../kernel_linux/clients/umbra/table.o\
+#../../kernel_linux/clients/umbra/umbra.o\
+#../../kernel_linux/clients/umbra/utils.o\
+#../../kernel_linux/clients/umbra/memcheck.o\
+#../../kernel_linux/clients/umbra/memcheck_test.o\
+#../../kernel_linux/clients/umbra/pagepool.o
 
-obj-m += controlflow.o
-	controlflow-objs :=\
-../../kernel_linux/clients/controlflow/controlflow_module.o\
-../../kernel_linux/clients/controlflow/hashtable_client.o
+obj-m += cfi.o
+	cfi-objs :=\
+../../kernel_linux/clients/cfi/cfi_module.o	\
+../../kernel_linux/clients/cfi/cfi_notifier.o \
+../../kernel_linux/clients/cfi/cfi_instrument.o \
+../../kernel_linux/clients/cfi/cfi_kernel_interface.o \
+../../kernel_linux/clients/cfi/cfi_wrapper.cc \
+../../kernel_linux/clients/cfi/cfi_wrapper.o \
+../../kernel_linux/clients/cfi/cfi_atomic.o \
+../../kernel_linux/clients/cfi/cfi_address_logger.o	\
+../../kernel_linux/clients/cfi/cfi_debug_log.o	\
+../../kernel_linux/clients/cfi/cfi_memory_leak.o \
+../../kernel_linux/clients/cfi/cfi_utils.o	\
+../../kernel_linux/clients/cfi/cfi_insert_call.o	\
+../../kernel_linux/clients/cfi/cfi_atomic_list.o	\
+../../kernel_linux/clients/cfi/cfi_thread.o	\
+../../kernel_linux/clients/cfi/cfi_hashtable.o \
+../../kernel_linux/clients/cfi/cfi_memleak_instr.o \
+../../kernel_linux/clients/cfi/cfi_hotpatch.o	\
+../../kernel_linux/clients/cfi/cfi_buffer_overflow.o
 
-obj-m += DeadWrite.o
-	DeadWrite-objs :=\
-../../kernel_linux/clients/DeadWrite/drk_dead_write.o
+# make the kernel wrappers; this is such an ugly hack
+SYS_MAP := $(DR_CORE_DIR)/../debugging/linux-3.2.33/System.map
+#SYS_MAP := /boot/System.map-$(shell uname -r)
+$(DR_CORE_DIR)/kernel_linux/modules/../../kernel_linux/clients/cfi/cfi_wrapper.cc: $(DR_CORE_DIR)/kernel_linux/clients/cfi/cfi_wrapper.hpp $(DR_CORE_DIR)/kernel_linux/clients/cfi/wrappers/white_list.txt $(DR_CORE_DIR)/kernel_linux/clients/cfi/types/kernel_types.hpp
+	sudo cp $(SYS_MAP) $(DR_CORE_DIR)/kernel_linux/clients/cfi/wrappers/map.txt
+	sudo python2.6 $(DR_CORE_DIR)/kernel_linux/clients/cfi/make_wrappers.py $(DR_CORE_DIR)/kernel_linux/clients/cfi/
+	g++ -mcmodel=kernel $(CXX_FLAGS) -DX86_64 -DLINUX -DLINUX_KERNEL -I$(GUEST_KERNELDIR)/include -I$(GUEST_KERNELDIR)/arch/x86/include -I$(DR_CORE_DIR) -c $(DR_CORE_DIR)/kernel_linux/clients/cfi/cfi_wrapper.cc \
+		-o $(DR_CORE_DIR)/kernel_linux/clients/cfi/cfi_wrapper.o
+	g++ -mcmodel=kernel $(CXX_FLAGS) -DX86_64 -DLINUX -DLINUX_KERNEL -I$(GUEST_KERNELDIR)/include -I/usr/include/ -I$(GUEST_KERNELDIR)/arch/x86/include -I$(DR_CORE_DIR)  \
+		$(c_flags) -c -o $(DR_CORE_DIR)/kernel_linux/clients/cfi/.tmp_cfi_wrapper.cc $(DR_CORE_DIR)/kernel_linux/clients/cfi/cfi_wrapper.cc
+	cp $(DR_CORE_DIR)/kernel_linux/clients/cfi/cfi_wrapper.cc $(DR_CORE_DIR)/kernel_linux/clients/cfi/cfi_wrapper.gen.cc
+	$(cmd_modversions_cpp)
+	$(call echo-cmd,record_mcount_cpp)
+	$(cmd_record_mcount_cpp)
+	scripts/basic/fixdep $(depfile) $@ '$(call make-cmd,cpp_o_c)' > $(dot-target).tmp;
+	rm -f $(depfile);
+	mv -f $(dot-target).tmp $(dot-target:.cc=.o).cmd
+	
+#../../kernel_linux/clients/cfi/cfi_inat_tables.h: ../../kernel_linux/clients/cfi/x86-opcode-map.txt 
+#	LC_ALL=C awk -f ../../kernel_linux/clients/cfi/gen-insn-attr-x86.awk $< > $@
 
-#obj-m += memtracer.o
-#	memtracer-objs :=\
-#../../kernel_linux/clients/memtracer/drk_memtracer.o
-
-
-obj-m += bb_stats.o
-	bb_stats-objs :=\
-../../kernel_linux/clients/bb_stats.o
+#obj-m += bb_stats.o
+#	bb_stats-objs :=\
+#../../kernel_linux/clients/bb_stats.o
 
 obj-m += null.o
 	null-objs :=\

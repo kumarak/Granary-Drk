@@ -9,12 +9,14 @@
 #include <linux/mm.h>
 #include <linux/slab.h>
 #include <linux/percpu.h>
+#include <linux/thread_info.h>
 
 #include "dynamorio_module_interface.h"
 #include "dynamorio_module_assert_interface.h"
 #include "kernel_interface.h"
 #include "hypercall_guest.h"
 #include "page_table.h"
+
 
 /* Used by kernel_find_dynamorio_module_bounds. */
 void* dynamorio_dummy_symbol;
@@ -334,6 +336,89 @@ kernel_free_heap(void* heap)
     heap = NULL;
 }
 
+void *
+kernel_allocate(size_t size)
+{
+    void *heap_addr = NULL;
+
+    if (size > 0) {
+        heap_addr = kmalloc(size, GFP_ATOMIC);
+    }
+
+    return heap_addr;
+}
+
+void
+kernel_free(void* heap_addr)
+{
+    kfree(heap_addr);
+    heap_addr = NULL;
+}
+
+/* supports 4 thread private slots*/
+void *
+kernel_get_thread_private_slot(size_t slot)
+{
+    struct thread_info *thread = current_thread_info();
+    register unsigned long current_stack_pointer asm("rsp");
+
+    //printk("%s : %lx, rsp : %lx\n", __FUNCTION__, thread, current_stack_pointer);
+    if(thread != NULL) {
+        return thread->spill_slot[slot];
+    }else {
+        return NULL;
+    }
+}
+
+/* supports 4 thread private slots*/
+void *
+kernel_thread_private_slot_init(size_t slot)
+{
+    void *thread_spill_slot = kmalloc(4*PAGE_SIZE, GFP_ATOMIC);
+    struct thread_info *thread = current_thread_info();
+   // printk("compare thread at one: %lx\n", thread);
+
+    thread->spill_slot[slot] = thread_spill_slot;
+
+    return thread->spill_slot[slot];
+}
+
+void *
+kernel_get_thread_private_slot_from_rsp(void *rsp_ptr, size_t slot)
+{
+    struct thread_info *thread;
+    void *thread_private_slot;
+    register unsigned long current_stack_pointer asm("rsp");
+    struct thread_info *thread1 = current_thread_info();
+    thread = (struct thread_info*)((unsigned long long)rsp_ptr & 0xffffffffffffc000);
+    //printk("thread : %lx, thread1 : %lx mcontext->rsp : %lx, rsp : %lx\n", thread, thread1, rsp_ptr, current_stack_pointer);
+   // printk("--%s-- : %lx\n", __FUNCTION__, thread);
+    thread_private_slot = ((struct thread_info*)thread1)->spill_slot[0];
+    return thread_private_slot;
+    //void *thread_private_slot = thread->spill_slot[0];
+    //return thread_private_slot;
+}
+
+void
+set_thread_private_slot(size_t slot, unsigned int flag){
+    struct thread_info *thread;
+    thread = current_thread_info();
+    thread->spill_slot[slot] = flag;
+}
+
+unsigned int
+get_thread_private_slot(size_t slot){
+    struct thread_info *thread;
+    thread = current_thread_info();
+    return thread->spill_slot[slot];
+}
+
+void*
+kernel_memcpy(void *dest, void *src, size_t size)
+{
+    return memcpy(dest, src, size);
+}
+
 int
 kernel_get_online_processor_count()
 {
@@ -403,6 +488,8 @@ kernel_setenv(const char* name, const char* value)
     env_count += 1;
 }
 
+
+
 const char*
 kernel_getenv(const char* name)
 {
@@ -444,6 +531,19 @@ kernel_native_swapgs(void* pc)
     return pc >= (void*) native_load_gs_index_address &&
            pc <= (void*) (((char*) native_load_gs_index_address) + 30);
 #endif
+}
+
+void*
+get_thread_private_client_extension()
+{
+	struct thread_info *thread_id = current_thread_info();
+	return (void*)&(thread_id->client_data);
+}
+
+void*
+get_stack_init_address(void){
+	struct thread_info *thread = current_thread_info();
+	return (void*)thread;
 }
 
 bool

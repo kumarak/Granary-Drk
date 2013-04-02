@@ -1,3 +1,5 @@
+
+
 #include "globals.h"
 #include "hypercall.h"
 #include "hypercall_guest.h"
@@ -35,6 +37,11 @@
 # define ASM_XSP "esp"
 #endif
 
+#ifdef __in_eclipse__
+#   undef offsetof
+#   define offsetof(st,m) ((size_t) ( (char *)&((st *)0)->m - (char *)0 ))
+#endif
+
 app_pc vsyscall_syscall_end_pc = NULL;
 app_pc vsyscall_sysenter_return_pc = NULL;
 app_pc vsyscall_page_start = NULL;
@@ -69,7 +76,7 @@ static bool in_assert_not_ported = false;
 #define ASSERT_NOT_PORTED(x) assert_not_ported(__FILE__, __LINE__, __func__)
 
 static void assert_not_ported(const char* file, int line, const char* func) {
-    print_file(STDERR, "%s:%d - %s not ported.\n", file, line, func);
+    //print_file(STDERR, "%s:%d - %s not ported.\n", file, line, func);
     if (!in_assert_not_ported) {
         in_assert_not_ported = true;
 #ifdef DEBUG
@@ -78,7 +85,7 @@ static void assert_not_ported(const char* file, int line, const char* func) {
         os_terminate(NULL, 0);
 #endif
     } else {
-        print_file(STDERR, "not ported recursion\n");
+        //print_file(STDERR, "not ported recursion\n");
         os_terminate(NULL, 0);
     }
 }
@@ -91,6 +98,7 @@ typedef enum {
 #ifdef CLIENT_INTERFACE
     INTERRUPTED_CLIENT_LIB,
     INTERRUPTED_CLIENT_GENCODE,
+    INTERRUPTED_NATIVE,
 #endif
 } interrupted_location_t;
 
@@ -116,6 +124,7 @@ typedef struct {
 
 typedef struct {
     system_state_t native_state;
+    system_state_t drk_state;
 
     /* State of the pending interrupt. */
     bool pending_interrupt;
@@ -154,6 +163,7 @@ typedef struct {
     fragment_t *syscall_entry_frag;
 } os_thread_data_t;
 
+os_thread_data_t *global_idtr;
 
 #define IDT_ALIGNMENT (proc_get_cache_line_size())
 
@@ -175,6 +185,8 @@ static tls_offset_t tls_local_state_offset;
 static tls_offset_t tls_self_offset;
 static tls_offset_t tls_dcontext_offset;
 
+
+extern byte* array_vector_entry[VECTOR_END];
 
 void
 os_modules_init(void)
@@ -535,11 +547,24 @@ redirect_iret_to_fcache_return(dcontext_t *dcontext,
 #endif
 
 /* TODO(peter): Move this to arch. */
+
+bool
+is_kernel_text(void *pc)
+{
+    unsigned long p = (unsigned long) pc;
+    /* Taken from Documentation/x86/x86_64/mm.txt */
+    return (p >= 0xffffffff80000000 && p < 0xffffffffa0000000);
+}
+
 static void
 emulate_interrupt_arrival(dr_mcontext_t *mcontext, interrupt_vector_t vector,
                           byte *handler, reg_t error_code, reg_t system_xflags,
                           bool frame_if)
 {
+	dcontext_t *dcontext = get_thread_private_dcontext();
+    struct cfi_client_extension *cfi = &(dcontext->client.cfi);
+    struct cfi_client_extension *thread_private_cfi = get_thread_private_client_extension();
+
     interrupt_stack_frame_t *frame;
     reg_t xsp = mcontext->xsp;
     mcontext->xsp = ALIGN_BACKWARD(mcontext->xsp - sizeof(*frame),
@@ -553,7 +578,30 @@ emulate_interrupt_arrival(dr_mcontext_t *mcontext, interrupt_vector_t vector,
     } else {
         frame->error_code = error_code;
     }
-    frame->xip = mcontext->xip;
+
+ /*   if(is_kernel_text(mcontext->xip)){
+       frame->xip = mcontext->xip;
+    } else{
+*/
+        if(!vector_has_error_code(vector))
+        {
+            if(thread_private_cfi->return_stack_size < 8) {
+                //cfi->return_address_stack[cfi->return_stack_size] = mcontext->xip;
+                thread_private_cfi->return_address_stack[thread_private_cfi->return_stack_size] = mcontext->xip;
+                //++cfi->return_stack_size;
+                ++thread_private_cfi->return_stack_size;
+                frame->xip = cfi->iret_handler;
+            }
+            else {
+                frame->xip = mcontext->xip;
+            }
+        }
+        else {
+            frame->xip = mcontext->xip;
+        }
+  //  }
+
+
     frame->cs = get_cs();
     frame->xsp = xsp;
     frame->xflags = mcontext->xflags;
@@ -581,13 +629,14 @@ emulate_interrupt_arrival(dr_mcontext_t *mcontext, interrupt_vector_t vector,
     ASSERT(!is_dynamo_address((byte*) mcontext->xsp));
 }
 
+#if 0
 static void
 handle_user_interrupt(dcontext_t *dcontext, interrupt_context_t *interrupt)
 {
     os_thread_data_t *ostd = (os_thread_data_t *) dcontext->os_field;
     STATS_INC(num_user_interrupts);
     if (!DYNAMO_OPTION(optimize_sys_call_ret)) {
-        ASSERT(dcontext->whereami == WHERE_USERMODE);
+        ASSERT(dcontext->whereami == WHERE_NATIVE);
     }
     ASSERT(!has_pending_interrupt(dcontext));
     ASSERT(is_user_address((byte *)interrupt->frame.xip));
@@ -618,6 +667,7 @@ handle_user_interrupt(dcontext_t *dcontext, interrupt_context_t *interrupt)
     transfer_to_dispatch(dcontext, 0 /* errno */, interrupt->mcontext);
     ASSERT_NOT_REACHED();
 }
+#endif
 
 /* Determines point of interruption. We don't expect to see interrupts or
  * exceptions in kernel code that DR calls (unless it's an NMI or SMI, in which
@@ -627,14 +677,114 @@ static interrupted_location_t
 get_interrupted_location(dcontext_t *dcontext, interrupt_stack_frame_t *frame)
 {
     cache_pc pc = (cache_pc) frame->xip;
+
+    ASSERT(dcontext->whereami != WHERE_NATIVE);
+
     /* Most interrupts will happen here. */
-    if (!was_kernel_interrupted(frame)) {
+    /*if (!was_kernel_interrupted(frame)) {
         if (!DYNAMO_OPTION(optimize_sys_call_ret)) {
-            ASSERT(dcontext->whereami == WHERE_USERMODE);
+            ASSERT(dcontext->whereami == WHERE_NATIVE);
         }
         return INTERRUPTED_USER;
     } else {
-        ASSERT(dcontext->whereami != WHERE_USERMODE);
+        ASSERT(dcontext->whereami != WHERE_NATIVE);
+    }*/
+
+    if (dcontext->whereami == WHERE_FCACHE) {
+        if (in_generated_routine(dcontext, pc)) {
+            return INTERRUPTED_GENCODE;
+        } else if (!is_on_dstack(dcontext, (byte*) frame->xsp)) {
+            /* We aren't on the dstack, so no locks should be held (if we're in
+             * kernel entry gencode, then interrupts are disabled and we
+             * shouldn't trigger exceptions). Hence it's safe to call in_fcache.
+             */
+#ifdef CLIENT_INTERFACE
+            if (in_fcache(pc)) {
+#else
+                ASSERT(in_fcache(pc));
+#endif
+                return INTERRUPTED_FRAGMENT;
+#ifdef CLIENT_INTERFACE
+            } else {
+                ASSERT(is_dynamo_address(frame->xip));
+                return INTERRUPTED_CLIENT_GENCODE;
+            }
+#endif
+        } else {
+            /* At this point, we could be
+             *  - in some DR code that uses exceptions (e.g., TRY..EXCEPT)
+             *  - in a clean call preparation after the stack switch (either
+             *    crashing on a clean call argument or getting an asynchronous
+             *    interrupt before we disable interrupts with the popf). Note
+             *    that we can either be in a fragment or in some client gencode.
+             *  - in a client lib's clean callee (this only happens with
+             *    client-generated exceptions b/c asynchronous interrupts are
+             *    blocked in the clean call preparation)
+             *
+             * Note that the following is impossible
+             *  - in some random kernel code that we call (e.g., memcpy) after
+             *    whereami = WHERE_FCACHE was set in the dispatcher
+             * because we don't do anything that can fault after we set
+             * whereami = WHERE_FCACHE
+             */
+            if (is_in_dynamo_dll(pc)) {
+                //return INTERRUPTED_DYNAMORIO;
+                return INTERRUPTED_GENCODE;
+#ifdef CLIENT_INTERFACE
+            } else if (is_in_client_lib(pc)) {
+                /* clean callee */
+                return INTERRUPTED_CLIENT_LIB;
+#endif
+            } else {
+                /* Could either be in clean call preparation or a crashing clean
+                 * call argument. If we're in the kernel code, then in_fcache
+                 * could deadlock. However, we have interrupts disabled when
+                 * we're in the dispatcher and we can't handle exceptions
+                 * generated by kernel code, so this situation should never
+                 * arise (unless it's an NMI or SMI, in which case we're screwed
+                 * anyways). 
+                 */
+                if (in_fcache(pc)) {
+                    return INTERRUPTED_FRAGMENT;
+                } else {
+                    ASSERT(is_dynamo_address(pc));
+                    return INTERRUPTED_CLIENT_GENCODE;
+                }
+            }
+        }
+    } else { 
+        /* Whenever whereami != WHERE_FCACHE, we should be on the dstack. */
+        ASSERT(is_on_dstack(dcontext, (byte *)frame->xsp));
+        if (in_generated_routine(dcontext, pc)) {
+            /* We run some generated code when whereami != WHERE_FCACHE and not
+             * on the dstack (namely the kernel entry points), but these
+             * routines should not generate exceptions and they run with
+             * interrupts disabled.
+             */
+             ASSERT_NOT_REACHED();
+             return INTERRUPTED_GENCODE;
+#ifdef CLIENT_INTERFACE
+        } else if (is_in_client_lib(pc)) {
+            return INTERRUPTED_CLIENT_LIB;
+#endif
+        } else {
+            /* If we're in kernel code called by DynamoRIO, then we're screwed
+             * because interrupts should be disabled and we don't know how to
+             * handle the kernel's exceptions.
+             */
+            ASSERT(is_in_dynamo_dll(pc));
+            return INTERRUPTED_DYNAMORIO; 
+        }
+    }
+}
+
+static interrupted_location_t 
+get_interrupted_location_temp(dcontext_t *dcontext, interrupt_stack_frame_t *frame)
+{
+    cache_pc pc = (cache_pc) frame->xip;
+    /* Most interrupts will happen here. */
+    if (!was_kernel_interrupted(frame)) {
+        return INTERRUPTED_USER;
     }
 
     if (dcontext->whereami == WHERE_FCACHE) {
@@ -699,8 +849,7 @@ get_interrupted_location(dcontext_t *dcontext, interrupt_stack_frame_t *frame)
             }
         }
     } else { 
-        /* Whenever whereami != WHERE_FCACHE, we should be on the dstack. */
-        ASSERT(is_on_dstack(dcontext, (byte *)frame->xsp));
+        /* Whenever whereami != WHERE_FCACHE, we should be either on the dstack or in the kernel code */
         if (in_generated_routine(dcontext, pc)) {
             /* We run some generated code when whereami != WHERE_FCACHE and not
              * on the dstack (namely the kernel entry points), but these
@@ -714,12 +863,7 @@ get_interrupted_location(dcontext_t *dcontext, interrupt_stack_frame_t *frame)
             return INTERRUPTED_CLIENT_LIB;
 #endif
         } else {
-            /* If we're in kernel code called by DynamoRIO, then we're screwed
-             * because interrupts should be disabled and we don't know how to
-             * handle the kernel's exceptions.
-             */
-            ASSERT(is_in_dynamo_dll(pc));
-            return INTERRUPTED_DYNAMORIO; 
+	    return INTERRUPTED_NATIVE;
         }
     }
 }
@@ -806,6 +950,7 @@ patch_fragment(dcontext_t *dcontext, os_thread_data_t *ostd, byte *patch_pc,
 void
 receive_pending_interrupt(dcontext_t *dcontext)
 {
+    struct cfi_client_extension *cfi = &(dcontext->client.cfi);
     os_thread_data_t *ostd = (os_thread_data_t *) dcontext->os_field;
     ASSERT(ostd->pending_interrupt);
     ostd->pending_interrupt = false;
@@ -834,6 +979,10 @@ receive_pending_interrupt(dcontext_t *dcontext)
     } else {
         get_mcontext(dcontext)->xip = dcontext->next_tag;
     }
+
+    set_last_exit(dcontext,
+                  (linkstub_t *) get_kernel_interrupt_entry_linkstub());
+
     dcontext->next_tag =
         ostd->native_state.vector_target[ostd->interrupt_vector];
     /* receive_pending_interrupt should only be called from the dispatcher, so
@@ -886,6 +1035,17 @@ is_loop_opc(uint opc)
 }
 
 static void
+break_on_recreate_delay_until_pc()
+{
+
+}
+
+static void
+break_on_recreate_delay_until_dispatch()
+{
+
+}
+static void
 handle_fragment_interrupt(dcontext_t *dcontext, interrupt_context_t *interrupt)
 {
     dr_mcontext_t mcontext;
@@ -923,12 +1083,14 @@ handle_fragment_interrupt(dcontext_t *dcontext, interrupt_context_t *interrupt)
         ASSERT(!is_user_address((byte*) mcontext.xsp));
 
         record_pending_interrupt(dcontext, interrupt, NULL, false);
+
         dcontext->next_tag = mcontext.xip;
         set_last_exit(dcontext,
                       (linkstub_t *) get_kernel_interrupt_entry_linkstub());
         STATS_INC(num_ndelayed_frag_intr);
         transfer_to_dispatch(dcontext, 0, &mcontext);
     } else if (res == RECREATE_DELAY_UNTIL_DISPATCH) {
+    	break_on_recreate_delay_until_dispatch();
         /* Switch from kernel_interrupt_handling */
         KSWITCH(kernel_interrupt_frag_delay_dispatch);
         /* TODO(peter): This could happen on an exception in an indirect jump or
@@ -944,6 +1106,7 @@ handle_fragment_interrupt(dcontext_t *dcontext, interrupt_context_t *interrupt)
         record_pending_interrupt(dcontext, interrupt, NULL, true);
         STATS_INC(num_delayed_frag_intr);
     } else if (res == RECREATE_DELAY_UNTIL_PC) {
+    	break_on_recreate_delay_until_pc();
         KSWITCH(kernel_interrupt_frag_delay_pc);
         ASSERT(!vector_is_synchronous(interrupt->vector));
         ASSERT(!vector_has_error_code(interrupt->vector));
@@ -996,7 +1159,83 @@ handle_ibl_interrupt(dcontext_t *dcontext, interrupt_context_t *interrupt)
     STATS_INC(num_ibl_interrupts);
 }
 
+#if 1
+static void
+handle_fcache_enter_interrupt(dcontext_t *dcontext,
+                              interrupt_context_t *interrupt)
+{
+    record_pending_interrupt(dcontext, interrupt, NULL, true);
+    KSWITCH(kernel_interrupt_fcache_enter);
+    set_last_exit(dcontext,
+                  (linkstub_t*) get_kernel_interrupt_entry_linkstub());
+    /* Even if we're on the dstack, switching stacks shouldn't be problematic
+     * because we don't use any data on the present stack after we switch
+     * stacks. If we're on the dstack, we don't want to call dispatch directly
+     * because we could overflow the dstack if we kept getting interrupted in
+     * fcache_enter.
+     */
+    dcontext->next_tag = dcontext->next_app_tag;
 
+  /*  if(is_kernel_text(dcontext->next_tag)){
+        dcontext->is_general_fault = true;
+    }
+*/
+    ASSERT(!is_dynamo_address(dcontext->next_tag));
+    ASSERT(is_kernel_code(dcontext->next_tag));
+    STATS_INC(num_fcache_enter_interrupts);
+    transfer_to_dispatch(dcontext, 0, get_mcontext(dcontext));
+}
+#else
+/**
+ * if the fcache is interrupted, then we end up returning to the interrupted
+ * context (without an iret,
+ */
+static void
+handle_fcache_enter_interrupt(
+    dcontext_t *dcontext,
+    interrupt_context_t *interrupt
+) {
+
+    struct cfi_client_extension *cfi = &(dcontext->client.cfi);
+    struct cfi_client_extension *thread_private_cfi = get_thread_private_client_extension();
+
+    /* get the os_field structure*/
+    os_thread_data_t *ostd = (os_thread_data_t *) dcontext->os_field;
+
+    // copy the raw interrupt frame, adjusting to the native stack, and making
+    // it so that when the interrupt returns, it returns using the cfi stack
+    // (by means of CFI's return from function)
+    cfi->pending = *(interrupt->raw_frame);
+    cfi->pending.xsp = get_mcontext(dcontext)->xsp;
+    cfi->pending.xip = (byte *) cfi->iret_handler;
+
+    // add the next tag to the return address stack
+    thread_private_cfi->return_address_stack[thread_private_cfi->return_stack_size] = dcontext->next_app_tag;
+    ++thread_private_cfi->return_stack_size;
+    cfi->exit_address = ostd->native_state.vector_target[interrupt->vector];    //array_vector_entry[interrupt->vector];
+
+    //dcontext->next_app_tag = cfi->exit_address;
+    dcontext->whereami = WHERE_NATIVE;
+    dcontext->is_drk_running = false;
+
+    // redirect fcache enter to something that will imitate the push of the
+    // interrupt stack frame
+    if(vector_has_error_code(interrupt->vector)) {
+        dcontext->next_tag = (app_pc) receive_unmaskable_interrupt_routine(dcontext);
+    } else {
+        dcontext->next_tag = (app_pc) receive_maskable_interrupt_routine(dcontext);
+    }
+
+    // force this to be the next tag, just in case we're interrupted
+    // after setting this (in the fcache_enter gencode)
+    set_tls(
+        os_tls_offset(FCACHE_ENTER_TARGET_SLOT),
+        (void *) dcontext->next_tag
+    );
+}
+
+#endif
+#if 0
 static void
 handle_fcache_enter_interrupt(dcontext_t *dcontext,
                               interrupt_context_t *interrupt)
@@ -1017,6 +1256,7 @@ handle_fcache_enter_interrupt(dcontext_t *dcontext,
     STATS_INC(num_fcache_enter_interrupts);
     transfer_to_dispatch(dcontext, 0, get_mcontext(dcontext));
 }
+#endif
 
 static void
 handle_fcache_return_interrupt(dcontext_t *dcontext,
@@ -1038,11 +1278,24 @@ handle_fcache_return_interrupt(dcontext_t *dcontext,
      */
 }
 
+void (*handler)(void);
 
+#if 0
 static void
+handle_native_interrupt(dcontext_t *dcontext, interrupt_context_t *interrupt)
+{
+
+}
+#endif
+
+void handle_unknown_interrupt(void) { }
+void interrupt_return_curiosity(void) { }
+void non_maskable_interrupt(dcontext_t *dcontext, interrupt_context_t *interrupt) { }
+
+static int
 handle_kernel_interrupt(dcontext_t *dcontext, interrupt_context_t *interrupt)
 {
-    ASSERT(dcontext->whereami != WHERE_USERMODE);
+    ASSERT(dcontext->whereami != WHERE_NATIVE);
 #ifdef STACK_GUARD_PAGE
     if (interrupt->vector == VECTOR_PAGE_FAULT &&
         is_stack_overflow(dcontext, (byte *)get_cr2())) {
@@ -1057,6 +1310,10 @@ handle_kernel_interrupt(dcontext_t *dcontext, interrupt_context_t *interrupt)
 
     ASSERT(interrupt->frame.cs == get_cs());
 
+    if(vector_has_error_code(interrupt->vector)) {
+        non_maskable_interrupt(dcontext, interrupt);
+    }
+
     switch (interrupt->location) {
     case INTERRUPTED_FRAGMENT:
         handle_fragment_interrupt(dcontext, interrupt);
@@ -1067,9 +1324,11 @@ handle_kernel_interrupt(dcontext_t *dcontext, interrupt_context_t *interrupt)
             handle_ibl_interrupt(dcontext, interrupt);
         } else if (in_fcache_enter_code(dcontext, interrupt->frame.xip)) {
             handle_fcache_enter_interrupt(dcontext, interrupt);
+            goto handled_interrupt;
         } else if (in_fcache_return_code(dcontext, interrupt->frame.xip)) {
-            handle_fcache_return_interrupt(dcontext, interrupt);
+           handle_fcache_return_interrupt(dcontext, interrupt);
         } else {
+            handle_unknown_interrupt();
             /* We don't expect interrupts for any other gencode. */
             /* TODO(peter): in_indirect_branch_lookup_code returns false for the
              * unlinked_ibl_entry in ibl_code_t. It might also return false for
@@ -1082,6 +1341,7 @@ handle_kernel_interrupt(dcontext_t *dcontext, interrupt_context_t *interrupt)
         }
         break;
     case INTERRUPTED_DYNAMORIO:
+        handle_unknown_interrupt();
         /* We don't expect interrupts in DR because we run with IF = 0. 
          * TODO(peter): implement TRY/EXCEPT. */
         ASSERT_NOT_REACHED();
@@ -1093,13 +1353,27 @@ handle_kernel_interrupt(dcontext_t *dcontext, interrupt_context_t *interrupt)
         /* The client should have handled this interrupt and either suppressed
          * it or replaced interrupt.frame.xip with a fragment code cache address suitable
          * for delaying the interrupt. */
+        handle_unknown_interrupt();
         ASSERT_NOT_REACHED();
         os_terminate(dcontext, TERMINATE_PROCESS);
         break;
 #endif
+
+    //case INTERRUPTED_NATIVE:
+    //	handle_native_interrupt(dcontext, interrupt);
+
     default:
+        handle_unknown_interrupt();
         os_terminate(dcontext, TERMINATE_PROCESS);
+        break;
     }
+
+    interrupt_return_curiosity();
+
+    return 1;
+
+handled_interrupt:
+    return 0;
 }
 
 static void
@@ -1121,6 +1395,78 @@ send_interrupt_to_client(dcontext_t *dcontext, interrupt_context_t *interrupt)
 }
 #endif
 
+void (*handler)(void);
+dcontext_t* get_thread_private_dcontext_temp(void);
+
+void*
+get_kernel_vector_entry(interrupt_vector_t vector)
+{
+    dcontext_t *dcontext;
+    os_thread_data_t *ostd;
+    bool local;
+    dcontext = get_thread_private_dcontext();
+    ASSERT(dcontext != NULL);
+    ostd = (os_thread_data_t *) dcontext->os_field;
+    local = local_heap_protected(dcontext);
+    if (local)
+        SELF_PROTECT_LOCAL(dcontext, WRITABLE);
+  //  dcontext->next_tag = ostd->native_state.vector_target[vector];
+
+    if (local)
+        SELF_PROTECT_LOCAL(dcontext, READONLY);
+
+    return (void*)dcontext;
+
+}
+
+#if 0
+static void
+handle_interrupt_temp(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
+						interrupt_vector_t vector)
+{
+    dcontext_t *dcontext;
+    os_thread_data_t *ostd;
+    bool local;
+    interrupt_context_t interrupt;
+    STATS_INC(num_interrupts);
+
+#ifdef DEBUG
+    /* Sanity check for interrupt stack frame. */
+    ASSERT(!TEST(EFLAGS_IF, mcontext->xflags));
+    ASSERT(mcontext->pc == 0);
+#endif
+
+    dcontext = get_thread_private_dcontext();
+    ASSERT(dcontext != NULL);
+    ostd = (os_thread_data_t *) dcontext->os_field;
+    ASSERT(ostd != NULL);
+    
+    ENTERING_DR();
+    local = local_heap_protected(dcontext);
+    if (local)
+        SELF_PROTECT_LOCAL(dcontext, WRITABLE);
+
+    interrupt.mcontext = mcontext;
+    interrupt.frame = *frame;
+    interrupt.raw_frame = frame;
+    interrupt.vector = vector;
+
+    interrupt.location = get_interrupted_location_temp(dcontext, &interrupt.frame);
+
+    if ((interrupt.location != INTERRUPTED_USER)||(interrupt.location != INTERRUPTED_NATIVE)) {
+
+
+//            handle_kernel_interrupt(dcontext, &interrupt);
+  //          ASSERT_NOT_REACHED();
+    }
+
+    if (local)
+        SELF_PROTECT_LOCAL(dcontext, READONLY);
+    EXITING_DR();
+    
+
+}
+/*
 static void
 handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
                  interrupt_vector_t vector)
@@ -1129,15 +1475,561 @@ handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
     os_thread_data_t *ostd;
     bool local;
     interrupt_context_t interrupt;
+    fcache_enter_func_t go_native;
+
+    dcontext = get_thread_private_dcontext();
+    ASSERT(dcontext != NULL);
+    ostd = (os_thread_data_t *) dcontext->os_field;
+
+    ENTERING_DR();
+    local = local_heap_protected(dcontext);
+    if (local)
+        SELF_PROTECT_LOCAL(dcontext, WRITABLE);
+
+    interrupt.mcontext = mcontext;
+    interrupt.frame = *frame;
+    interrupt.raw_frame = frame;
+    interrupt.vector = vector;
+
+    interrupt.mcontext->pc =
+        ostd->native_state.vector_target[interrupt.vector];
+    dcontext->next_tag = interrupt.mcontext->pc;
+    handler = dcontext->next_tag;
+    if (local)
+        SELF_PROTECT_LOCAL(dcontext, READONLY);
+    EXITING_DR();
+}
+*/
+#endif
+
+void exception_handler()
+{
+
+}
+
+void returning_to_gencode()
+{
+
+}
+
+
+#define MODULE_START_ADDR 	0xffffffffa0000000
+#define MODULE_END_ADDR 	0xffffffffc0000000
+#define MODULE_SHADOW_END 	0xffffffffe0000000
+#define MODULE_SHADOW_END_EXTENDED 	0xffffffffff000000
+#define MODULE_SHADOW_START MODULE_END_ADDR
+
+static
+int handle_pagefault_interrupt(dcontext_t* dcontext, interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext)
+{
+	int ret = 0;
+	bool local;
+	if((frame->xip < MODULE_START_ADDR) || (frame->xip >= MODULE_END_ADDR))
+	{
+		return ret;
+	}
+
+    ENTERING_DR();
+    local = local_heap_protected(dcontext);
+    if (local)
+        SELF_PROTECT_LOCAL(dcontext, WRITABLE);
+
+    mcontext->xip = frame->xip;
+    dcontext->next_tag = frame->xip;
+    dcontext->next_app_tag = frame->xip;
+    mcontext->xsp = frame->xsp;
+    mcontext->xflags = frame->xflags;
+
+    transfer_to_dispatch(dcontext, 0, mcontext);
+    ASSERT_NOT_REACHED();
+
+    if (local)
+        SELF_PROTECT_LOCAL(dcontext, READONLY);
+    EXITING_DR();
+
+    return ret;
+
+}
+
+#define KERNEL_ADDRESS_OFFSET		0xffff000000000000
+#define WATCHPOINT_ADDRESS_MASK     0x8000800000000000
+#define IS_WATCHPOINT               0x800000000000
+
+reg_t is_watchpoint_address(reg_t addr){
+    if(((uint64_t)addr & WATCHPOINT_ADDRESS_MASK) == IS_WATCHPOINT)
+        return (reg_t)((uint64_t)addr | KERNEL_ADDRESS_OFFSET);
+    else
+        return addr;
+}
+
+#define SPILL_SLOT_1    1
+
+//*********************************************************************************************
+
+struct memory_operand_modifier {
+    bool has_memory_operand;
+    bool has_source_memory_operand;
+    bool has_dest_memory_operand;
+    bool has_src_seg;
+    bool has_dsts_seg;
+    uint32_t src_size;
+    uint32_t dsts_size;
+    opnd_t found_operand;
+    opnd_t replacement_operand;
+};
+
+typedef void (opnd_callback_t)(instr_t *, opnd_t *, bool is_source,  void *state);
+
+static inline reg_id_t reg_to_reg64(reg_id_t reg) {
+    if(reg < DR_REG_SPL) {
+        while(reg >= DR_REG_EAX) {
+            reg -= (DR_REG_EAX - 1);
+        }
+        return reg;
+    }
+    return DR_REG_NULL;
+}
+
+static void
+memory_src_operand_finder(instr_t *in, opnd_t *opnd, bool is_source, struct memory_operand_modifier *mod) {
+
+        if(BASE_DISP_kind == opnd->kind){
+            if(opnd->value.base_disp.base_reg && !reg_to_reg64(opnd->value.base_disp.base_reg)) {
+                return;
+            }
+            if(opnd->value.base_disp.index_reg && !reg_to_reg64(opnd->value.base_disp.index_reg)) {
+                return;
+            }
+            mod->has_source_memory_operand = true;
+            mod->has_memory_operand = true;
+            mod->found_operand = *opnd;
+        }
+        if(!opnd->seg.segment) {
+            mod->has_src_seg = 1;
+        }
+        mod->src_size = opnd->size;
+        (void) in;
+}
+
+static void
+memory_dsts_operand_finder(instr_t *in, opnd_t *opnd, bool is_source, struct memory_operand_modifier *mod) {
+        if(BASE_DISP_kind == opnd->kind){
+            if(opnd->value.base_disp.base_reg && !reg_to_reg64(opnd->value.base_disp.base_reg)) {
+                return;
+            }
+            if(opnd->value.base_disp.index_reg && !reg_to_reg64(opnd->value.base_disp.index_reg)) {
+                return;
+            }
+            mod->has_dest_memory_operand = true;
+            mod->has_memory_operand = true;
+            mod->found_operand = *opnd;
+        }
+        if(opnd->seg.segment) {
+            mod->has_dsts_seg = 1;
+        }
+        mod->dsts_size = opnd->size;
+        (void) in;
+}
+
+
+static
+void for_each_dsts_operand(instr_t *in, void *state, opnd_callback_t *callback) {
+    int i = 0, max = in->num_dsts;
+    for(; i < max; ++i) {
+        callback(in, &(in->dsts[i]), false, state);
+    }
+}
+
+static
+void for_each_src_operand(instr_t *in, void *state, opnd_callback_t *callback) {
+    int i = 0, max = in->num_srcs - 1;
+    if(in->num_srcs) {
+        callback(in, &(in->src0), true, state);
+        for(i = 0; i < max; ++i) {
+            callback(in, &(in->srcs[i]), true, state);
+        }
+    }
+}
+
+//*********************************************************************************************
+
+noinline void
+general_fault_on_granary_code(void* addr){
+
+}
+
+noinline void
+general_fault_on_new_pc(unsigned long count, void* addr)
+{
+
+}
+
+noinline void
+gp_fix_reg(unsigned long count, void* addr)
+{
+
+}
+
+noinline void
+general_fault_on_rep_stos(unsigned long count, void* addr)
+{
+
+}
+
+noinline void
+general_fault_on_xadd(unsigned long count, void* addr)
+{
+
+}
+
+noinline void
+break_on_address(void* addr)
+{
+
+}
+
+noinline void
+fault_instr_mov_st(unsigned long count, void *addr){
+
+}
+
+noinline void
+gp_fault_no_mem_op(void *addr){
+
+}
+
+noinline void
+gp_unknown_reg(instr_t *instr){
+
+}
+static
+int
+handle_general_fault_handler(dcontext_t* drcontext, interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext)
+{
+    dcontext_t *dcontext;
+    int ret = 0;
+    bool local;
+  //  instr_t *instr;
+
+    if((frame->xip > MODULE_START_ADDR) && (frame->xip <= MODULE_END_ADDR))
+    {
+        general_fault_on_granary_code(frame->xip);
+    }
+
+
+    dcontext = get_thread_private_dcontext();
+    ENTERING_DR();
+    local = local_heap_protected(dcontext);
+    if (local)
+        SELF_PROTECT_LOCAL(dcontext, WRITABLE);
+
+
+
+#if 0
+    if(dcontext->gp_instr == NULL)
+        dcontext->gp_instr = instr_create(dcontext);
+    else
+        instr_reset(dcontext, dcontext->gp_instr);
+
+
+    decode(dcontext, frame->xip, dcontext->gp_instr);
+
+    instr = dcontext->gp_instr;
+#endif
+
+   /* if(instr->opcode == OP_mov_ld ||
+            instr->opcode == OP_mov_st||
+            instr->opcode == OP_cmp ||
+            instr->opcode == OP_inc ||
+            instr->opcode == OP_test ||
+            instr->opcode == OP_movzx){
+*/
+        if(dcontext->gp_pc != frame->xip) {
+            if(dcontext->count >= 1){
+                general_fault_on_new_pc(dcontext->count, frame->xip);
+            }
+            dcontext->count += 1;
+        }
+
+        //instr_destroy(dcontext, instr);
+
+        /*if((dcontext->count < 400) && (frame->xip != 0xffffffff81036284)
+    			&& (frame->xip != 0xffffffff81036249)
+    			&& (frame->xip != 0xffffffff8150ffd8)
+    			&& (frame->xip != 0xffffffff815101f6)
+    			&& (frame->xip != 0xffffffff810eb352)
+    			&& (frame->xip != 0xffffffff810eb33e)
+    			&& (frame->xip != 0xffffffff81278fb5)
+    			&& (frame->xip != 0xffffffff8113a2b5)
+    			&& (frame->xip != 0xffffffff81278f7c))*/{
+
+    			    mcontext->xip = frame->xip;
+    			    dcontext->next_tag = frame->xip;
+    			    dcontext->next_app_tag = frame->xip;
+    			    mcontext->xsp = frame->xsp;
+
+    			    dcontext->gp_xflags = frame->xflags;
+    			    mcontext->xflags = (frame->xflags /*& ~(EFLAGS_IF)*/) ;
+
+    			    if(frame->xip == 0xffffffff8114cb6e){
+    			        break_on_address(frame->xip);
+    			    }
+
+    			    //set_thread_private_slot(SPILL_SLOT_2, 1);
+    			    dcontext->gp_pc = frame->xip;
+    			    dcontext->is_general_fault = true;
+
+    			    transfer_to_dispatch(dcontext, 0, mcontext);
+    			    ASSERT_NOT_REACHED();
+    			}
+
+ /*   } else if(instr->opcode == OP_rep_stos ||
+            instr->opcode == OP_rep_movs){
+
+        if(dcontext->gp_pc != frame->xip) {
+            if(dcontext->count >= 1){
+                general_fault_on_rep_stos(dcontext->count, frame->xip);
+            }
+            dcontext->count += 1;
+        }
+        mcontext->xip = frame->xip;
+        dcontext->next_tag = frame->xip;
+        dcontext->next_app_tag = frame->xip;
+        mcontext->xsp = frame->xsp;
+
+        dcontext->gp_xflags = frame->xflags;
+        mcontext->xflags = (frame->xflags *//*& ~(EFLAGS_IF)*//*) ;
+
+        dcontext->gp_pc = frame->xip;
+        dcontext->is_general_fault = true;
+
+        transfer_to_dispatch(dcontext, 0, mcontext);
+        ASSERT_NOT_REACHED();
+
+    }else if(instr->opcode == OP_xadd){
+
+        if(dcontext->gp_pc != frame->xip) {
+            if(dcontext->count >= 1){
+                general_fault_on_xadd(dcontext->count, frame->xip);
+            }
+            dcontext->count += 1;
+        }
+        mcontext->xip = frame->xip;
+        dcontext->next_tag = frame->xip;
+        dcontext->next_app_tag = frame->xip;
+        mcontext->xsp = frame->xsp;
+
+        dcontext->gp_xflags = frame->xflags;
+        mcontext->xflags = (frame->xflags ) ;
+
+        dcontext->gp_pc = frame->xip;
+        dcontext->is_general_fault = true;
+
+        transfer_to_dispatch(dcontext, 0, mcontext);
+        ASSERT_NOT_REACHED();
+ //       mcontext->rax = is_watchpoint_address(mcontext->rax);
+ //       mcontext->rbx = is_watchpoint_address(mcontext->rbx);
+ //       mcontext->rcx = is_watchpoint_address(mcontext->rcx);
+ //       mcontext->rdx = is_watchpoint_address(mcontext->rdx);
+ //       mcontext->rdi = is_watchpoint_address(mcontext->rdi);
+  //      mcontext->rsi = is_watchpoint_address(mcontext->rsi);
+ //       mcontext->r8 = is_watchpoint_address(mcontext->r8);
+ //       mcontext->r9 = is_watchpoint_address(mcontext->r9);
+ //       mcontext->r10 = is_watchpoint_address(mcontext->r10);
+ //       mcontext->r11 = is_watchpoint_address(mcontext->r11);
+ //       mcontext->r12 = is_watchpoint_address(mcontext->r12);
+ //       mcontext->r13 = is_watchpoint_address(mcontext->r13);
+ //       mcontext->r14 = is_watchpoint_address(mcontext->r14);
+ //       mcontext->r15 = is_watchpoint_address(mcontext->r15);
+
+    }else  {
+        reg_id_t instr_reg;
+        opnd_t fault_addr_opnd;
+        struct memory_operand_modifier ops = {0};
+        memset(&ops, 0, sizeof(struct memory_operand_modifier));
+
+        if(dcontext->gp_pc != frame->xip) {
+            if(dcontext->count >= 1){
+                gp_fix_reg(dcontext->count, frame->xip);
+            }
+            dcontext->count += 1;
+        }
+
+        if(instr_writes_memory(instr)){
+            for_each_dsts_operand(instr, &ops, (opnd_callback_t *) memory_dsts_operand_finder);
+            fault_addr_opnd = ops.found_operand;
+            instr_reg = opnd_get_base(ops.found_operand);
+
+            switch(instr_reg){
+            case DR_REG_RAX:
+                mcontext->rax = is_watchpoint_address(mcontext->rax);
+                break;
+            case DR_REG_RBX:
+                mcontext->rbx = is_watchpoint_address(mcontext->rbx);
+                break;
+            case DR_REG_RCX:
+                mcontext->rcx = is_watchpoint_address(mcontext->rcx);
+                break;
+            case DR_REG_RDX:
+                mcontext->rdx = is_watchpoint_address(mcontext->rdx);
+                break;
+            case DR_REG_RDI:
+                mcontext->rdi = is_watchpoint_address(mcontext->rdi);
+                break;
+            case DR_REG_RSI:
+                mcontext->rsi = is_watchpoint_address(mcontext->rsi);
+                break;
+            case DR_REG_R8:
+                mcontext->r8 = is_watchpoint_address(mcontext->r8);
+                break;
+            case DR_REG_R9:
+                mcontext->r9 = is_watchpoint_address(mcontext->r9);
+                break;
+            case DR_REG_R10:
+                mcontext->r10 = is_watchpoint_address(mcontext->r10);
+                break;
+            case DR_REG_R11:
+                mcontext->r11 = is_watchpoint_address(mcontext->r11);
+                break;
+            case DR_REG_R12:
+                mcontext->r12 = is_watchpoint_address(mcontext->r12);
+                break;
+            case DR_REG_R13:
+                mcontext->r13 = is_watchpoint_address(mcontext->r13);
+                break;
+            case DR_REG_R14:
+                mcontext->r14 = is_watchpoint_address(mcontext->r14);
+                break;
+            case DR_REG_R15:
+                mcontext->r15 = is_watchpoint_address(mcontext->r15);
+                break;
+            default:
+                gp_unknown_reg(instr);
+                break;
+
+            }
+
+        } else if(instr_reads_memory(instr)){
+            for_each_src_operand(instr, &ops, (opnd_callback_t *) memory_src_operand_finder);
+            fault_addr_opnd = ops.found_operand;
+            instr_reg = opnd_get_base(ops.found_operand);
+            switch(instr_reg){
+            case DR_REG_RAX:
+                mcontext->rax = is_watchpoint_address(mcontext->rax);
+                break;
+            case DR_REG_RBX:
+                mcontext->rbx = is_watchpoint_address(mcontext->rbx);
+                break;
+            case DR_REG_RCX:
+                mcontext->rcx = is_watchpoint_address(mcontext->rcx);
+                break;
+            case DR_REG_RDX:
+                mcontext->rdx = is_watchpoint_address(mcontext->rdx);
+                break;
+            case DR_REG_RDI:
+                mcontext->rdi = is_watchpoint_address(mcontext->rdi);
+                break;
+            case DR_REG_RSI:
+                mcontext->rsi = is_watchpoint_address(mcontext->rsi);
+                break;
+            case DR_REG_R8:
+                mcontext->r8 = is_watchpoint_address(mcontext->r8);
+                break;
+            case DR_REG_R9:
+                mcontext->r9 = is_watchpoint_address(mcontext->r9);
+                break;
+            case DR_REG_R10:
+                mcontext->r10 = is_watchpoint_address(mcontext->r10);
+                break;
+            case DR_REG_R11:
+                mcontext->r11 = is_watchpoint_address(mcontext->r11);
+                break;
+            case DR_REG_R12:
+                mcontext->r12 = is_watchpoint_address(mcontext->r12);
+                break;
+            case DR_REG_R13:
+                mcontext->r13 = is_watchpoint_address(mcontext->r13);
+                break;
+            case DR_REG_R14:
+                mcontext->r14 = is_watchpoint_address(mcontext->r14);
+                break;
+            case DR_REG_R15:
+                mcontext->r15 = is_watchpoint_address(mcontext->r15);
+                break;
+            default:
+                gp_unknown_reg(instr);
+                break;
+            }
+        } else {
+            gp_fault_no_mem_op(frame->xip);
+        }
+*/
+        //instr_destroy(dcontext, instr);
+  /*      mcontext->rax = is_watchpoint_address(mcontext->rax);
+        mcontext->rbx = is_watchpoint_address(mcontext->rbx);
+        mcontext->rcx = is_watchpoint_address(mcontext->rcx);
+        mcontext->rdx = is_watchpoint_address(mcontext->rdx);
+        mcontext->rdi = is_watchpoint_address(mcontext->rdi);
+        mcontext->rsi = is_watchpoint_address(mcontext->rsi);
+        mcontext->r8 = is_watchpoint_address(mcontext->r8);
+        mcontext->r9 = is_watchpoint_address(mcontext->r9);
+        mcontext->r10 = is_watchpoint_address(mcontext->r10);
+        mcontext->r11 = is_watchpoint_address(mcontext->r11);
+        mcontext->r12 = is_watchpoint_address(mcontext->r12);
+        mcontext->r13 = is_watchpoint_address(mcontext->r13);
+        mcontext->r14 = is_watchpoint_address(mcontext->r14);
+        mcontext->r15 = is_watchpoint_address(mcontext->r15);
+*/
+  //  }
+
+    if (local)
+        SELF_PROTECT_LOCAL(dcontext, READONLY);
+    EXITING_DR();
+
+    return ret;
+}
+
+noinline int
+break_on_pagefault(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext)
+{
+
+}
+
+static int
+handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
+                 interrupt_vector_t vector)
+
+{
+    dcontext_t *dcontext;
+    os_thread_data_t *ostd;
+    bool local;
+    interrupt_context_t interrupt;
+    int ret = 1;
+
     STATS_INC(num_interrupts);
+
+    if(vector == VECTOR_PAGE_FAULT)
+     {
+        break_on_pagefault(frame, mcontext);
+    	/*if (frame->xip >= 0xffffffffa0000000)
+    	{
+    		//pagefault_handler(frame->xip);
+    	}
+     	return 2;*/
+     }
 
     if (vector == VECTOR_NMI) {
         nmi_handler();
     }
 
+    if(vector < VECTOR_EXCEPTION_END)
+    {
+        exception_handler();
+    }
+
 #ifdef DEBUG
     /* Sanity check for interrupt stack frame. */
-    ASSERT(!TEST(EFLAGS_IF, mcontext->xflags));
+   /* ASSERT(!TEST(EFLAGS_IF, mcontext->xflags));
     ASSERT(mcontext->pc == 0);
     if (vector_has_error_code(vector)) {
         ASSERT(frame->error_code != MAGIC_FAKE_ERROR);
@@ -1146,7 +2038,7 @@ handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
     }
     ASSERT(mcontext->rsp == (reg_t) &frame->error_code);
     ASSERT(mcontext->rsp - 2 * sizeof(reg_t) == (reg_t) &mcontext->pc);
-    ASSERT(ALIGNED(mcontext->rsp,  INTERRUPT_STACK_FRAME_ALIGNMENT));
+    ASSERT(ALIGNED(mcontext->rsp,  INTERRUPT_STACK_FRAME_ALIGNMENT));*/
 #endif
 
     dcontext = get_thread_private_dcontext();
@@ -1168,8 +2060,8 @@ handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
 #endif
 
     LOG(THREAD, LOG_ASYNCH, 2,
-        "Interrupt: vector = %d, xip = %p, xsp = %p, location = %d\n",
-        vector, frame->xip, frame->xsp, interrupt.location);
+        "Interrupt: vector = %d, xip = %p, location = %d\n",
+        vector, frame->xip, interrupt.location);
 
     interrupt.mcontext = mcontext;
     interrupt.frame = *frame;
@@ -1189,7 +2081,7 @@ handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
 #endif
 #ifdef DEBUG
         DOKSTATS({
-            kstat_stack_t *ks = &dcontext->thread_kstats->stack_kstats; 
+            kstat_stack_t *ks = &dcontext->thread_kstats->stack_kstats;
             kstat_variable_t *var = ks->node[ks->depth - 1].var;
             kstat_variables_t *vars = &dcontext->thread_kstats->vars_kstats;
             /* Have to be in fcache (fcache_default or fcache_trace_trace) or in
@@ -1200,7 +2092,7 @@ handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
              * pending. By design, no native exceptions will be triggered (b/c
              * their handlers might inspect the pending interrupt), but
              * exceptions that DR causes can still fire.
-             */
+             */returning_to_gencode
             ASSERT(var == &vars->delaying_patched_interrupt ||
                    var == &vars->fcache_default ||
                    var == &vars->fcache_trace_trace ||
@@ -1208,7 +2100,7 @@ handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
         });
 #endif
         /* This could be in usermode, fcache_default, or fcache_trace_trace. */
-        KSTOP_NOT_MATCHING_NOT_PROPAGATED(usermode);
+        //KSTOP_NOT_MATCHING_NOT_PROPAGATED(usermode);
         /* We KSWITCH later in this function if we're handling a user interrupt.
          * */
         KSTART(kernel_interrupt_handling);
@@ -1216,18 +2108,17 @@ handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
         ASSERT(!has_pending_interrupt(dcontext));
         interrupt.location = get_interrupted_location(dcontext,
                                                       &interrupt.frame);
-    
+
+
 #if 0
         ASSERT(ostd->num_patches == 0 ||
                interrupt.location == INTERRUPTED_FRAGMENT);
 #endif
-    
+
         if (interrupt.location == INTERRUPTED_USER) {
-            KSWITCH(user_interrupt_handling);
-            handle_user_interrupt(dcontext, &interrupt);
             ASSERT_NOT_REACHED();
         } else {
-            handle_kernel_interrupt(dcontext, &interrupt);
+            ret = handle_kernel_interrupt(dcontext, &interrupt);
             if (ostd->num_patches > 0) {
                 KSWITCH(delaying_patched_interrupt);
             }
@@ -1237,10 +2128,23 @@ handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
 #ifdef CLIENT_INTERFACE
     }
 #endif
-
     if (local)
         SELF_PROTECT_LOCAL(dcontext, READONLY);
     EXITING_DR();
+
+    return ret;
+}
+
+pagefault_handler_t
+os_get_pagefault_handler(interrupt_vector_t vector)
+{
+    return handle_pagefault_interrupt;
+}
+
+pagefault_handler_t
+os_get_generalfault_handler(interrupt_vector_t vector)
+{
+    return handle_general_fault_handler;
 }
 
 interrupt_handler_t
@@ -1248,7 +2152,7 @@ os_get_interrupt_handler(interrupt_vector_t vector)
 {
     return handle_interrupt;
 }
-
+/*
 static void
 optimize_syscall_entry(dcontext_t *dcontext)
 {
@@ -1261,7 +2165,7 @@ optimize_syscall_entry(dcontext_t *dcontext)
     ostd->syscall_entry_frag = f;
     optimize_syscall_code(dcontext, f);
 }
-
+*/
 
 void
 os_fragment_thread_reset_free(dcontext_t *dcontext) {
@@ -1285,12 +2189,13 @@ os_warm_fcache(dcontext_t *dcontext) {
      * possible.
      */
     if (DYNAMO_OPTION(optimize_sys_call_ret)) {
-        optimize_syscall_entry(dcontext);
+    	/* changed by akshay : now we are no longer hijacking the syscall entry point*/
+    	/*     optimize_syscall_entry(dcontext);*/
         return;
     }
     
 }
-
+#if 0
 static bool
 is_within_segment(byte *base, uint64 limit, byte *addr, uint64 size)
 {
@@ -1326,6 +2231,7 @@ assert_no_gates(dcontext_t *dcontext, descriptor_t *table, uint64 limit)
         curr += 1;
     }
 }
+
 
 static void
 handle_lldt(dcontext_t *dcontext, segment_selector_t *ldt_selector)
@@ -1386,6 +2292,9 @@ hijack_call_gates(dcontext_t *dcontext) {
     handle_lldt(dcontext, &ldt_selector);
     handle_lgdt(dcontext, &gdtr);
 }
+#endif
+
+
 
 static void
 handle_lidt(dcontext_t *dcontext, system_table_register_t *idtr)
@@ -1428,6 +2337,13 @@ handle_lidt(dcontext_t *dcontext, system_table_register_t *idtr)
         ostd->native_state.vector_target[vector] =
                 get_gate_target_offset(&native->gate);
         *new = *native;
+      /*  if(vector < 0x10)
+        {
+            set_gate_target_offset(&new->gate, get_gate_target_offset(&native->gate)*//*get_vector_entry(dcontext, vector)*//*);
+        }
+        else {
+            set_gate_target_offset(&new->gate, get_gate_target_offset(&native->gate));
+        }*/
         set_gate_target_offset(&new->gate,
                                get_vector_entry(dcontext, vector));
         ASSERT(get_gate_target_offset(&new->gate) ==
@@ -1436,6 +2352,26 @@ handle_lidt(dcontext_t *dcontext, system_table_register_t *idtr)
 
     ostd->native_state.idtr = *idtr;
     set_idtr(&new_idtr);
+   // set_idtr(&ostd->native_state.idtr);
+}
+
+static void
+set_idtr_array(system_table_register_t *idtr)
+{
+    interrupt_vector_t vector;
+    for (vector = VECTOR_START; vector < VECTOR_END; vector++) {
+        descriptor_t *native = &idtr->base[vector * 2];
+        array_vector_entry[vector] = get_gate_target_offset(&native->gate);
+    }
+}
+
+
+
+void get_kernel_idtr(dcontext_t *dcontext)
+{
+    system_table_register_t idtr;
+    get_idtr(&idtr);
+    set_idtr_array(&idtr);
 }
 
 static void
@@ -1444,6 +2380,23 @@ hijack_vectors(dcontext_t *dcontext)
     system_table_register_t idtr;
     get_idtr(&idtr);
     handle_lidt(dcontext, &idtr);
+}
+
+void dr_takeover_idtr(void) {
+	system_table_register_t new_idtr;
+	dcontext_t *dcontext = get_thread_private_dcontext();
+	//hijack_vectors(dcontext);
+	os_thread_data_t *ostd = (os_thread_data_t *) dcontext->os_field;
+	new_idtr = ostd->drk_state.idtr;
+	set_idtr(&new_idtr);
+}
+
+void dr_set_native_idtr(void) {
+	system_table_register_t new_idtr;
+	dcontext_t *dcontext = get_thread_private_dcontext();
+	os_thread_data_t *ostd = (os_thread_data_t *) dcontext->os_field;
+	new_idtr = ostd->native_state.idtr;
+	set_idtr(&new_idtr);
 }
 
 /* Hijacks all of the kernel entry points on 64-bit x86:
@@ -1466,8 +2419,8 @@ static void
 hijack_entry_points(dcontext_t *dcontext)
 {
     /* TODO(peter): We need to hijack sysenter. */
-    set_msr(MSR_LSTAR, (uint64) get_syscall_entry(dcontext));
-    hijack_call_gates(dcontext);
+  //  set_msr(MSR_LSTAR, (uint64) get_syscall_entry(dcontext));
+  //  hijack_call_gates(dcontext);
     hijack_vectors(dcontext);
 }
 
@@ -1582,6 +2535,42 @@ get_thread_private_dcontext(void)
        return NULL;
     } else {
        return (dcontext_t *) get_tls(tls_dcontext_offset);
+    }
+}
+
+#define READ_TLS_SLOT_TEMP(idx, val)	\
+	asm("mov %0, %%"ASM_XAX : : "m"((idx)) : ASM_XAX);   \
+    	asm("mov %"ASM_SEG":(%%"ASM_XAX"), %%"ASM_XAX : : : ASM_XAX);       
+
+void *
+get_tls_temp(tls_offset_t tls_offs)
+{
+    void *val;
+    reg_t idx = (reg_t) tls_offs;
+    READ_TLS_SLOT_TEMP(idx, val);
+    return val;
+}
+
+dcontext_t*
+get_thread_private_dcontext_temp(void)
+{
+    /* 
+     * Note 1: we rely on kernel_module_init to zero out the CPU-private
+     * data. If this didn't happen, then we could return non-null here before
+     * os_init() is called. This originally happened when loading, initializing,
+     * unloading, loading, then finally initializing our module.
+     *
+     * Note 2: get_thread_private_dcontext is a bottleneck in the original DR. We could
+     * inline get_tls here. Also, we could implement get_thread_private_dcontext
+     * using Linux's DEFINE_PER_CPU_* macros and implement
+     * get_thread_private_dcontext in kernel_interface.c. However, we would not
+     * be able to place dcontext in the middle of the spill state, which other
+     * parts of DR might depend on.
+     */
+    if (!os_initilized) {
+       return NULL;
+    } else {
+       return (dcontext_t *) get_tls_temp(tls_dcontext_offset);
     }
 }
 
@@ -1824,7 +2813,7 @@ dup_syscall(int fd)
     return 0;
 }
 
-#if 0
+#if 1
 static file_t
 next_open_fd(void) {
     /* Skip stdin, stdout, stderr */
@@ -1836,8 +2825,9 @@ next_open_fd(void) {
 file_t
 os_open(const char *fname, int os_open_flags)
 {
+#if 1
     return INVALID_FILE;
-#if 0
+#else
     /* TODO(peter): Test this. */
     char buffer[HYPERCALL_MAX_SIZE];
     hypercall_open_t *hypercall = (hypercall_open_t*) &buffer[0];
@@ -1872,6 +2862,7 @@ os_open_directory(const char *fname, int os_open_flags)
 void
 os_close(file_t f)
 {
+   // filp_close(f);
 #ifdef HYPERCALL_DEBUGGING
     /* We don't want to try supporting closing stdin, stdout, or stderr. */
     if (f > 2) {
@@ -1916,6 +2907,7 @@ os_write(file_t f, const void *buf, size_t count)
     }
     return actual_count;
 #else
+   // vfs_write();
     kernel_printk("%s", buf);
     return count;
 #endif

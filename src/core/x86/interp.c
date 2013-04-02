@@ -885,6 +885,16 @@ bb_stop_prior_to_instr(dcontext_t *dcontext, build_bb_t *bb, bool appended)
     bb->cur_pc = bb->instr_start;
 }
 
+#define MODULE_START_ADDR   0xffffffffa0000000
+#define MODULE_END_ADDR     0xffffffffc0000000
+#define MODULE_SHADOW_END   0xffffffffe0000000
+#define MODULE_SHADOW_START MODULE_END_ADDR
+#define KERNEL_START_ADDR   0xffffffff80000000
+#define KERNEL_END_ADDR     MODULE_START_ADDR
+#define VM_ALLOC            0x00000002
+#define MODULE_SHADOW_OFFSET 0x20000000
+#define APP  instrlist_append
+
 /* returns true to indicate "elide and continue" and false to indicate "end bb now" */
 static inline bool
 bb_process_call_direct(dcontext_t *dcontext, build_bb_t *bb)
@@ -3339,42 +3349,88 @@ build_bb_ilist(dcontext_t *dcontext, build_bb_t *bb)
                                           ibl_branch_type);
     }
 
-    if (bb->mangle_ilist &&
-        (bb->instr == NULL || !instr_opcode_valid(bb->instr) ||
-         !instr_is_ubr(bb->instr) || !instr_ok_to_mangle(bb->instr))) {
+
+#ifdef DIRECT_CALL_OPTIMIZATION
+
+    if((LINK_DIRECT | LINK_CALL) == (bb->exit_type & (LINK_DIRECT | LINK_CALL))
+    && (bb->exit_target >= (app_pc) KERNEL_START_ADDR)
+    && (bb->exit_target < (app_pc) KERNEL_END_ADDR)) {
+
+    	/*get the wrapper address for the direct call target*/
+    	byte *wrapper_callee = dr_get_wrapper_target((void*)bb->exit_target);
+    	const long whereami_addr = (long) &(dcontext->whereami);
+        instrlist_t* ilist = instrlist_create(dcontext);
+
+        instr_t *save_flag = INSTR_CREATE_pushf(dcontext);
+        instrlist_preinsert(bb->ilist, instrlist_last(bb->ilist), save_flag);
+        instr_t *pre_instr = INSTR_CREATE_cli(dcontext);
+        /* direct call gets mangled, disable cli before mangled instruction*/
+        instrlist_preinsert(bb->ilist, instrlist_last(bb->ilist), pre_instr);
+
+        APP(ilist, INSTR_CREATE_push(dcontext, opnd_create_reg(REG_XDI)));
+        APP(ilist, INSTR_CREATE_push(dcontext, opnd_create_reg(REG_XDI)));
+        APP(ilist, INSTR_CREATE_push(dcontext, opnd_create_reg(REG_XDX)));
+        APP(ilist, INSTR_CREATE_mov_imm(dcontext, opnd_create_reg(REG_XDI), OPND_CREATE_INT64(whereami_addr)));
+        APP(ilist,  INSTR_CREATE_mov_imm(dcontext, opnd_create_reg(REG_XDX), OPND_CREATE_INT64(WHERE_NATIVE)));
+        APP(ilist,  INSTR_CREATE_mov_st(dcontext, opnd_create_base_disp(REG_XDI, REG_NULL, 0, 0, OPSZ_PTR),  opnd_create_reg(REG_XDX)));
+        APP(ilist,  INSTR_CREATE_mov_imm(dcontext, opnd_create_reg(REG_XDI), OPND_CREATE_INT64(wrapper_callee)));
+
+        APP(ilist,  INSTR_CREATE_mov_st(dcontext, opnd_create_base_disp(REG_XSP, REG_NULL, 0, 2*sizeof(reg_t), OPSZ_PTR),  opnd_create_reg(REG_XDI)));
+
+        instrlist_append_instrlist(dcontext, bb->ilist, ilist);
+
+        bb->exit_target = dcontext->exit_address_target;
+
         instr_t *exit_instr = INSTR_CREATE_jmp(dcontext, opnd_create_pc(bb->exit_target));
-        if (bb->record_translation) {
-            app_pc translation = NULL;
-            if (bb->instr == NULL) {
-                /* we removed (or mangle will remove) the last instruction
-                 * for special handling (invalid/syscall/int 2b) or there were
-                 * no instructions added (i.e. check_stopping_point in which 
-                 * case instr_start == cur_pc), use last instruction's start 
-                 * address for the translation */
-                translation = bb->instr_start;
-            } else if (instr_is_cti(bb->instr)) {
-                /* last instruction is a cti, consider the exit jmp part of 
-                 * the mangling of the cti (since we might not know the target 
-                 * if, for ex., its indirect) */
-                translation = instr_get_translation(bb->instr);
-            } else {
-                /* target is the instr after the last instr in the list */
-                translation = bb->cur_pc;
-                ASSERT(bb->cur_pc == bb->exit_target);
-            }
-            ASSERT(translation != NULL);
-            instr_set_translation(exit_instr, translation);
-        }
-        /* PR 214962: we need this jmp to be marked as "our mangling" so that
-         * we won't relocate a thread there and re-do a ret pop or call push
-         */
-        instr_set_our_mangling(exit_instr, true);
-        /* here we need to set exit_type */
+
         LOG(THREAD, LOG_EMIT, 3, "exit_branch_type=0x%x bb->exit_target="PFX"\n",
-            bb->exit_type, bb->exit_target);
+        			bb->exit_type, bb->exit_target);
+
         instr_exit_branch_set_type(exit_instr, bb->exit_type);
 
         instrlist_append(bb->ilist, exit_instr);
+    }
+    else
+#endif
+    {
+
+    	if (bb->mangle_ilist &&
+    			(bb->instr == NULL || !instr_opcode_valid(bb->instr) ||
+    					!instr_is_ubr(bb->instr) || !instr_ok_to_mangle(bb->instr))) {
+    		instr_t *exit_instr = INSTR_CREATE_jmp(dcontext, opnd_create_pc(bb->exit_target));
+    		if (bb->record_translation) {
+    			app_pc translation = NULL;
+    			if (bb->instr == NULL) {
+    				/* we removed (or mangle will remove) the last instruction
+    				 * for special handling (invalid/syscall/int 2b) or there were
+    				 * no instructions added (i.e. check_stopping_point in which
+    				 * case instr_start == cur_pc), use last instruction's start
+    				 * address for the translation */
+    				translation = bb->instr_start;
+    			} else if (instr_is_cti(bb->instr)) {
+    				/* last instruction is a cti, consider the exit jmp part of
+    				 * the mangling of the cti (since we might not know the target
+    				 * if, for ex., its indirect) */
+    				translation = instr_get_translation(bb->instr);
+    			} else {
+    				/* target is the instr after the last instr in the list */
+    				translation = bb->cur_pc;
+    				ASSERT(bb->cur_pc == bb->exit_target);
+    			}
+    			ASSERT(translation != NULL);
+    			instr_set_translation(exit_instr, translation);
+    		}
+    		/* PR 214962: we need this jmp to be marked as "our mangling" so that
+    		 * we won't relocate a thread there and re-do a ret pop or call push
+    		 */
+    		instr_set_our_mangling(exit_instr, true);
+    		/* here we need to set exit_type */
+    		LOG(THREAD, LOG_EMIT, 3, "exit_branch_type=0x%x bb->exit_target="PFX"\n",
+    				bb->exit_type, bb->exit_target);
+    		instr_exit_branch_set_type(exit_instr, bb->exit_type);
+
+    		instrlist_append(bb->ilist, exit_instr);
+    	}
     }
 
     /* set flags */

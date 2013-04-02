@@ -84,6 +84,8 @@ void os_tls_pre_init(int gdt_index);
 
 byte *os_get_tls_base(dcontext_t *dcontext);
 interrupt_handler_t os_get_interrupt_handler(interrupt_vector_t vector);
+pagefault_handler_t os_get_pagefault_handler(interrupt_vector_t vector);
+pagefault_handler_t os_get_generalfault_handler(interrupt_vector_t vector);
 app_pc os_get_native_syscall_entry(dcontext_t *dcontext);
 
 /* We do NOT want our libc routines wrapped by pthreads, so we use

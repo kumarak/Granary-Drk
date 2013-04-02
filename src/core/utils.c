@@ -4222,3 +4222,10 @@ array_merge(dcontext_t *dcontext, bool intersect /* else union */,
     *dst_num = num;
 }
 
+
+bool
+thread_owns_no_locks(dcontext_t *dcontext)
+{
+    ASSERT(dcontext != NULL);
+    return true;
+}

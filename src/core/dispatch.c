@@ -74,6 +74,18 @@
 # include "kernel_interface.h"
 #endif
 
+#define MODULE_START_ADDR   0xffffffffa0000000
+#define MODULE_END_ADDR     0xffffffffc0000000
+#define MODULE_SHADOW_END   0xffffffffe0000000
+#define MODULE_SHADOW_START MODULE_END_ADDR
+#define KERNEL_START_ADDR   0xffffffff80000000
+#define KERNEL_END_ADDR     MODULE_START_ADDR
+#define VM_ALLOC            0x00000002
+#define MODULE_SHADOW_OFFSET 0x20000000
+
+/* table of callbacks for handling instrumented module exits (calls/returns) */
+void (*module_exit_vtable[__MODULE_NUM_EXIT_KINDS])(void *) = {0};
+
 /* forward declarations */
 static void
 dispatch_enter_dynamorio(dcontext_t *dcontext);
@@ -105,10 +117,22 @@ is_kernel_exit_point(dcontext_t *dcontext);
 static void
 dispatch_exit_kernel(dcontext_t *dcontext);
 
+static bool
+is_module_exit_point(dcontext_t *dcontext);
+
+static bool
+is_module_shadow_address(dcontext_t *dcontext);
+
+static void
+dispatch_exit_module(dcontext_t *dcontext);
+
 #ifdef WINDOWS
 static void
 handle_callback_return(dcontext_t *dcontext);
 #endif
+
+app_pc kernel_entry;
+app_pc kernel_entry_addr;
 
 #ifdef CLIENT_INTERFACE
 /* PR 356503: detect clients making syscalls via sysenter */
@@ -143,6 +167,8 @@ exiting_for_breakpoint(void)
 }
 #endif
 
+void null_next_tag_curiosity(dcontext_t *dcontext) { }
+
 /* This is the central hub of control management in DynamoRIO.
  * It is entered with a clean dstack at startup and after every cache
  * exit, whether normal or kernel-mediated via a trampoline context switch.
@@ -168,6 +194,7 @@ dispatch(dcontext_t *dcontext)
     ASSERT(dcontext == get_thread_private_dcontext() || pid_cached != get_process_id());
 # endif
 #endif
+
     dcontext->current_fragment = NULL;
     dispatch_enter_dynamorio(dcontext);
     LOG(THREAD, LOG_INTERP, 2, "\ndispatch: target = "PFX"\n", dcontext->next_tag);
@@ -175,6 +202,12 @@ dispatch(dcontext_t *dcontext)
 #ifdef DEBUG
     if (dcontext->next_tag != (app_pc) fake_user_return_exit_target &&
         !is_stopping_point(dcontext, dcontext->next_tag)) {
+
+        if(0 == dcontext->next_tag) {
+            null_next_tag_curiosity(dcontext);
+            dcontext->next_tag = dcontext->next_app_tag;
+        }
+
         ASSERT_SANE_DISPATCH_TARGET(dcontext->next_tag);
     }
 #endif
@@ -184,6 +217,7 @@ dispatch(dcontext_t *dcontext)
      * cache due to flushing before we get there.
      */
     do {
+#if 0
         if (is_stopping_point(dcontext, dcontext->next_tag)) {
             LOG(THREAD, LOG_INTERP, 1,
                 "\nFound DynamoRIO stopping point: thread %d returning to app @"PFX"\n",
@@ -196,12 +230,39 @@ dispatch(dcontext_t *dcontext)
                 exiting_for_breakpoint();        
             }
 #endif
-            dispatch_enter_native(dcontext);
+          //  dispatch_exit_module(dcontext);
+            //dispatch_enter_native(dcontext);
             ASSERT_NOT_REACHED();
         }
-#ifdef LINUX_KERNEL
+
+
+        /*
         else if (is_kernel_exit_point(dcontext)) {
             dispatch_exit_kernel(dcontext);
+            ASSERT_NOT_REACHED();
+        }*/
+
+        /* convert from shadow module to native module if we are calling a shadow module
+         * address from within instrumented code */
+        else
+#endif
+#ifdef LINUX_KERNEL
+            if(is_module_shadow_address(dcontext)) {
+
+            unsigned long long next_addr = (unsigned long long) dcontext->next_tag;
+            next_addr -= MODULE_SHADOW_OFFSET;
+            dcontext->next_tag = (app_pc) next_addr;
+
+        /* we are exiting the module, i.e. going into the kernel */
+        } else if (is_module_exit_point(dcontext)) {
+            dispatch_exit_module(dcontext);
+            ASSERT_NOT_REACHED();
+
+        /* somehow we are jumping into Granary code; we allow some minor tails of Granary
+         * code to be instrumented if Granary code calls dr_app_start. */
+        } else if(dcontext->app_start_next_tag != dcontext->next_tag && dr_is_granary_code(dcontext->next_tag)) {
+            null_next_tag_curiosity(dcontext);
+            dispatch_exit_module(dcontext);
             ASSERT_NOT_REACHED();
         }
 #endif
@@ -236,8 +297,7 @@ dispatch(dcontext_t *dcontext)
             }
             if (targetf == NULL) {
                 SELF_PROTECT_LOCAL(dcontext, WRITABLE);
-                targetf =
-                    build_basic_block_fragment(dcontext, dcontext->next_tag,
+                targetf = build_basic_block_fragment(dcontext, dcontext->next_tag,
                                                0, true/*link*/, true/*visible*/
                                                _IF_CLIENT(false/*!for_trace*/)
                                                _IF_CLIENT(NULL));
@@ -283,7 +343,7 @@ static bool
 is_kernel_exit_point(dcontext_t *dcontext)
 {
     ASSERT(!TESTANY(LINK_IRET | LINK_SYSRET, dcontext->last_exit->flags) ||
-    		dcontext->next_tag == (app_pc) fake_user_return_exit_target);
+            dcontext->next_tag == (app_pc) fake_user_return_exit_target);
     if (TEST(LINK_IRET, dcontext->last_exit->flags)) {
         if (emulate_interrupt_return(dcontext)) {
             dcontext->emulating_interrupt_return = true;
@@ -302,23 +362,77 @@ is_kernel_exit_point(dcontext_t *dcontext)
         ASSERT(!DYNAMO_OPTION(optimize_sys_call_ret));
         LOG(THREAD, LOG_INTERP, 1, "dispatching native sysret from frag @ %p\n",
             dcontext->last_fragment->start_pc);
-    	/* TODO(peter) We could set this in build_bb_ilist rather than setting
-    	 * fake_user_return_exit_target. */
+        /* TODO(peter) We could set this in build_bb_ilist rather than setting
+         * fake_user_return_exit_target. */
         ASSERT(!interrupts_enabled(dcontext));  
         /* TODO(peter): sysret can generate exceptions. We should handle these.
          */
-    	dcontext->next_tag = (app_pc) native_sysret;
-    	return true;
+        dcontext->next_tag = (app_pc) native_sysret;
+        return true;
     }
     ASSERT(dcontext->next_tag != (app_pc) fake_user_return_exit_target);
     return false;
 }
-#endif
 
+/// an address is a module exit point if it's a kernel address
+/// TODO(pag,akshay): an exit point should be one that is not in the code cache range
+///                   so as to handle modules loaded before instrumented modules.
+static bool
+is_module_shadow_address(dcontext_t *dcontext) {
+    return ((dcontext->next_tag >= (app_pc) MODULE_SHADOW_START) && (dcontext->next_tag < (app_pc) MODULE_SHADOW_END));
+}
+
+static bool 
+is_module_exit_point(dcontext_t *dcontext) {
+    //if(get_thread_private_slot(SPILL_SLOT_2)) {
+    //dr_get_symbol_name(dcontext->next_tag);
+    if(dcontext->gp_pc == dcontext->next_tag){
+      //  dcontext->is_general_fault = false;
+        return false;
+    }
+    return ((dcontext->next_tag >= (app_pc) KERNEL_START_ADDR) && (dcontext->next_tag < (app_pc) KERNEL_END_ADDR));
+}
+
+#endif
+//static long pc_addgress = 0;
+
+#if 0
+static void
+emulate_push_mcontext(dr_mcontext_t *mc, reg_t value)
+{
+    mc->xsp -= sizeof(reg_t);
+    *((reg_t*) mc->xsp) = value;
+}
+#endif
+/*
+static reg_t
+emulate_pop_mcontext(dr_mcontext_t *mc)
+{
+    reg_t value = *((reg_t*) mc->xsp);
+    mc->xsp += sizeof(reg_t);
+    return value;
+}
+
+static reg_t
+get_stack_element(dr_mcontext_t *mc, int index) {
+    return ((reg_t*) mc->xsp)[index];
+}
+
+void
+set_stack_element(dr_mcontext_t *mc, int index, reg_t val) {
+    ((reg_t*) mc->xsp)[index] = val;
+}
+*/
 /* returns true if pc is a point at which DynamoRIO should stop interpreting */
 bool
 is_stopping_point(dcontext_t *dcontext, app_pc pc)
 {
+    dr_mcontext_t mc;
+    int app_errno;
+
+    (void) mc;
+    (void) app_errno;
+
     if ((pc == BACK_TO_NATIVE_AFTER_SYSCALL &&
          /* case 6253: app may xfer to this "address" in which case pass
           * exception to app
@@ -332,7 +446,8 @@ is_stopping_point(dcontext_t *dcontext, app_pc pc)
               * should not be called from the cache.
               */
              pc == (app_pc)dynamo_thread_exit ||
-             pc == (app_pc)dr_app_stop))
+             pc == (app_pc)dr_app_stop ))
+
 #endif
 #ifdef LINUX_KERNEL
         ||   (is_kernel_code(pc) && *pc == 0xcc) /* int3 opcode */
@@ -344,7 +459,19 @@ is_stopping_point(dcontext_t *dcontext, app_pc pc)
         /* we go all the way to SYS_exit or SYS_{,t,tg}kill(SIGABRT) */
 #endif
         )
+    {
+            //dr_get_mcontext(dcontext, &mc, &app_errno);
+            //set_stack_element(&mc, mc.xbp+8, (app_pc)shadow_printk);
+            //asm ( "movl 8(%ebp), %ebx;"
+            //      "movl $shadow_printk, 8(%ebp);"
+            //      );
+        //  emulate_push_mcontext(&mc, (reg_t)mc.pc);
+            //mc.xbp = (app_pc)shadow_printk;
+            //pc_address = (app_pc)printk;
+            //dr_set_mcontext(dcontext, &mc, &app_errno);
+            //dcontext->next_tag = (app_pc)shadow_printk;
         return true;
+    }
 
     return false;
 }
@@ -660,7 +787,13 @@ dispatch_enter_native(dcontext_t *dcontext)
     /* The new fcache_enter's clean dstack design makes it usable for
      * entering native execution as well as the fcache.
      */
-    fcache_enter_func_t go_native = get_fcache_enter_private_routine(dcontext);
+    dr_mcontext_t mc;
+    int app_errno;
+    fcache_enter_func_t go_native = get_enter_native_private_routine(dcontext);
+
+    (void) mc;
+    (void) app_errno;
+
     ASSERT_OWN_NO_LOCKS();
     if (dcontext->next_tag == BACK_TO_NATIVE_AFTER_SYSCALL) {
         /* we're simply going native again after an intercepted syscall,
@@ -701,38 +834,107 @@ dispatch_enter_native(dcontext_t *dcontext)
 #endif
     }
     set_fcache_target(dcontext, dcontext->next_tag);
-    dcontext->whereami = WHERE_APP;
+    dcontext->whereami = WHERE_NATIVE;
+    dcontext->is_drk_running = 0;
     LOG(THREAD, LOG_INTERP, 1, "Going native ... \n");
     (*go_native)(dcontext);
     ASSERT_NOT_REACHED();
 }
 
 #ifdef LINUX_KERNEL
+#define REMOVE_CFI
+
+extern void dr_app_start_on_return(void);
+
+/**
+ * Exit instrumentation and jump to the kernel. If this is a call then we go
+ * through the kernel wrappers first; otherwise we go check call/return
+ * consistency.
+ */
 static void
-dispatch_exit_kernel(dcontext_t *dcontext) {
-    /* Kill any trace in progress. */
-    if (is_building_trace(dcontext)) {
-        LOG(THREAD, LOG_INTERP, 1, "squashing trace-in-progress\n");
-        trace_abort(dcontext);
+dispatch_exit_module(dcontext_t *dcontext) {
+
+    struct cfi_client_extension *cfi = (struct cfi_client_extension *)dr_get_client_extension();
+
+    struct thread_private_info *thread_private_slot;
+    dr_printf("dcontext next tag before: %lx\n", dcontext->next_tag);
+    thread_private_slot = kernel_get_thread_private_slot_from_rsp((void*)get_mcontext(dcontext)->rsp, 0);
+    if(thread_private_slot != NULL){
+        thread_private_slot->is_running_module = 0;
+        thread_private_slot->copy_stack = 1;
+        thread_private_slot->current_stack = (void*)get_mcontext(dcontext)->rsp;
+        thread_private_slot->stack_start_address = get_stack_init_address();
+        if(thread_private_slot->stack != NULL){
+            thread_private_slot->stack = kernel_memcpy(thread_private_slot->stack,
+        					    thread_private_slot->stack_start_address, 4*PAGE_SIZE);
+        }
+
+       // copy_mcontext(get_mcontext(dcontext), &(thread_private_slot->mc));
+
+        thread_private_slot->regs[0] = get_mcontext(dcontext)->rax;
+        thread_private_slot->regs[1] = get_mcontext(dcontext)->rbx;
+        thread_private_slot->regs[2] = get_mcontext(dcontext)->rcx;
+        thread_private_slot->regs[3] = get_mcontext(dcontext)->rdx;
+        thread_private_slot->regs[4] = get_mcontext(dcontext)->rdi;
+        thread_private_slot->regs[5] = get_mcontext(dcontext)->rsi;
+        thread_private_slot->regs[6] = get_mcontext(dcontext)->rsp;
+        thread_private_slot->regs[7] = get_mcontext(dcontext)->rbp;
+        thread_private_slot->regs[8] = get_mcontext(dcontext)->r8;
+        thread_private_slot->regs[9] = get_mcontext(dcontext)->r9;
+        thread_private_slot->regs[10] = get_mcontext(dcontext)->r10;
+        thread_private_slot->regs[11] = get_mcontext(dcontext)->r11;
+        thread_private_slot->regs[12] = get_mcontext(dcontext)->r12;
+        thread_private_slot->regs[13] = get_mcontext(dcontext)->r13;
+        thread_private_slot->regs[14] = get_mcontext(dcontext)->r14;
+        thread_private_slot->regs[15] = get_mcontext(dcontext)->r15;
     }
-    /* We assume that next_tag was set by is_kernel_exit_point to the
-     * appropriate kernel exit stub. */
-    set_fcache_target(dcontext, dcontext->next_tag);
-    enter_nolinking(dcontext, NULL, false);
-    LOG(THREAD, LOG_INTERP, 1, "Returning to user mode ... \n");
-    /* Stopped in dispatch_exit_fcache_stats. */
-    if (DYNAMO_OPTION(optimize_sys_call_ret)) {
-        dcontext->whereami = WHERE_FCACHE;
-        KSTART(fcache_default);
-    } else {
-        ASSERT(false);
-        dcontext->whereami = WHERE_USERMODE;
-        KSTART(usermode);
+
+
+    /* call any client callbacks to handling module exits; these might
+     * change the dcontext->next_tag. */
+    if(dcontext->last_exit->flags & LINK_RETURN) {
+        if(thread_private_slot != NULL){
+            thread_private_slot->section_count--;
+        }
+
+        if(thread_private_slot->section_count == 0){
+            thread_private_slot->regs[0] = 0;
+            thread_private_slot->regs[1] = 0;
+            thread_private_slot->regs[2] = 0;
+            thread_private_slot->regs[3] = 0;
+            thread_private_slot->regs[4] = 0;
+            thread_private_slot->regs[5] = 0;
+            thread_private_slot->regs[6] = 0;
+            thread_private_slot->regs[7] = 0;
+            thread_private_slot->regs[8] = 0;
+            thread_private_slot->regs[9] = 0;
+            thread_private_slot->regs[10] = 0;
+            thread_private_slot->regs[11] = 0;
+            thread_private_slot->regs[12] = 0;
+            thread_private_slot->regs[13] = 0;
+            thread_private_slot->regs[14] = 0;
+            thread_private_slot->regs[15] = 0;
+        }
+
+    } else if(dcontext->last_exit->flags & LINK_CALL){
+        if(dcontext->next_tag != (app_pc)dr_app_stop){
+            byte *return_addr = dr_get_stack_pointer_value(dcontext);
+            if((return_addr < MODULE_END_ADDR) && (return_addr >= MODULE_START_ADDR)) {
+
+                cfi->return_address_stack[cfi->return_stack_size++] = return_addr;
+                dr_set_stack_pointer_value(dcontext, dr_app_start_on_return);
+            }
+
+            byte *wrapper_callee = dr_get_wrapper_target((void*)dcontext->next_tag);
+            dcontext->next_tag = wrapper_callee;
+        }
     }
-    ASSERT_OWN_NO_LOCKS();
-    fcache_enter_routine(dcontext)(dcontext);
-    ASSERT_NOT_REACHED();
+  //  dr_printf("dcontext next tag : %lx\n", dcontext->next_tag);
+    //dr_fix_mcontext(dcontext);
+
+    dispatch_enter_native(dcontext);
 }
+
 #endif
 
 static void
@@ -740,14 +942,14 @@ dispatch_enter_dynamorio(dcontext_t *dcontext)
 {
     /* We're transitioning to DynamoRIO from somewhere: either the fcache,
      * the kernel (WHERE_TRAMPOLINE), or the app itself via our start/stop API.
-     * N.B.: set whereami to WHERE_APP iff this is the first dispatch() entry
+     * N.B.: set whereami to WHERE_NATIVE iff this is the first dispatch() entry
      * for this thread!
      */
     where_am_i_t wherewasi = dcontext->whereami;
 #ifdef LINUX
     if (!(wherewasi == WHERE_FCACHE || wherewasi == WHERE_TRAMPOLINE ||
-          wherewasi == WHERE_APP
-          IF_LINUX_KERNEL(|| wherewasi == WHERE_USERMODE))) {
+          wherewasi == WHERE_NATIVE
+          IF_LINUX_KERNEL(|| wherewasi == WHERE_NATIVE))) {
         /* This is probably our own syscalls hitting our own sysenter
          * hook (PR 212570), since we're not completely user library
          * independent (PR 206369).
@@ -757,17 +959,17 @@ dispatch_enter_dynamorio(dcontext_t *dcontext)
          * We could put in a custom exit stub and return routine and recover,
          * but we need to get library independent anyway so it's not worth it.
          */
-        ASSERT(get_syscall_method() == SYSCALL_METHOD_SYSENTER);
-        IF_X64(ASSERT_NOT_REACHED()); /* no sysenter support on x64 */
+        //ASSERT(get_syscall_method() == SYSCALL_METHOD_SYSENTER);
+        //IF_X64(ASSERT_NOT_REACHED()); /* no sysenter support on x64 */
         /* PR 356503: clients using libraries that make syscalls can end up here */
-        IF_CLIENT_INTERFACE(found_client_sysenter());
-        ASSERT_BUG_NUM(206369, false &&
-                       "DR's own syscall (via user library) hit the sysenter hook");
+        //IF_CLIENT_INTERFACE(found_client_sysenter());
+        //ASSERT_BUG_NUM(206369, false &&
+        //               "DR's own syscall (via user library) hit the sysenter hook");
     }
 #endif
     ASSERT(wherewasi == WHERE_FCACHE || wherewasi == WHERE_TRAMPOLINE ||
-           wherewasi == WHERE_APP
-           IF_LINUX_KERNEL(|| wherewasi == WHERE_USERMODE));
+           wherewasi == WHERE_NATIVE
+           IF_LINUX_KERNEL(|| wherewasi == WHERE_NATIVE));
     dcontext->whereami = WHERE_DISPATCH;
     ASSERT_LOCAL_HEAP_UNPROTECTED(dcontext);
     ASSERT(check_should_be_protected(DATASEC_RARELY_PROT));
@@ -782,7 +984,7 @@ dispatch_enter_dynamorio(dcontext_t *dcontext)
 #endif
 
     DOLOG(2, LOG_INTERP, { 
-        if (wherewasi == WHERE_APP) {
+        if (wherewasi == WHERE_NATIVE) {
             LOG(THREAD, LOG_INTERP, 2, "\ninitial dispatch: target = "PFX"\n",
                 dcontext->next_tag);
             dump_mcontext_callstack(dcontext);
@@ -798,7 +1000,7 @@ dispatch_enter_dynamorio(dcontext_t *dcontext)
      * messy that we're violating assumption of no ptrs...
      */
 
-    if (wherewasi == WHERE_APP) { /* first entrance */
+    if (wherewasi == WHERE_NATIVE) { /* first entrance */
         ASSERT(dcontext->last_exit == get_starting_linkstub()
                /* new thread */
                || IF_WINDOWS_ELSE_0(dcontext->last_exit == get_asynch_linkstub())
@@ -854,13 +1056,13 @@ dispatch_enter_dynamorio(dcontext_t *dcontext)
         /* Update the total measured time. This is a convenient place to do this
          * because thread_measured is at the top of the kstack.
          */
-        DOKSTATS({
+       /* DOKSTATS({
             update_lifetime_kstats(dcontext);
-        });
+        });*/
     }
     KSTART(dispatch_num_exits); /* KSWITCHed next time around for a better explanation */
 
-    if (wherewasi != WHERE_APP) { /* if not first entrance */
+    if (wherewasi != WHERE_NATIVE) { /* if not first entrance */
         if (get_at_syscall(dcontext))
             handle_post_system_call(dcontext);
 
@@ -911,7 +1113,7 @@ dispatch_enter_dynamorio(dcontext_t *dcontext)
         ASSERT(LINKSTUB_FAKE(dcontext->last_exit));
     }
 
-    if (wherewasi != WHERE_APP) { /* if not first entrance */
+    if (wherewasi != WHERE_NATIVE) { /* if not first entrance */
         /* now fully process the last cache exit as couldbelinking */
         dispatch_exit_fcache(dcontext);
     }

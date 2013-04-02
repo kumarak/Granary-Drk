@@ -114,6 +114,7 @@ typedef struct {
      * Used for other threads to be able to request thread local stats, 
      * and also for the not fully explained self-interruption on linux?
      */
+
 #ifdef DEBUG
 # define STATS_DEF(desc, name) stats_int_t name##_thread;  
 #else

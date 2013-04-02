@@ -5,9 +5,16 @@
 #include <linux/percpu.h>
 #include <linux/smp.h>
 #include <linux/sched.h>
+#include <linux/stop_machine.h>
 #include "dynamorio_controller_module.h"
 #include "dynamorio_module_interface.h"
 #include "simple_tests.h"
+#include <linux/init.h>
+#include <asm/sections.h>
+#include <asm/cacheflush.h>
+#include <linux/vmalloc.h>
+#include <linux/slab.h>
+
 MODULE_LICENSE("Dual BSD/GPL");
 
 static int device_major;
@@ -21,7 +28,7 @@ smp_init_and_takeover(void* info)
 {
     printk("init and takeover\n");
     dr_smp_init(&get_cpu_var(dr_cpu_exports));
-    dynamorio_app_take_over();
+    //dynamorio_app_take_over();
     run_tests();
 }
 
@@ -29,6 +36,40 @@ static void
 smp_exit(void *info)
 {
     dr_smp_exit();
+}
+
+int
+smp_hotpatch_callback(void *addr){
+    printk("%s\n", __FUNCTION__);
+    dr_hotpatch_interface(addr);
+    return 0;
+}
+
+void set_kernel_text_rw(void)
+{
+    void *addr = (void*)kfree;
+    unsigned long begin_pfn = PFN_DOWN((unsigned long)addr);
+    set_memory_rw(begin_pfn << PAGE_SHIFT, 1);
+    addr = (void*)vfree;
+    begin_pfn = PFN_DOWN((unsigned long)addr);
+    set_memory_rw(begin_pfn << PAGE_SHIFT, 1);
+    addr = (void*)kmem_cache_free;
+    begin_pfn = PFN_DOWN((unsigned long)addr);
+    set_memory_rw(begin_pfn << PAGE_SHIFT, 1);
+}
+
+
+void set_kernel_text_ro(void)
+{
+    void *addr = (void*)kfree;
+    unsigned long begin_pfn = PFN_DOWN((unsigned long)addr);
+    set_memory_ro(begin_pfn << PAGE_SHIFT, 1);
+    addr = (void*)vfree;
+    begin_pfn = PFN_DOWN((unsigned long)addr);
+    set_memory_ro(begin_pfn << PAGE_SHIFT, 1);
+    addr = (void*)kmem_cache_free;
+    begin_pfn = PFN_DOWN((unsigned long)addr);
+    set_memory_ro(begin_pfn << PAGE_SHIFT, 1);
 }
 
 static int
@@ -60,6 +101,9 @@ init_ioctl(struct inode* inode, struct file* file,
     initialized = true;
     dr_pre_smp_init(&dr_exports, cmd.options);
     on_each_cpu(smp_init_and_takeover, NULL, false /* wait */);
+//    set_kernel_text_rw();
+//    stop_machine(smp_hotpatch_callback, 0, 0);
+//    set_kernel_text_ro();
     /* We will return here on the calling CPU, but it will be under DR's
      * control. */
     return 0;

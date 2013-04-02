@@ -11,6 +11,7 @@ EXPORT_SYMBOL_GPL(dr_pre_smp_init);
 EXPORT_SYMBOL_GPL(dr_smp_init);
 EXPORT_SYMBOL_GPL(dr_smp_exit);
 EXPORT_SYMBOL_GPL(dynamorio_app_take_over);
+EXPORT_SYMBOL_GPL(dr_hotpatch_interface);
 
 void dr_terminate(const char* reason) {
 	os_write(1 /* stdout */, reason, strlen(reason));

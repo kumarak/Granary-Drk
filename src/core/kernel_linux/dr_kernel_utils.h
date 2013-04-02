@@ -2,6 +2,7 @@
 #define __KERNEL_UTIL_H_
 
 #include <linux/module.h>
+#include "trace/granary_trace.h"
 
 typedef ssize_t	(*dr_stat_show_t)(int cpu, char *buf);
 

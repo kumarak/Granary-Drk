@@ -2508,7 +2508,7 @@ asynch_take_over(app_state_at_intercept_t *state)
     /* may have been inside syscall...now we're in app! */
     set_at_syscall(dcontext, false);
     /* tell dispatch() why we're coming there */
-    if (dcontext->whereami != WHERE_APP) /* new thread, typically: leave it that way */
+    if (dcontext->whereami != WHERE_NATIVE) /* new thread, typically: leave it that way */
         dcontext->whereami = WHERE_TRAMPOLINE;
     set_last_exit(dcontext, (linkstub_t *) get_asynch_linkstub());
 

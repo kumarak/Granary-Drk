@@ -220,6 +220,75 @@ instr_is_encoding_possible(instr_t *instr);
 byte * 
 instr_encode(void *drcontext, instr_t *instr, byte *pc);
 
+void
+dr_takeover_idtr(void);
+
+void
+dr_set_native_idtr(void);
+
+void
+dr_app_take_over(void);
+
+void
+dr_app_stop(void);
+
+void
+dr_app_start(void);
+
+void
+get_return_address(void);
+
+void
+return_to_module_from_interrupt(void);
+
+void
+mecontext_snapshot_native(void);
+
+void
+dr_app_start_after_iret(void);
+
+void
+dr_app_start_on_return(void);
+
+void*
+dr_get_wrapper_target(app_pc kernel_addr);
+
+void
+dr_register_direct_call_exit(void *addr);
+
+void
+dr_register_kernel_wrapper(void *addr);
+
+void*
+dr_is_granary_code(void *addr);
+
+void
+dr_register_is_granary_code(int (*func)(void *));
+
+void*
+dr_is_instrumented_module_code(void *addr);
+
+void
+dr_register_is_instrumented_module_code(int (*func)(void *));
+
+int
+dr_get_symbol_name(void *addr);
+
+void
+dr_register_get_symbol_name(int (*func)(void *));
+
+void
+dr_register_exit_module_context(void* addr);
+
+void
+dr_register_address_untracker(void *(*addr)(void *));
+
+void
+dr_register_address_return_exit(void (*addr)(void));
+
+int
+is_drk_running(void);
+
 /** Returns number of bytes of heap used by \p instr. */
 int
 instr_mem_usage(instr_t *instr);
@@ -267,6 +336,10 @@ instr_valid(instr_t *instr);
 /** Get the original application PC of \p instr if it exists. */
 app_pc
 instr_get_app_pc(instr_t *instr);
+
+/* Get the original application PC of the instruction if it exists. */
+void
+instr_set_app_pc(instr_t *instr, app_pc pc);
 
 /** Returns \p instr's opcode (an OP_ constant). */
 int 
@@ -327,6 +400,9 @@ instr_set_src(instr_t *instr, uint pos, opnd_t opnd);
  */
 void 
 instr_set_dst(instr_t *instr, uint pos, opnd_t opnd);
+
+void
+instr_being_modified(instr_t *instr, bool raw_bits_valid);
 
 /**
  * Assumes that \p cti_instr is a control transfer instruction
@@ -530,6 +606,9 @@ instr_set_prefix_flag(instr_t *instr, uint prefix);
  */
 bool 
 instr_get_prefix_flag(instr_t *instr, uint prefix);
+
+uint 
+instr_get_prefixes(instr_t *instr);
 #ifdef X64
 
 

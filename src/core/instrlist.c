@@ -116,7 +116,7 @@ instrlist_get_translation_target(instrlist_t *ilist)
 {
     return ilist->translation_target;
 }
-
+DR_API
 void
 instrlist_set_our_mangling(instrlist_t *ilist, bool ours)
 {
@@ -125,7 +125,7 @@ instrlist_set_our_mangling(instrlist_t *ilist, bool ours)
     else
         ilist->flags &= ~INSTR_OUR_MANGLING;
 }
-
+DR_API
 bool
 instrlist_get_our_mangling(instrlist_t *ilist)
 {
@@ -292,6 +292,28 @@ instrlist_replace(instrlist_t *ilist, instr_t *oldinst, instr_t *newinst)
                   "instrlist_replace: cannot add middle of list");
     where = instr_get_prev(oldinst);
     instrlist_remove(ilist, oldinst);
+    if (where)
+        instrlist_postinsert(ilist, where, newinst);
+    else
+        instrlist_prepend(ilist, newinst);
+
+    return oldinst;
+}
+
+/* replace oldinst with newinst, remove oldinst from ilist, and return oldinst
+   (newinst can be a chain of insts) */
+instr_t*
+instrlist_meta_replace(instrlist_t *ilist, instr_t *oldinst, instr_t *newinst)
+{
+    instr_t *where;
+
+    CLIENT_ASSERT(oldinst != NULL, "instrlist_replace: oldinst cannot be NULL");
+    CLIENT_ASSERT(instr_get_prev(newinst) == NULL,
+                  "instrlist_replace: cannot add middle of list");
+    where = instr_get_prev(oldinst);
+    instrlist_remove(ilist, oldinst);
+
+    instr_set_ok_to_mangle(newinst, false);
     if (where)
         instrlist_postinsert(ilist, where, newinst);
     else

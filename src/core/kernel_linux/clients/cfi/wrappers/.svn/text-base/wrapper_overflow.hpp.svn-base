@@ -1,0 +1,126 @@
+/*
+ * wrapper_overflow.hpp
+ *
+ *  Created on: 2013-01-03
+ *      Author: akshayk
+ */
+
+#ifndef WRAPPER_OVERFLOW_HPP_
+#define WRAPPER_OVERFLOW_HPP_
+
+
+
+//void *__kmalloc(size_t size, gfp_t flags);
+FUNC_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
+    unsigned int value;
+    void *watch_ptr = __kmalloc(size, flags);
+ //   ADD_WATCHPOINT(watch_ptr, size);
+    granary_lc_handle_alloc(target_module, watch_ptr, size, NULL);
+    //if(hashmap_get(alloc_pointer_hash, watch_ptr,  (void**)&value) != 0){
+     //   hashmap_put(alloc_pointer_hash, (void*)watch_ptr, (void*)0x1);
+    //}
+    kern_printk("__kmalloc wrapper  : %lx\n", watch_ptr);
+    return watch_ptr;
+})
+
+FUNC_WRAPPER(kfree, ( void* addr), {
+	kern_printk("kfree wrapper\n");
+    granary_lc_handle_free(target_module, addr, NULL);
+    return kfree(addr);
+})
+
+//void * __must_check __krealloc(const void *, size_t, gfp_t);
+FUNC_WRAPPER(__krealloc, (const void* ptr, size_t size, gfp_t flags), {
+    kern_printk("__krealloc wrapper\n");
+    void *watch_ptr = __krealloc(ptr, size, flags);
+    granary_lc_handle_alloc(target_module, watch_ptr, size, NULL);
+    return watch_ptr;
+})
+
+//void * __must_check krealloc(const void *, size_t, gfp_t);
+FUNC_WRAPPER(krealloc, (const void* ptr, size_t size, gfp_t flags), {
+    kern_printk("krealloc wrapper\n");
+    void *watch_ptr = krealloc(ptr, size, flags);
+    granary_lc_handle_alloc(target_module, watch_ptr, size, NULL);
+    return watch_ptr;
+})
+
+
+//void *__kmalloc_node(size_t size, gfp_t flags, int node);
+FUNC_WRAPPER(__kmalloc_node, (size_t size, gfp_t flags, int node), {
+    kern_printk("__kmalloc_node wrapper\n");
+    return __kmalloc_node(size, flags, node);
+})
+
+//void *__kmalloc_track_caller(size_t, gfp_t, unsigned long);
+FUNC_WRAPPER(__kmalloc_track_caller, (size_t size, gfp_t flags, unsigned long caller), {
+    kern_printk("__kmalloc_track_caller wrapper\n");
+    return __kmalloc_track_caller(size, flags, caller);
+})
+
+//void *__kmalloc_node_track_caller(size_t, gfp_t, int, unsigned long);
+FUNC_WRAPPER(__kmalloc_node_track_caller, (size_t size, gfp_t flags, int node, unsigned long caller), {
+    kern_printk("__kmalloc_node_track_caller wrapper\n");
+    return __kmalloc_node_track_caller(size, flags, node, caller);
+})
+
+// void *kmem_cache_alloc(struct kmem_cache *s, gfp_t gfpflags)
+FUNC_WRAPPER(kmem_cache_alloc, (struct kmem_cache *s, gfp_t gfpflags), {
+    kern_printk("kmem_cache_alloc wrapper\n");
+    return kmem_cache_alloc(s, gfpflags);
+})
+
+//void *kmem_cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)
+FUNC_WRAPPER(kmem_cache_alloc_node, (struct kmem_cache *cachep, gfp_t flags, int nodeid), {
+    kern_printk("kmem_cache_alloc_node wrapper\n");
+    return kmem_cache_alloc_node(cachep, flags, nodeid);
+})
+
+//void kmem_cache_free(struct kmem_cache *, void *);
+FUNC_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
+    kern_printk("kmem_cache_free wrapper\n");
+    return kmem_cache_free(s, ptr);
+})
+
+//struct kmem_cache *kmem_cache_create(const char *, size_t, size_t,
+//                         unsigned long,
+//                         void (*)(void *));
+
+FUNC_WRAPPER(kmem_cache_create, (const char *name , size_t size, size_t align, unsigned long flags,  void(*ctor)(void*) ), {
+    kern_printk("kmem_cache_create wrapper\n");
+    return kmem_cache_create(name, size, align, flags, ctor);
+})
+
+//int kmem_cache_shrink(struct kmem_cache *s)
+FUNC_WRAPPER_VOID(kmem_cache_shrink, (struct kmem_cache *s), {
+    kern_printk("kmem_cache_shrink wrapper\n");
+    return kmem_cache_shrink(s);
+})
+
+//void kmem_cache_destroy(struct kmem_cache *);
+FUNC_WRAPPER_VOID(kmem_cache_destroy, (struct kmem_cache *s), {
+    kern_printk("kmem_cache_destroy wrapper\n");
+    return kmem_cache_destroy(s);
+})
+
+
+//void *vmalloc(unsigned long size)
+FUNC_WRAPPER(vmalloc, (unsigned long size), {
+    kern_printk("vmalloc wrapper\n");
+    void *ptr = vmalloc(size);
+    if (ptr != NULL)
+            granary_lc_handle_alloc(target_module, ptr, size, NULL);
+
+    return ptr;
+})
+
+//void *vmalloc_node(unsigned long size, int node)
+FUNC_WRAPPER(vmalloc_node, (unsigned long size, int node), {
+    kern_printk("vmalloc_node wrapper\n");
+    void *ptr = vmalloc_node(size, node);
+    if (ptr != NULL)
+            granary_lc_handle_alloc(target_module, ptr, size, NULL);
+
+    return ptr;
+})
+#endif /* WRAPPER_OVERFLOW_HPP_ */

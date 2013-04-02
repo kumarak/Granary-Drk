@@ -77,6 +77,13 @@ instrlist_set_translation_target(instrlist_t *ilist, app_pc pc);
 app_pc
 instrlist_get_translation_target(instrlist_t *ilist);
 
+/* not exported: for PR 267260 */
+void
+instrlist_set_our_mangling(instrlist_t *ilist, bool ours);
+
+bool
+instrlist_get_our_mangling(instrlist_t *ilist);
+
 /** Returns the first instr_t in \p ilist. */
 instr_t*
 instrlist_first(instrlist_t *ilist);
@@ -115,6 +122,10 @@ instrlist_postinsert(instrlist_t *ilist, instr_t *where, instr_t *instr);
 /** Replaces \p oldinst with \p newinst in \p ilist (does not destroy \p oldinst). */
 instr_t*
 instrlist_replace(instrlist_t *ilist, instr_t *oldinst, instr_t *newinst);
+
+/** Replaces \p oldinst with \p newinst in \p ilist (does not destroy \p oldinst). */
+instr_t*
+instrlist_meta_replace(instrlist_t *ilist, instr_t *oldinst, instr_t *newinst);
 
 /** Removes (does not destroy) \p instr from \p ilist. */
 void   

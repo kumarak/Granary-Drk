@@ -1,0 +1,249 @@
+/*
+ * meta.hpp
+ *
+ *  Created on: 2012-12-10
+ *      Author: pag
+ */
+
+#ifndef ALIAS_META_HPP_
+#define ALIAS_META_HPP_
+
+enum {
+
+    /// Maximum number of threads used by the RCU module.
+    NUM_THREADS = 16,
+};
+
+/// used for kernel memory allocation
+typedef void *vmalloc_type(unsigned long, int, unsigned long long);
+static vmalloc_type *kern___vmalloc = (vmalloc_type *) KERN_ADDR___vmalloc;
+
+/// Thread-specific watchpoint meta information.
+struct alias_meta_thread {
+
+    // spin lock and free list for allocating RCU thread meta info.
+    static volatile mem_t LOCK;
+    static alias_meta_thread *FREE_LIST;
+
+    // for linking in the free list.
+    alias_meta_thread *next;
+
+    // writer thread_id + 1 iff this RCU-protected structure is being
+    // written to; otherwise 0. An RCU-protected structure is writable from
+    // the time of allocation up until it is published using rcu_assign_pointer.
+    //
+    // TODO:
+    uint64_t writer_thread_id;
+
+    // The "generation" number of the thread
+    uint64_t gen_nums[NUM_THREADS];
+
+    enum {
+        MAX_SPIN = 100
+    };
+
+    /// Allocate some thread-specific meta information.
+    static alias_meta_thread *allocate(void) throw() {
+        alias_meta_thread *meta(0);
+        mem_t flags;
+        unsigned num_spins(0);
+        //return meta;
+
+        if(!FREE_LIST) {
+            goto allocate_manually;
+        }
+        //cfi_debug_outside_lock();
+        cfi_atomic_disable_interrupts(&flags);
+        for(; cfi_atomic_change(&LOCK, to_one); ++num_spins) {
+            cfi_debug_spinlock();
+            if(num_spins > MAX_SPIN) {
+                cfi_atomic_enable_interrupts(&flags);
+                goto allocate_manually; // give up
+            }
+        }
+        meta = FREE_LIST;
+
+        // there's something on the free list.
+        if(meta) {
+            FREE_LIST = meta->next;
+            LOCK = 0; // release the lock
+            cfi_atomic_enable_interrupts(&flags);
+
+            // we need to manually allocate.
+        } else {
+            LOCK = 0; // release the lock
+            cfi_atomic_enable_interrupts(&flags);
+
+        allocate_manually:
+            meta = (alias_meta_thread *) kern___vmalloc(
+                    sizeof(alias_meta_thread), 0 /* GFP_KERNEL */, 0 /* PAGE_RW */);
+        }
+
+        memset(meta, 0, sizeof *meta);
+        return meta;
+    }
+
+    /// Put one of the thread meta infos onto the free list.
+    static void free(alias_meta_thread *meta) throw() {
+        if(!meta) {
+            return;
+        }
+
+        mem_t flags;
+        cfi_atomic_disable_interrupts(&flags);
+        while(cfi_atomic_change(&LOCK, to_one)) { /* spin */ }
+        meta->next = FREE_LIST;
+        FREE_LIST = meta;
+        LOCK = 0; // release
+        cfi_atomic_enable_interrupts(&flags);
+    }
+};
+
+// static initializers
+volatile mem_t alias_meta_thread::LOCK = 0;
+alias_meta_thread *alias_meta_thread::FREE_LIST = 0;
+
+
+/// Watchpoint meta information. An RCU watchpoint is
+/// either a source (with thread-specific meta-information)
+/// or is an alias of a source (i.e. alias = rcu_dereference(source)).
+/// 
+/// Sources are not allowed to be accessed, only aliases. This
+/// enforces that every read/write must be on a RCU-dereferenced
+/// pointer. However, sources maintain the thread generation
+/// numbers needed to determine whether a read/write on an alias
+/// is valid.
+struct alias_meta {
+
+    union {
+
+        // if this watchpoint aliases another watchpoint
+        alias_meta *source;
+
+        // thread info about a source watchpoint
+        alias_meta_thread *thread_info;
+
+        mutable uint64_t address;
+    } u;
+
+
+    /// Set this watchpoint to be a source.
+    void make_source(void) throw() {
+        u.thread_info = alias_meta_thread::allocate();
+    }
+
+
+    /// Determine if this is a source or alias; assumes that
+    /// this watchpoint is not dead. If the address points into the
+    /// extended shadow region, then it's an alias that points at
+    /// another watchpoint.
+    bool is_source(void) const throw() {
+        return !(MODULE_SHADOW_END <= u.address && u.address < MODULE_SHADOW_END_EXTENDED);
+    }
+
+
+    /// Return true iff this watchpoint is dead. The watchpoint is
+    /// dead iff address is 0 (null), or if this is an alias and
+    /// the source is non-null, then if the source's address is 0.
+    bool is_dead(void) const throw() {
+        if(!u.address) {
+            return true;
+        }
+
+        if(!is_source()) {
+            if(!(u.source->u.address)) {
+                u.address = 0;
+                return true;
+            }
+            // fall-through
+        }
+        return false;
+    }
+
+
+    /// Returns true iff we can read this data structure in thread `thread_id`
+    /// at generation `thread_gen_id`.
+    bool can_read(uint64_t thread_id, uint64_t thread_gen_id) const throw() {
+        if(is_dead()) {
+            return false;
+        }
+
+        // we can read from a source watchpoint iff this watchpoint has not yet
+        // been published; otherwise reading from a source watchpoint is
+        // disallowed.
+        if(is_source()) {
+
+            // TODO: check that global refcount of RCU read locks is 0
+
+            return thread_id == u.thread_info->writer_thread_id;
+        }
+
+        // only allow reads of alias watchpoints iff they have been de-referenced
+        // in the current read-critical section (generation numbers match).
+        alias_meta_thread *meta(u.source->u.thread_info);
+        return thread_gen_id == meta->gen_nums[thread_id];
+    }
+
+
+    /// Allow reading of a specific RCU-tracked structure; we assume we are
+    /// operating on a source.
+    void allow_read(uint64_t thread_id, uint64_t thread_gen_id) throw() {
+        u.thread_info->writer_thread_id = 0;
+        u.thread_info->gen_nums[thread_id] = thread_gen_id;
+    }
+
+
+    /// Allow writing of an RCU-tracked structure by some thread; we assume
+    /// we are operating on a source.
+    void allow_write(uint64_t thread_id) throw() {
+        u.thread_info->writer_thread_id = thread_id + 1;
+    }
+
+
+    /// Returns true iff we can write this data structure in thread `thread_id`.
+    bool can_write(uint64_t thread_id) const throw() {
+        if(is_dead()) {
+            return false;
+        }
+
+        alias_meta_thread *meta(u.thread_info);
+        if(!is_source()) {
+            meta = u.source->u.thread_info;
+        }
+
+        // TODO: check that global refcount of RCU read locks is 0
+
+        return (thread_id + 1) == meta->writer_thread_id;
+    }
+
+
+    /// Mark that this watchpoint aliases another.
+    void aliases(alias_meta *source_) throw() {
+        u.source = source_;
+    }
+
+
+    /// Kill this watchpoint; this handles freeing of the thread-specific
+    /// info.
+    void kill(void) throw() {
+        if(is_source()) {
+            alias_meta_thread::free(u.thread_info);
+            u.thread_info = 0;
+        } else {
+            alias_meta_thread::free(u.source->u.thread_info);
+            u.source->u.thread_info = 0;
+            u.address = 0ULL;
+        }
+    }
+
+
+    /// Publish the pointer. Assumes we are operating on a source.
+    void publish(void) throw() {
+        u.thread_info->writer_thread_id = 0;
+    }
+
+} __attribute__((packed));
+
+
+#endif /* META_HPP_ */
+

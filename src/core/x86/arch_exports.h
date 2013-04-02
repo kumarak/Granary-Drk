@@ -696,6 +696,8 @@ cache_pc get_reset_exit_stub(dcontext_t *dcontext);
 typedef linkstub_t * (* fcache_enter_func_t) (dcontext_t *dcontext);
 fcache_enter_func_t get_fcache_enter_private_routine(dcontext_t *dcontext);
 
+fcache_enter_func_t get_enter_native_private_routine(dcontext_t *dcontext);
+
 cache_pc get_unlinked_entry(dcontext_t *dcontext, cache_pc linked_entry);
 cache_pc get_linked_entry(dcontext_t *dcontext, cache_pc unlinked_entry);
 #ifdef X64
@@ -1148,6 +1150,12 @@ enum {
     CBR_SHORT_REWRITE_LENGTH = 9, /* FIXME: use this in mangle.c */
     RET_0_LENGTH     = 1,
     PUSH_IMM32_LENGTH = 5,
+    PUSH_REG_LENGTH   = 1,
+
+    MOV_IMM_DISP_LENGTH=5,
+    MOV_LD_LENGTH     = 3,
+    LEA_IMM_DISP_LENGTH=7,
+    POP_REG_LENGTH    = 1,
 
     /* size of 32-bit call and jmp instructions w/o prefixes. */
     CTI_IND1_LENGTH    = 2, /* FF D6             call esi                      */
@@ -1930,8 +1938,12 @@ typedef struct {
 
 bool was_kernel_interrupted(interrupt_stack_frame_t *frame);
 
-typedef void (*interrupt_handler_t)(interrupt_stack_frame_t*, dr_mcontext_t*,
+typedef int (*interrupt_handler_t)(interrupt_stack_frame_t*, dr_mcontext_t*,
                                     interrupt_vector_t);
+
+typedef int (*pagefault_handler_t)(dcontext_t*, interrupt_stack_frame_t*, dr_mcontext_t*);
+
+typedef void (*exit_direct_call_stub)(void);
 
 /* Returns the gencode for syscall entry. */
 cache_pc get_syscall_entry(dcontext_t *dcontext);

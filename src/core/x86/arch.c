@@ -232,7 +232,7 @@ move_to_start_of_cache_line(byte *pc)
  * for thread-private and thread-shared.  So, we dynamically extend the size
  * as we generate.  Currently our max is under 7 pages.
  */
-#define GENCODE_RESERVE_SIZE (7*PAGE_SIZE)
+#define GENCODE_RESERVE_SIZE (10*PAGE_SIZE)
 
 #define GENCODE_COMMIT_SIZE \
     ((size_t)(ALIGN_FORWARD(sizeof(generated_code_t), PAGE_SIZE) + PAGE_SIZE))
@@ -310,6 +310,10 @@ shared_gencode_init(IF_X64_ELSE(bool x86_mode, void))
         IF_X64(gencode->bb_ibl[branch_type].x86_mode = x86_mode);
         IF_X64(gencode->coarse_ibl[branch_type].x86_mode = x86_mode);
     }
+
+    // for later debugging purposes.
+    gencode->receive_maskable_interrupt = (byte *) 0xfffffffffbadbeefULL;
+    gencode->receive_unmaskable_interrupt = (byte *) 0xfffffffffbadbeefULL;
 
     pc = gencode->gen_start_pc;
     pc = check_size_and_cache_line(gencode, pc);
@@ -675,32 +679,64 @@ emit_ibl_routine_and_template(dcontext_t *dcontext, generated_code_t *code,
     ibl_code->branch_type = branch_type;
     ibl_code->source_fragment_type = source_type;
 
-    pc = emit_indirect_branch_lookup(dcontext, code, pc, fcache_return_pc,
-                                     target_trace_table, inline_ibl_head,
-                                     ibl_code);
-    ibl_code->indirect_branch_lookup_routine_end = pc;
-    if (inline_ibl_head) {
-        /* create the inlined ibl template */
-        pc = check_size_and_cache_line(code, pc);
-        pc = emit_inline_ibl_stub(dcontext, pc, ibl_code, target_trace_table);
-    }
+    if(branch_type == IBL_RETURN)
+    {
+        pc = emit_indirect_branch_lookup/*_for_return*/(dcontext, code, pc, fcache_return_pc,
+                                         target_trace_table, inline_ibl_head,
+                                         ibl_code);
+        ibl_code->indirect_branch_lookup_routine_end = pc;
+        if (inline_ibl_head) {
+            /* create the inlined ibl template */
+            pc = check_size_and_cache_line(code, pc);
+            pc = emit_inline_ibl_stub(dcontext, pc, ibl_code, target_trace_table);
+        }
 
-    pc = check_size_and_cache_line(code, pc);
-    ibl_code->found_unlinked = pc;
-    pc = emit_ibl_found_unlinked_code(dcontext, pc, fcache_return_pc,
-                                      ibl_code, false, false);
-    pc = check_size_and_cache_line(code, pc);
-    ibl_code->found_unlinked_prefix = pc;
-    pc = emit_ibl_found_unlinked_code(dcontext, pc, fcache_return_pc,
+        pc = check_size_and_cache_line(code, pc);
+        ibl_code->found_unlinked = pc;
+        pc = emit_ibl_found_unlinked_code(dcontext, pc, fcache_return_pc,
+                                          ibl_code, false, false);
+        pc = check_size_and_cache_line(code, pc);
+        ibl_code->found_unlinked_prefix = pc;
+        pc = emit_ibl_found_unlinked_code(dcontext, pc, fcache_return_pc,
+                                          ibl_code, false, true);
+        pc = check_size_and_cache_line(code, pc);
+        ibl_code->found_unlinked_eflags = pc;
+        pc = emit_ibl_found_unlinked_code(dcontext, pc, fcache_return_pc,
+                                          ibl_code, true, false);
+        pc = check_size_and_cache_line(code, pc);
+        ibl_code->found_unlinked_eflags_prefix = pc;
+        pc = emit_ibl_found_unlinked_code(dcontext, pc, fcache_return_pc,
+                                          ibl_code, true, true);
+    }
+    else {
+        pc = emit_indirect_branch_lookup(dcontext, code, pc, fcache_return_pc,
+                                         target_trace_table, inline_ibl_head,
+                                         ibl_code);
+        ibl_code->indirect_branch_lookup_routine_end = pc;
+        if (inline_ibl_head) {
+            /* create the inlined ibl template */
+            pc = check_size_and_cache_line(code, pc);
+            pc = emit_inline_ibl_stub(dcontext, pc, ibl_code, target_trace_table);
+        }
+
+    	pc = check_size_and_cache_line(code, pc);
+    	ibl_code->found_unlinked = pc;
+    	pc = emit_ibl_found_unlinked_code(dcontext, pc, fcache_return_pc,
+    										ibl_code, false, false);
+    	pc = check_size_and_cache_line(code, pc);
+    	ibl_code->found_unlinked_prefix = pc;
+    	pc = emit_ibl_found_unlinked_code(dcontext, pc, fcache_return_pc,
                                       ibl_code, false, true);
-    pc = check_size_and_cache_line(code, pc);
-    ibl_code->found_unlinked_eflags = pc;
-    pc = emit_ibl_found_unlinked_code(dcontext, pc, fcache_return_pc,
+    	pc = check_size_and_cache_line(code, pc);
+    	ibl_code->found_unlinked_eflags = pc;
+    	pc = emit_ibl_found_unlinked_code(dcontext, pc, fcache_return_pc,
                                       ibl_code, true, false);
-    pc = check_size_and_cache_line(code, pc);
-    ibl_code->found_unlinked_eflags_prefix = pc;
-    pc = emit_ibl_found_unlinked_code(dcontext, pc, fcache_return_pc,
+    	pc = check_size_and_cache_line(code, pc);
+    	ibl_code->found_unlinked_eflags_prefix = pc;
+    	pc = emit_ibl_found_unlinked_code(dcontext, pc, fcache_return_pc,
                                       ibl_code, true, true);
+
+    }
     return pc;
 }
 
@@ -763,6 +799,10 @@ emit_ibl_routines(dcontext_t *dcontext, generated_code_t *code, byte *pc,
     }
     return pc;
 }
+
+
+//extern void handle_interrupt_native(void);
+extern void get_kernel_idtr(dcontext_t *dcontext);
 
 static byte *
 emit_syscall_routines(dcontext_t *dcontext, generated_code_t *code, byte *pc,
@@ -856,10 +896,19 @@ emit_syscall_routines(dcontext_t *dcontext, generated_code_t *code, byte *pc,
                             os_get_native_syscall_entry(dcontext), pc);
     pc = check_size_and_cache_line(code, pc);
     code->common_vector_entry = pc;
-    pc = emit_common_vector_entry(dcontext, os_get_tls_base(dcontext),
-                                  os_get_interrupt_handler(0), pc);
+
+    pc = emit_common_vector_entry(
+        dcontext,
+        os_get_tls_base(dcontext), // used for figuring out if interrupt is from userspace
+        os_get_interrupt_handler(0), // DRK's common interrupt handler
+        os_get_pagefault_handler(0),
+        os_get_generalfault_handler(0),
+        pc
+    );
+
     pc = check_size_and_cache_line(code, pc);
     pc = check_size_and_cache_line(code, pc);
+    get_kernel_idtr(dcontext);
     for (vector = VECTOR_START; vector < VECTOR_END; vector++) {
         /* Pack as many as we can on a cache line. */
         if (CROSSES_ALIGNMENT(pc, VECTOR_ENTRY_CODE_SIZE,
@@ -867,8 +916,14 @@ emit_syscall_routines(dcontext_t *dcontext, generated_code_t *code, byte *pc,
             pc = check_size_and_cache_line(code, pc);
         }
         code->vector_entry[vector] = pc;
+        // ostd = (os_thread_data_t)dcontext->os_field;
+
         pc = emit_vector_entry(dcontext, code->common_vector_entry, vector, pc);
+       // pc = emit_vector_entry(dcontext, os_get_tls_base(dcontext), os_get_interrupt_handler(0), vector, pc);
     }
+
+    dcontext->whereami = WHERE_NATIVE;
+
 
 #else /* LINUX */
     pc = check_size_and_cache_line(code, pc);
@@ -907,6 +962,7 @@ optimize_syscall_code(dcontext_t *dcontext, fragment_t *f)
     insert_relative_jump(pc, f->start_pc, false);
 }
 #endif
+
 
 void
 arch_thread_init(dcontext_t *dcontext)
@@ -960,8 +1016,18 @@ arch_thread_init(dcontext_t *dcontext)
     dcontext->private_code = (void *) code;
 
     pc = code->gen_start_pc;
+
+    pc = check_size_and_cache_line(code, pc);
+    code->receive_maskable_interrupt = pc;
+    pc = emit_cfi_build_pending_interrupt(dcontext, pc, true);
+
+    pc = check_size_and_cache_line(code, pc);
+    code->receive_unmaskable_interrupt = pc;
+    pc = emit_cfi_build_pending_interrupt(dcontext, pc, false);
+
     pc = check_size_and_cache_line(code, pc);
     code->fcache_enter = pc;
+
 #ifdef X64
     pc = emit_fcache_enter_shared(dcontext, code, pc);
 #else
@@ -979,6 +1045,10 @@ arch_thread_init(dcontext_t *dcontext)
 #ifdef WINDOWS_PC_SAMPLE
     code->fcache_enter_return_end = pc;
 #endif
+    pc = check_size_and_cache_line(code, pc);
+    code->enter_native = pc;
+    pc = emit_enter_native_shared(dcontext, code, pc);
+    code->enter_native_end = pc;
 
     /* Currently all ibl routines target the trace hashtable 
        and we don't yet support basic blocks as targets of an IBL.
@@ -1491,6 +1561,34 @@ fcache_enter_routine(dcontext_t *dcontext)
 {
     generated_code_t *code = THREAD_GENCODE(dcontext);
     return (fcache_enter_func_t) convert_data_to_function(code->fcache_enter);
+}
+
+cache_pc
+receive_maskable_interrupt_routine(dcontext_t *dcontext)
+{
+    generated_code_t *code = THREAD_GENCODE(dcontext);
+    return (cache_pc) (code->receive_maskable_interrupt);
+}
+
+cache_pc
+receive_unmaskable_interrupt_routine(dcontext_t *dcontext)
+{
+    generated_code_t *code = THREAD_GENCODE(dcontext);
+    return (cache_pc) (code->receive_unmaskable_interrupt);
+}
+
+fcache_enter_func_t
+enter_native_routine(dcontext_t *dcontext)
+{
+    generated_code_t *code = THREAD_GENCODE(dcontext);
+    return (fcache_enter_func_t) convert_data_to_function(code->enter_native);
+}
+
+/* exported to dispatch.c */
+fcache_enter_func_t
+get_enter_native_private_routine(dcontext_t *dcontext)
+{
+    return enter_native_routine(dcontext);
 }
 
 /* exported to dispatch.c */

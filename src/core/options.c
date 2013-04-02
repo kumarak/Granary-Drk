@@ -459,6 +459,8 @@ set_dynamo_options_common(options_t *options, char *optstr, bool for_this_proces
     void *value = NULL;
     bool value_true = true, value_false = false;
 
+    (void) prev_pos;
+
     if (optstr == NULL)
         return 0;
 

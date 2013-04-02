@@ -582,12 +582,12 @@ update_lookuptable_tls(dcontext_t *dcontext, ibl_table_t *table)
         table->hash_mask;
 }
 
-#ifdef DEBUG
+//#ifdef DEBUG
 static const char *ibl_bb_table_type_names[IBL_BRANCH_TYPE_END] = 
     {"ret_bb", "indcall_bb", "indjmp_bb"};
 static const char *ibl_trace_table_type_names[IBL_BRANCH_TYPE_END] = 
     {"ret_trace", "indcall_trace", "indjmp_trace"};
-#endif
+//#endif
 
 #ifdef DEBUG
 static inline void
@@ -1495,7 +1495,7 @@ fragment_reset_free(void)
         ibl_branch_type_t branch_type;
         dead_fragment_table_t *current, *next;
         DEBUG_DECLARE(int table_count = 0;)
-        DEBUG_DECLARE(stats_int_t dead_tables = GLOBAL_STAT(num_dead_shared_ibt_tables);)
+        //DEBUG_DECLARE(stats_int_t dead_tables = GLOBAL_STAT(num_dead_shared_ibt_tables);)
 
         for (branch_type = IBL_BRANCH_TYPE_START; 
              branch_type < IBL_BRANCH_TYPE_END; branch_type++) {
@@ -3024,6 +3024,8 @@ fragment_add(dcontext_t *dcontext, fragment_t *f)
                 !TEST(FRAG_IS_TRACE, existing->flags) &&
                 TESTALL(FRAG_SHARED | FRAG_IS_TRACE_HEAD, existing->flags)));
     });
+
+    (void) resized;
 
     /* We'd like the shared fragment table synch to be independent of the
      * bb building synch (which may become more fine-grained in the future),
@@ -7018,6 +7020,7 @@ flush_vmvector_regions(dcontext_t *dcontext, vm_area_vector_t *toflush,
 
 /****************************************************************************/
 #if defined(INTERNAL) || defined(CLIENT_INTERFACE)
+//#define IF_DEBUG_ELSE
 
 void
 fragment_output(dcontext_t *dcontext, fragment_t *f)

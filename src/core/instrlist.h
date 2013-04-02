@@ -101,10 +101,12 @@ DR_API
 app_pc
 instrlist_get_translation_target(instrlist_t *ilist);
 
+DR_API
 /* not exported: for PR 267260 */
 void
 instrlist_set_our_mangling(instrlist_t *ilist, bool ours);
 
+DR_API
 bool
 instrlist_get_our_mangling(instrlist_t *ilist);
 
@@ -179,6 +181,12 @@ DR_API
 /** Replaces \p oldinst with \p newinst in \p ilist (does not destroy \p oldinst). */
 instr_t*
 instrlist_replace(instrlist_t *ilist, instr_t *oldinst, instr_t *newinst);
+
+
+DR_API
+/** Replaces \p oldinst with \p newinst in \p ilist (does not destroy \p oldinst). */
+instr_t*
+instrlist_meta_replace(instrlist_t *ilist, instr_t *oldinst, instr_t *newinst);
 
 DR_API
 /** Removes (does not destroy) \p instr from \p ilist. */

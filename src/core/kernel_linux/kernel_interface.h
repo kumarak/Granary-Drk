@@ -21,6 +21,23 @@ void* kernel_allocate_heap(size_t size);
 
 void kernel_free_heap(void* heap);
 
+
+void* kernel_allocate(size_t size);
+void kernel_free(void* heap);
+
+void*
+kernel_get_thread_private_slot(size_t slot);
+
+void*
+kernel_thread_private_slot_init(size_t slot);
+
+void *
+kernel_get_thread_private_slot_from_rsp(void* rsp_ptr, size_t slot);
+
+void*
+kernel_memcpy(void *dest, void *src, size_t size);
+
+
 int kernel_get_online_processor_count(void);
 int kernel_get_present_processor_count(void);
 
@@ -51,6 +68,18 @@ bool is_kernel_code(void* pc);
 /* None of these routines are safe to use after initilization. */
 void* kernel_load_shared_library(char* name);
 void* kernel_lookup_library_routine(void* lib, char* name);
+
+void* get_thread_private_client_extension();
+
+unsigned int
+get_thread_private_slot(size_t slot);
+
+void
+set_thread_private_slot(size_t slot, unsigned int flag);
+
+void*
+get_stack_init_address(void);
+
 bool kernel_shared_library_bounds(void* lib, byte* addr, byte** start,
                                   byte** end);
 byte* kernel_get_module_base(byte* pc);

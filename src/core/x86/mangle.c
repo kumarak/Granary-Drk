@@ -1709,6 +1709,8 @@ mangle_direct_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
 /***************************************************************************
  * INDIRECT CALL
  */
+
+#define WATCHPOINT_INDEX_MASK  0xffff800000000000
 static void
 mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
                      instr_t *next_instr, bool mangle_calls, uint flags)
@@ -1777,6 +1779,7 @@ mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
     PRE(ilist, instr,
         SAVE_TO_DC_OR_TLS(dcontext, flags, REG_XCX, MANGLE_XCX_SPILL_SLOT, XCX_OFFSET));
     
+
 #ifdef STEAL_REGISTER
     /* Steal edi if call uses it, using original call instruction */
     steal_reg(dcontext, instr, ilist);
@@ -1792,47 +1795,56 @@ mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
     
     /* change: call /2, Ev -> movl Ev, %xcx */
     target = instr_get_src(instr, 0);
-    if (instr_get_opcode(instr) == OP_call_far_ind) {
-        opnd_size_t addr_size;
-        /* N.B.: we do not support other than flat 0-based CS, DS, SS, and ES.
-         * if the app wants to change segments, we won't actually issue
-         * a segment change, and so will only work properly if the new segment
-         * is also 0-based.  To properly issue new segments, we'd need a special
-         * ibl that ends in a far cti, and all prior address manipulations would
-         * need to be relative to the new segment, w/o messing up current segment.
-         * FIXME: can we do better without too much work?
-         */
-        SYSLOG_INTERNAL_WARNING_ONCE("Encountered a far indirect call");
-        STATS_INC(num_far_ind_calls);
-        /* opnd type is i_Ep, it's not a far base disp b/c segment is at
-         * memory location, not specified as segment prefix on instr.
-         * we assume register operands are marked as invalid instrs long
-         * before this point.
-         */
-        /* FIXME: if it is a far base disp we assume 0 base */
-        ASSERT(opnd_is_base_disp(target));
-        /* Segment selector is the final 2 bytes.
-         * We ignore it and assume DS base == target cti CS base.
-         */
-        /* if data16 then just 2 bytes for address
-         * if x64 mode and Intel and rex then 8 bytes for address */
-        ASSERT((X64_MODE_DC(dcontext) && opnd_get_size(target) == OPSZ_10 &&
-                proc_get_vendor() != VENDOR_AMD) ||
-               opnd_get_size(target) == OPSZ_6 || opnd_get_size(target) == OPSZ_4);
-        if (opnd_get_size(target) == OPSZ_10) {
-            addr_size = OPSZ_8;
-            reg_target = REG_RCX;
-        } else if (opnd_get_size(target) == OPSZ_6) {
-            addr_size = OPSZ_4;
-            reg_target = REG_ECX;
-        } else /* target has OPSZ_4 */ {
-            addr_size = OPSZ_2;
-            reg_target = REG_XCX; /* we use movzx below so size doesn't have to match */
+
+    if(target.kind == BASE_DISP_kind){
+        if (instr_get_opcode(instr) == OP_call_far_ind) {
+            opnd_size_t addr_size;
+            /* N.B.: we do not support other than flat 0-based CS, DS, SS, and ES.
+             * if the app wants to change segments, we won't actually issue
+             * a segment change, and so will only work properly if the new segment
+             * is also 0-based.  To properly issue new segments, we'd need a special
+             * ibl that ends in a far cti, and all prior address manipulations would
+             * need to be relative to the new segment, w/o messing up current segment.
+             * FIXME: can we do better without too much work?
+             */
+            SYSLOG_INTERNAL_WARNING_ONCE("Encountered a far indirect call");
+            STATS_INC(num_far_ind_calls);
+            /* opnd type is i_Ep, it's not a far base disp b/c segment is at
+             * memory location, not specified as segment prefix on instr.
+             * we assume register operands are marked as invalid instrs long
+             * before this point.
+             */
+            /* FIXME: if it is a far base disp we assume 0 base */
+            ASSERT(opnd_is_base_disp(target));
+            /* Segment selector is the final 2 bytes.
+             * We ignore it and assume DS base == target cti CS base.
+             */
+            /* if data16 then just 2 bytes for address
+             * if x64 mode and Intel and rex then 8 bytes for address */
+            ASSERT((X64_MODE_DC(dcontext) && opnd_get_size(target) == OPSZ_10 &&
+                    proc_get_vendor() != VENDOR_AMD) ||
+                    opnd_get_size(target) == OPSZ_6 || opnd_get_size(target) == OPSZ_4);
+            if (opnd_get_size(target) == OPSZ_10) {
+                addr_size = OPSZ_8;
+                reg_target = REG_RCX;
+            } else if (opnd_get_size(target) == OPSZ_6) {
+                addr_size = OPSZ_4;
+                reg_target = REG_ECX;
+            } else /* target has OPSZ_4 */ {
+                addr_size = OPSZ_2;
+                reg_target = REG_XCX; /* we use movzx below so size doesn't have to match */
+            }
+
+            target = opnd_create_base_disp(opnd_get_base(target), opnd_get_index(target),
+                    opnd_get_scale(target), opnd_get_disp(target),
+                    addr_size);
         }
-            
-        target = opnd_create_base_disp(opnd_get_base(target), opnd_get_index(target),
-                                       opnd_get_scale(target), opnd_get_disp(target),
-                                       addr_size);
+
+        PRE(ilist, instr, INSTR_CREATE_push(dcontext, opnd_create_reg(opnd_get_base(target))));
+        PRE(ilist, instr, INSTR_CREATE_mov_imm(dcontext, opnd_create_reg(reg_target), OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
+        PRE(ilist, instr, INSTR_CREATE_or(dcontext, opnd_create_reg(opnd_get_base(target)), opnd_create_reg(reg_target)));
+        POST(ilist, instr, INSTR_CREATE_pop(dcontext, opnd_create_reg(opnd_get_base(target))));
+
     }
     /* cannot call instr_reset, it will kill prev & next ptrs */
     instr_free(dcontext, instr);

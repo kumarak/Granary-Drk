@@ -40,6 +40,16 @@
  */
 
 /**
+ * Types of module exit point kinds.
+ */
+enum module_exit_kind {
+    MODULE_EXIT_CALL = 0,
+    MODULE_EXIT_RETURN,
+
+    __MODULE_NUM_EXIT_KINDS
+};
+
+/**
  * Type used for dr_get_proc_address().  This can be obtained from the
  * #_module_data_t structure.  It is equivalent to the base address of
  * the module on both Windows and Linux.

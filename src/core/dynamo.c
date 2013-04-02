@@ -431,7 +431,7 @@ dr_smp_init(dr_cpu_exports_t *exports)
 void
 dr_smp_exit(void)
 {
-    DEBUG_DECLARE(int res;)
+   /* DEBUG_DECLARE(*/int res;//)
     static bool main_thread_exited = false;
     if (barrier_wait(&main_thread_exit)) {
         barrier_wait(&other_threads_exit);
@@ -1223,6 +1223,7 @@ dynamo_process_exit_cleanup(void)
         APP_EXPORT_ASSERT(dynamo_initialized, "Improper DynamoRIO initialization");
 
         dcontext = get_thread_private_dcontext();
+        (void) dcontext;
 
         /* we deliberately do NOT clean up initstack (which was
          * allocated using a separate mmap and so is not part of some
@@ -1621,7 +1622,7 @@ initialize_dynamo_context(dcontext_t *dcontext)
      */
     memset(dcontext->upcontext_ptr, 0, sizeof(unprotected_context_t));
     dcontext->initialized = true;
-    dcontext->whereami = WHERE_APP;
+    dcontext->whereami = WHERE_NATIVE;
     dcontext->next_tag = NULL;
     dcontext->native_exec_retval = NULL;
     dcontext->native_exec_retloc = NULL;
@@ -3146,4 +3147,17 @@ is_currently_on_dstack(dcontext_t *dcontext)
     byte *cur_esp;
     GET_STACK_PTR(cur_esp);
     return is_on_dstack(dcontext, cur_esp);
+}
+
+
+noinline void break_on_fault(void)
+{
+
+}
+
+void
+dr_hotpatch_interface(void *addr){
+    dcontext_t *drcontext;
+    drcontext = get_thread_private_dcontext();
+    drcontext->hotpatch_callback(drcontext);
 }

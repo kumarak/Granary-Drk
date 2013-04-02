@@ -3035,7 +3035,7 @@ nudge_action_read_policies(void)
 
         /* Fix for case 5367.  TODO: undo fix after writing own loader. */
         wherewasi = dcontext->whereami;
-        dcontext->whereami = WHERE_APP;     /* WHERE_APP?  more like WHERE_DR */
+        dcontext->whereami = WHERE_NATIVE;     /* WHERE_NATIVE?  more like WHERE_DR */
         dcontext->nudge_thread = true;
 
         /* Fix for case 5376.  There can be a deadlock if a nudge happened
@@ -3062,7 +3062,7 @@ nudge_action_read_policies(void)
         /* If whereami changed, that means, the probably was a callback,
          * which can lead to other bugs.  So, let us make sure it doesn't.
          */
-        ASSERT(dcontext->whereami == WHERE_APP);
+        ASSERT(dcontext->whereami == WHERE_NATIVE);
         dcontext->whereami = wherewasi;
         dcontext->thread_record->under_dynamo_control = old_value;
 
@@ -4990,14 +4990,14 @@ hotp_execute_patch(hotp_func_t hotp_fn_ptr, hotp_context_t *hotp_cxt,
 
     /* For hot patching with fcache, today, hot patches are executed only from 
      * within the fcache.  For hotp_only, there is no fcache; hot patches are
-     * executed directly when they are WHERE_APP.
+     * executed directly when they are WHERE_NATIVE.
 
 Question for reviewer: for hotp_only, when control comes to the gateway, should
-    whereami be changed to something other than WHERE_APP because we are technically
+    whereami be changed to something other than WHERE_NATIVE because we are technically
     in the core now; if so, would it be WHERE_TRAMPOLINE?
      */
     ASSERT(dcontext->whereami == WHERE_FCACHE ||
-           (dcontext->whereami == WHERE_APP && DYNAMO_OPTION(hotp_only)));
+           (dcontext->whereami == WHERE_NATIVE && DYNAMO_OPTION(hotp_only)));
     wherewasi = dcontext->whereami;
 
     /* In case the hot patch causes an exception, the context may be in an 

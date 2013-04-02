@@ -548,7 +548,7 @@ enum {VMM_BLOCK_SIZE = IF_WINDOWS_ELSE(64,16)*1024}; /* 64KB or 16KB */
 
 enum {
     /* maximum 512MB virtual memory units */
-    MAX_VMM_HEAP_UNIT_SIZE = 512*1024*1024, 
+    MAX_VMM_HEAP_UNIT_SIZE = 512*1024*1024,
     /* We should normally have only one large unit, so this is in fact
      * the maximum we should count on in one process 
      */
@@ -2568,7 +2568,7 @@ heap_create_unit(thread_units_t *tu, size_t size, bool must_be_new)
 {
     heap_unit_t *u = NULL, *dead = NULL, *prev_dead = NULL;
     bool new_unit = false;
-
+    (void) new_unit;
     /* we do not restrict size to unit max as we have to make larger-than-max
      * units for oversized requests
      */

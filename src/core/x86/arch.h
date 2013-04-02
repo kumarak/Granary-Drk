@@ -304,11 +304,20 @@ parameters_stack_padded(void);
 void
 insert_meta_call_vargs(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
                        bool clean_call, void *callee, uint num_args, va_list ap);
+
+void
+insert_meta_native_call_vargs(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
+                       bool clean_call, void *callee, uint num_args, va_list ap);
+
 void
 insert_get_mcontext_base(dcontext_t *dcontext, instrlist_t *ilist, 
                          instr_t *where, reg_id_t reg);
 uint
 prepare_for_clean_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr);
+
+uint
+prepare_for_clean_call_on_cti(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr);
+
 void
 cleanup_after_clean_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr);
 void convert_to_near_rel(dcontext_t *dcontext, instr_t *instr);
@@ -497,6 +506,14 @@ typedef struct _generated_code_t {
     byte *fcache_enter_end;
     byte *fcache_return;
     byte *fcache_return_end;
+    byte *enter_native;
+    byte *enter_native_end;
+    byte *direct_call_exit;
+    byte *direct_call_exit_end;
+
+    byte *receive_maskable_interrupt;
+    byte *receive_unmaskable_interrupt;
+
 #ifdef WINDOWS_PC_SAMPLE
     byte *fcache_enter_return_end;
 #endif
@@ -600,14 +617,22 @@ fcache_enter_func_t fcache_enter_routine(dcontext_t *dcontext);
 cache_pc fcache_return_routine(dcontext_t *dcontext);
 cache_pc fcache_return_routine_ex(dcontext_t *dcontext _IF_X64(gencode_mode_t mode));
 
+cache_pc receive_maskable_interrupt_routine(dcontext_t *dcontext);
+cache_pc receive_unmaskable_interrupt_routine(dcontext_t *dcontext);
+
 /* thread-shared generated code */
+byte * emit_direct_call_to_kernel_shared(dcontext_t *dcontext, exit_direct_call_stub exit_addr, byte *pc);
 byte * emit_fcache_enter_shared(dcontext_t *dcontext, generated_code_t *code, byte *pc);
 byte * emit_fcache_return_shared(dcontext_t *dcontext, generated_code_t *code, byte *pc);
+byte * emit_enter_native_shared(dcontext_t *dcontext, generated_code_t *code, byte *pc);
 fcache_enter_func_t fcache_enter_shared_routine(dcontext_t *dcontext);
 /* the fcache_return routines are queried by get_direct_exit_target and need more
  * direct control than the dcontext
  */
 cache_pc fcache_return_shared_routine(IF_X64(gencode_mode_t mode));
+
+fcache_enter_func_t
+get_enter_native_private_routine(dcontext_t *dcontext);
 
 /* coarse-grain generated code */
 byte * emit_fcache_return_coarse(dcontext_t *dcontext, generated_code_t *code, byte *pc);
@@ -720,6 +745,16 @@ byte * emit_indirect_branch_lookup(dcontext_t *dcontext, generated_code_t *code,
                                    bool inline_ibl_head,
                                    ibl_code_t *ibl_code);
 
+byte * emit_indirect_branch_lookup_for_return(dcontext_t *dcontext, generated_code_t *code, byte *pc,
+                                   byte *fcache_return_pc,
+                                   bool target_trace_table,
+                                   bool inline_ibl_head,
+                                   ibl_code_t *ibl_code);
+
+byte * emit_ibl_found_unlinked_code_for_return(dcontext_t *dcontext, byte *pc,
+                                    byte *fcache_return_pc,
+                                    ibl_code_t *ibl_code, bool restore_eflags,
+                                    bool include_prefix);
 byte * emit_ibl_found_unlinked_code(dcontext_t *dcontext, byte *pc,
                                     byte *fcache_return_pc,
                                     ibl_code_t *ibl_code, bool restore_eflags,
@@ -779,10 +814,43 @@ byte * emit_do_syscall(dcontext_t *dcontext, generated_code_t *code, byte *pc,
 byte *emit_syscall_entry(dcontext_t *dcontext, cache_pc fcache_return,
                          app_pc target, cache_pc pc);
 byte *emit_common_vector_entry(dcontext_t *dcontext, byte* tls_base,
-                               interrupt_handler_t handler, cache_pc pc);
-#define VECTOR_ENTRY_CODE_SIZE (2 * PUSH_IMM32_LENGTH + JMP_LONG_LENGTH)
+                               interrupt_handler_t handler,pagefault_handler_t pagefault_handler, pagefault_handler_t general_fault_handler, cache_pc pc);
+cache_pc emit_cfi_build_pending_interrupt(
+    dcontext_t *dcontext,
+    cache_pc pc,
+    bool is_maskable
+);
+//#define VECTOR_ENTRY_CODE_SIZE (2 * PUSH_IMM32_LENGTH + JMP_LONG_LENGTH)
+
+// Common vector entry is at most this many instructions, potentially
+// without the first push:
+//
+// push <kern_addr, i32>
+// push <kern_addr, i32>
+// push <vector, i32>
+// push $0x0;
+// push %rax;
+// mov %rsp, %rax;
+// lea 40(,%rax,1), %rax;
+// mov %rax, 0x8(%rsp);
+// pop %rax;
+// jmp <common_vector_entry_pc>
+
+enum {
+    VECTOR_ENTRY_CODE_SIZE = (
+        (4 * PUSH_IMM32_LENGTH) +
+        PUSH_REG_LENGTH +
+        MOV_LD_LENGTH +
+        LEA_IMM_DISP_LENGTH +
+        MOV_IMM_DISP_LENGTH +
+        POP_REG_LENGTH +
+        JMP_LONG_LENGTH
+    ) // 42 bytes
+};
 byte *emit_vector_entry(dcontext_t *dcontext, byte *common_vector_entry_pc,
                         interrupt_vector_t vector, cache_pc pc);
+/*byte *emit_vector_entry(dcontext_t *dcontext, byte* tls_base, interrupt_handler_t handler,
+                        interrupt_vector_t vector, cache_pc pc);*/
 #endif
 
 #ifdef WINDOWS

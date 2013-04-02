@@ -191,6 +191,7 @@ DECL_EXTERN(get_xmm_vals)
 DECL_EXTERN(auto_setup)
 DECL_EXTERN(back_from_native_C)
 DECL_EXTERN(dispatch)
+DECL_EXTERN(get_kernel_vector_entry)
 #ifdef DR_APP_EXPORTS
 DECL_EXTERN(dr_app_start_helper)
 #endif
@@ -266,13 +267,13 @@ GLOBAL_LABEL(dynamo_auto_start:)
         DECLARE_FUNC(get_pic_xax)
 GLOBAL_LABEL(get_pic_xax:)
         mov      REG_XAX, PTRSZ [REG_XSP]
-        ret
+       // ret
         END_FUNC(get_pic_xax)
 
         DECLARE_FUNC(get_pic_xdi)
 GLOBAL_LABEL(get_pic_xdi:)
         mov      REG_XDI, PTRSZ [REG_XSP]
-        ret
+     //   ret
         END_FUNC(get_pic_xdi)
 #endif
 
@@ -410,13 +411,57 @@ GLOBAL_LABEL(dr_app_start:)
 
         /* do the rest in C */
         lea      REG_XAX, [REG_XSP] /* stack grew down, so dr_mcontext_t at tos */
+		pushfq
+		cli
         CALLC1(dr_app_start_helper, REG_XAX)
-
+	    popfq
         /* if we come back, then DR is not taking control so 
          * clean up stack and return */
         add      REG_XSP, DR_MCONTEXT_SIZE
         ret
         END_FUNC(dr_app_start)
+
+        DECLARE_EXPORTED_FUNC(dr_app_start_after_iret)
+GLOBAL_LABEL(dr_app_start_after_iret:)
+		nop
+		nop
+		nop
+
+        DECLARE_EXPORTED_FUNC(dr_app_start_on_return)
+GLOBAL_LABEL(dr_app_start_on_return:)
+        /* grab exec state and pass as param in a dr_mcontext_t struct */
+ // space for stored %rip
+        lea     REG_XSP, [REG_XSP - 8]
+
+        // flags, diabled interrupts
+        pushfq
+        cli
+
+        // registers
+        PUSHALL
+        mov     REG_XDI, REG_XSP
+        call    get_xmm_vals
+
+        // update stack pointer stored in mcontext to point
+        // *above* the mcontext
+        lea     REG_XAX, [DR_MCONTEXT_SIZE - 8  + REG_XSP]
+        mov     [PUSHALL_XSP_OFFS + REG_XSP], REG_XAX
+
+        // get the thread-private return address; let's hope that
+        // it finds the right info given the decent sized increase
+        // in the stack size; fill in the %rip slot.
+        call    dr_get_client_return_address_from_thread
+        mov     [REG_XSP + DR_MCONTEXT_SIZE - 8], REG_XAX
+
+        // do the rest in C, passing the mcontext pointer to DRK
+        mov     REG_XDI, REG_XSP
+        call    dynamo_start
+        hlt
+
+        // DIE
+
+        END_FUNC(dr_app_start_on_return)
+
 
 /*
  * dr_app_take_over - For the client interface, we'll export 'dr_app_take_over'
@@ -441,10 +486,13 @@ GLOBAL_LABEL(dynamorio_app_take_over:)
 
         /* do the rest in C */
         lea      REG_XAX, [REG_XSP] /* stack grew down, so dr_mcontext_t at tos */
+	pushfq
+	cli
         CALLC1(dynamorio_app_take_over_helper, REG_XAX)
 
         /* if we come back, then DR is not taking control so 
          * clean up stack and return */
+	popfq
         add      REG_XSP, DR_MCONTEXT_SIZE
         ret
         END_FUNC(dynamorio_app_take_over)
@@ -1894,6 +1942,169 @@ GLOBAL_LABEL(load_dynamo_failure:)
         
 #endif /* WINDOWS */
 
+
+        DECLARE_FUNC(enter_interrupt_vector)
+GLOBAL_LABEL(enter_interrupt_vector:)
+        END_FUNC(enter_interrupt_vector)
+
+
+        DECLARE_FUNC(handle_interrupt_native)
+GLOBAL_LABEL(handle_interrupt_native:)
+/*		pushfq
+		lea REG_XSP, [REG_XSP - 0x100]
+		push r15
+		pop r15
+		lea REG_XSP, [REG_XSP + 0x100]
+		popfq
+		ret*/
+/* 0xffff88006f73fb80 -> badbeef
+   0xffff88006f73fb78 -> vector	*/
+   /*		push 0x0 */
+   		pushfq	//0xffff88006f73fb70
+   		lea REG_XSP, [REG_XSP - 0x100]
+   		push r15	//0xffff88006f73fb68
+   		push r14	//0xffff88006f73fb60
+   		push r13	//0xffff88006f73fb58
+   		push r12	//0xffff88006f73fb50
+   		push r11 	//0xffff88006f73fb48
+   		push r10	//0xffff88006f73fb40
+   		push r9		//0xffff88006f73fb38
+   		push r8		//0xffff88006f73fb30
+   		push REG_XAX	//0xffff88006f73fb28
+   		push REG_XCX	//0xffff88006f73fb20
+   		push REG_XDX	//0xffff88006f73fb18
+   		push REG_XBX	//0xffff88006f73fb10
+   		push REG_XBP	//0xffff88006f73fb08
+   		push REG_XSI	//0xffff88006f73fb00
+   		push REG_XDI	//0xffff88006f73fae8
+   		mov REG_XCX, 0xc0000101
+		rdmsr
+		shl REG_XDX, 0x20
+		or  REG_XDX, REG_XAX
+		mov REG_XBX, REG_XDX
+		push REG_XBX
+		mov REG_XCX, 0xc0000102
+		rdmsr
+		shl REG_XDX, 0x20
+		or REG_XDX, REG_XAX
+		push REG_XDX
+		cmp REG_XBX, REG_XDX
+		je no_swapgs1
+		swapgs
+		mov REG_XCX, 0xef
+		CALLC1(get_kernel_vector_entry, REG_XCX)
+no_swapgs1:
+		pop REG_XDX
+		pop REG_XBX
+		cmp REG_XBX, REG_XDX
+		je no_swapgs2
+		swapgs
+no_swapgs2:
+		//mov [REG_XSP + 0x198], REG_XAX
+		pop REG_XDI
+		pop REG_XSI
+		pop REG_XBP
+		pop REG_XBX
+		pop REG_XDX
+		pop REG_XCX
+		pop REG_XAX
+		pop r8
+		pop r9
+		pop r10
+		pop r11
+		pop r12
+		pop r13
+		pop r14
+		pop r15
+		lea REG_XSP, [REG_XSP + 0x100]
+		popfq
+		ret
+        END_FUNC(handle_interrupt_native)
+
+        DECLARE_EXPORTED_FUNC(return_to_module_from_interrupt)
+GLOBAL_LABEL(return_to_module_from_interrupt:)
+		push rbp
+		push rbp
+		mov rbp, rsp
+		pushfq
+		cli
+		push rdi
+		push rsi
+		push rdx
+		push rbx
+		push rcx
+		push rax
+		push r8
+		push r9
+		push r10
+		push r11
+		push r12
+		push r13
+		push r14
+		push r15
+		call dr_get_client_return_address
+		mov [8 + rbp], rax
+		pop r15
+		pop	r14
+		pop	r13
+		pop	r12
+		pop	r11
+		pop	r10
+		pop	r9
+		pop	r8
+		pop	rax
+		pop	rcx
+		pop	rbx
+		pop	rdx
+		pop	rsi
+		pop	rdi
+		popfq
+		pop	rbp
+		jmp  dr_app_start_after_iret
+		END_FUNC(return_to_module_from_interrupt)
+
+
+
+        DECLARE_FUNC(mecontext_snapshot_native)
+GLOBAL_LABEL(mecontext_snapshot_native:)
+   //     pushq   0x0
+        push    r15
+        push    r14
+        push    r13
+        push    r12
+        push    r11
+        push    r10
+        push    r9
+        push    r8
+        push    rax
+        push    rcx
+        push    rdx
+        push    rbx
+        push    rsi
+        push    rdi
+        push    rbp
+        mov     REG_XDI, REG_XSP
+        call    dr_get_mcontext_snapshot
+        pop     rbp
+        pop     rdi
+        pop     rsi
+        pop     rbx
+        pop     rdx
+        pop     rcx
+        pop     rax
+        pop     r8
+        pop     r9
+        pop     r10
+        pop     r11
+        pop     r12
+        pop     r13
+        pop     r14
+        pop     r15
+        ret
+        END_FUNC(mecontext_snapshot_native)
+
+
+
 #ifdef LINUX_KERNEL
         DECLARE_FUNC(native_sysret)
 GLOBAL_LABEL(native_sysret:)
@@ -1907,5 +2118,19 @@ GLOBAL_LABEL(dr_native_iret:)
         iretq
         END_FUNC(dr_native_iret)
 #endif /* LINUX_KERNEL */
+
+
+    DECLARE_FUNC(get_return_address)
+GLOBAL_LABEL(get_return_address:)
+    mov rax, [rbp + 8]
+    ret
+    END_FUNC(get_return_address)
+
+    DECLARE_FUNC(set_return_address)
+GLOBAL_LABEL(set_return_address:)
+    mov [rbp + 8], rdi
+    ret
+    END_FUNC(set_return_address)
+
 
 END_FILE

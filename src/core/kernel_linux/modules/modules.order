@@ -1,0 +1,6 @@
+kernel//home/akshayk/GranaryCode/Granary-Drk/src/core/kernel_linux/modules/dynamorio_controller.ko
+kernel//home/akshayk/GranaryCode/Granary-Drk/src/core/kernel_linux/modules/dynamorio.ko
+kernel//home/akshayk/GranaryCode/Granary-Drk/src/core/kernel_linux/modules/dr_kernel_utils.ko
+kernel//home/akshayk/GranaryCode/Granary-Drk/src/core/kernel_linux/modules/instrcount.ko
+kernel//home/akshayk/GranaryCode/Granary-Drk/src/core/kernel_linux/modules/cfi.ko
+kernel//home/akshayk/GranaryCode/Granary-Drk/src/core/kernel_linux/modules/null.ko

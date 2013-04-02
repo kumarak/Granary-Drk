@@ -124,6 +124,7 @@ enum {
     DR_REG_AH,   DR_REG_CH,   DR_REG_DH,   DR_REG_BH,
     DR_REG_R8L,  DR_REG_R9L,  DR_REG_R10L, DR_REG_R11L,
     DR_REG_R12L, DR_REG_R13L, DR_REG_R14L, DR_REG_R15L,
+
     DR_REG_SPL,  DR_REG_BPL,  DR_REG_SIL,  DR_REG_DIL,
     /* 64-BIT MMX */
     DR_REG_MM0,  DR_REG_MM1,  DR_REG_MM2,  DR_REG_MM3,
@@ -1271,9 +1272,30 @@ bool
 opnd_uses_reg(opnd_t opnd, reg_id_t reg);
 
 DR_API
+void
+instr_change_dsts_base_disp_opnd(instr_t *instr, int pos, int disp, reg_id_t base, reg_id_t index, int scale);
+
+DR_API
+void
+instr_change_srcs_base_disp_opnd(instr_t *instr, int pos, int disp, reg_id_t base, reg_id_t index, int scale);
+
+
+DR_API
 /** Set the displacement of a memory reference operand \p opnd to \p disp. */
 void
 opnd_set_disp(opnd_t *opnd, int disp);
+
+DR_API
+void
+opnd_set_base(opnd_t *opnd, reg_id_t base);
+
+DR_API
+void
+opnd_set_index(opnd_t *opnd, reg_id_t index);
+
+DR_API
+void
+opnd_set_scale(opnd_t *opnd, int scale);
 
 DR_API
 /** 
@@ -1583,9 +1605,105 @@ struct _instr_t {
 
 /* DR_API EXPORT TOFILE dr_ir_instr.h */
 
+DR_API
+void
+dr_takeover_idtr(void);
+
+DR_API
+void
+dr_set_native_idtr(void);
+
+DR_API
+void
+dr_app_take_over(void);
+
+DR_API
+void
+dr_app_stop(void);
+
+DR_API
+void
+dr_app_start(void);
 /* functions to inspect and manipulate the fields of an instr_t 
  * NB: a number of instr_ routines are declared in arch_exports.h.
  */
+
+DR_API
+void
+get_return_address(void);
+
+extern
+void cfi_direct_call_to_kernel(void);
+
+
+DR_API
+void
+return_to_module_from_interrupt(void);
+
+DR_API
+void
+mecontext_snapshot_native(void);
+
+DR_API
+void
+dr_app_start_after_iret(void);
+
+DR_API
+void
+dr_app_start_on_return(void);
+
+DR_API
+void*
+dr_get_wrapper_target(app_pc kernel_addr);
+
+DR_API
+void
+dr_register_direct_call_exit(void *addr);
+
+DR_API
+void
+dr_register_kernel_wrapper(void *addr);
+
+DR_API
+void*
+dr_is_granary_code(void *addr);
+
+DR_API
+void
+dr_register_is_granary_code(int (*func)(void *));
+
+
+DR_API
+void*
+dr_is_instrumented_module_code(void *addr);
+
+DR_API
+void
+dr_register_is_instrumented_module_code(int (*func)(void *));
+
+DR_API
+int
+dr_get_symbol_name(void *addr);
+
+DR_API
+void
+dr_register_get_symbol_name(int (*func)(void *));
+
+DR_API
+void
+dr_register_exit_module_context(void* addr);
+
+DR_API
+void
+dr_register_address_untracker(void *(*addr)(void *));
+
+DR_API
+void
+dr_register_address_return_exit(void (*addr)(void));
+
+DR_API
+int
+is_drk_running(void);
 
 DR_API
 /** Returns number of bytes of heap used by \p instr. */
@@ -1640,6 +1758,11 @@ DR_API
 /** Get the original application PC of \p instr if it exists. */
 app_pc
 instr_get_app_pc(instr_t *instr);
+
+DR_API
+/* Get the original application PC of the instruction if it exists. */
+void
+instr_set_app_pc(instr_t *instr, app_pc pc);
 
 DR_API
 /** Returns \p instr's opcode (an OP_ constant). */
@@ -1715,6 +1838,10 @@ DR_API
  */
 void 
 instr_set_dst(instr_t *instr, uint pos, opnd_t opnd);
+
+DR_API
+void
+instr_being_modified(instr_t *instr, bool raw_bits_valid);
 
 DR_API
 /**
@@ -1995,6 +2122,7 @@ instr_set_prefixes(instr_t *instr, uint prefixes);
  * handful of PREFIX_ flags we're exporting.
  * Returns instr's prefixes as PREFIX_ constants or-ed together.
  */
+DR_API
 uint 
 instr_get_prefixes(instr_t *instr);
 

@@ -57,13 +57,21 @@
 #include "../nudge.h" /* for nudge_internal() */
 #include "../synch.h"
 #include "barrier.h"
+#include "kernel_interface.h"
 #ifdef LINUX
 //# include <sys/time.h> /* ITIMER_* */
 #endif
 
+#define POST instrlist_meta_postinsert
+#define PRE  instrlist_meta_preinsert
+
 #ifdef CLIENT_INTERFACE
 /* in utils.c, not exported to everyone */
 extern void do_file_write(file_t f, const char *fmt, va_list ap);
+
+extern void (*module_exit_vtable[__MODULE_NUM_EXIT_KINDS])(void *);
+
+//extern app_pc kernel_entry_addr;
 
 #ifdef DEBUG
 /* case 10450: give messages to clients */
@@ -84,6 +92,8 @@ extern void do_file_write(file_t f, const char *fmt, va_list ap);
   * using drinit for now. This warrants further Investigation.
   */
 #define INSTRUMENT_INIT_NAME "drinit"
+
+#define INSTRUMENT_THREAD_INIT_NAME "drinit_dcontext"
 
 /* PR 250952: version check 
  * If changing this, don't forget to update:
@@ -171,10 +181,11 @@ typedef struct _callback_list_t {
  * value by assigning to a dummy var.  Note that this means we'll
  * have to pass an int-returning type to call_all()
  */
-#define call_all(vec, type, ...)                        \
-    do {                                                \
-        int dummy;                                      \
-        call_all_ret(dummy, =, , vec, type, __VA_ARGS__); \
+#define call_all(vec, type, ...)                           \
+    do {                                                    \
+        int dummy;                                          \
+        (void) dummy;                                       \
+        call_all_ret(dummy, =, , vec, type, __VA_ARGS__);   \
     } while (0)
 
 /* Lists of callbacks for each event type.  Note that init and nudge
@@ -1054,6 +1065,34 @@ dr_nudge_client(client_id_t client_id, uint64 argument)
 void
 instrument_thread_init(dcontext_t *dcontext, bool client_thread, bool valid_mc)
 {
+    size_t i;
+    for (i=0; i<num_client_libs; i++) {
+        void (*thread_init)(client_id_t) = (void (*)(client_id_t))
+            (lookup_library_routine(client_libs[i].lib, INSTRUMENT_THREAD_INIT_NAME));
+
+        /* we can't do this in instrument_load_client_libs() b/c vmheap
+         * is not set up at that point
+         */
+        all_memory_areas_lock();
+        update_all_memory_areas(client_libs[i].start, client_libs[i].end,
+                                /* FIXME: need to walk the sections: but may be
+                                 * better to obfuscate from clients anyway.
+                                 * We can't set as MEMPROT_NONE as that leads to
+                                 * bugs if the app wants to interpret part of
+                                 * its code section (xref PR 504629).
+                                 */
+                                MEMPROT_READ, DR_MEMTYPE_IMAGE);
+        all_memory_areas_unlock();
+
+        /* Since the user has to register all other events, it
+         * doesn't make sense to provide the -client_lib
+         * option for a module that doesn't export dr_init.
+         */
+        CLIENT_ASSERT(thread_init != NULL,
+                      "client library does not export a dr_init routine");
+        (*thread_init)(client_libs[i].id);
+    }
+
     /* Note that we're called twice for the initial thread: once prior
      * to instrument_init() (PR 216936) to set up the dcontext client
      * field (at which point there should be no callbacks since client
@@ -3210,6 +3249,7 @@ dr_suspend_all_other_threads(OUT void ***drcontexts,
                     CLIENT_ASSERT(!dcontext->client_data->mcontext_in_dcontext,
                                   "internal inconsistency in where mcontext is");
                     dcontext->client_data->mcontext_in_dcontext = true;
+                    (void) res;
                 }
             }
         }
@@ -4870,6 +4910,345 @@ dr_is_emulating_interrupt_return(void *drcontext)
     dcontext_t *dcontext = (dcontext_t *)drcontext;
     return dcontext->emulating_interrupt_return;
 }
+
+
+
+DR_API
+void
+dr_register_module_exit(void (*func)(void *), enum module_exit_kind kind) {
+    module_exit_vtable[kind] = func;
+}
+
+/*DR_API
+*
+ * Returns a pointer to a client extension of the dcontext.
+
+void *
+dr_get_client_extension(size_t offset) {
+    //dcontext_t *dcontext = get_thread_private_dcontext();
+    char *client_extension = (char *) get_thread_private_client_extension()&(dcontext->client);
+    return &(client_extension[offset]);
+}*/
+
+void *
+dr_get_client_extension_from_dcontext(size_t offset) {
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    char *client_extension = (char *) &(dcontext->client);
+    return &(client_extension[offset]);
+}
+
+DR_API
+void*
+dr_get_client_return_address(void) {
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    struct cfi_client_extension *cfi = &(dcontext->client.cfi);
+    cfi->return_stack_size--;
+    return cfi->return_address_stack[cfi->return_stack_size];
+}
+
+void break_return_address_is_null()
+{
+
+}
+
+DR_API
+void*
+dr_get_client_return_address_from_thread(void) {
+    struct cfi_client_extension *cfi = get_thread_private_client_extension();
+    if((cfi->return_stack_size == 0) || (cfi->return_stack_size > 8))
+    {
+    	break_return_address_is_null();
+    }
+    cfi->return_stack_size--;
+    return cfi->return_address_stack[cfi->return_stack_size];
+}
+
+DR_API
+void
+dr_set_client_return_address_from_thread(void *addr){
+    struct cfi_client_extension *cfi = get_thread_private_client_extension();
+    cfi->return_address_stack[cfi->return_stack_size++] = addr;
+}
+
+DR_API
+/**
+ * Returns a pointer to a client extension of the dcontext.
+ */
+void *
+dr_get_client_extension_temp(size_t offset) {
+    char *client_extension = (char *) get_thread_private_client_extension();
+    return /*&*/(client_extension/*[offset]*/);
+}
+
+DR_API
+/**
+ * Returns a pointer to a client extension of the dcontext, given the dcontext
+ * of this thread.
+ */
+void *
+dr_get_client_extension_from_context(void *drcontext, size_t offset) {
+    char *client_extension = (char *)get_thread_private_client_extension();
+    return &(client_extension[offset]);
+}
+
+DR_API
+/**
+ * Redirect execution to some address.
+ */
+void
+dr_redirect_execution_native(void *drcontext, void *to_address) {
+    dcontext_t *dcontext = (dcontext_t *) drcontext;
+
+    if (is_building_trace(dcontext)) {
+        LOG(THREAD, LOG_INTERP, 1, "squashing trace-in-progress\n");
+        trace_abort(dcontext);
+    }
+
+    dcontext->next_tag = (app_pc) to_address;
+    dcontext->next_app_tag = (app_pc) to_address;
+}
+
+DR_API
+/**
+ * Return the address of the next basic block.
+ */
+void *
+dr_next_address(void *drcontext) {
+    return ((dcontext_t *) drcontext)->next_tag;
+}
+
+DR_API
+/**
+ * Register a callback to initialize a client extension.
+ */
+void
+dr_init_client_extension(void (*init)(void *), unsigned long long offset) {
+    void *extension = dr_get_client_extension_from_dcontext(offset);
+    init(extension);
+}
+
+DR_API
+int
+is_drk_running(void) {
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    return dcontext->is_drk_running;
+}
+
+DR_API
+void*
+dr_get_wrapper_target(app_pc kernel_addr)
+{
+	dcontext_t *dcontext = get_thread_private_dcontext();
+	func_ptr ptr = dcontext->func_ptr(kernel_addr);
+	return ptr;
+}
+
+DR_API
+void
+dr_register_kernel_wrapper(void* addr)
+{
+	dcontext_t *dcontext = get_thread_private_dcontext();
+	dcontext->func_ptr = addr;
+}
+
+
+DR_API
+void*
+dr_is_granary_code(void *addr)
+{
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    if(dcontext->is_granary_code) {
+        return dcontext->is_granary_code(addr);
+    }
+    return 0;
+}
+
+DR_API
+void
+dr_register_is_granary_code(int (*func)(void *))
+{
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    dcontext->is_granary_code = func;
+}
+
+DR_API
+void*
+dr_is_instrumented_module_code(void *addr)
+{
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    if(dcontext->is_instrumented_module_code) {
+        return dcontext->is_instrumented_module_code(addr);
+    }
+    return 0;
+}
+
+DR_API
+void
+dr_register_is_instrumented_module_code(int (*func)(void *))
+{
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    dcontext->is_instrumented_module_code = func;
+}
+
+DR_API
+int
+dr_get_symbol_name(void *addr)
+{
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    if(dcontext->get_symbol_name) {
+        return dcontext->get_symbol_name(addr);
+    }
+    return 0;
+}
+
+
+DR_API
+void
+dr_register_get_symbol_name(int (*func)(void *))
+{
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    dcontext->get_symbol_name = func;
+}
+
+
+DR_API
+void
+dr_register_exit_module_context(void* addr)
+{
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    dcontext->notify_exit_module_context = addr;
+}
+
+DR_API
+void
+dr_register_direct_call_exit(void *addr)
+{
+	dcontext_t *dcontext = get_thread_private_dcontext();
+	dcontext->exit_address_target = addr;
+}
+
+DR_API
+void
+dr_register_address_untracker(void *(*addr)(void *))
+{
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    dcontext->get_untracked_address = addr;
+}
+
+DR_API
+void
+dr_register_address_return_exit(void (*addr)(void))
+{
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    dcontext->exit_target_return = addr;
+}
+
+DR_API
+void
+dr_register_return_path_address(void *addr)
+{
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    dcontext->return_func = addr;
+}
+
+DR_API
+void
+dr_register_hotpatch_callback(void *addr)
+{
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    dcontext->hotpatch_callback = addr;
+}
+
+
+DR_API
+/**
+ * Returns a pointer to a client extension of the thread.
+ */
+void *
+dr_get_client_extension(void) {
+  return get_thread_private_client_extension();
+}
+
+DR_API
+/**
+ * Returns the machine stack pointer.
+ */
+void *
+dr_get_stack_pointer(void *drcontext) {
+  dcontext_t *dcontext = (dcontext_t *) drcontext;
+  return get_mcontext(dcontext)->rsp;
+}
+
+DR_API
+void*
+dr_get_stack_pointer_value(void *drcontext)
+{
+	dcontext_t *dcontext = (dcontext_t*)drcontext;
+	  return  *((reg_t*)get_mcontext(dcontext)->rsp);
+}
+
+DR_API
+void
+dr_set_stack_pointer_value(void *drcontext, void *addr)
+{
+	dcontext_t *dcontext = (dcontext_t*)drcontext;
+	*((reg_t*)get_mcontext(dcontext)->rsp) = addr;
+}
+
+#define KERNEL_ADDRESS_OFFSET		0xffff000000000000
+#define USER_SPACE_LIMIT 0x00007fffffffffff
+
+DR_API
+void
+dr_fix_mcontext(void *drcontext)
+{
+	dcontext_t *dcontext = (dcontext_t*)drcontext;
+	reg_id_t reg;
+	if( get_mcontext(dcontext)->rdi > USER_SPACE_LIMIT)
+	{
+		//(get_mcontext(dcontext)->rdi) = (reg_t*)((unsigned long long)get_mcontext(dcontext)->rdi | KERNEL_ADDRESS_OFFSET);
+	}
+}
+
+//DR_API
+reg_t dr_get_gp_xflag(void *dcontext){
+    return ((dcontext_t*)dcontext)->gp_xflags;
+}
+
+/*
+#define SPILL_SLOT_0    0
+#define SPILL_SLOT_1    1
+#define SPILL_SLOT_3    2
+#define SPILL_SLOT_4    3
+*/
+DR_API
+void
+dr_get_mcontext_snapshot(void *addr) {
+    void *page_address, *temp_addr;
+    //dr_printf("%s\n",__FUNCTION__);
+    struct thread_private_info *spill_slot;
+    register unsigned long current_stack_pointer asm("rsp");
+    page_address = PAGE_START(addr);
+    spill_slot = kernel_get_thread_private_slot(SPILL_SLOT_1);
+
+ /*   if(get_thread_private_slot(SPILL_SLOT_2)){
+        set_thread_private_slot(SPILL_SLOT_2, 0x0);
+    }
+*/
+    if(spill_slot == NULL) {
+        dr_printf("WTF!!!!!!!!!!!!!!!!! spill_slot is NULL\n");
+        spill_slot = kernel_thread_private_slot_init(SPILL_SLOT_1);
+        spill_slot->section_count = 1;
+        spill_slot->is_running_module = 1;
+    }
+
+    //spill_slot->stack_start_address = thread;
+    spill_slot->current_stack = current_stack_pointer;
+    if(spill_slot->stack)
+        spill_slot->stack = kernel_memcpy(spill_slot->stack, page_address, 4*PAGE_SIZE);
+
+}
+
 
 #endif /* CLIENT_INTERFACE */
 

@@ -336,5 +336,85 @@ dr_insert_restore_fpstate(void *drcontext, instrlist_t *ilist, instr_t *where,
 bool
 dr_is_emulating_interrupt_return(void *drcontext);
 
+void
+dr_register_module_exit(void (*func)(void *), enum module_exit_kind flag);
+
+/**
+ * Returns a pointer to a client extension of the dcontext.
+ */
+//void *
+//dr_get_client_extension()
+
+
+void *
+dr_get_client_return_address(void);
+
+void *
+dr_get_client_return_address_from_thread(void);
+
+void
+dr_get_mcontext_snapshot(void *addr);
+
+void
+dr_set_client_return_address_from_thread(void *addr);
+
+void *
+dr_get_client_extension_temp(size_t offset);
+
+void
+dr_register_return_path_address(void *addr);
+
+void
+dr_register_hotpatch_callback(void *addr);
+
+/**
+ * Returns a pointer to a client extension of the thread.
+ */
+void *
+dr_get_client_extension(void);
+
+/**
+ * Returns the machine stack pointer.
+ */
+void *
+dr_get_stack_pointer(void *drcontext);
+
+void*
+dr_get_stack_pointer_value(void *drcontex);
+
+void
+dr_set_stack_pointer_value(void *dcontext, void *addr);
+
+void
+dr_fix_mcontext(void *drcontext);
+
+reg_t
+dr_get_gp_xflag(void *dcontext);
+
+/**
+ * Returns a pointer to a client extension of the dcontext, given the dcontext
+ * of this thread.
+ */
+void *
+dr_get_client_extension_from_context(void *drcontext, size_t offset);
+
+/**
+ * Redirect execution to some address.
+ */
+void
+dr_redirect_execution_native(void *drcontext, void *to_address);
+
+/**
+ * Return the address of the next basic block.
+ */
+void *
+dr_next_address(void *drcontext);
+
+/**
+ * Register a callback to initialize a client extension.
+ */
+void
+dr_init_client_extension(void (*init)(void *), unsigned long long offset);
+
 
 #endif /* _DR_PROC_H_ */

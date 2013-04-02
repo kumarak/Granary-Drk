@@ -230,31 +230,137 @@ extern file_t our_stdin;
  */
 typedef uint client_id_t;
 
+/* x86 operand kinds */
+enum {
+    NULL_kind,
+    IMMED_INTEGER_kind,
+    IMMED_FLOAT_kind,
+    PC_kind,
+    INSTR_kind,
+    REG_kind,
+    BASE_DISP_kind, /* optional DR_SEG_ reg + base reg + scaled index reg + disp */
+    FAR_PC_kind,    /* a segment is specified as a selector value */
+    FAR_INSTR_kind, /* a segment is specified as a selector value */
+#ifdef X64
+    REL_ADDR_kind,  /* pc-relative address: x64 only */
+    ABS_ADDR_kind,  /* 64-bit absolute address: x64 only */
+#endif
+    LAST_kind,      /* sentinal; not a valid opnd kind */
+};
+#define REG_SPECIFIER_BITS 8
+#define SCALE_SPECIFIER_BITS 4
+/* we avoid typedef-ing the enum, as its storage size is compiler-specific */
+typedef byte reg_id_t; /* contains a DR_REG_ enum value */
+typedef byte opnd_size_t; /* contains a DR_REG_ or OPSZ_ enum value */
+struct _instr_t;
+typedef struct _instr_t instr_t;
 /**
  * Internal structure of opnd_t is below abstraction layer.
  * But compiler needs to know field sizes to copy it around
  */
-typedef struct {
-#ifdef X64
-    uint black_box_uint;
-    uint64 black_box_uint64;
-#else
-    uint black_box_uint[3];
-#endif
+/* typedef is in globals.h */
+typedef struct _opnd_t {
+    byte kind;
+    /* size field only used for immed_ints and addresses
+     * it holds a OPSZ_ field from decode.h
+     * we need it so we can pick the proper instruction form for
+     * encoding -- an alternative would be to split all the opcodes
+     * up into different data size versions.
+     */
+    opnd_size_t size;
+    /* To avoid increasing our union beyond 64 bits, we store additional data
+     * needed for x64 operand types here in the alignment padding.
+     */
+    union {
+        ushort far_pc_seg_selector; /* FAR_PC_kind and FAR_INSTR_kind */
+        /* We could fit segment in value.base_disp but more consistent here */
+        reg_id_t segment : REG_SPECIFIER_BITS; /* BASE_DISP_kind, REL_ADDR_kind,
+                                                * and ABS_ADDR_kind */
+    } seg;
+    union {
+        /* all are 64 bits or less */
+        /* NULL_kind has no value */
+        ptr_int_t immed_int;   /* IMMED_INTEGER_kind */
+        float immed_float;     /* IMMED_FLOAT_kind */
+        /* PR 225937: today we provide no way of specifying a 16-bit immediate
+         * (encoded as a data16 prefix, which also implies a 16-bit EIP,
+         * making it only useful for far pcs)
+         */
+        app_pc pc;             /* PC_kind and FAR_PC_kind */
+        /* For FAR_PC_kind and FAR_INSTR_kind, we use pc/instr, and keep the
+         * segment selector (which is NOT a DR_SEG_ constant) in far_pc_seg_selector
+         * above, to save space.
+         */
+        instr_t *instr;         /* INSTR_kind and FAR_INSTR_kind */
+        reg_id_t reg;           /* REG_kind */
+        struct {
+            int disp;
+            reg_id_t base_reg : REG_SPECIFIER_BITS;
+            reg_id_t index_reg : REG_SPECIFIER_BITS;
+            /* to get cl to not align to 4 bytes we can't use uint here
+             * when we have reg_id_t elsewhere: it won't combine them
+             * (gcc will). alternative is all uint and no reg_id_t. */
+            byte scale : SCALE_SPECIFIER_BITS;
+            byte/*bool*/ encode_zero_disp : 1;
+            byte/*bool*/ force_full_disp : 1; /* don't use 8-bit even w/ 8-bit value */
+            byte/*bool*/ disp_short_addr : 1; /* 16-bit (32 in x64) addr (disp-only) */
+        } base_disp;            /* BASE_DISP_kind */
+        void *addr;             /* REL_ADDR_kind and ABS_ADDR_kind */
+    } value;
 } opnd_t;
 
-/**
- * Internal structure of instr_t is below abstraction layer, but we
- * provide its size so that it can be used in stack variables
- * instead of always allocated on the heap.
+
+/* FIXME: could shrink prefixes, eflags, opcode, and flags fields
+ * this struct isn't a memory bottleneck though b/c it isn't persistent
  */
-typedef struct {
+
+struct _instr_t {
+    /* flags contains the constants defined above */
+    uint    flags;
+
+    /* raw bits of length length are pointed to by the bytes field */
+    byte    *bytes;
+    uint    length;
+
+    /* translation target for this instr */
+    app_pc  translation;
+
+    uint    opcode;
+
 #ifdef X64
-    uint black_box_uint[26];
-#else
-    uint black_box_uint[16];
+    /* PR 251479: offset into instr's raw bytes of rip-relative 4-byte displacement */
+    byte    rip_rel_pos;
 #endif
-} instr_t;
+
+    /* we dynamically allocate dst and src arrays b/c x86 instrs can have
+     * up to 8 of each of them, but most have <=2 dsts and <=3 srcs, and we
+     * use this struct for un-decoded instrs too
+     */
+    byte    num_dsts;
+    byte    num_srcs;
+
+    opnd_t    *dsts;
+    /* for efficiency everyone has a 1st src opnd, since we often just
+     * decode jumps, which all have a single source (==target)
+     * yes this is an extra 10 bytes, but the whole struct is still < 64 bytes!
+     */
+    opnd_t    src0;
+    opnd_t    *srcs; /* this array has 2nd src and beyond */
+    uint    prefixes; /* data size, addr size, or lock prefix info */
+    uint    eflags;   /* contains EFLAGS_ bits, but amount of info varies
+                       * depending on how instr was decoded/built */
+
+    /* this field is for the use of passes as an annotation.
+     * it is also used to hold the offset of an instruction when encoding
+     * pc-relative instructions.
+     */
+    void *note;
+
+    /* fields for building instructions into instruction lists */
+    instr_t   *prev;
+    instr_t   *next;
+
+}; /* instr_t */
 
 # define IN /* marks input param */
 # define OUT /* marks output param */
@@ -392,6 +498,23 @@ typedef struct _dr_mcontext_t {
         byte *IF_X64_ELSE(rip, eip); /**< platform-dependent name for rip/eip register */
     };
 } dr_mcontext_t;
+
+
+struct thread_private_info {
+    void *stack;
+    void *stack_start_address;
+    void *current_stack;
+    unsigned int is_running_module;
+    unsigned long section_count;
+    unsigned long gen_num;
+    unsigned long copy_stack;
+    dr_mcontext_t mc;
+    reg_t regs[16];
+};
+
+typedef struct _dcontext_t dcontext_t;
+
+
 
 
 typedef struct _instr_list_t instrlist_t;

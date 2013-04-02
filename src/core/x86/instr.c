@@ -481,10 +481,90 @@ opnd_is_disp_short_addr(opnd_t opnd)
 }
 
 void
+instr_being_modified(instr_t *instr, bool raw_bits_valid)
+{
+    if (!raw_bits_valid) {
+        /* if we're modifying the instr, don't use original bits to encode! */
+        instr_set_raw_bits_valid(instr, false);
+    }
+    /* PR 214962: if client changes our mangling, un-mark to avoid bad translation */
+    instr_set_our_mangling(instr, false);
+}
+
+void
+instr_change_base_disp_opnd_(opnd_t *opnd, int pos, int disp, reg_id_t base, reg_id_t index, int scale)
+{
+    if (opnd_is_base_disp(*opnd))
+    	opnd->value.base_disp.disp = disp;
+    else
+        CLIENT_ASSERT(false, "instr_change_base_disp_opnd_ called on invalid opnd type");
+
+    if (opnd_is_base_disp(*opnd))
+    	opnd->value.base_disp.base_reg = base;
+    else
+        CLIENT_ASSERT(false, "instr_change_base_disp_opnd_ called on invalid opnd type");
+
+    if (opnd_is_base_disp(*opnd))
+    	opnd->value.base_disp.index_reg = index;
+    else
+        CLIENT_ASSERT(false, "instr_change_base_disp_opnd_ called on invalid opnd type");
+
+    if (opnd_is_base_disp(*opnd))
+    	opnd->value.base_disp.scale = scale;
+    else
+        CLIENT_ASSERT(false, "instr_change_base_disp_opnd_ called on invalid opnd type");
+}
+
+void
+instr_change_srcs_base_disp_opnd(instr_t *instr, int pos, int disp, reg_id_t base, reg_id_t index, int scale)
+{
+	instr_being_modified(instr, false/*raw bits invalid*/);
+	if(0 == pos) {
+		instr_change_base_disp_opnd_(&(instr->src0), pos, disp, base, index, scale);
+	} else {
+		instr_change_base_disp_opnd_(&(instr->srcs[pos - 1]), pos, disp, base, index, scale);
+	}
+}
+
+void
+instr_change_dsts_base_disp_opnd(instr_t *instr, int pos, int disp, reg_id_t base, reg_id_t index, int scale)
+{
+	instr_being_modified(instr, false/*raw bits invalid*/);
+    instr_change_base_disp_opnd_(&(instr->dsts[pos]), pos, disp, base, index, scale);
+}
+
+void
 opnd_set_disp(opnd_t *opnd, int disp)
 {
     if (opnd_is_base_disp(*opnd))
         opnd->value.base_disp.disp = disp;
+    else
+        CLIENT_ASSERT(false, "opnd_set_disp called on invalid opnd type");
+}
+
+void
+opnd_set_base(opnd_t *opnd, reg_id_t base)
+{
+    if (opnd_is_base_disp(*opnd))
+        opnd->value.base_disp.base_reg = base;
+    else
+        CLIENT_ASSERT(false, "opnd_set_disp called on invalid opnd type");
+}
+
+void
+opnd_set_index(opnd_t *opnd, reg_id_t index)
+{
+    if (opnd_is_base_disp(*opnd))
+        opnd->value.base_disp.index_reg = index;
+    else
+        CLIENT_ASSERT(false, "opnd_set_disp called on invalid opnd type");
+}
+
+void
+opnd_set_scale(opnd_t *opnd, int scale)
+{
+    if (opnd_is_base_disp(*opnd))
+        opnd->value.base_disp.scale = scale;
     else
         CLIENT_ASSERT(false, "opnd_set_disp called on invalid opnd type");
 }
@@ -1879,16 +1959,7 @@ instr_get_opcode(instr_t *instr)
     return instr->opcode;
 }
 
-static inline void
-instr_being_modified(instr_t *instr, bool raw_bits_valid)
-{
-    if (!raw_bits_valid) {
-        /* if we're modifying the instr, don't use original bits to encode! */
-        instr_set_raw_bits_valid(instr, false);
-    }
-    /* PR 214962: if client changes our mangling, un-mark to avoid bad translation */
-    instr_set_our_mangling(instr, false);
-}
+
 
 void
 instr_set_opcode(instr_t *instr, int opcode)
@@ -1923,6 +1994,14 @@ app_pc
 instr_get_app_pc(instr_t *instr)
 {
     return instr_get_translation(instr);
+}
+
+DR_API
+/* Get the original application PC of the instruction if it exists. */
+void
+instr_set_app_pc(instr_t *instr, app_pc pc)
+{
+	instr->translation = pc;
 }
 
 /* Returns true iff instr's opcode is valid.  If the opcode is not

@@ -199,6 +199,9 @@ type_uses_modrm_bits(int type)
     }
 }
 
+
+extern void break_on_fault(void);
+
 /* Helper routine that sets/checks rex.w or data prefix, if necessary, for
  * variable-sized OPSZ_ constants that the user asks for.  We try to be flexible
  * setting/checking only enough prefix flags to ensure that the final template size
@@ -917,23 +920,23 @@ instr_info_extra_opnds(const instr_info_t *info)
 /* macro for speed so we don't have to pass opnds around */
 #define TEST_OPND(di, iitype, iisize, iinum, inst_num, get_op)   \
     if (iitype != TYPE_NONE) {                                   \
-        if (inst_num < iinum)                                    \
-            return false;                                        \
-        if (!opnd_type_ok(di, get_op, iitype, iisize))           \
-            return false;                                        \
+        if (inst_num < iinum)  {                                     \
+            return false;                       }                 \
+        if (!opnd_type_ok(di, get_op, iitype, iisize))  {          \
+            return false;       }                                 \
         if (type_instr_uses_reg_bits(iitype)) {                  \
             if (!opnd_is_null(using_reg_bits) &&                 \
-                !opnd_same(using_reg_bits, get_op))              \
-                return false;                                    \
+                !opnd_same(using_reg_bits, get_op))    {           \
+                return false;               }                     \
             using_reg_bits = get_op;                             \
         } else if (type_uses_modrm_bits(iitype)) {               \
             if (!opnd_is_null(using_modrm_bits) &&               \
-                !opnd_same(using_modrm_bits, get_op))            \
-                return false;                                    \
+                !opnd_same(using_modrm_bits, get_op))  {            \
+                return false;                                  }  \
             using_modrm_bits = get_op;                           \
         }                                                        \
-    } else if (inst_num >= iinum)                                \
-        return false;
+    } else if (inst_num >= iinum)   {                               \
+        return false; }
 
 /* May be called a 2nd time to check size prefix consistency.
  * FIXME optimization: in 2nd pass we only need to call opnd_type_ok()
@@ -1701,9 +1704,11 @@ encode_operand(decode_info_t *di, int optype, opnd_size_t opsize, opnd_t opnd)
  * this routine cannot handle indirect branches or rets or far jmp/call;
  * it can handle loop/jecxz but it does NOT check for data16!
  */
+#define _DEBUG(x) , x
+
 static byte *
 encode_cti(instr_t *instr, byte *start_pc, bool check_reachable
-           _IF_DEBUG(bool assert_reachable))
+           __IF_DEBUG(bool assert_reachable))
 {
     byte *pc = start_pc;
     const instr_info_t * info = instr_get_instr_info(instr);
@@ -1807,6 +1812,7 @@ copy_and_re_relativize_raw_instr(dcontext_t *dcontext, instr_t *instr, byte *dst
         dst_pc += instr->length - 4;
         if (!REL32_REACHABLE(dst_pc + 4, target)) {
             CLIENT_ASSERT(false, "mangled jecxz/loop*: target out of 32-bit reach");
+            break_on_fault();
             return NULL;
         }
         *((int *)dst_pc) = (int) (target - (dst_pc + 4));
@@ -1847,6 +1853,7 @@ copy_and_re_relativize_raw_instr(dcontext_t *dcontext, instr_t *instr, byte *dst
              */
             CLIENT_ASSERT(false, "encoding failed re-relativizing rip-relative "
                           "address whose target is unreachable");
+            break_on_fault();
             return NULL;
         }
         memcpy(dst_pc, instr->bytes, rip_rel_pos);
@@ -1878,7 +1885,7 @@ copy_and_re_relativize_raw_instr(dcontext_t *dcontext, instr_t *instr, byte *dst
  */
 static byte *
 instr_encode_common(dcontext_t *dcontext, instr_t *instr, byte *pc,
-                    bool check_reachable _IF_DEBUG(bool assert_reachable))
+                    bool check_reachable __IF_DEBUG(bool assert_reachable))
 {
     const instr_info_t * info;
     decode_info_t di;
@@ -1906,7 +1913,7 @@ instr_encode_common(dcontext_t *dcontext, instr_t *instr, byte *pc,
         opc == OP_jmp_short || opc == OP_jmp || opc == OP_call) {
         if (!TESTANY(~(PREFIX_JCC_TAKEN|PREFIX_JCC_NOT_TAKEN), instr->prefixes)) {
             /* encode_cti cannot handle funny prefixes or indirect branches or rets */
-            return encode_cti(instr, pc, check_reachable _IF_DEBUG(assert_reachable));
+            return encode_cti(instr, pc, check_reachable __IF_DEBUG(assert_reachable));
         }
     } 
 
@@ -1914,7 +1921,7 @@ instr_encode_common(dcontext_t *dcontext, instr_t *instr, byte *pc,
     info = instr_get_instr_info(instr);
     if (info == NULL) {
         CLIENT_ASSERT(instr_is_label(instr), "instr_encode: invalid instr");
-        return (instr_is_label(instr) ? pc : NULL);
+        return (instr_is_label(instr) ? pc : (break_on_fault(), NULL));
     }
 
     /* first, walk through instr list to find format that matches
@@ -1945,6 +1952,7 @@ instr_encode_common(dcontext_t *dcontext, instr_t *instr, byte *pc,
             /* FIXME: since labels (case 4468) have a legal length 0
              * we may want to return a separate status code for failure.
              */
+            break_on_fault();
             return NULL;
         }
     }
@@ -2102,7 +2110,7 @@ instr_encode_common(dcontext_t *dcontext, instr_t *instr, byte *pc,
         if (di.has_sib) {
             byte sib = (byte) ((di.scale << 6) | (di.index << 3) | (di.base));
             CLIENT_ASSERT(di.scale <= 0x3 && di.index <= 0x7 && di.base <= 0x7,
-                          "encode error: invalid scale/index/base");
+                          "encode error:break_on_fault(); invalid scale/index/base");
             *field_ptr = sib;
             field_ptr++;
         }
@@ -2156,6 +2164,7 @@ instr_encode_common(dcontext_t *dcontext, instr_t *instr, byte *pc,
             (!TEST(PREFIX_ADDR, di.prefixes) || (ptr_uint_t)di.disp_abs > INT_MAX)) {
             CLIENT_ASSERT(!assert_reachable,
                           "encode error: rip-relative reference out of 32-bit reach");
+            break_on_fault();
             return NULL;
         }
         *((int *)disp_relativize_at) = (int) (di.disp_abs - field_ptr);
@@ -2240,20 +2249,20 @@ instr_encode_common(dcontext_t *dcontext, instr_t *instr, byte *pc,
 byte *
 instr_encode_ignore_reachability(dcontext_t *dcontext, instr_t *instr, byte *pc)
 {
-    return instr_encode_common(dcontext, instr, pc, false _IF_DEBUG(false));
+    return instr_encode_common(dcontext, instr, pc, false __IF_DEBUG(false));
 }
 
 /* just like instr_encode but doesn't assert on reachability failures */
 byte *
 instr_encode_check_reachability(dcontext_t *dcontext, instr_t *instr, byte *pc)
 {
-    return instr_encode_common(dcontext, instr, pc, true _IF_DEBUG(false));
+    return instr_encode_common(dcontext, instr, pc, true __IF_DEBUG(false));
 }
 
 byte *
 instr_encode(dcontext_t *dcontext, instr_t *instr, byte *pc)
 {
-    return instr_encode_common(dcontext, instr, pc, true _IF_DEBUG(true));
+    return instr_encode_common(dcontext, instr, pc, true __IF_DEBUG(true));
 }
 
 /* If has_instr_jmp_targets is true, this routine trashes the note field

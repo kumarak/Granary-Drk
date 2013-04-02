@@ -1,5 +1,4 @@
 #include <linux/module.h>
-#include <linux/slab.h>
 #include "dr_api.h"
 #include "dr_kernel_utils.h"
 MODULE_LICENSE("Dual BSD/GPL");

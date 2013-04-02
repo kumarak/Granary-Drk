@@ -39,6 +39,9 @@
 /* exposed options */
 #define INTERNAL
 #define DEBUG
+#ifdef DEBUG
+#undef DEBUG
+#endif
 //#define HYPERCALL_DEBUGGING
 /* #undef DRGUI_DEMO */
 
@@ -65,6 +68,7 @@
 
 /* for use by developers */
 #define KSTATS
+#undef KSTATS
 #define KSTAT_NO_OUTLIERS
 /* #undef CALLPROF */
 /* #undef LINKCOUNT */

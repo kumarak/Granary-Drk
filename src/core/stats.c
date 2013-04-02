@@ -334,6 +334,7 @@ update_lifetime_kstats(dcontext_t *dcontext)
     timestamp_t actual, sum;
     if (dcontext->thread_kstats == NULL)
         return;
+    (void) sum;
     KSTOP(thread_measured);
     KSTART(thread_measured);
     RDTSC_LL(actual);

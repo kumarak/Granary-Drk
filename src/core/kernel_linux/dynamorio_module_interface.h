@@ -21,5 +21,7 @@ extern void dr_smp_init(dr_cpu_exports_t *cpu_exports);
 extern void dr_smp_exit(void);
 extern void dynamorio_app_take_over(void);
 extern void dr_terminate(const char* reason);
+extern void dr_hotpatch_interface(void *addr);
+extern char _text[], _stext[], _etext[];
 
 #endif

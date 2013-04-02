@@ -3854,6 +3854,7 @@ coarse_unit_load(dcontext_t *dcontext, app_pc start, app_pc end,
             for (; touch_pc < (app_pc) (map + pers->header_len + pers->data_len);
                  touch_pc += PAGE_SIZE) {
                 touch_value = *touch_pc;
+                (void) touch_value;
                 STATS_INC(pcache_stub_touched);
             }
         }

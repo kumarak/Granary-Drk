@@ -41,6 +41,14 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_ 1
 
+#ifdef DEBUG
+#undef DEBUG
+#endif
+
+#ifdef KSTAT
+#undef KSTAT
+#endif
+
 #ifdef assert
 # undef assert
 #endif
@@ -108,17 +116,20 @@ bool ignore_assert(const char *assert_file_line, const char *expr);
 /* only support apicheck for exported api's */
 #if defined(CLIENT_INTERFACE) || defined(DR_APP_EXPORTS)
 # define apicheck(x, msg) do {                   \
-    if (!(x))                                    \
-        external_error(__FILE__, __LINE__, msg); \
+    if (!(x)) {                                   \
+    	 break_on_fault();	\
+        external_error(__FILE__, __LINE__, msg); }\
 } while (0)
 void external_error(char *file, int line, char *msg);
 #endif
+
+extern void break_on_fault(void);
 
 #ifdef CLIENT_INTERFACE
 # ifdef DEBUG
 #  define CLIENT_ASSERT(x, msg) apicheck(x, msg)
 # else
-#  define CLIENT_ASSERT(x, msg) /* PR 215261: nothing in release builds */
+#  define CLIENT_ASSERT(x, msg) {if(!(x)) { break_on_fault(); /* asm("movq 0, %rax;"); */ } } /* PR 215261: nothing in release builds */
 # endif
 #else
 # define CLIENT_ASSERT(x, msg) ASSERT_MESSAGE(msg, x)
@@ -543,6 +554,7 @@ bool thread_owns_first_or_both_locks_only(dcontext_t *dcontext, mutex_t *lock1, 
                                          0, 0, 0, 0, 0,                 \
                                          NULL, NULL}
 #else
+bool thread_owns_no_locks(dcontext_t *dcontext);
 /* Ignore the arguments */
 #  define INIT_LOCK_NO_TYPE(name, rank) {LOCK_FREE_STATE, CONTENTION_EVENT_NOT_CREATED}
 #endif /* DEADLOCK_AVOIDANCE */
@@ -1282,7 +1294,7 @@ enum {LONGJMP_EXCEPTION = 1};
  * standard is to use this macro just after the variable is declared
  * and to use it judiciously.
  */
-#define UNUSED_VARIABLE(pv) {void *unused_pv = (void*) pv; unused_pv = NULL; }
+#define UNUSED_VARIABLE(pv) {void *unused_pv = (void*) pv; unused_pv = NULL; (void) unused_pv; }
 
 /* Both release and debug builds share these common stats macros */
 /* If -no_global_rstats, all values will be 0, so user does not have to
@@ -1481,7 +1493,7 @@ enum {LONGJMP_EXCEPTION = 1};
 
 #else
 #   define DODEBUG(statement)
-#   define DEBUG_DECLARE(declaration)
+#   define DEBUG_DECLARE(declaration) declaration
 #   define DOSTATS(statement)
 #   define THREAD_STATS_ON(dcontext) false
 #   define XSTATS_WITH_DC(var, statement) statement

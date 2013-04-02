@@ -69,6 +69,7 @@ enum {
     DR_REG_AH,   DR_REG_CH,   DR_REG_DH,   DR_REG_BH,
     DR_REG_R8L,  DR_REG_R9L,  DR_REG_R10L, DR_REG_R11L,
     DR_REG_R12L, DR_REG_R13L, DR_REG_R14L, DR_REG_R15L,
+
     DR_REG_SPL,  DR_REG_BPL,  DR_REG_SIL,  DR_REG_DIL,
     /* 64-BIT MMX */
     DR_REG_MM0,  DR_REG_MM1,  DR_REG_MM2,  DR_REG_MM3,
@@ -1006,9 +1007,24 @@ reg_get_size(reg_id_t reg);
 bool 
 opnd_uses_reg(opnd_t opnd, reg_id_t reg);
 
+void
+instr_change_dsts_base_disp_opnd(instr_t *instr, int pos, int disp, reg_id_t base, reg_id_t index, int scale);
+
+void
+instr_change_srcs_base_disp_opnd(instr_t *instr, int pos, int disp, reg_id_t base, reg_id_t index, int scale);
+
 /** Set the displacement of a memory reference operand \p opnd to \p disp. */
 void
 opnd_set_disp(opnd_t *opnd, int disp);
+
+void
+opnd_set_base(opnd_t *opnd, reg_id_t base);
+
+void
+opnd_set_index(opnd_t *opnd, reg_id_t index);
+
+void
+opnd_set_scale(opnd_t *opnd, int scale);
 
 /** 
  * Set the displacement and encoding controls of a memory reference operand:

@@ -2,7 +2,10 @@
 #define __DYNAMORIO_CONTROLLER_MODULE_H_
 
 #include <linux/ioctl.h>
+//#include <linux/slab.h>
+
 #include "kernel_interface.h"
+//#include <linux/slab.h>
 
 #define DYNAMORIO_DEVICE_PATH "/dev/dynamorio_controller"
 
