@@ -1,8 +1,6 @@
 .DELETE_ON_ERROR:
-GUEST_KERNELDIR ?= ../debugging/linux-3.2.33/
+GUEST_KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 HOST_KERNELDIR ?= /lib/modules/$(shell uname -r)/build
-#GUEST_KERNELDIR ?= /usr/src/linux-headers-2.6.38-10-generic/
-#HOST_KERNELDIR := GUEST_KERNELDIR
 API_INCLUDE_DIR ?= lib/include
 
 .PHONY: default

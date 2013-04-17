@@ -58,10 +58,6 @@ extern client_cache_info_t *cpu_client_cache;
 
 extern void init_wrapper(void);
 
-void granary_debug_null_pointer()
-{
-
-}
 
 struct notifier_block module_load_nb = {
     .notifier_call = module_load_notifier,
@@ -98,8 +94,8 @@ typedef void *(vmalloc_node_range_type)(unsigned long size, unsigned long align,
 										pgprot_t prot, int node, void *caller);
 
 void *shadow_page_alloc(unsigned long size, unsigned long va_start, unsigned long va_end) {
+#ifdef LINUX_V2_6_32
     struct vm_struct *area;
-#ifdef LINUX_V2.6.32
     vmalloc_area_type *vmalloc_area = (vmalloc_area_type *) VMALLOC_AREA_ADDR;
 #else
     vmalloc_node_range_type *vmalloc_node_range = (vmalloc_node_range_type *) VMALLOC_NODE_RANGE;
@@ -110,7 +106,7 @@ void *shadow_page_alloc(unsigned long size, unsigned long va_start, unsigned lon
     if (size > va_end - va_start)
         return NULL;
 
-#ifdef LINUX_V2.6.32
+#ifdef LINUX_V2_6_32
     area = __get_vm_area(size, VM_ALLOC, va_start, va_end);
     if (!area)
         return NULL;
@@ -145,9 +141,9 @@ cfi_module_init(void) {
 	/*unsigned long shadow_pages = 0;
 	shadow_pages = (MODULE_SHADOW_END - MODULE_SHADOW_START)/(4*1024);*/
    	register_module_notifier(&module_load_nb);
-   	logfile = cfi_file_open("logfile.txt", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU|S_IRWXG|S_IRWXO);
-   	cfi_fprintf(logfile, "logfile \n");
-   	printk("logfile : %lx", logfile);
+  // 	logfile = cfi_file_open("logfile.txt", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU|S_IRWXG|S_IRWXO);
+  // 	cfi_fprintf(logfile, "logfile \n");
+  // 	printk("logfile : %lx", logfile);
 
    	//cpu_client_cache = kzalloc(/*dr_cpu_count() **/ sizeof(client_cache_info_t*), GFP_KERNEL);
 
@@ -187,7 +183,7 @@ static void __exit
 cfi_module_exit(void)
 {
     unregister_module_notifier(&module_load_nb);
-    kfree(flag_memory_snapshot);
+    kfree((void*)flag_memory_snapshot);
     vfree(shadow_pointer_init);
     /*unregister_page_fault_notifier(&page_fault_nb);*/
 }

@@ -36,6 +36,7 @@ extern struct cfi_list_head list_loaded_module;
 
 typedef int (*mod_init_func_ptr)(void);
 
+#if 0
 void set_page_attributes(void *start, void *end/*, int (*set)(unsigned long start, int num_pages)*/)
 {
 	unsigned long begin_pfn = PFN_DOWN((unsigned long)start);
@@ -43,10 +44,10 @@ void set_page_attributes(void *start, void *end/*, int (*set)(unsigned long star
 	printk("--%s--\n", __FUNCTION__);
 
 	if(end_pfn > begin_pfn)
-	{	
+	{
 		printk("making the page execute protected\n");
 		set_memory_nx(begin_pfn << PAGE_SHIFT, end_pfn - begin_pfn);
-	
+
 	} else if(end_pfn == begin_pfn)
 	{
 		set_memory_nx(begin_pfn << PAGE_SHIFT, 1);
@@ -63,6 +64,45 @@ void set_module_text_ro(struct module *mod)
 	{
 		set_page_attributes(mod->module_init, mod->module_init+mod->init_text_size/*, set_memory_nx*/);
 	}
+}
+#endif
+static void set_page_attributes(
+    int (*set_memory_)(unsigned long, int),
+    void *begin,
+    void *end
+) {
+    const uint64_t begin_pfn = PFN_DOWN(((uint64_t) begin));
+    const uint64_t end_pfn = PFN_DOWN(((uint64_t) end));
+
+    if(begin == end) {
+        return;
+    }
+
+    if(end_pfn > begin_pfn) {
+        set_memory_(begin_pfn << PAGE_SHIFT, end_pfn - begin_pfn);
+
+    } else if(end_pfn == begin_pfn) {
+        set_memory_(begin_pfn << PAGE_SHIFT, 1);
+    }
+}
+
+void
+on_module_load(struct module *vmod){
+    set_page_attributes(
+            set_memory_nx,
+            vmod->module_core,
+            vmod->module_core + vmod->core_text_size);
+
+    set_page_attributes(
+            set_memory_rw,
+            vmod->module_core + vmod->core_text_size,
+            vmod->module_core + vmod->core_text_size + (vmod->core_ro_size - vmod->core_text_size));
+
+    set_page_attributes(
+            set_memory_rw,
+            vmod->module_init + vmod->init_text_size,
+            vmod->module_init + vmod->init_text_size + (vmod->init_ro_size - vmod->init_text_size));
+
 }
 
 void *granary_start = 0, *granary_end = 0;
@@ -128,7 +168,7 @@ int module_load_notifier(
 
         if(strcmp(module_name(mod), MODULE_NAME)) {
         	printk("\nmodule name : %s\n", module_name(mod));
-        	set_module_text_ro(mod);
+        	on_module_load(mod);
         }
         printk("module is loaded now\n");
         break;
@@ -190,8 +230,6 @@ void cfi_thread_slot_module_enrty(void)
 
     struct thread_info *thread = current_thread_info();
     register unsigned long current_stack_pointer asm("rsp");
-
-   // dr_printf("--%s-- : %lx\n", __FUNCTION__, thread);
 
     if(thread->spill_slot[0] == NULL){
         thread_spill_slot = kmalloc(sizeof(struct thread_private_info), GFP_ATOMIC);
