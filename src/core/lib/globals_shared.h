@@ -107,7 +107,7 @@
 #  define DR_EXPORT __declspec(dllexport)
 #  define LINK_ONCE __declspec(selectany)
 #  define ALIGN_VAR(x) __declspec(align(x))
-#  define inline __inline
+//#  define inline __inline
 #  define INLINE_FORCED __forceinline
 #else
 /* We assume gcc is being used.  If the client is using -fvisibility
@@ -121,7 +121,7 @@
 #  endif
 #  define LINK_ONCE __attribute__ ((weak))
 #  define ALIGN_VAR(x) __attribute__ ((aligned (x)))
-#  define inline __inline__
+//#  define inline __inline__
 #  define INLINE_FORCED inline
 #endif
 

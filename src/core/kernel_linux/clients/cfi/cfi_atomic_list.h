@@ -14,11 +14,11 @@
 
 struct list_item {
 	void* node;
-	volatile struct list_item *next;
+	struct list_item *next;
 };
 
 struct cfi_list_head {
-	volatile struct list_item *head;
+	struct list_item *head;
 	spinlock_t list_lock;
 	unsigned int count;
 };
@@ -52,11 +52,6 @@ static __inline__ void cfi_list_append(struct cfi_list_head *list_head, void *no
         list_head->count++;
         spin_unlock(&(list_head->list_lock));
         return;
-        //do compare and swap
-        /*do{
-            head = list_head->head;
-        }while(!__sync_bool_compare_and_swap(&list_head->head, head, list));
-        return;*/
     }
 
     ptr = list_head->head;
@@ -177,8 +172,8 @@ static __inline__ void cfi_list_append(struct cfi_list_head *list_head, void *no
 static __inline__ void cfi_list_prepend(volatile struct cfi_list_head *list_head, void *node)
 {
 	//struct list_item *ptr;
-	volatile struct list_item *head;
-	volatile struct list_item *list = kmalloc(sizeof(struct list_item), GFP_ATOMIC);
+	struct list_item *head;
+	struct list_item *list = kmalloc(sizeof(struct list_item), GFP_ATOMIC);
 
 	if(list == NULL){
 		return;
@@ -198,8 +193,6 @@ static __inline__ void cfi_list_del_item(struct cfi_list_head *list_head, void *
 {
 	struct list_item *ptr;
 	struct list_item *temp_ptr;
-	struct list_item *temp_node;
-	struct list_item *prev_ptr;
 	//printk("item to be freed : %lx\n", node);
 
 	spin_lock(&(list_head->list_lock));

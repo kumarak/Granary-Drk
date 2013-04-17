@@ -16,7 +16,7 @@ typedef unsigned int uint;
 #define BUFFER_SIZE_BYTES(buf)      sizeof(buf)
 #define BUFFER_SIZE_ELEMENTS(buf)   (BUFFER_SIZE_BYTES(buf) / sizeof(buf[0]))
 
-static char fname[64] = "/home/akshayk/logfile.txt";
+//static char fname[64] = "/home/akshayk/logfile.txt";
 
 
 struct file*
