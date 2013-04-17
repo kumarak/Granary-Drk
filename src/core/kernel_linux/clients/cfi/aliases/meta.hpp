@@ -29,7 +29,7 @@ enum {
 typedef void* vmalloc_type(unsigned long, int, unsigned long long);
 typedef void vfree_type(unsigned long);
 static vmalloc_type *kern___vmalloc = (vmalloc_type *) KERN_ADDR___vmalloc;
-static vfree_type *kern_vfree = (vfree_type *)KERN_ADDR_vfree;
+//static vfree_type *kern_vfree = (vfree_type *)KERN_ADDR_vfree;
 
 /// Thread-specific watchpoint meta information.
 struct alias_meta_thread {

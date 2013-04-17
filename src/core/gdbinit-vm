@@ -1,0 +1,27 @@
+define dr_load
+    file ../debugging/linux-2.6.32/vmlinux
+
+    shell ./load.py --gdbscript-path .gdbscript --remote-user peter\
+        --options-file dr_options --post-init-cmd "./memcheck_test.sh"
+
+    target remote localhost:1234
+
+    set breakpoint pending on
+    break external_error
+    break os_terminate
+    break panic
+    break oops_begin
+    # Put your breakpoint commands in gdb_breakpoints.
+    source gdb_breakpoints
+    source .gdbscript
+    continue
+end
+
+define dr_reload
+    detach
+    delete
+    file
+    dr_load
+end
+
+dr_load

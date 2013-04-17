@@ -6,6 +6,7 @@
  */
 
 
+#include <linux/string.h>
 #include "cfi_module.h"
 #include "cfi_wrapper.h"
 #include "cfi_memory_leak.h"
@@ -82,8 +83,6 @@ int module_load_notifier(
     printk("module start address : %p\n", mod);
     printk("module text start address : %p\n", mod->module_core);
 
-    printk("printk_delay_msec : %lx", &pv_info);
-
     module_text_start = mod->module_core;
 
     switch(mod_state) {
@@ -106,11 +105,16 @@ int module_load_notifier(
             }
         }
 
+        /*doesn't record the cfi module*/
+        cfi_list_append(&list_loaded_module, mod);
+
+#if 0
         for(i=0; i < mod->num_symtab; i++){
         	dr_printf("module symbol : %lx; name : %s\n",mod->symtab[i].st_value, (mod->strtab + mod->symtab[i].st_name));
         }
 
-        //set_module_text_ro(mod);
+        set_module_text_ro(mod);
+#endif
         break;
 
     case MODULE_STATE_LIVE:
@@ -120,7 +124,12 @@ int module_load_notifier(
             granary_end = ((char *) mod->module_core) + mod->core_text_size;
         }
         ++count;
-        cfi_list_append(&list_loaded_module, mod);
+
+
+        if(strcmp(module_name(mod), MODULE_NAME)) {
+        	printk("\nmodule name : %s\n", module_name(mod));
+        	set_module_text_ro(mod);
+        }
         printk("module is loaded now\n");
         break;
 
@@ -278,48 +287,5 @@ cfi_print_symbol_name(void *symbol_addr) {
     } else {
         cfi_for_each_item(&list_loaded_module, print_module_symbol, (void*)symbol_addr);
     }
-
-    /*
-    int(*lookup_symbol_name)(void*, void*) = KERN_ADDR_lookup_symbol_name;
-
-  */  /*if(!hashmap_get(local_symbol_table, (void*)symbol_addr, (void**)&value)){
-
-        sym.addr = (void*)((uint64_t)symbol_addr + MODULE_SHADOW_OFFSET);
-        sym.found = 0;
-
-        ret = lookup_symbol_name(sym.addr, name);
-
-        //ret = kallsyms_on_each_symbol((void *)find_symbol_callback, &sym);
-
-      */ /* if(sym.found == 0){
-            sym.addr = (void*)((uint64_t)symbol_addr);
-
-            ret = kallsyms_on_each_symbol((void *)find_symbol_callback, &sym);
-        }
-*//*
-        if(ret != 1){
-            hashmap_put(local_symbol_table, (void*)symbol_addr, (void*)name);
-            value = (void*)sym.name;
-        }
-    }
-*/
- /*   ret = lookup_symbol_name(symbol_addr + MODULE_SHADOW_OFFSET, name);
-    if(ret != NULL){
-        printk("symbol : %lx , name : %s\n", symbol_addr, name);
-    }
-
-*/
-   /* if(sym.found == 0){
-        sym.addr = (void*)(uint64_t)symbol_addr;
-        ret = kallsyms_on_each_symbol((void *)find_symbol_callback, &sym);
-    }
-*/
- /*   if (!ret)
-        return -EFAULT;
-
-    if(sym.found != 0){
-        printk("symbol : %lx , name : %s\n", sym.addr, sym.name);
-    }
-*/
     return 0;
 }

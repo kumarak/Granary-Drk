@@ -1,4 +1,4 @@
-EXTRA_CFLAGS= -O3 -g $(DR_INCLUDE_FLAGS)  -Wframe-larger-than=4096
+EXTRA_CFLAGS=-O1 -g $(DR_INCLUDE_FLAGS) -Wframe-larger-than=4096
 
 	 obj-m += hypercall_host.o
 	hypercall_host-objs :=\

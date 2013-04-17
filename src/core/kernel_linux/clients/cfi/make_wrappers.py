@@ -166,17 +166,6 @@ extern \"C\" {
 #include "cfi_wrapper.h"
 void *__gxx_personality_v0; // for C-compatibility, even though runtime support for CXX exceptions is turned off
 
-template <const uint64_t addr, typename R, typename... Args>
-constexpr cfi_type_erased_func_ptr wrapper_test_func_temp(R (*)(Args...)) {
-  // return (cfi_type_erased_func_ptr) addr;
-  return  (cfi_type_erased_func_ptr) cfi_wrapper_impl<addr, R, Args...>::wrapper;
-}
-
-void wrapper_func_temp(void *addr){
-	//return (cfi_type_erased_func_ptr) addr;
-    //return (cfi_type_erased_func_ptr) cfi_wrapper_impl<addr, R, Args...>::wrapper;
-}
-
 """)
     
     # write out the lookup table helper
@@ -192,8 +181,7 @@ void wrapper_func_temp(void *addr){
     s.write("\n};\n\n")
 
     # write out the template instantiations to wrap the kernel functions
-    s.write("#define CFI_WRAP(a, f) {(cfi_type_erased_func_ptr) a, wrapper_test_func_temp<a>(f) /*wrapper_func_temp(f)*/, #f}\n")
-   # s.write("#define CFI_WRAP(a, f) {(cfi_type_erased_func_ptr) a, (cfi_type_erased_func_ptr) cfi_wrapper_impl<a, f, Args...>::wrapper}\n")
+    s.write("#define CFI_WRAP(a, f) {(cfi_type_erased_func_ptr) a, cfi_wrapper<a>(f), #f}\n")
     s.write("#define CFI_PASS(a, f) {(cfi_type_erased_func_ptr) a, (cfi_type_erased_func_ptr) a, #f}\n")
     s.write("typedef struct cfi_wrapper_info {cfi_type_erased_func_ptr original, wrapper; const char *name; } cfi_wrapper_info;");
     s.write("static cfi_wrapper_info V[] = {\n");
@@ -247,11 +235,11 @@ extern "C" {
         uint32_t low_bits = (uint32_t) addr_as_i64;
 
         int32_t d = G[hash_addr(0, low_bits) %% NUM_EXPORTED_FUNCS];
-        
-	cfi_type_erased_func_ptr ret;
+        cfi_type_erased_func_ptr ret;
         cfi_wrapper_info *w;
         
-        kern_printk("addr_as_i64=%%lx low_bits=%%lx d=%%lx ", addr_as_i64, low_bits, d);
+        //kern_printk("addr_as_i64=%%lu low_bits=%%u d=%%d ", addr_as_i64, low_bits, d);
+        //(void) kern_printk;
         
         if(d < 0) {
             d = -d - 1;
@@ -265,15 +253,10 @@ extern "C" {
             //if(w[1] == w[0]) {
             //    kern_printk("calling unwrapped function %%lx\\n", addr_as_i64);
             //}
-           kern_printk("call : '%%s'\\n", w->name);
-	   kern_printk("calling wrapped function : %%lx\\n", w->wrapper);
-	   //kern_printk("actual wrapper : %%lx\\n", cfi_wrapper<addr>);
-	   if(w->wrapper != 0)
-            	ret = w->wrapper;
-	   else
-		ret = (cfi_type_erased_func_ptr)addr;
+           // kern_printk("call : '%%s'\\n", w->name);
+            ret = w->wrapper;
         } else {
-            kern_printk("calling unwrapped function %%lx\\n", addr);
+            //kern_printk("calling unexported function %%lx\\n", addr_as_i64);
             //ret = (cfi_type_erased_func_ptr) 0;
             ret = addr;
         }

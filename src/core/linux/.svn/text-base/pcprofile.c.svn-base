@@ -427,10 +427,10 @@ pcprofile_results(thread_pc_info_t *info)
     print_file(info->file, "client base: "PFX"\n", get_client_base(0));
 #endif
     print_file(info->file, "ITIMER distribution (%d):\n", total);
-    if (info->where[WHERE_APP] > 0) {
+    if (info->where[WHERE_NATIVE] > 0) {
         print_file(info->file, "  %5.1f%% of time in APPLICATION (%d)\n",
-                   (float)info->where[WHERE_APP]/(float)total * 100.0,
-                   info->where[WHERE_APP]);
+                   (float)info->where[WHERE_NATIVE]/(float)total * 100.0,
+                   info->where[WHERE_NATIVE]);
     }
     if (info->where[WHERE_INTERP] > 0) {
         print_file(info->file, "  %5.1f%% of time in INTERPRETER (%d)\n",
@@ -510,7 +510,7 @@ pcprofile_results(thread_pc_info_t *info)
                             symtab_lookup_pc((void *)(e->tag+e->offset)));
                 }
 #endif
-            } else if (e->whereami == WHERE_APP) {
+            } else if (e->whereami == WHERE_NATIVE) {
 #if USE_SYMTAB
                 if (valid_symtab) {
                     print_file(info->file, "pc="PFX"\t#=%d\tin the app = %s\n",

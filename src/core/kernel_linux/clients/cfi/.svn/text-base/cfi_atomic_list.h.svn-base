@@ -1,0 +1,180 @@
+/*
+ * cfi_atomic_list.h
+ *
+ *  Created on: 2013-01-29
+ *      Author: akshayk
+ */
+
+#ifndef CFI_ATOMIC_LIST_H_
+#define CFI_ATOMIC_LIST_H_
+
+#include "cfi_module.h"
+
+
+static spinlock_t list_lock;
+
+struct list_item {
+	uint64_t node;
+	volatile struct list_item *next;
+};
+
+struct cfi_list_head {
+	volatile struct list_item *head;
+};
+
+#define CFI_LIST_DECLARE(name) \
+    struct cfi_list_head name = { .head = NULL }
+
+static __inline__ void cfi_list_append(struct cfi_list_head *list_head, void *node)
+{
+    struct list_item *ptr;
+    struct list_item *head;
+    struct list_item *list = kmalloc(sizeof(struct list_item), GFP_ATOMIC);
+
+    if(list == NULL){
+        return;
+    }
+
+    list->node = node;
+    list->next = NULL;
+
+    if( !list_head->head) {
+        //list_head->head = list;   //do compare and swap
+        do{
+            head = list_head->head;
+        }while(!__sync_bool_compare_and_swap(&list_head->head, head, list));
+        return;
+    }
+
+    spin_lock(&list_lock);
+    ptr = list_head->head;
+    while(ptr->next != NULL) {
+        ptr = ptr->next;
+    }
+    ptr->next = list;
+    spin_unlock(&list_lock);
+   /* do {
+        head = ptr->next;
+    }while (!__sync_bool_compare_and_swap(&ptr->next, head, list));*/
+}
+/*
+
+static __inline__ void cfi_list_append(struct cfi_list_head *list_head, void *node)
+{
+	struct list_item *ptr;
+	struct list_item *head;
+	struct list_item *list = kmalloc(sizeof(struct list_item), GFP_ATOMIC);
+
+	if(list == NULL){
+		return;
+	}
+
+	list->node = node;
+	list->next = NULL;
+
+	if( !list_head->head) {
+		//list_head->head = list;	//do compare and swap
+	    do{
+	        head = list_head->head;
+	    }while(!__sync_bool_compare_and_swap(&list_head->head, head, list));
+		return;
+	}
+
+	ptr = list_head->head;
+	while(ptr->next != NULL) {
+		ptr = ptr->next;
+	}
+
+	//ptr->next = list;
+	do {
+	    head = ptr->next;
+	}while (!__sync_bool_compare_and_swap(&ptr->next, head, list));
+}
+*/
+static __inline__ void cfi_list_prepend(struct cfi_list_head *list_head, void *node)
+{
+	struct list_item *ptr;
+	struct list_item *head;
+	struct list_item *list = kmalloc(sizeof(struct list_item), GFP_ATOMIC);
+
+	if(list == NULL){
+		return;
+	}
+
+	list->node = node;
+
+	do {
+	    list->next = list_head->head;
+	    //head = list_head->head;
+	}while (!__sync_bool_compare_and_swap(&list_head->head, list->next, list));
+}
+
+static __inline__ void cfi_list_del_item(struct cfi_list_head *list_head, void *node)
+{
+	struct list_item *ptr;
+	struct list_item *temp_ptr;
+	struct list_item *temp_node;
+
+	if( !list_head->head) {
+		return;
+	}
+
+	ptr = list_head->head;
+
+	if(ptr->next == NULL){
+		if(ptr->node == node){
+		    do{
+		      temp_node = ptr->next;
+		    }while (__sync_bool_compare_and_swap(&list_head->head, temp_node, NULL) == false);
+			kfree(ptr);
+		}
+	}
+
+	while((ptr->next->node != node) && (ptr->next->next != NULL)){
+		ptr = ptr->next;
+	}
+
+	if(ptr->next->node == node){
+	    do {
+	        temp_ptr = ptr->next;
+	    } while (__sync_bool_compare_and_swap(&ptr->next, temp_ptr, temp_ptr->next) == false);
+
+	    kfree(temp_ptr);
+	}
+
+}
+
+/*
+static __inline__ void cfi_list_del(struct cfi_list_head *list_head)
+{
+    struct list_item *ptr;
+    struct list_item *temp_ptr;
+
+    ptr = list_head->head;
+
+    while(ptr){
+        temp_ptr = ptr;
+        ptr = ptr->next;
+        do{
+
+        }while (__sync_bool_compare_and_swap(&list_head->head, list_head->head, ptr) == false);
+        kfree(temp_ptr);
+    }
+
+}
+*/
+static __inline__ void cfi_for_each_item(struct cfi_list_head *list_head, void (*list_callback)(void*))
+{
+    struct list_item *ptr;
+
+    ptr = list_head->head;
+
+    while(ptr != NULL){
+        list_callback((void*)ptr->node);
+        ptr = ptr->next;
+    }
+}
+
+
+
+#endif /* CFI_ATOMIC_LIST_H_ */

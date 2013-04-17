@@ -91,7 +91,7 @@ struct granary_leak_detect *granary_leak_object_create(struct module *target){
     lc_obj = kzalloc(sizeof(struct granary_leak_detect), GFP_KERNEL);
     if(lc_obj == NULL) {
     	printk("lc_obj is NULL : %s",__FUNCTION__);
-    	granary_debug_null_pointer();
+    	//granary_debug_null_pointer();
         return NULL;
     }
 

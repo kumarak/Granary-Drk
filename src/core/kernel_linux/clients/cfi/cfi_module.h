@@ -49,11 +49,12 @@
 #define PF_INSTR    (1<<4)
 
 /// define the boundaries of various address areas
-#define MODULE_START_ADDR 	0xffffffffa0000000
-#define MODULE_END_ADDR 	0xffffffffc0000000
-#define MODULE_SHADOW_END 	0xffffffffe0000000
-#define MODULE_SHADOW_END_EXTENDED 	0xffffffffff000000
+#define MODULE_START_ADDR   0xffffffffa0000000
+#define MODULE_END_ADDR     0xffffffffc0000000
+#define MODULE_SHADOW_END   0xffffffffe0000000
+#define MODULE_SHADOW_END_EXTENDED   0xffffffffff000000
 #define MODULE_SHADOW_START MODULE_END_ADDR
+//#define MODULE_SHADOW_START MODULE_END_ADDR
 #define VM_ALLOC	0x00000002
 #define KERNEL_START_ADDR   0xffffffff80000000
 #define KERNEL_END_ADDR     MODULE_START_ADDR
@@ -136,7 +137,7 @@ void cfi_exit_direct_call_temp(void);
 void cfi_exit_return_to_kernel(void);
 uint64_t get_thread_private_extension(void);
 //void cfi_exit_direct_call(struct dcontext *dcontext,uint64_t next_module_address, uint64_t kernel_wrapper_addr );
-void granary_debug_null_pointer();
+//void granary_debug_null_pointer();
 
 struct kernsym {
     void *addr; // orig addr

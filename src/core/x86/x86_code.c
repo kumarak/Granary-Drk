@@ -83,7 +83,9 @@ dynamo_start(dr_mcontext_t *mc)
     dr_mcontext_t *mcontext;
     dcontext_t *dcontext = get_thread_private_dcontext();
     ASSERT(dcontext != NULL);
-    thread_starting(dcontext);
+
+    if(!dcontext->initialized)
+    	thread_starting(dcontext);
 
     /* Set return address */
     dcontext->next_tag = mc->pc;

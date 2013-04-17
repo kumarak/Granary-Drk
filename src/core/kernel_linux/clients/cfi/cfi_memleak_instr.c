@@ -534,8 +534,7 @@ instrument_write_rep_stos(void *drcontext, instrlist_t *ilist, instr_t *instr,
     PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_instr_reg));
     PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_reg_mask));
     PRE(ilist, instr, INSTR_CREATE_pushf(drcontext));
-    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_reg_mask,
-    							OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_reg_mask, OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
 
     PRE(ilist, instr, INSTR_CREATE_or(drcontext, opnd_instr_reg, opnd_reg_mask));
 
@@ -921,12 +920,12 @@ memleak_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bo
     		}
     	}
 
-    	if(instr_is_cti(instr) && instr_num_srcs(instr)){
+    	/*if(instr_is_cti(instr) && instr_num_srcs(instr)){
     		if(!is_kernel_text(pc))
     			    cfi_call_instrumentation_snapahot(drcontext, bb, instr, mecontext_snapshot_native);
 
     		continue;
-    	}
+    	}*/
 
     	if(instr_writes_memory(instr)) {
     		instrument_memory_operations(drcontext, tag, bb, instr, pc, true);

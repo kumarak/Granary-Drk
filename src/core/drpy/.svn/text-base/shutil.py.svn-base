@@ -12,12 +12,11 @@ class ShellError(Exception):
         self.command_args = command_args
 
 def check_open(args, input_string=None):
-    print " ".join(args)
-    print
     stdin = subprocess.PIPE if input_string else None
     popen = subprocess.Popen(args, stdin=stdin, stdout=subprocess.PIPE)
     result = popen.communicate(input_string)[0]
     if popen.returncode != 0:
+        print args, input_string
         raise ShellError(args)
     return result
 

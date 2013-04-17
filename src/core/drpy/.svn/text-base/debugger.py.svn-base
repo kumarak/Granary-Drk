@@ -12,7 +12,7 @@ class GDBDebugger(object):
 
     def add_symbol_file(self, symbol_file, sections):
         out = StringIO()
-        out.write('add-symbol-file %s ' % (symbol_file))
+        out.write('add-symbol-file /home/pag/Code/drk/src/core/%s ' % (symbol_file))
         out.write(sections['.text'])
         del sections['.text']
         for section in sections.iteritems():

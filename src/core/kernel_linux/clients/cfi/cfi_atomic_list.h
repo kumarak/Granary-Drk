@@ -13,7 +13,7 @@
 
 
 struct list_item {
-	uint64_t node;
+	void* node;
 	volatile struct list_item *next;
 };
 
@@ -35,7 +35,7 @@ static __inline__ void cfi_list_init(struct cfi_list_head *list_head){
 static __inline__ void cfi_list_append(struct cfi_list_head *list_head, void *node)
 {
     struct list_item *ptr;
-    struct list_item *head;
+    //struct list_item *head;
     unsigned int exist = 0;
     struct list_item *list = kmalloc(sizeof(struct list_item), GFP_ATOMIC);
 
@@ -80,9 +80,9 @@ static __inline__ void cfi_list_append(struct cfi_list_head *list_head, void *no
 static __inline__ unsigned int cfi_list_item_exist(struct cfi_list_head *list_head, void *node)
 {
     struct list_item *ptr;
-    struct list_item *temp_ptr;
-    struct list_item *temp_node;
-    struct list_item *prev_ptr;
+    //struct list_item *temp_ptr;
+    //struct list_item *temp_node;
+    //struct list_item *prev_ptr;
     unsigned int flag = 0;
 
     spin_lock(&(list_head->list_lock));
@@ -122,10 +122,10 @@ static __inline__ unsigned int cfi_list_item_exist(struct cfi_list_head *list_he
 static __inline__ void cfi_list_item_print(struct cfi_list_head *list_head)
 {
     struct list_item *ptr;
-    struct list_item *temp_ptr;
-    struct list_item *temp_node;
-    struct list_item *prev_ptr;
-    unsigned int flag = 0;
+    //struct list_item *temp_ptr;
+    //struct list_item *temp_node;
+    //struct list_item *prev_ptr;
+    //unsigned int flag = 0;
 
     spin_lock(&(list_head->list_lock));
     dr_printf("collected watchpoint : ");
@@ -176,7 +176,7 @@ static __inline__ void cfi_list_append(struct cfi_list_head *list_head, void *no
 */
 static __inline__ void cfi_list_prepend(volatile struct cfi_list_head *list_head, void *node)
 {
-	struct list_item *ptr;
+	//struct list_item *ptr;
 	volatile struct list_item *head;
 	volatile struct list_item *list = kmalloc(sizeof(struct list_item), GFP_ATOMIC);
 

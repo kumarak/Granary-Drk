@@ -859,18 +859,11 @@ extern "C" {
 /// so that partial specializations of cfi_wrapper_impl for FUNC_WRAPPERs
 /// take control for specific functions.
 #include "wrappers/wrappers.hpp"
-/*
-template <const uint64_t addr, typename R, typename... Args>
-cfi_type_erased_func_ptr wrapper_test_func(R (*)(Args...)){
-	//return (cfi_type_erased_func_ptr) addr;
-    return (cfi_type_erased_func_ptr) cfi_wrapper_impl<addr, R, Args...>::wrapper;
-}
-*/
+
 /// C++ constexpr wrapper; we are given the absolute address of the function,
 /// hence why we only care about its address and its types
 template <const uint64_t addr, typename R, typename... Args>
-cfi_type_erased_func_ptr wrapper_test_func(R (*)(Args...)) {
-	kern_printk("inside cfi_wrapper : %lx\n",addr);
+constexpr cfi_type_erased_func_ptr cfi_wrapper(R (*)(Args...)) {
     return (cfi_type_erased_func_ptr) cfi_wrapper_impl<addr, R, Args...>::wrapper;
 }
 

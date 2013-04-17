@@ -1,0 +1,128 @@
+/*
+ * cfi_instrument.c
+ *
+ *  Created on: 2012-04-08
+ *      Author: akshayk
+ */
+
+
+#include <stddef.h>
+
+#include "cfi_module.h"
+#include "kernel_linux/clients/dcontext_extend.h"
+
+extern int DRK_IS_RUNNING;
+
+
+static void
+at_direct_call(app_pc instr_addr, app_pc target_addr)
+{
+    printk("    direct call address : %lx\n",(unsigned long)target_addr );
+//    dr_app_give_control();
+}
+
+static void
+at_indirect_call(app_pc instr_addr, app_pc target_addr)
+{
+    printk("    indirect call address : %lx\n",(unsigned long)target_addr );
+
+}
+
+static dr_emit_flags_t
+bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace,
+         bool translating) {
+
+    instr_t *instr,*next_instr, *last_instr;
+    opnd_t op;
+    //app_pc address_opnd = NULL;
+
+    (void) last_instr;
+
+    //printk("bb event\n");
+    if(translating == false)
+    {
+
+        for(instr= instrlist_first(bb); instr != NULL; instr = next_instr)
+        {
+            next_instr = instr_get_next(instr);
+
+            if(!instr_opcode_valid(instr))
+                    continue;
+
+            if(instr_is_cti(instr) && instr_num_srcs(instr))
+            {
+                op = instr_get_target(instr);
+
+                if(instr_is_call_direct(instr))
+                {
+                    //address_opnd = opnd_get_pc(op);
+
+                    dr_insert_call_instrumentation(drcontext, bb, instr, (app_pc)at_direct_call);
+                //  bb->translation_target = dr_app_stop;
+
+                }else if(instr_is_call_indirect(instr))
+                {
+                    if(opnd_is_near_pc(op))
+                    {
+                        dr_insert_call_instrumentation(drcontext, bb, instr, (app_pc)at_indirect_call);
+                    }
+                    else if(instr_is_mbr(instr)){
+                        dr_insert_mbr_instrumentation(drcontext, bb, instr, (app_pc)at_indirect_call, SPILL_SLOT_1);
+                    }
+
+                    }
+                }
+            }
+
+        }
+        return DR_EMIT_DEFAULT;
+}
+
+
+/**
+ * Called when the instrumented module calls a kernel function.
+ */
+static void handle_module_exit_function_call(void *drcontext) {
+    struct cfi_client_extension *cfi = /*dr_get_client_extension_temp(DR_EXTENSION(cfi));*/ dr_get_client_extension_from_context(
+        drcontext,
+        DR_EXTENSION(cfi)
+    );
+    cfi->exit_address = dr_next_address(drcontext);
+    dr_redirect_execution_native(drcontext, (void *) cfi_call_kernel_from_module);
+}
+
+/**
+ * Called when the instrumented module returns to the kernel function that called
+ * it.
+ */
+static void handle_module_exit_function_return(void *drcontext) {
+    (void) drcontext;
+}
+
+/**
+ * Initialize the CFI extension structure to the dcontext.
+ */
+static void cfi_init_dcontext(void *extension) {
+    struct cfi_client_extension *cfi = (struct cfi_client_extension *) extension;
+
+    memset(cfi, 0, sizeof *cfi);
+    cfi->iret_handler = /*cfi_return_to_module_from_kernel*/dr_app_start_after_iret;
+}
+
+void drinit_dcontext(unsigned int thread_id) {
+    dr_init_client_extension(cfi_init_dcontext, DR_EXTENSION(cfi));
+}
+
+
+/**
+ * Initialize the CFI extension.
+ */
+void
+drinit(client_id_t id)
+{
+    printk("drinit cfi %d\n", id);
+//    dr_init_client_extension(cfi_init_dcontext, DR_EXTENSION(cfi));
+    dr_register_module_exit(handle_module_exit_function_call, MODULE_EXIT_CALL);
+    dr_register_module_exit(handle_module_exit_function_return, MODULE_EXIT_RETURN);
+    dr_register_bb_event(bb_event);
+}

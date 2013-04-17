@@ -579,10 +579,10 @@ emulate_interrupt_arrival(dr_mcontext_t *mcontext, interrupt_vector_t vector,
         frame->error_code = error_code;
     }
 
- /*   if(is_kernel_text(mcontext->xip)){
+  /*  if(is_kernel_text(mcontext->xip)){
        frame->xip = mcontext->xip;
-    } else{
-*/
+    } else*/{
+
         if(!vector_has_error_code(vector))
         {
             if(thread_private_cfi->return_stack_size < 8) {
@@ -599,7 +599,7 @@ emulate_interrupt_arrival(dr_mcontext_t *mcontext, interrupt_vector_t vector,
         else {
             frame->xip = mcontext->xip;
         }
-  //  }
+    }
 
 
     frame->cs = get_cs();
@@ -1723,8 +1723,20 @@ handle_general_fault_handler(dcontext_t* drcontext, interrupt_stack_frame_t* fra
     if (local)
         SELF_PROTECT_LOCAL(dcontext, WRITABLE);
 
+    if(frame->xip != 0xffffffff812e0500 &&
+    		frame->xip != 0xffffffff812e0503) {
+    	//mcontext->xip = frame->xip;
+    	dcontext->next_tag = frame->xip;
+    	dcontext->next_app_tag = frame->xip;
+    	mcontext->xsp = frame->xsp;
+    	mcontext->xflags = frame->xflags;
+    	dcontext->gp_pc = frame->xip;
+    	dcontext->is_general_fault = true;
+    	transfer_to_dispatch(dcontext, 0, mcontext);
+    	ASSERT_NOT_REACHED();
+    }
 
-
+#if 0
 #if 0
     if(dcontext->gp_instr == NULL)
         dcontext->gp_instr = instr_create(dcontext);
@@ -1965,7 +1977,8 @@ handle_general_fault_handler(dcontext_t* drcontext, interrupt_stack_frame_t* fra
         }
 */
         //instr_destroy(dcontext, instr);
-  /*      mcontext->rax = is_watchpoint_address(mcontext->rax);
+#else
+        mcontext->rax = is_watchpoint_address(mcontext->rax);
         mcontext->rbx = is_watchpoint_address(mcontext->rbx);
         mcontext->rcx = is_watchpoint_address(mcontext->rcx);
         mcontext->rdx = is_watchpoint_address(mcontext->rdx);
@@ -1979,7 +1992,7 @@ handle_general_fault_handler(dcontext_t* drcontext, interrupt_stack_frame_t* fra
         mcontext->r13 = is_watchpoint_address(mcontext->r13);
         mcontext->r14 = is_watchpoint_address(mcontext->r14);
         mcontext->r15 = is_watchpoint_address(mcontext->r15);
-*/
+#endif
   //  }
 
     if (local)

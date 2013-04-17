@@ -942,6 +942,7 @@ struct _dcontext_t {
     /* Holds the address of the next application instruction to execute. Unlike
      * next_tag, this is not overwritten with a code cache address. */
     app_pc         next_app_tag;
+    app_pc		   current_tag;
     bool emulating_interrupt_return;
 
     exit_direct_call_stub   exit_address_target;

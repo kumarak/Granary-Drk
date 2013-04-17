@@ -247,6 +247,10 @@ dispatch(dcontext_t *dcontext)
         else
 #endif
 #ifdef LINUX_KERNEL
+        	dcontext->current_tag = dcontext->next_tag;
+        	if(dcontext->next_tag == NULL)
+        		null_next_tag_curiosity(dcontext);
+
             if(is_module_shadow_address(dcontext)) {
 
             unsigned long long next_addr = (unsigned long long) dcontext->next_tag;
@@ -855,7 +859,7 @@ static void
 dispatch_exit_module(dcontext_t *dcontext) {
 
     struct cfi_client_extension *cfi = (struct cfi_client_extension *)dr_get_client_extension();
-
+#if 0
     struct thread_private_info *thread_private_slot;
     thread_private_slot = kernel_get_thread_private_slot_from_rsp((void*)get_mcontext(dcontext)->rsp, 0);
     if(thread_private_slot != NULL){
@@ -887,15 +891,15 @@ dispatch_exit_module(dcontext_t *dcontext) {
         thread_private_slot->regs[14] = get_mcontext(dcontext)->r14;
         thread_private_slot->regs[15] = get_mcontext(dcontext)->r15;
     }
-
+#endif
 
     /* call any client callbacks to handling module exits; these might
      * change the dcontext->next_tag. */
     if(dcontext->last_exit->flags & LINK_RETURN) {
-        if(thread_private_slot != NULL){
-            thread_private_slot->section_count--;
-        }
-
+//        if(thread_private_slot != NULL){
+  //          thread_private_slot->section_count--;
+    //    }
+#if 0
         if(thread_private_slot->section_count == 0){
             thread_private_slot->regs[0] = 0;
             thread_private_slot->regs[1] = 0;
@@ -914,18 +918,20 @@ dispatch_exit_module(dcontext_t *dcontext) {
             thread_private_slot->regs[14] = 0;
             thread_private_slot->regs[15] = 0;
         }
-
+#endif
     } else if(dcontext->last_exit->flags & LINK_CALL){
         if(dcontext->next_tag != (app_pc)dr_app_stop){
             byte *return_addr = dr_get_stack_pointer_value(dcontext);
-            if((return_addr < MODULE_END_ADDR) && (return_addr >= MODULE_START_ADDR)) {
+            if(return_addr != (app_pc)dr_app_start_on_return) {
+            	if((return_addr < MODULE_END_ADDR) && (return_addr >= MODULE_START_ADDR)) {
 
-                cfi->return_address_stack[cfi->return_stack_size++] = return_addr;
-                dr_set_stack_pointer_value(dcontext, dr_app_start_on_return);
+            		cfi->return_address_stack[cfi->return_stack_size++] = return_addr;
+            		dr_set_stack_pointer_value(dcontext, dr_app_start_on_return);
+            	}
+
+            	byte *wrapper_callee = dr_get_wrapper_target((void*)dcontext->next_tag);
+            	dcontext->next_tag = wrapper_callee;
             }
-
-            byte *wrapper_callee = dr_get_wrapper_target((void*)dcontext->next_tag);
-            dcontext->next_tag = wrapper_callee;
         }
     }
 

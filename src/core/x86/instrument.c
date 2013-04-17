@@ -4951,6 +4951,11 @@ void break_return_address_is_null()
 
 }
 
+void break_on_dynamo_address()
+{
+
+}
+
 DR_API
 void*
 dr_get_client_return_address_from_thread(void) {
@@ -4960,6 +4965,9 @@ dr_get_client_return_address_from_thread(void) {
     	break_return_address_is_null();
     }
     cfi->return_stack_size--;
+    if(is_dynamo_address(cfi->return_address_stack[cfi->return_stack_size])){
+    	break_on_dynamo_address();
+    }
     return cfi->return_address_stack[cfi->return_stack_size];
 }
 

@@ -116,10 +116,11 @@ FUNC_WRAPPER(kmem_cache_alloc, (struct kmem_cache *s, gfp_t gfpflags), {
 
 FUNC_WRAPPER(kmem_cache_alloc_trace, (struct kmem_cache *s, gfp_t gfpflags, size_t size), {
     void *watch_ptr = kmem_cache_alloc_trace(s, gfpflags, size);
+
+#ifdef CFI_NO_WATCHPOINT
     uint64_t base = (uint64_t)watch_ptr;
     uint64_t limit = base + s->size;
     unsigned int i = 0;
-#ifdef CFI_NO_WATCHPOINT
     ADD_WATCHPOINT(watch_ptr, s->size);
     struct alisa_meta *meta_info = (struct alisa_meta*)WATCHPOINT_META(watch_ptr);
     REMOVE_WATCHPOINT(watch_ptr);
@@ -128,12 +129,12 @@ FUNC_WRAPPER(kmem_cache_alloc_trace, (struct kmem_cache *s, gfp_t gfpflags, size
     	base = base+8;
     }
 #else
-    ADD_WATCHPOINT(watch_ptr, s->size);
+    ADD_WATCHPOINT(watch_ptr, size);
     if(s->ctor != NULL)
-        s->ctor(watch_ptr);
+    	s->ctor(watch_ptr);
 #endif
-    granary_lc_handle_alloc(target_module, watch_ptr, s->size, NULL);
-    kern_printk("kmem_cache_alloc wrapper : %lx  : %lx\n", (uint64_t)watch_ptr, s->size);
+    granary_lc_handle_alloc(target_module, watch_ptr, size, NULL);
+    kern_printk("kmem_cache_alloc_trace wrapper : %lx  : %lx\n", (uint64_t)watch_ptr, size);
     return watch_ptr;
 })
 //void *kmem_cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)

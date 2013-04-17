@@ -1,0 +1,63 @@
+/*
+ * cfi_thread.c
+ *
+ *  Created on: 2013-01-30
+ *      Author: akshayk
+ */
+
+#include "cfi_thread.h"
+#include "cfi_atomic_list.h"
+
+#include <linux/kthread.h>
+#include <linux/fs.h>
+#include <asm/thread_info.h>
+#include <linux/param.h>
+#include <linux/sched.h>
+
+extern struct cfi_list_head atomic_sweep_list;
+extern uint64_t flag_memory_snapshot;
+
+void func_traverse_listitem(void *addr){
+   // dr_printf("--------%s-------", __FUNCTION__);
+    struct thread_private_info *thread_private_slot = (struct thread_private_info*)addr;
+
+    if(thread_private_slot->copy_stack){
+        thread_private_slot->stack = memcpy(thread_private_slot->stack, thread_private_slot->stack_start_address, PAGE_SIZE);
+    }
+}
+
+
+unsigned int
+sweep_thread_init(void *arg)
+{
+    int ret;
+    unsigned long flags;
+    unsigned long local_flag;
+    printk("inside sweep_thread_init\n");
+    //set_current_state(TASK_INTERRUPTIBLE);
+    while (!kthread_should_stop())
+    {
+
+       // dr_printf("*******************************************************inside sweep_thread_init\n");
+        preempt_disable();
+        raw_local_irq_save(flags);
+        do {
+            local_flag = flag_memory_snapshot;
+        }while(!__sync_bool_compare_and_swap(&flag_memory_snapshot, local_flag, 0x0));
+        cfi_for_each_item(&atomic_sweep_list, &func_traverse_listitem);
+
+        do {
+            local_flag = flag_memory_snapshot;
+        }while(!__sync_bool_compare_and_swap(&flag_memory_snapshot, local_flag, 0x1));
+        raw_local_irq_restore(flags);
+        preempt_enable();
+
+        set_current_state(TASK_INTERRUPTIBLE);
+        schedule_timeout(HZ/1000);
+    }
+    set_current_state(TASK_RUNNING);
+
+    return 0;
+}
+
+

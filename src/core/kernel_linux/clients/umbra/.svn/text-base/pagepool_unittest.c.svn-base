@@ -59,7 +59,7 @@ int
 main(void)
 {
     pagepool_t *pool;
-    pfn_t pfn1, pfn2;
+    pfn_t pfn1/*, pfn2*/;
 
     pool = pagepool_kernel_init(0);
     assert(pagepool_empty(pool));
@@ -78,11 +78,11 @@ main(void)
     assert(!pagepool_empty(pool));
     pfn1 = pagepool_alloc(pool);
     assert(!pagepool_empty(pool));
-    pfn2 = *((pfn_t *) &pfn_to_page(pfn1)->data[0]);
-    assert(pfn2 == pagepool_alloc(pool));
+    //pfn2 = *((pfn_t *) &pfn_to_page(pfn1)->data[0]);
+    //assert(pfn2 == pagepool_alloc(pool));
     assert(pagepool_empty(pool));
     pagepool_free(pool, pfn1);
-    pagepool_free(pool, pfn2);
+    //pagepool_free(pool, pfn2);
     pagepool_kernel_exit(pool);
 
     return 0;

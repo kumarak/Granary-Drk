@@ -1,0 +1,384 @@
+/*
+ * cfi_leak_instrumentation.c
+ *
+ *  Created on: 2013-02-01
+ *      Author: akshayk
+ */
+
+#include "cfi_instrumentation.h"
+#include "cfi_insert_call.h"
+#include "cfi_hashtable.h"
+
+
+#define PRE     instrlist_meta_preinsert
+#define POST    instrlist_meta_postinsert
+
+extern struct hashtable_t *alloc_pointer_hash;
+
+static void
+ dump_watch_write(void *src, void *dest){
+    uint64_t value;
+    int ret = -1;
+    ret = hashmap_get(alloc_pointer_hash, src, &value);
+
+    if(ret == 0)
+        dr_printf("FOUND!!!!!!!!!   thread id  src %lx, dest : %lx\n", src, dest);
+    else
+        dr_printf("thread id  src %lx, dest : %lx\n", src, dest);
+}
+
+static bool
+instr_is_reg_save(instr_t *instr)
+{
+    opnd_t opnd;
+
+    if (instr_get_opcode(instr) != OP_mov_st)
+        return false;
+    opnd = instr_get_src(instr, 0);
+    if (!opnd_is_reg(opnd))
+        return false;
+
+    return true;
+}
+
+static instr_t*
+instrument_memory_operations(void *drcontext, instrlist_t *ilist, instr_t *instr)
+{
+    unsigned long used_registers = 0;
+    unsigned int i;
+
+    instr_t* next;
+
+    instr_t *execute_native_instr = INSTR_CREATE_label(drcontext);
+    instr_t *done_emulation = INSTR_CREATE_label(drcontext);
+    instr_t *next_nop = INSTR_CREATE_label(drcontext);
+    instr_t* instr_cloned;
+
+    if(instr_writes_to_reg(instr, DR_REG_RSP)
+            || instr_writes_to_reg(instr, DR_REG_RBP)
+            || instr_is_call(instr)
+            /*|| instr_writes_to_any_aflags(instr)*/
+            || instr_is_sse_or_sse2(instr)){
+        return instr;
+    }
+
+    collect_regs(&used_registers, instr, instr_num_srcs, instr_get_src );
+    collect_regs(&used_registers, instr, instr_num_dsts, instr_get_dst );
+
+    reg_id_t reg_mem_addr = get_next_free_reg(&used_registers);
+    opnd_t opnd_mem_addr = opnd_create_reg(reg_mem_addr);
+
+    if(instr_get_opcode(instr) == OP_add) {
+        //break_at_add(instr_get_app_pc(instr), instr);
+    }
+
+    reg_id_t reg_kernel_hole = get_next_free_reg(&used_registers);
+    opnd_t opnd_kernel_hole = opnd_create_reg(reg_kernel_hole);
+
+    opnd_t opnd_dst0 = instr_get_dst(instr, 0);
+    opnd_t opnd_src0 = instr_get_src(instr, 0);
+
+    if (opnd_is_rel_addr(opnd_dst0) || opnd_is_abs_addr(opnd_dst0)) {
+
+        if(instr_get_rel_addr_dst_idx(instr) == INVALID_MEM_ADDR)
+        {
+            opnd_t opnd_dest = OPND_CREATE_INT64(opnd_get_addr(opnd_dst0));
+            //dr_insert_clean_call(drcontext, ilist, instr, (void *)dump_watch_write, false, 1, opnd_src0, opnd_dest);
+
+        } else if(instr_has_rel_addr_reference(instr)) {
+            app_pc pt_addr;
+            instr_get_rel_addr_target(instr, &pt_addr);
+            opnd_t opnd_dest = OPND_CREATE_INT64(pt_addr);
+           // dr_insert_clean_call(drcontext, ilist, instr, (void *)dump_watch_write, false, 2, opnd_src0, opnd_dest);
+
+        }
+
+    }else if (opnd_is_base_disp(opnd_dst0)) {
+        reg_id_t dst_reg = opnd_get_base(opnd_dst0);
+
+        switch (dst_reg) {
+        case DR_REG_RSP:
+        case DR_REG_ESP:
+        case DR_REG_SP:
+        case DR_REG_RBP:
+        case DR_REG_EBP:
+        case DR_REG_BP:
+            return instr;
+        default:
+            break;
+        }
+
+        instrlist_meta_preinsert(ilist, instr,  INSTR_CREATE_push(drcontext, opnd_mem_addr));
+
+        instrlist_meta_preinsert(
+                ilist,
+                instr,
+                INSTR_CREATE_lea(drcontext,
+                        opnd_mem_addr,
+                        opnd_create_base_disp(dst_reg, opnd_get_index(opnd_dst0), opnd_get_scale(opnd_dst0), opnd_get_disp(opnd_dst0), OPSZ_lea)));
+
+        dr_insert_clean_call(drcontext, ilist, instr, (void *)dump_watch_write, false, 2, opnd_src0, opnd_mem_addr);
+        instrlist_meta_preinsert(ilist, instr,  INSTR_CREATE_pop(drcontext, opnd_mem_addr));
+
+
+    } else {
+
+    }
+}
+
+
+static instr_t*
+instrument_memory_write(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc pc, struct memory_operand_modifier *ops)
+{
+    unsigned long used_registers = 0;
+    bool flag_unwatched_addr = false;
+    reg_id_t reg_watched_addr;
+    reg_id_t reg_unwatched_addr;
+    struct spill_reg_t watched_addr;
+    struct spill_reg_t unwatched_addr;
+    struct spill_reg_t spill_reg[16];
+
+    instr_t *addr_is_a_watchpoint = INSTR_CREATE_label(drcontext);
+    instr_t *addr_is_not_a_watchpoint = INSTR_CREATE_label(drcontext);
+    instr_t *begin_instrumenting = INSTR_CREATE_label(drcontext);
+    instr_t *done_instrumenting = INSTR_CREATE_label(drcontext);
+
+    instr_t *done_check = INSTR_CREATE_label(drcontext);
+    instr_t *nop = INSTR_CREATE_nop(drcontext);
+    instr_t *do_callback = INSTR_CREATE_label(drcontext);
+    instr_t *next_nop = INSTR_CREATE_label(drcontext);
+    instr_t *emulated;
+    instr_t *cursor = instr;
+
+    collect_regs(&used_registers, instr, instr_num_srcs, instr_get_src );
+    collect_regs(&used_registers, instr, instr_num_dsts, instr_get_dst );
+
+    reg_watched_addr = get_next_free_reg(&used_registers);
+    opnd_t opnd_watched_addr = opnd_create_reg(reg_watched_addr);
+
+    reg_unwatched_addr = get_next_free_reg(&used_registers);
+    opnd_t opnd_unwatched_addr = opnd_create_reg(reg_unwatched_addr);
+
+    opnd_t watched_addr_opnd = ops->found_operand;
+    //watched_addr_opnd.size = OPSZ_lea;
+
+    PRE(ilist, instr, begin_instrumenting);
+    PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_watched_addr));
+    PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_unwatched_addr));
+    PRE(ilist, instr, INSTR_CREATE_pushf(drcontext));
+
+
+    PRE(ilist, instr, INSTR_CREATE_lea(drcontext, opnd_watched_addr, opnd_create_base_disp(opnd_get_base(ops->found_operand),
+                                                opnd_get_index(ops->found_operand), opnd_get_scale(ops->found_operand),
+                                                opnd_get_disp(ops->found_operand), OPSZ_lea)));
+
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr, OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
+
+    PRE(ilist, instr, INSTR_CREATE_or(drcontext, opnd_unwatched_addr, opnd_watched_addr));
+    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_unwatched_addr, opnd_watched_addr));
+
+    PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_je, opnd_create_instr(addr_is_not_a_watchpoint)));
+
+    PRE(ilist, instr, addr_is_a_watchpoint);
+
+    emulated = instr_clone(drcontext, instr);
+    emulated->translation = 0;
+
+    ops->replacement_operand = opnd_create_base_disp(
+            reg_unwatched_addr, DR_REG_NULL,1, 0 , ops->found_operand.size);
+
+    for_each_operand(emulated, ops,
+            (opnd_callback_t *) memory_operand_replacer);
+    PRE(ilist, instr, INSTR_CREATE_popf(drcontext));
+    PRE(ilist, instr, emulated);
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_unwatched_addr));
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_watched_addr));
+
+    PRE(ilist, instr, INSTR_CREATE_jmp_short(drcontext,
+            opnd_create_instr(done_instrumenting)));
+
+    PRE(ilist, instr, addr_is_not_a_watchpoint);
+    PRE(ilist, instr, INSTR_CREATE_popf(drcontext));
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_unwatched_addr));
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_watched_addr));
+    /*** original instruction here ***/
+    instr->translation = 0; // hack!
+    instr_being_modified(instr, false);
+    instr_set_ok_to_mangle(instr, false);
+
+    POST(ilist, instr, done_instrumenting);
+    nop->translation = pc;
+    POST(ilist, instr, nop);
+}
+
+void cfi_debug_call(void *addr) {
+    //print_file(STDERR,"%s : %lx\n",__FUNCTION__, addr);
+    dr_printf("%s : %lx\n",__FUNCTION__, addr);
+}
+
+static instr_t*
+instrument_memory_read(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc pc, struct memory_operand_modifier *ops)
+{
+    unsigned long used_registers = 0;
+    bool flag_unwatched_addr = false;
+    reg_id_t reg_watched_addr;
+    reg_id_t reg_unwatched_addr;
+    struct spill_reg_t watched_addr;
+    struct spill_reg_t unwatched_addr;
+    struct spill_reg_t spill_reg[16];
+
+    instr_t *addr_is_a_watchpoint = INSTR_CREATE_label(drcontext);
+    instr_t *addr_is_not_a_watchpoint = INSTR_CREATE_label(drcontext);
+    instr_t *begin_instrumenting = INSTR_CREATE_label(drcontext);
+    instr_t *done_instrumenting = INSTR_CREATE_label(drcontext);
+
+    instr_t *done_check = INSTR_CREATE_label(drcontext);
+    instr_t *nop = INSTR_CREATE_nop(drcontext);
+    instr_t *do_callback = INSTR_CREATE_label(drcontext);
+    instr_t *next_nop = INSTR_CREATE_label(drcontext);
+    instr_t *not_null = INSTR_CREATE_label(drcontext);
+    instr_t *emulated;
+    instr_t *cursor = instr;
+
+    collect_regs(&used_registers, instr, instr_num_srcs, instr_get_src );
+    collect_regs(&used_registers, instr, instr_num_dsts, instr_get_dst );
+
+    reg_watched_addr = get_next_free_reg(&used_registers);
+    opnd_t opnd_watched_addr = opnd_create_reg(reg_watched_addr);
+
+    reg_unwatched_addr = get_next_free_reg(&used_registers);
+    opnd_t opnd_unwatched_addr = opnd_create_reg(reg_unwatched_addr);
+
+    opnd_t watched_addr_opnd = ops->found_operand;
+    //watched_addr_opnd.size = OPSZ_lea;
+
+    PRE(ilist, instr, begin_instrumenting);
+    PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_watched_addr));
+    PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_unwatched_addr));
+    PRE(ilist, instr, INSTR_CREATE_pushf(drcontext));
+
+
+    PRE(ilist, instr, INSTR_CREATE_lea(drcontext, opnd_watched_addr, opnd_create_base_disp(opnd_get_base(ops->found_operand),
+                                                opnd_get_index(ops->found_operand), opnd_get_scale(ops->found_operand),
+                                                opnd_get_disp(ops->found_operand), OPSZ_lea)));
+
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr, OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
+    PRE(ilist, instr, INSTR_CREATE_and(drcontext, opnd_unwatched_addr, opnd_watched_addr));
+    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_unwatched_addr, opnd_unwatched_addr));
+    PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_je, opnd_create_instr(not_null)));
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr, OPND_CREATE_INT64(pc)));
+    dr_insert_clean_call(drcontext, ilist, instr, cfi_debug_call, false, 1,opnd_unwatched_addr);
+
+    PRE(ilist, instr, not_null);
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr, OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
+    PRE(ilist, instr, INSTR_CREATE_or(drcontext, opnd_unwatched_addr, opnd_watched_addr));
+    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_unwatched_addr, opnd_watched_addr));
+
+    PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_je, opnd_create_instr(addr_is_not_a_watchpoint)));
+
+    PRE(ilist, instr, addr_is_a_watchpoint);
+
+    emulated = instr_clone(drcontext, instr);
+    emulated->translation = 0;
+
+    ops->replacement_operand = opnd_create_base_disp(
+            reg_unwatched_addr, DR_REG_NULL,1, 0 , ops->found_operand.size);
+
+    for_each_operand(emulated, ops,
+            (opnd_callback_t *) memory_operand_replacer);
+    PRE(ilist, instr, INSTR_CREATE_popf(drcontext));
+    PRE(ilist, instr, emulated);
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_unwatched_addr));
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_watched_addr));
+
+    PRE(ilist, instr, INSTR_CREATE_jmp_short(drcontext,
+            opnd_create_instr(done_instrumenting)));
+
+    PRE(ilist, instr, addr_is_not_a_watchpoint);
+    PRE(ilist, instr, INSTR_CREATE_popf(drcontext));
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_unwatched_addr));
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_watched_addr));
+    /*** original instruction here ***/
+    instr->translation = 0; // hack!
+    instr_being_modified(instr, false);
+    instr_set_ok_to_mangle(instr, false);
+
+    POST(ilist, instr, done_instrumenting);
+    nop->translation = pc;
+    POST(ilist, instr, nop);
+
+}
+
+
+dr_emit_flags_t
+memleak_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bool translating)
+{
+    instr_t *instr,*next_instr, *last_instr;
+    app_pc pc;
+    instr_t *cursor;
+    opnd_t op;
+    uint opcode;
+    int i;
+
+    struct memory_operand_modifier ops = {0};
+
+    for(instr= instrlist_first(bb); instr != NULL; instr = next_instr)
+    {
+        next_instr = instr_get_next(instr);
+        pc = instr_get_app_pc(instr);
+
+        if(pc == NULL)
+            continue;
+
+        if(!instr_opcode_valid(instr))
+            continue;
+
+        // go find our memory operands, if any
+        memset(&ops, 0, sizeof(struct memory_operand_modifier));
+        //for_each_operand(instr, &ops, (opnd_callback_t *) memory_operand_finder);
+        for_each_src_operand(instr, &ops, (opnd_callback_t *) memory_src_operand_finder);
+        for_each_dsts_operand(instr, &ops, (opnd_callback_t *) memory_dsts_operand_finder);
+
+        if(!ops.has_memory_operand) {
+            continue;
+        }
+
+        // this is a likely local variable; don't instrument
+        switch(ops.found_operand.value.base_disp.base_reg) {
+        case DR_REG_RSP: case DR_REG_ESP: case DR_REG_SP:
+        case DR_REG_RBP: case DR_REG_EBP: case DR_REG_BP:
+            continue;
+        default:
+            break;
+        }
+
+        if(instr_writes_memory(instr)) {
+            instrument_memory_write(drcontext, bb, instr, pc, &ops);
+
+        } else if(instr_reads_memory(instr)){
+            instrument_memory_read(drcontext, bb, instr, pc, &ops);
+        }
+
+        //reg_is_segment(reg_id_t reg)
+      //  if(ops.has_src_seg)
+       //     continue;
+      //  instrument_memory_operations(drcontext, bb, instr);
+
+       // if (instr_is_reg_save(instr))
+       // {
+        //    opnd_t opnd = instr_get_src(instr, 0);
+
+         //   if(opnd_is_reg_64bit(opnd))
+          //      instrument_memory_operations(drcontext, bb, instr);
+        //}
+
+
+
+        if(instr_is_cti(instr) && instr_num_srcs(instr))
+        {
+            cfi_call_instrumentation_snapahot(drcontext, bb, instr, mecontext_snapshot_native);
+
+        }
+    }
+    return DR_EMIT_DEFAULT;
+}

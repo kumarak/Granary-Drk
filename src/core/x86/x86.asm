@@ -433,7 +433,7 @@ GLOBAL_LABEL(dr_app_start_on_return:)
  // space for stored %rip
         lea     REG_XSP, [REG_XSP - 8]
 
-        // flags, diabled interrupts
+        // flags, disabled interrupts
         pushfq
         cli
 

@@ -12,19 +12,9 @@
 #include <stdint.h>
 #include <string.h>
 
-//#include "cfi_wrapper.hpp"
-
 extern "C" {
 #	include "cfi_atomic.h"
-
-void null_pointer(void){
-
 }
-
-}
-
-typedef int (printf_type)(const char *, ...);
-static printf_type *kern_printk_one = (printf_type *) KERN_ADDR_printk;
 
 /// atomic, sliding allocator for some region of memory
 template <typename T>
@@ -50,10 +40,6 @@ private:
     T *slide(void) throw() {
 
         mem_t allocated_addr((mem_t)__sync_fetch_and_add(&(this->next), SIZE));
-        if(allocated_addr == NULL){
-        	null_pointer();
-        }
-        //BUG_ON(allocated_addr);
         /*
         mem_t allocated_addr(cfi_atomic_change(
             (volatile mem_t *) &(this->next),
