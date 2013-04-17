@@ -1,0 +1,52 @@
+* Debugging
+
+    #BP (i.e., int3) is screwed up. Try running GDB on any instrumented
+    machine. Even this simple test program doesn't run properly.
+
+    #include <signal.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <assert.h>
+
+    static int handled = -1;
+
+    void handle(int sig) {
+        printf("handled %d!\n", sig);
+        handled = sig;
+    }
+
+    int main(void) {
+        signal(SIGTRAP, handle);
+        printf("%d\n", handled);
+        asm volatile("int3");
+        printf("%d\n", handled);
+        assert(handled == SIGTRAP);
+        return 0;
+    }
+
+    The expected output is
+    -1
+    handled 5
+    5
+
+    But the output I see is
+    -1
+    -1
+    handled 5
+    -1
+    Weird!
+
+* Running with -logmask 0xffffffff -loglevel 6 seems to overflow the kernel
+  stack. The hypercalls during smp_init (i.e., dynamorio_app_init) probably the problem.
+
+* dr_init does not show up in /proc/kallsyms. I'm using drinit for now. This is
+  strange. It would be nice to use drinit so we don't have to modify existing
+  clients, but this isn't important because it's such a trivial change.
+
+* resetting isn't working properly. It currently crashes because our OS heap
+  managment doesn't allow multiple allocations. This could be fixed with a
+  simple free list because heap units are always allocated with the same size.
+  Use these options to bring out the failure:
+        -loglevel 0 -logmask 0x20 -bb_ibl_targets -disable_traces -kstats -code_api
+        -no_finite_bb_cache -vm_size 6mb -reset_at_vmm_free_limit 1mb
+        -report_reset_vmm_threshold 1000 -skip_out_of_vm_reserve_curiosity

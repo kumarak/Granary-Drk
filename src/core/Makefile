@@ -1,8 +1,13 @@
 .DELETE_ON_ERROR:
-GUEST_KERNELDIR ?= ../debugging/linux-3.2.33/
-HOST_KERNELDIR ?= /lib/modules/$(shell uname -r)/build
-#GUEST_KERNELDIR ?= /usr/src/linux-headers-2.6.38-10-generic/
-#HOST_KERNELDIR := GUEST_KERNELDIR
+
+DR_CORE_DIR := $(shell pwd)
+GUEST_KERNELDIR ?= $(DR_CORE_DIR)/../debugging/linux-2.6.32/
+
+#GUEST_KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+#HOST_KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+#HOST_KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+HOST_KERNELDIR ?= $(GUEST_KERNELDIR)
+
 API_INCLUDE_DIR ?= lib/include
 
 .PHONY: default
@@ -10,7 +15,7 @@ API_INCLUDE_DIR ?= lib/include
 .PHONY: scons
 .PHONY: test
 
-DR_CORE_DIR := $(shell pwd)
+#DR_CORE_DIR := $(shell pwd)
 DR_INCLUDE_FLAGS := -DDR_REG_ENUM_COMPATIBILITY -DX86_64 -DLINUX -DLINUX_KERNEL\
 					-I$(DR_CORE_DIR)/$(API_INCLUDE_DIR)\
 					-I$(DR_CORE_DIR)/kernel_linux\
@@ -19,7 +24,7 @@ DR_INCLUDE_FLAGS := -DDR_REG_ENUM_COMPATIBILITY -DX86_64 -DLINUX -DLINUX_KERNEL\
 					-I$(DR_CORE_DIR)
 
 MODULES_MAKE =-C $(GUEST_KERNELDIR) M=$(DR_CORE_DIR)/kernel_linux/modules\
-			  DR_CORE_DIR=$(DR_CORE_DIR) DR_INCLUDE_FLAGS="$(DR_INCLUDE_FLAGS)"
+			  GUEST_KERNELDIR=$(GUEST_KERNELDIR) DR_CORE_DIR=$(DR_CORE_DIR) DR_INCLUDE_FLAGS="$(DR_INCLUDE_FLAGS)"
 
 HOST_MODULES_MAKE=-C $(HOST_KERNELDIR) M=$(DR_CORE_DIR)/kernel_linux/host_modules\
 			      DR_CORE_DIR=$(DR_CORE_DIR) DR_INCLUDE_FLAGS="$(DR_INCLUDE_FLAGS)"
@@ -59,11 +64,11 @@ $(API_INCLUDE_DIR): $(shell find . -name '*.h' | grep -v $(API_INCLUDE_DIR) | gr
 	sed -i 's/@N@/\n/g' $@
 
 clean:
-	$(MAKE) $(MODULES_MAKE) clean
+#	$(MAKE) $(MODULES_MAKE) clean
 	$(MAKE) $(HOST_MODULES_MAKE) clean
 	scons -c
 	rm -f $$(find . -name '*.S')
 	rm -f $$(find . -name '*.o')
 	rm -f $$(find . -name '.*.o.cmd')
-	rm -rf lib/include
+	rm -rf $(API_INCLUDE_DIR)
 	rm -f exports.c

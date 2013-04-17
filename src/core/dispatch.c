@@ -857,7 +857,6 @@ dispatch_exit_module(dcontext_t *dcontext) {
     struct cfi_client_extension *cfi = (struct cfi_client_extension *)dr_get_client_extension();
 
     struct thread_private_info *thread_private_slot;
-    dr_printf("dcontext next tag before: %lx\n", dcontext->next_tag);
     thread_private_slot = kernel_get_thread_private_slot_from_rsp((void*)get_mcontext(dcontext)->rsp, 0);
     if(thread_private_slot != NULL){
         thread_private_slot->is_running_module = 0;
@@ -929,7 +928,7 @@ dispatch_exit_module(dcontext_t *dcontext) {
             dcontext->next_tag = wrapper_callee;
         }
     }
-  //  dr_printf("dcontext next tag : %lx\n", dcontext->next_tag);
+
     //dr_fix_mcontext(dcontext);
 
     dispatch_enter_native(dcontext);

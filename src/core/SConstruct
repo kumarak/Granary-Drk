@@ -1,4 +1,4 @@
-env = Environment(parse_flags='-g   -Wall -lpthread')
+env = Environment(parse_flags='-g -O0 -Werror -Wall -lpthread')
 env.Append(CPPPATH=['kernel_linux', 'lib', 'x86', '.'])
 
 util = env.Clone()

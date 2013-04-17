@@ -1,0 +1,1000 @@
+  997  clang -cc1 -analyzer-display-progress
+  998  clang -cc1 -analyzer-display-progress ../../../../../test/file.c 
+  999  clang -cc1 -analyzer-experimental-internal-checks ../../../../../test/file.c 
+ 1000  ls
+ 1001  cd docs/
+ 1002  ls
+ 1003  vf tools/
+ 1004  ls
+ 1005  cd tools/
+ 1006  ls
+ 1007  make
+ 1008  cd ..
+ 1009  make
+ 1010  cd ..
+ 1011  cd tools/
+ 1012  ls
+ 1013  scan-build ../../../../../../test/file.c 
+ 1014  scan-view ../../../../../../test/file.c 
+ 1015  cd
+ 1016  cd codebase/
+ 1017  cd llvm_src/
+ 1018  cd ..
+ 1019  svn checkout http://data-race-test.googlecode.com/svn/trunk/ data-race-test-read-only
+ 1020  cd
+ 1021  cd codebase/
+ 1022  ls
+ 1023  cd data-race-test-read-only/
+ 1024  ls
+ 1025  cd ,,
+ 1026  valgrind
+ 1027  sudo apt-get install valgrind
+ 1028  cd ..
+ 1029  svn checkout http://iceplayer.googlecode.com/svn/trunk/ iceplayer-read-only
+ 1030  cd iceplayer-read-only/
+ 1031  ls
+ 1032  make
+ 1033  cmake
+ 1034  cmake .
+ 1035  ls
+ 1036  make
+ 1037  cd ..
+ 1038  rm iceplayer-read-only/
+ 1039  rm -f iceplayer-read-only/
+ 1040  rm -rf iceplayer-read-only/
+ 1041  ls
+ 1042  svn checkout http://sclc.googlecode.com/svn/trunk/ sclc-read-only
+ 1043  cd sclc-read-only/
+ 1044  ls
+ 1045  make
+ 1046  cd src/
+ 1047  ls
+ 1048  make
+ 1049  ./sclc ../../llvm_src/
+ 1050  cd ..
+ 1051  cd repo/drk/src/core/
+ 1052  scan-build make
+ 1053  echo $path
+ 1054  echo $PATH
+ 1055  ls
+ 1056  vf
+ 1057  cd
+ 1058  cd codebase/llvm_src/
+ 1059  cd build/
+ 1060  make install
+ 1061  ls
+ 1062  clan -v
+ 1063  clang -v
+ 1064  sudo spt-get install clang
+ 1065  sudo apt-get install clang
+ 1066  cd ../../../repo/drk/src/core/
+ 1067  ls
+ 1068  scan-build make
+ 1069  cp ../../../../codebase/llvm_src/llvm/tools/clang/tools/scan-build/. /usr/bin/.
+ 1070  cp ../../../../codebase/llvm_src/llvm/tools/clang/tools/scan-build/ /usr/bin/
+ 1071  cp ../../../../codebase/llvm_src/llvm/tools/clang/tools/scan-build/c++-analyzer /usr/bin/.
+ 1072  sudo cp ../../../../codebase/llvm_src/llvm/tools/clang/tools/scan-build/c++-analyzer /usr/bin/.
+ 1073  sudo cp ../../../../codebase/llvm_src/llvm/tools/clang/tools/scan-build/ccc-analyzer /usr/bin/.
+ 1074  sudo cp ../../../../codebase/llvm_src/llvm/tools/clang/tools/scan-build/scanview.css /usr/bin/.
+ 1075  sudo cp ../../../../codebase/llvm_src/llvm/tools/clang/tools/scan-build/sorttable.js /usr/bin/.
+ 1076  scan-build make
+ 1077  cd ..
+ 1078  cd drk/src/core/
+ 1079  scan-build make
+ 1080  cd
+ 1081  cd drk/src/core/
+ 1082  make
+ 1083  cd ../debugging/
+ 1084  ./ubuntu-server.sh 
+ 1085  cd
+ 1086  cd test/
+ 1087  ls
+ 1088  cd ch_dev/
+ 1089  ls
+ 1090  vin kernel_device.
+ 1091  vin kernel_device.c \
+ 1092  vin kernel_device.c 
+ 1093  vi kernel_device.c 
+ 1094  cd ..
+ 1095  ls
+ 1096  vi kernel_sys.c
+ 1097  make
+ 1098  echo $PATH
+ 1099  make
+ 1100  cd ..
+ 1101  cd drk/src/core/
+ 1102  ls
+ 1103  cd ../debugging/
+ 1104  ls
+ 1105  cd linux-2.6.32/
+ 1106  ls
+ 1107  rm akshayk@storm 
+ 1108  ls
+ 1109  cd include/
+ 1110  ls
+ 1111  cd linux/
+ 1112  ls
+ 1113  ls bounds.h 
+ 1114  cd
+ 1115  cd drk/src/debugging/
+ 1116  gdb linux-2.6.32/vmlinux
+ 1117  cd
+ 1118  cd Downloads/syscalltrack-0.82/
+ 1119  cd module/hijack/
+ 1120  make
+ 1121  cd ..
+ 1122  make
+ 1123  cd ..
+ 1124  make
+ 1125  ls
+ 1126  ./configure 
+ 1127  vi configure
+ 1128  vim ubuntu-server.sh 
+ 1129  vi ubuntu-server.sh 
+ 1130  cd ../core/
+ 1131  make
+ 1132  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript 
+ 1133  cd
+ 1134  cd codebase/
+ 1135  svn checkout http://drmemory.googlecode.com/svn/trunk/ drmemory-read-only
+ 1136  ls
+ 1137  cd drmemory-read-only/
+ 1138  ls
+ 1139  cd docs/
+ 1140  ls
+ 1141  cd
+ 1142  cd drk/src/debugging/
+ 1143  LS
+ 1144  ls
+ 1145  cd linux-2.6.32/
+ 1146  grep -r "PAGE_SHIFT"
+ 1147  cd ..
+ 1148  grep -r "PAGE"
+ 1149  grep "PAGE"
+ 1150  grep -r 'PAGE'
+ 1151  ./ubuntu-server.sh 
+ 1152  gdb linux-2.6.32
+ 1153  gdb linux-2.6.32/vmlinux
+ 1154  cd Downloads/
+ 1155  ls
+ 1156  tar -xvf os161.tar.gz 
+ 1157  ls
+ 1158  mkdir code
+ 1159  cp os161.tar.gz code/.
+ 1160  cd code/
+ 1161  tar -xvf os161.tar.gz 
+ 1162  ls
+ 1163  cd os161/
+ 1164  ls
+ 1165  ssh kumarak7@remote.ecf.utoronto.ca
+ 1166  ls
+ 1167  cd
+ 1168  mkdir drk_cfi
+ 1169  cd drk_cfi/
+ 1170  svn syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi
+ 1171  svn akshayk@syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi
+ 1172  svn co svn+ssh://akshayk@syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi
+ 1173  svn co svn+ssh://akshayk@syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi/
+ 1174  svn+ssh://akshayk@syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi/
+ 1175  svn co svn+ssh://akshayk@syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi/
+ 1176  svn co svn+ssh://akshayk@syslab.cs.toronto.edu/syslab/repos/drk/
+ 1177  ssh akshayk@syslab.cs.toronto.edu
+ 1178  ssh akshayk@cs.toronto.edu
+ 1179  svn co svn+ssh://akshayk@syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi/
+ 1180  ssh akshayk@syslab.cs.toronto.edu
+ 1181  cd /home/akshayk/.ssh/
+ 1182  ls
+ 1183  vim known_hosts 
+ 1184  rm -rf known_hosts 
+ 1185  cd
+ 1186  ssh akshayk@syslab.cs.toronto.edu
+ 1187  cd drk_cfi/
+ 1188  ls
+ 1189  svn co svn+ssh://akshayk@syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi/
+ 1190  ls
+ 1191  cd cfi/
+ 1192  ls
+ 1193  doc
+ 1194  ls
+ 1195  cd doc/
+ 1196  ls
+ 1197  cd ..
+ 1198  cd src/
+ 1199  ls
+ 1200  cd core/
+ 1201  ls
+ 1202  cd kernel_linux/
+ 1203  ls
+ 1204  cd clients/
+ 1205  ls
+ 1206  cd controlflow/
+ 1207  ls
+ 1208  cd ..
+ 1209  ls
+ 1210  mkdir isolation
+ 1211  cd isolation/
+ 1212  ls
+ 1213  cd
+ 1214  cd drk_cfi/
+ 1215  cd cfi/src/core/kernel_linux/clients/isolation/
+ 1216  ls
+ 1217  vim null.c 
+ 1218  vi null.c 
+ 1219  cd ..
+ 1220  vim dr_options 
+ 1221  make
+ 1222  cd kernel_linux/clients/
+ 1223  ls
+ 1224  mkdir cfi
+ 1225  cd cfi/
+ 1226  cp ../null.c .
+ 1227  ls
+ 1228  mv cfi_module.c
+ 1229  mv null.c cfi_module.c
+ 1230  cd ../../../
+ 1231  make
+ 1232  ls
+ 1233  vim kernel_linux/clients/
+ 1234  vim kernel_linux/clients/cfi/cfi_module.c 
+ 1235  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1236  make
+ 1237  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1238  make
+ 1239  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1240  make
+ 1241  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1242  make
+ 1243  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1244  make
+ 1245  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1246  make
+ 1247  cp kernel_linux/clients/cfi/cfi_module.c kernel_linux/clients/null.c 
+ 1248  make
+ 1249  ls
+ 1250  ls kernel_linux/module
+ 1251  ls kernel_linux/module/
+ 1252  ls kernel_linux/modules/
+ 1253  vim dr_options 
+ 1254  vi dr_options 
+ 1255  ls
+ 1256  vi dr_options 
+ 1257  vim load2.py 
+ 1258  vi load.py 
+ 1259  ./load.py --remote-ssh-port -p 5556 --remote-user akshayk --gdbscript-path gdbpath
+ 1260  cp ../../../../
+ 1261  cp ../../../../drk/src/core/load.py .
+ 1262  ./load.py --remote-ssh-port -p 5556 --remote-user akshayk --gdbscript-path gdbpath
+ 1263  cd ../../../../drk/src/core/
+ 1264  ./load.py --remote-ssh-port -p 5556 --remote-user akshayk --gdbscript-path gdbpath
+ 1265  ./load.py --remote-ssh-port -p 5555 --remote-user akshayk --gdbscript-path gdbpath
+ 1266  ./load.py --remote-ssh-port '-p 5556' --remote-user akshayk --gdbscript-path gdbpath
+ 1267  ./load.py --remote-ssh-port '-p 5556 akshayk@localhost' --remote-user akshayk --gdbscript-path gdbpath
+ 1268  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1269  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1270  cd ../core/
+ 1271  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1272  clean
+ 1273  clear
+ 1274  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscrip
+ 1275  vi kernel_linux/clients/bb_stats.c 
+ 1276  cd ..
+ 1277  cd core/kernel_linux/
+ 1278  cd clients/
+ 1279  ls
+ 1280  cd cfi/
+ 1281  ls
+ 1282  vim cfi_module.c 
+ 1283  svn ci cfi_module.c 
+ 1284  svn add cfi_module.c 
+ 1285  cd .
+ 1286  cd ..
+ 1287  svn add cfi/cfi_module.c 
+ 1288  svn commit cfi/cfi_module.c 
+ 1289  cd ../../../..
+ 1290  cd ../..
+ 1291  cd drk_cfi/
+ 1292  svn co svn+ssh://akshayk@syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi/
+ 1293  r
+ 1294  svn co svn+ssh://akshayk@syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi/
+ 1295  svn df svn+ssh://akshayk@syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi/
+ 1296  sv help
+ 1297  svn help
+ 1298  svn cl
+ 1299  svn co svn+ssh://akshayk@syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi/
+ 1300  svn ls svn+ssh://akshayk@syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi/
+ 1301  ls
+ 1302  svn co svn+ssh://akshayk@syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi/
+ 1303  svn add cfi/src/core/kernel_linux/clients/cfi
+ 1304  svn co svn+ssh://akshayk@syslab.cs.toronto.edu/syslab/repos/drk/branches/cfi/
+ 1305  ls
+ 1306  cd drk_cfi/
+ 1307  ls
+ 1308  cd cfi/
+ 1309  ls
+ 1310  vim svnignore.txt 
+ 1311  cd src/core/
+ 1312  cd kernel_linux/
+ 1313  cd clients/
+ 1314  cd cfi/.svn/
+ 1315  cd ..
+ 1316  ls -a
+ 1317  vi cfi_module.c 
+ 1318  cd ../..
+ 1319  cd ..
+ 1320  make
+ 1321  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1322  make
+ 1323  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1324  make
+ 1325  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1326  make
+ 1327  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1328  make
+ 1329  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1330  cd
+ 1331  ls
+ 1332  cd mountpoint/
+ 1333  ls
+ 1334  cd ..
+ 1335  cd test/
+ 1336  ls
+ 1337  vim kernel_sys.c 
+ 1338  ls
+ 1339  cd drk/src/debugging/
+ 1340  ls
+ 1341  fakeroot make-kpkg –initrd –append-to-version=-custom kernel_image kernel_headers
+ 1342  fakeroot make-kpkg –initrd –append-to-version=-custom kernel_image kernel_headers target= linux-2.6.32
+ 1343  fakeroot make-kpkg –initrd –append-to-version=-custom kernel_image kernel_headers
+ 1344  cd linux-2.6.32/
+ 1345  fakeroot make-kpkg –initrd –append-to-version=-custom kernel_image kernel_headers
+ 1346  cd ..
+ 1347  fakeroot make-kpkg –initrd  kernel_image kernel_headers
+ 1348  fakeroot make-kpkg kernel_image kernel_headers
+ 1349  cd linux-2.6.32/
+ 1350  fakeroot make-kpkg kernel_image kernel_headers
+ 1351  ls
+ 1352  cd ..
+ 1353  ls -l
+ 1354  ls
+ 1355  ls -l
+ 1356  cd ..
+ 1357  cd cfi/
+ 1358  cd hello/.svn/
+ 1359  cd ..
+ 1360  ls
+ 1361  vim Makefile 
+ 1362  ls
+ 1363  cd ..
+ 1364  cd src/core/kernel_linux/clients/cfi/
+ 1365  svn update
+ 1366  ls
+ 1367  vi cfi_module.c 
+ 1368  cd ..
+ 1369  make
+ 1370  vi kernel_linux/clients/cfi/cfi_module.c
+ 1371  make
+ 1372  vi kernel_linux/clients/cfi/cfi_module.c
+ 1373  make
+ 1374  svn --help
+ 1375  svn ci kernel_linux/clients/cfi/cfi_module.c 
+ 1376  ls
+ 1377  cd drk/src/debugging/
+ 1378  ./ubuntu-server.sh 
+ 1379  proc
+ 1380  p
+ 1381  ./ubuntu-server.sh 
+ 1382  kill gdb
+ 1383  ls
+ 1384  ./ubuntu-server.sh 
+ 1385  ps
+ 1386  ps -a
+ 1387  kill 14037
+ 1388  ps -a
+ 1389  ./ubuntu-server.sh 
+ 1390  kill 17127
+ 1391  ps -a
+ 1392  kill 17524
+ 1393  ./ubuntu-server.sh 
+ 1394  ps -a
+ 1395  kill 10233
+ 1396  ./ubuntu-server.sh 
+ 1397  ps -a
+ 1398  ./ubuntu-server.sh 
+ 1399  vi ubuntu-server.sh 
+ 1400  ./ubuntu-server.sh 
+ 1401  vi ubuntu-server.sh 
+ 1402  ./ubuntu-server.sh 
+ 1403  ls
+ 1404  cd drk/src/core/
+ 1405  ls
+ 1406  vi dr_options 
+ 1407  make
+ 1408  history
+ 1409  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1410  vim kernel_linux/clients/cfi/cfi_module.c 
+ 1411  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1412  make
+ 1413  vim kernel_linux/clients/cfi/cfi_module.c 
+ 1414  make
+ 1415  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1416  make
+ 1417  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1418  make
+ 1419  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1420  make
+ 1421  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1422  make
+ 1423  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1424  make
+ 1425  cd /boot/
+ 1426  ls
+ 1427  objdump vmlinuz-2.6.32-21-generic 
+ 1428  objdump -S vmlinuz-2.6.32-21-generic 
+ 1429  objdump -a vmlinuz-2.6.32-21-generic 
+ 1430  vim config-2.6.32-21-generic 
+ 1431  cd /bin/
+ 1432  ls
+ 1433  cd /proc/
+ 1434  ls
+ 1435  vim modules 
+ 1436  vim meminfo 
+ 1437  vim partitions 
+ 1438  vim kpageflags 
+ 1439  vim kpagecount 
+ 1440  vim pagetypeinfo 
+ 1441  vim stat 
+ 1442  cd
+ 1443  kdump /boot/vmlinuz-2.6.32-21-generic 
+ 1444  sudo apt-get install kexec-tools
+ 1445  kdump /boot/vmlinuz-2.6.32-21-generic 
+ 1446  kdump /boot/vmlinuz-2.6.32-25-generic 
+ 1447  readelf -h /boot/vmlinuz-2.6.32-21-generic 
+ 1448  $uname -r
+ 1449  $uname -a
+ 1450  $uname 
+ 1451  cd /boot/
+ 1452  ls
+ 1453  readelf -h /boot/vmlinuz-2.6.32-35-generic 
+ 1454  cd
+ 1455  ssh kumarak7@remote.ecf.utoronto.ca
+ 1456  tar -xvf kern.tar.gz 
+ 1457  cd
+ 1458  cd drk
+ 1459  ls
+ 1460  cd src/
+ 1461  ls
+ 1462  cd core/
+ 1463  ls
+ 1464  cd kernel_linux/
+ 1465  ls
+ 1466  cd clients/
+ 1467  ls
+ 1468  cd ..
+ 1469  ls
+ 1470  ./ubuntu-server.sh 
+ 1471  history
+ 1472  ls
+ 1473  cd linux-2.6.32/
+ 1474  ls
+ 1475  cd kernel/
+ 1476  ls
+ 1477  vim module.c 
+ 1478  vi module.c 
+ 1479  grep 'set_section_ro_nx' -R ./
+ 1480  cd ..
+ 1481  grep 'set_section_ro_nx' -R ./
+ 1482  cd
+ 1483  cd Downloads/
+ 1484  cd linux-3.0/
+ 1485  ls
+ 1486  grep 'PFN_UP' -R ./
+ 1487  vi /arch/x86/mm/init_64.c
+ 1488  vi ./arch/x86/mm/init_64.c
+ 1489  cd
+ 1490  cd drk/src/core/
+ 1491  ls
+ 1492  make
+ 1493  mv kernel_linux/clients/cfi_temp/ kernel_linux/clients/cfi/
+ 1494  make
+ 1495  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1496  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1497  make
+ 1498  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1499  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1500  make
+ 1501  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1502  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1503  make
+ 1504  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1505  make
+ 1506  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1507  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1508  make
+ 1509  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1510  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1511  make
+ 1512  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1513  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1514  make
+ 1515  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1516  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1517  make
+ 1518  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1519  add-symbol-file /home/akshayk/drk/src/core/kernel_linux/modules/cfi.ko 0xffffffffa0028000 -s .rodata 0xffffffffa00283e8 -s .strtab 0xffffffffa00304c8 -s .gnu.linkonce.this_module 0xffffffffa0028540 -s .exit.text 0xffffffffa00283ac -s .note.gnu.build-id 0xffffffffa00283c4 -s .symtab 0xffffffffa0030018 -s .init.text 0xffffffffa0030000 -s __mcount_loc 0xffffffffa00284e8 -s .bss 0xffffffffa0028790 -s .data 0xffffffffa0028510
+ 1520  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1521  vim ../debugging/linux-2.6.32/arch/x86/mm/fault.c 
+ 1522  vi ../debugging/linux-2.6.32/arch/x86/mm/fault.c 
+ 1523  cd ../debugging/
+ 1524  ls
+ 1525  ./ubuntu-server.sh 
+ 1526  history
+ 1527  cd ../../..
+ 1528  ls
+ 1529  cd drk_cfi/
+ 1530  ls
+ 1531  svn --help
+ 1532  svn status
+ 1533  svn status cfi/src/core/kernel_linux/clients/cfi/cfi_module.c 
+ 1534  svn cl cfi/src/core/kernel_linux/clients/cfi/cfi_module.c 
+ 1535  svn changelist cfi/src/core/kernel_linux/clients/cfi/cfi_module.c 
+ 1536  svn del cfi/src/core/kernel_linux/clients/cfi/cfi_module.o  
+ 1537  history
+ 1538  svn status cfi/src/core/kernel_linux/clients/cfi/
+ 1539  svn del cfi/src/core/kernel_linux/clients/cfi/.cfi_module.o.cmd
+ 1540  svn --force del cfi/src/core/kernel_linux/clients/cfi/.cfi_module.o.cmd
+ 1541  ls
+ 1542  cd cfi/
+ 1543  ls
+ 1544  cd src/core/
+ 1545  ls
+ 1546  vim kernel_linux/clients/cfi/cfi_module.c 
+ 1547  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1548  make
+ 1549  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1550  make
+ 1551  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1552  make
+ 1553  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1554  make
+ 1555  cd ..
+ 1556  cd debugging/
+ 1557  ls
+ 1558  ./ubuntu-server.sh 
+ 1559  gdb linux-2.6.32/vmlinux
+ 1560  cd
+ 1561  cd drk/src/core/
+ 1562  ls
+ 1563  cd ../debugging/
+ 1564  ./ubuntu-server.sh 
+ 1565  gdb linux-2.6.32/vmlinux
+ 1566  cd ../core/
+ 1567  cd ../debugging/
+ 1568  ls
+ 1569  vim linux-2.6.32/arch/x86/mm/fault.c 
+ 1570  vi linux-2.6.32/arch/x86/mm/fault.c 
+ 1571  cd linux-2.6.32/
+ 1572  make menuconfig
+ 1573  make
+ 1574  make clean
+ 1575  make
+ 1576  history
+ 1577  history >history.txt
+ 1578  vim history.txt 
+ 1579  dpkg-buildpackage -rfakeroot
+ 1580  ls
+ 1581  cd ..
+ 1582  dpkg-buildpackage -rfakeroot
+ 1583  cd ../core/
+ 1584  ls
+ 1585  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1586  make
+ 1587  ls
+ 1588  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1589  make
+ 1590  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1591  make
+ 1592  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1593  sudo make
+ 1594  gdb ../debugging/linux-2.6.32/vmlinux 
+ 1595  cd ..
+ 1596  cd debugging/
+ 1597  ls
+ 1598  cp ../../../../drk/src/debugging/* .
+ 1599  cp -R ../../../../drk/src/debugging/* .
+ 1600  ./ubuntu-server.sh 
+ 1601  cd 
+ 1602  cd drk/src/core/
+ 1603  cd ..
+ 1604  cd debugging/
+ 1605  ./ubuntu-server.sh 
+ 1606  vi ubuntu-server.sh 
+ 1607  ./ubuntu-server.sh 
+ 1608  sudo reboot
+ 1609  ls
+ 1610  cd ../../..
+ 1611  ls
+ 1612  cd drk_cfi/
+ 1613  ls
+ 1614  cd cfi/
+ 1615  ls
+ 1616  cd src/
+ 1617  ls
+ 1618  cd core/
+ 1619  ls
+ 1620  cd ..
+ 1621  cd core/kernel_linux/clients/cfi/
+ 1622  ls
+ 1623  vim svn-commit.tmp.save 
+ 1624  svn ci cfi_module.c  &
+ 1625  svn update
+ 1626  svn help cleanup
+ 1627  ls
+ 1628  rm svn-commit.tmp
+ 1629  rm svn-commit.tmp.save 
+ 1630  svn ci cfi_module.c 
+ 1631  svn cleanup
+ 1632  svn ci cfi_module.c 
+ 1633  svn info
+ 1634  svn statys
+ 1635  svn status
+ 1636  svn commit -m "test commit"
+ 1637  svn updatr
+ 1638  svn update
+ 1639  svn commit -m "test commit"
+ 1640  pushd
+ 1641  cd ../../../
+ 1642  svn status
+ 1643  svn update
+ 1644  svn status
+ 1645  svn commit -m "test"
+ 1646  popd
+ 1647  cd kernel_linux/clients/cfi/
+ 1648  ls -la
+ 1649  cd ../
+ 1650  cp -r cfi cfi-cp
+ 1651  cd cfi-cp/
+ 1652  rm -rf .svn
+ 1653  ls -la
+ 1654  cd ../
+ 1655  rm -rf cfi
+ 1656  cd ../../../../
+ 1657  cd src/core/
+ 1658  svn update
+ 1659  svn commit -m "foo"
+ 1660  cd kernel_linux/clients/
+ 1661  cd cfi
+ 1662  rm cfi_module.c 
+ 1663  cp ../cfi-cp/cfi_module.c
+ 1664  cp ../cfi-cp/cfi_module.c ./
+ 1665  cd .../
+ 1666  svn status
+ 1667  svn commit -m "commit updated cfi module"
+ 1668  rm -rf cfi-cp
+ 1669  ls
+ 1670  cd ../
+ 1671  ls
+ 1672  rm -rf cfi-cp
+ 1673  cd ..
+ 1674  ls
+ 1675  svn status
+ 1676  svn --help
+ 1677  svn add linux-2.6.32/arch/x86/mm/fault.c 
+ 1678  history
+ 1679  svn add linux-2.6.32/arch/x86/mm/fault.c 
+ 1680  svn add linux-2.6.32/arch/x86/mm/fault.*
+ 1681  vi load.py 
+ 1682  cd ../debugging/
+ 1683  ls
+ 1684  vim ubuntu-server.sh 
+ 1685  vi ubuntu-server.sh 
+ 1686  vim ssh-ubuntu-server.sh 
+ 1687  cd ../core/
+ 1688  vi load.py 
+ 1689  cd ../../../../drk/src/core/
+ 1690  ls
+ 1691  cp -R ../../../drk_cfi/cfi/src/core/kernel_linux/clients/cfi kernel_linux/clients/cfi
+ 1692  make
+ 1693  vi dr_options 
+ 1694  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1695  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1696  make
+ 1697  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1698  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1699  make
+ 1700  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1701  make
+ 1702  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1703  make
+ 1704  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1705  make
+ 1706  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1707  make
+ 1708  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1709  make
+ 1710  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1711  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1712  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1713  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1714  make
+ 1715  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1716  make
+ 1717  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1718  cd kernel_linux/clients/
+ 1719  mv cfi cfi_temp
+ 1720  ls
+ 1721  make
+ 1722  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1723  vim cfi/cfi_module.c 
+ 1724  cd ../..
+ 1725  make
+ 1726  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1727  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1728  make
+ 1729  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1730  ,ale
+ 1731  make
+ 1732  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1733  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1734  make
+ 1735  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1736  make
+ 1737  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1738  make
+ 1739  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1740  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1741  make
+ 1742  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1743  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1744  make
+ 1745  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1746  make
+ 1747  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1748  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1749  make
+ 1750  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1751  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1752  make
+ 1753  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1754  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1755  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1756  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1757  make
+ 1758  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1759  make
+ 1760  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1761  make
+ 1762  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1763  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1764  make
+ 1765  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1766  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1767  make
+ 1768  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1769  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1770  make
+ 1771  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1772  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1773  make
+ 1774  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1775  clear
+ 1776  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1777  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1778  make
+ 1779  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1780  make
+ 1781  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1782  make
+ 1783  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1784  make
+ 1785  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1786  make
+ 1787  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1788  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1789  make
+ 1790  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1791  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1792  make
+ 1793  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1794  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1795  make
+ 1796  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1797  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1798  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1799  make
+ 1800  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1801  vi kernel_linux/clients/instrcount_module.c 
+ 1802  make
+ 1803  vi x86/x86.asm 
+ 1804  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1805  vi dr_options 
+ 1806  make
+ 1807  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1808  ls kernel_linux/modules/
+ 1809  vi dr_options 
+ 1810  make
+ 1811  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1812  vi kernel_linux/clients/ControlFlow/controlflow_module.c 
+ 1813  vi dr_options 
+ 1814  make
+ 1815  vi dr_options 
+ 1816  make
+ 1817  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1818  ls
+ 1819  cd ..
+ 1820  cd debugging/
+ 1821  ls
+ 1822  ./ubuntu-server.sh 
+ 1823  cd drk/src/core/
+ 1824  vi x86/x86.S 
+ 1825  vi x86/x86.asm
+ 1826  sudo make
+ 1827  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1828  gdb ../debugging/linux-2.6.32/vmlinux 
+ 1829  vi x86/x86.asm 
+ 1830  sudo make
+ 1831  vi x86/x86.asm 
+ 1832  vi x86/asm_defines.asm 
+ 1833  sudo make
+ 1834  vi x86/x86.asm 
+ 1835  sudo make
+ 1836  vi x86/x86.asm 
+ 1837  sudo make
+ 1838  vi x86/x86.asm 
+ 1839  sudo make
+ 1840  vi kernel_linux/clients/ControlFlow/controlflow_module.c 
+ 1841  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1842  vi ../debugging/linux-2.6.32/kernel/module.c 
+ 1843  quit
+ 1844  logout
+ 1845  cd drk/src/core/
+ 1846  vi gdbscript 
+ 1847  ls
+ 1848  vi x86/instr.h
+ 1849  sudo make
+ 1850  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1851  sudo make
+ 1852  vi x86/x86.asm 
+ 1853  sudo make
+ 1854  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1855  vi gdbscript 
+ 1856  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1857  vi gdbscript 
+ 1858  vi dispatch.c 
+ 1859  sudo make
+ 1860  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1861  vi gdbscript 
+ 1862  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1863  vi dispatch.c 
+ 1864  vi x86/x86.asm 
+ 1865  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1866  sudo make
+ 1867  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1868  sudo make
+ 1869  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1870  vi x86/x86.asm 
+ 1871  sudo make
+ 1872  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1873  vi x86/x86.asm 
+ 1874  sudo make
+ 1875  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1876  vi x86/x86.asm 
+ 1877  sudo make
+ 1878  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1879  vi gdbscript 
+ 1880  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1881  vi gdbscript 
+ 1882  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1883  vi gdbscript 
+ 1884  vi dispatch.c 
+ 1885  sudo make
+ 1886  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1887  vi gdbscript 
+ 1888  vi dispatch.c 
+ 1889  sudo make
+ 1890  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1891  vi dispatch.c 
+ 1892  vi gdbscript 
+ 1893  vi dispatch.c 
+ 1894  sudo make
+ 1895  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1896  vi gdbscript 
+ 1897  vi x86/x86.asm 
+ 1898  vi x86/arch_exports.h 
+ 1899  vi x86/x86.S 
+ 1900  vi x86/arch_exports.h 
+ 1901  vi x86/asm_defines.asm 
+ 1902  logout
+ 1903  cd drk/src/debugging/
+ 1904  ./ubuntu-server.sh 
+ 1905  vi ubuntu-server.sh 
+ 1906  ./ubuntu-server.sh 
+ 1907  logout
+ 1908  ls
+ 1909  cd drk/src/debugging
+ 1910  find 'pagetable' ./ -R
+ 1911  find 'pagetable' ./ 
+ 1912  find -name "pagetable" ./
+ 1913  find -name "pagetable" .
+ 1914  logout
+ 1915  cd drk/src/core/
+ 1916  gdb ../debugging/linux-2.6.32/vmlinux 
+ 1917  logout
+ 1918  cd drk/src/debugging/
+ 1919  ./ubuntu-server.sh 
+ 1920  ps -a
+ 1921  kill 26859
+ 1922  ps -a
+ 1923  ./ubuntu-server.sh 
+ 1924  vi ubuntu-server.sh 
+ 1925  ps -a
+ 1926  kill 29248
+ 1927  ps -a
+ 1928  kill 15365
+ 1929  ps -a
+ 1930  ./ubuntu-server.sh 
+ 1931  quit
+ 1932  logout
+ 1933  ls
+ 1934  cd drk/src/core/
+ 1935  vi kernel_linux/clients/cfi/cfi_module.
+ 1936  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1937  sudo make
+ 1938  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1939  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1940  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1941  vi gdbscript 
+ 1942  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1943  sudo make
+ 1944  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1945  vi gdbscript 
+ 1946  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1947  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1948  vi gdbscript 
+ 1949  logout
+ 1950  cd drk/src/core/
+ 1951  ls
+ 1952  vi x86/x86.asm 
+ 1953  sudo make
+ 1954  objdump -S kernel_linux/modules/dynamorio.ko 
+ 1955  objdump -S kernel_linux/modules/dynamorio.ko > dump.abc
+ 1956  vi dump.abc 
+ 1957  gdb ../debugging/linux-2.6.32/vmlinux 
+ 1958  objdump -S kernel_linux/modules/dynamorio.ko > dump.abc
+ 1959  vi dump.abc 
+ 1960  gdb ../debugging/linux-2.6.32/vmlinux 
+ 1961  objdump -S kernel_linux/modules/dynamorio.ko > dump.abc
+ 1962  vi dump.abc 
+ 1963  gdb ../debugging/linux-2.6.32/vmlinux 
+ 1964  ls
+ 1965  gdb ../debugging/linux-2.6.32/vmlinux 
+ 1966  cd drk/src/core/
+ 1967  cd ../debugging/
+ 1968  ./ubuntu-server.sh 
+ 1969  vi ubuntu-server.sh 
+ 1970  ./ubuntu-server.sh 
+ 1971  vi ubuntu-server.sh 
+ 1972  ./ubuntu-server.sh 
+ 1973  ls
+ 1974  cd drk/src/core/
+ 1975  vi kernel_linux/clients/cfi/cfi_module.
+ 1976  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1977  sudo make
+ 1978  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1979  vi dump.abc 
+ 1980  vi x86/x86.asm 
+ 1981  sudo make
+ 1982  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1983  sudo make
+ 1984  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1985  vi dump.abc 
+ 1986  vi x86/x86.asm 
+ 1987  sudo make
+ 1988  vi kernel_linux/clients/cfi/cfi_module.c 
+ 1989  sudo make
+ 1990  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1991  vi gdbscript 
+ 1992  vi dump.abc 
+ 1993  ls
+ 1994  ./load.py --remote-ssh-port 5556 --remote-user akshayk --gdbscript-path gdbscript
+ 1995  history
+ 1996  history > log

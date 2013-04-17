@@ -11,3 +11,4 @@ try:
 finally:
     if vm.running():
         vm.kill()
+

@@ -1,0 +1,16 @@
+wrap this in DOLOG in instr_encode_common:
+        DOLOG(3, LOG_EMIT, {instr_disassemble(dcontext, instr, THREAD); });
+
+* recreate_app_state_from_info needs to set instr's translation field so
+  translate_walk_track doesn't return; thinking it's a clean call.
+
+* encoding an immediate operand should work if the address is naturally sign
+  extended. See revision 381 vs 382.
+
+* setting ibl_branch_type in client_process_bb. This is needed when the exit CTI
+  type is changed by the client (e.g., from a call to a ret). This came up when
+  I was doing function wrapping.
+
+* umbra: indirect calls like call* 0(%rax) have the address of the address
+         incorrectly calculated as lea -8(%rax) -- the offset should be 0, not
+         -8.
