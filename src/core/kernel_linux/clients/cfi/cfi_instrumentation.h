@@ -116,7 +116,7 @@ void for_each_operand(instr_t *in, void *state, opnd_callback_t *callback) {
     }
 }
 
-static
+static inline
 void for_each_dsts_operand(instr_t *in, void *state, opnd_callback_t *callback) {
     int i = 0, max = in->num_dsts;
     for(; i < max; ++i) {
@@ -124,7 +124,7 @@ void for_each_dsts_operand(instr_t *in, void *state, opnd_callback_t *callback) 
     }
 }
 
-static
+static inline
 void for_each_src_operand(instr_t *in, void *state, opnd_callback_t *callback) {
     int i = 0, max = in->num_srcs - 1;
     if(in->num_srcs) {
@@ -148,22 +148,22 @@ operand_callback(instr_t *in, opnd_t *opnd, bool is_source, struct opnd_callback
     }
 }
 
-static void
+static inline void
 for_each_source_operand(instr_t *in, void *state, opnd_callback_t *callback) {
     struct opnd_callback_t new_state;
     new_state.state = state;
     new_state.callback = callback;
     new_state.is_source_check = true;
-    for_each_operand(in, &new_state, operand_callback);
+    for_each_operand(in, &new_state, (opnd_callback_t*)operand_callback);
 }
 
-static void
+static inline void
 for_each_dest_operand(instr_t *in, void *state, opnd_callback_t *callback) {
     struct opnd_callback_t new_state;
     new_state.state = state;
     new_state.callback = callback;
     new_state.is_source_check = false;
-    for_each_operand(in, &new_state, operand_callback);
+    for_each_operand(in, &new_state, (opnd_callback_t*)operand_callback);
 }
 
 typedef void (reg_callback_t)(opnd_t *, reg_id_t *, void *state);
@@ -224,7 +224,7 @@ memory_operand_finder(instr_t *in, opnd_t *opnd, bool is_source, struct memory_o
     (void) in;
 }
 
-static void
+static inline void
 memory_src_operand_finder(instr_t *in, opnd_t *opnd, bool is_source, struct memory_operand_modifier *mod) {
     if(BASE_DISP_kind == opnd->kind){
         if(opnd->value.base_disp.base_reg && !reg_to_reg64(opnd->value.base_disp.base_reg)) {
@@ -246,7 +246,7 @@ memory_src_operand_finder(instr_t *in, opnd_t *opnd, bool is_source, struct memo
     (void) in;
 }
 
-static void
+static inline void
 memory_dsts_operand_finder(instr_t *in, opnd_t *opnd, bool is_source, struct memory_operand_modifier *mod) {
     if(BASE_DISP_kind == opnd->kind){
         if(opnd->value.base_disp.base_reg && !reg_to_reg64(opnd->value.base_disp.base_reg)) {
@@ -415,7 +415,7 @@ get_zombie(struct register_manager *regs) {
 
 /// Returns the next "free" dead register that is at the same scale as
 /// another register/operand.
-static reg_id_t
+static inline reg_id_t
 get_scaled_zombie(struct register_manager *regs, reg_id_t scale) {
     reg_id_t zombie = get_zombie(regs);
 
@@ -459,7 +459,7 @@ find_merge_check_reg(struct register_manager *regs, instr_t* instr)
 }
 
 
-static reg_id_t get_next_free_reg(unsigned long *bit_array)
+static inline reg_id_t get_next_free_reg(unsigned long *bit_array)
 {
     unsigned pos = 0;
     for(; pos < 32; ++pos) {
@@ -472,11 +472,11 @@ static reg_id_t get_next_free_reg(unsigned long *bit_array)
     return DR_REG_NULL;
 }
 
-static void free_reg(unsigned long *bit_array, reg_id_t reg) {
+static inline void free_reg(unsigned long *bit_array, reg_id_t reg) {
     *bit_array &= ~(1 << reg);
 }
 
-static void collect_reg(unsigned long *regs, reg_id_t reg) {
+static inline void collect_reg(unsigned long *regs, reg_id_t reg) {
     // map the registers onto the 64-bit registers
     if(reg < DR_REG_SPL) {
         while(reg >= DR_REG_EAX) {
@@ -486,7 +486,7 @@ static void collect_reg(unsigned long *regs, reg_id_t reg) {
     }
 }
 
-static void collect_regs(
+static inline void collect_regs(
         unsigned long *regs,
         instr_t *instr,
         int (*num_ops)(instr_t *),
@@ -494,7 +494,6 @@ static void collect_regs(
 ) {
     int i;
     opnd_t opnd;
-    reg_id_t reg1;
 
     // make sure these regs are always seen as "used"
     *regs |= (1 << DR_REG_NULL);
@@ -517,7 +516,7 @@ static void collect_regs(
 
 /// lower a register to be in the same class (64, 32, 16 bit) as
 /// another register
-static reg_id_t change_reg_class(reg_id_t reg) {
+static inline reg_id_t change_reg_class(reg_id_t reg) {
     if(reg < DR_REG_SPL) {
         int offset = 0;
         while(reg >= DR_REG_EAX) {
@@ -532,7 +531,7 @@ static reg_id_t change_reg_class(reg_id_t reg) {
 }
 
 
-static reg_id_t change_reg_64bit_class(reg_id_t reg) {
+static inline reg_id_t change_reg_64bit_class(reg_id_t reg) {
     if(reg < DR_REG_SPL) {
         if(reg >= DR_REG_AL) {
             return reg - (DR_REG_AL-1);
@@ -547,7 +546,7 @@ static reg_id_t change_reg_64bit_class(reg_id_t reg) {
 }
 
 
-static bool ref_is_stack_mem(opnd_t opnd)
+static inline bool ref_is_stack_mem(opnd_t opnd)
 {
     if(!opnd_is_base_disp(opnd))
         return false;
@@ -560,7 +559,7 @@ static bool ref_is_stack_mem(opnd_t opnd)
 
 
 
-static bool
+static inline bool
 instr_writes_to_any_aflags(instr_t *instr)
 {
     uint aflags;

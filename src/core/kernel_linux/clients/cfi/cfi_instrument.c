@@ -911,7 +911,7 @@ typedef struct _ilist_info_t {
 
 
 
-static void handle_mem_write(void)
+static inline void handle_mem_write(void)
 {
 
 }
@@ -927,7 +927,7 @@ noinline int break_at_add(void *addr, instr_t* instr) {
 
 
 
-static void
+static inline void
 replace_instr(void* drcontext, instrlist_t *ilist, instr_t **old, instr_t *new)
 {
     //instr_set_translation(new, instr_get_translation(*old));
@@ -937,7 +937,7 @@ replace_instr(void* drcontext, instrlist_t *ilist, instr_t **old, instr_t *new)
 }
 
 
-static const char *op_name(int opcode) {
+static inline const char *op_name(int opcode) {
     static const char *op_names[] = {
 #		define OP_MACRO(o) #o ,
 #		include "opcodes.h"
@@ -949,13 +949,15 @@ static const char *op_name(int opcode) {
 
 
 
-static void break_on_multiple_dests(int num_dests, int num_sources, void *pc) {
-    (void) num_dests, num_sources, pc;
+static inline void break_on_multiple_dests(int num_dests, int num_sources, void *pc) {
+    (void) num_dests;
+    (void)num_sources;
+    (void)pc;
 }
 
 
 #define LOG_FILE "address_log.txt"
-static void
+static inline void
 clean_call(void *arg1, void *arg2)
 {
     //FILE *fp = fopen(LOG_FILE, "w");
@@ -982,13 +984,14 @@ instr_reads_from_aflags(instr_t *instr)
 
 void break_on_dsts_2(app_pc *pc, instr_t *instr) {
     int num = instr_num_dsts(instr);
-
+    (void)num;
 }
 
 void break_on_dsts_test(app_pc *pc, instr_t *instr) {
     int num = instr_num_dsts(instr);
     int src = instr_num_srcs(instr);
-
+    (void)num;
+    (void)src;
 }
 
 //#define USE_NON_CANNONICAL_ADDR
@@ -1057,7 +1060,7 @@ register_is_dead(instr_t *instr, reg_id_t reg)
 }
 
 
-static reg_id_t
+static inline reg_id_t
 get_dead_registers (instrlist_t *bb, instr_t *instr) {
     reg_id_t reg;
     reg_id_t dead_reg = DR_REG_NULL;
@@ -2234,18 +2237,18 @@ static void add_watchpoint_heavy(void *drcontext,
         app_pc pc,
         struct watchpoint_state *state);
 
-static instr_t*
-instrument_mem_operation(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc pc, struct watchpoint_state *state);
+//static instr_t*
+//instrument_mem_operation(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc pc, struct watchpoint_state *state);
 
-static dr_emit_flags_t
+static inline dr_emit_flags_t
 bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bool translating)
 {
     instr_t *instr, *prev_instr;
-    opnd_t op;
-    uint opcode;
-    int i;
-    int instrumented = 0;
-    app_pc first_instr = NULL;
+    //opnd_t op;
+    //uint opcode;
+  //  int i;
+ //   int instrumented = 0;
+ //   app_pc first_instr = NULL;
 
     struct memory_operand_modifier ops = {0};
     struct register_manager regs = {0};
@@ -2291,7 +2294,7 @@ bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bool trans
         find_merge_check_reg(&rewatch_tracker, instr);
 
         // lock prefix
-        if(instr_get_prefixes(instr) & 0xf0 == 0xf0) {
+        if((instr_get_prefixes(instr) & 0xf0) == 0xf0) {
             //find_dead_regs(&regs, instr);
             revive_all_regs(&regs);
             get_zombie(&rewatch_tracker);
@@ -2394,15 +2397,9 @@ bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bool trans
  * ----------------------------------------------------------------------------
  */
 
-noinline void break_fault()
-{
-
-}
-
 #define ADDI(...) { \
         instr_t *next_cursor = (__VA_ARGS__); \
         instrlist_meta_postinsert(bb, cursor, next_cursor); \
-        if(next_cursor != instr_get_next(cursor)) break_fault(); \
         cursor = instr_get_next(cursor); }
 
 #define SPILL_REG(...) { \
@@ -2508,11 +2505,15 @@ static void add_watchpoint_heavy(void *drcontext,
         app_pc pc,
         struct watchpoint_state *state)
 {
-    bool spilled_unwatched_addr = false;
-    unsigned long used_registers = 0;
+  //  bool spilled_unwatched_addr = false;
+   // unsigned long used_registers = 0;
     struct spill_reg_t watched_addr;
     struct spill_reg_t unwatched_addr;
     struct spill_reg_t spill_reg[16];
+    opnd_t watched_addr_reg;
+    opnd_t watched_addr_opnd;
+    opnd_t spill_addr_reg;
+    opnd_t unwatched_addr_reg;
 
     instr_t *addr_is_a_watchpoint = INSTR_CREATE_label(drcontext);
     instr_t *addr_is_not_a_watchpoint = INSTR_CREATE_label(drcontext);
@@ -2521,7 +2522,7 @@ static void add_watchpoint_heavy(void *drcontext,
     instr_t *done_check = INSTR_CREATE_label(drcontext);
     instr_t *nop = INSTR_CREATE_nop(drcontext);
     instr_t *do_callback = INSTR_CREATE_label(drcontext);
-    instr_t *next_nop = INSTR_CREATE_label(drcontext);
+    //instr_t *next_nop = INSTR_CREATE_label(drcontext);
     instr_t *emulated;
     instr_t *cursor = instr;
 
@@ -2538,8 +2539,8 @@ static void add_watchpoint_heavy(void *drcontext,
     }
 #endif
     // calculate and store the address that is about to be read or written
-    opnd_t watched_addr_reg = opnd_create_reg(watched_addr.reg);
-    opnd_t watched_addr_opnd = state->ops->found_operand;
+    watched_addr_reg = opnd_create_reg(watched_addr.reg);
+    watched_addr_opnd = state->ops->found_operand;
     //opnd_t instr_base_reg = opnd_create_reg(opnd_get_base(state->ops->found_operand));
 
 
@@ -2552,7 +2553,7 @@ static void add_watchpoint_heavy(void *drcontext,
 
     // store the kernel hole base address
     //opnd_t kernel_hole_reg = );
-    opnd_t unwatched_addr_reg = opnd_create_reg(unwatched_addr.reg);
+    unwatched_addr_reg = opnd_create_reg(unwatched_addr.reg);
     ADDI(INSTR_CREATE_mov_imm(drcontext, unwatched_addr_reg,
             OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
     // mask it with the computed address; if the masked and unmasked are the
@@ -2564,7 +2565,7 @@ static void add_watchpoint_heavy(void *drcontext,
 ADDI(addr_is_a_watchpoint);
     if(state->ops->has_dest_memory_operand) {
         cursor = save_register(drcontext, bb, cursor, state, &spill_reg[0]);
-        opnd_t spill_addr_reg = opnd_create_reg(spill_reg[0].reg);
+        spill_addr_reg = opnd_create_reg(spill_reg[0].reg);
         ADDI(INSTR_CREATE_mov_imm(drcontext, spill_addr_reg,
                 OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
         ADDI(INSTR_CREATE_and(drcontext, spill_addr_reg, watched_addr_reg));
@@ -2673,13 +2674,13 @@ static void
     dr_printf("thread id : %s\n",__FUNCTION__);
 }
 
-static instr_t*
+static inline instr_t*
 granary_save_mcontext(void *drcontext, instrlist_t *bb, instr_t *instr)
 {
 	instr_t *cursor = instr;
     instr_t *save_mcontext = INSTR_CREATE_label(drcontext);
-    opnd_t opnd_reg_rax = opnd_create_reg(DR_REG_RAX);
-    opnd_t opnd_reg_rbx = opnd_create_reg(DR_REG_RBX);
+//    opnd_t opnd_reg_rax = opnd_create_reg(DR_REG_RAX);
+//    opnd_t opnd_reg_rbx = opnd_create_reg(DR_REG_RBX);
 
     PRE(save_mcontext);
     PRE(INSTR_CREATE_push(drcontext, opnd_create_reg(DR_REG_RAX)));
@@ -2726,10 +2727,6 @@ granary_save_mcontext(void *drcontext, instrlist_t *bb, instr_t *instr)
     return instr;
 }
 
-void thread_action(struct thread *thread, void *aux)
-{
-
-}
 
 void cfi_update_thread_metainfo(struct task_struct *ptr)
 {
@@ -2737,7 +2734,7 @@ void cfi_update_thread_metainfo(struct task_struct *ptr)
 
 }
 
-static void
+static inline void
 at_direct_call(app_pc instr_addr, app_pc target_addr)
 {
     //cfi_update_thread_metainfo(current);
@@ -2746,7 +2743,7 @@ at_direct_call(app_pc instr_addr, app_pc target_addr)
    // granary_print_ld_stat(target_module);
 }
 
-static void
+static inline void
 at_indirect_call(app_pc instr_addr, app_pc target_addr)
 {
     wake_up_process(sweep_task);
@@ -2754,7 +2751,7 @@ at_indirect_call(app_pc instr_addr, app_pc target_addr)
   //  granary_print_ld_stat(target_module);
 }
 
-static void
+static inline void
 at_return(app_pc instr_addr, app_pc target_addr)
 {
     wake_up_process(sweep_task);
@@ -2768,9 +2765,9 @@ uint64_t flag = 0x0;
 static DEFINE_MUTEX(hotpatch_lock);
 
 void cfi_hotpatch_kernel(void *drcontext){
-    printk("%s\n", __FUNCTION__);
     client_cache_info_t * client = (client_cache_info_t*) dr_thread_alloc(drcontext, sizeof(client_cache_info_t));
     cpu_client_cache = client;
+    printk("%s\n", __FUNCTION__);
     client->cache_start = dr_thread_alloc(drcontext, CLIENT_CACHE_SIZE);
     client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_start, (void*)kfree);
     client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)vfree);
@@ -2780,8 +2777,8 @@ void cfi_hotpatch_kernel(void *drcontext){
 
 static void event_thread_init(void *drcontext)
 {
-    void *addr;
-    int this_cpu;
+
+
     uint64_t local_flag;
     mutex_lock(&hotpatch_lock);
     if( flag == 0){
@@ -2829,7 +2826,7 @@ drinit(client_id_t id)
 #endif
     	dr_register_thread_init_event(event_thread_init);
     	dr_register_thread_exit_event(event_thread_exit);
-    	cfi_fprintf(logfile, "dr_init \n");
-    	printk("dr_init : %lx\n", logfile);
+    	//cfi_fprintf(logfile, "dr_init \n");
+    	//printk("dr_init : %lx\n", logfile);
 #endif
 }

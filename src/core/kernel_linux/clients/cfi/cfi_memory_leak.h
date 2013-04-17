@@ -13,8 +13,8 @@
 #include <linux/hash.h>
 
 
-#define LC_HASH_BITS 5
-#define LC_TABLE_SIZE (1 << LC_HASH_BITS)
+#define HASH_BITS 5
+#define LC_TABLE_SIZE (1 << HASH_BITS)
 #define STACK_MAX_FRAMES 16
 
 
@@ -22,10 +22,10 @@
 #define GRANARY_RI_TABLE_SIZE  (1 << GRANARY_RI_HASH_BITS)
 
 
-static DEFINE_SPINLOCK(lc_objects_lock);
-static DEFINE_SPINLOCK(top_half_lock);
+//static DEFINE_SPINLOCK(lc_objects_lock);
+//static DEFINE_SPINLOCK(top_half_lock);
 
-typedef struct granary_leak_detect {
+struct granary_leak_detect {
     struct hlist_node hlist;
     struct module *target;
     char *name;

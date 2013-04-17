@@ -13,7 +13,7 @@
 #include "cfi_utils.h"
 #include "cfi_atomic_list.h"
 #include "cfi_hashtable.h"
-#include "cfi_kernel_addresses.h"
+//#include "cfi_kernel_addresses.h"
 
 #define MODULE_NAME "cfi"
 
@@ -123,7 +123,7 @@ int module_load_notifier(
     printk("module start address : %p\n", mod);
     printk("module text start address : %p\n", mod->module_core);
 
-    module_text_start = mod->module_core;
+    module_text_start = (unsigned long long)mod->module_core;
 
     switch(mod_state) {
     case MODULE_STATE_COMING:
@@ -182,42 +182,6 @@ int module_load_notifier(
 
 
 void
-on_granary_target_load(struct module *mod)
-{
-    struct granary_leak_detect *lc = NULL;
-    unsigned int irq_flags;
-    struct hlist_head *head = NULL;
-    unsigned long hash_index = 0;
-
-    BUG_ON(mod == NULL);
-
-	if (mutex_lock_killable(&load_mutex) != 0) {
-		pr_warning("on_granary_target_load(): failed to lock mutex\n");
-		return;
-	}
-
-    lc = granary_leak_object_create(mod);
-	if (lc == NULL) {
-		pr_warning("on_granary_target_load(): failed to create LeakCheck object for \"%s\"\n",
-			module_name(mod));
-		goto out;
-	}
-
-   // printk("lc object created : %lx\n", lc);
-
-    spin_lock_irqsave(&lc_objects_lock, irq_flags);
-    hash_index = hash_ptr(mod, LC_HASH_BITS);
-    head = &lc_objects[hash_ptr(mod, LC_HASH_BITS)];
-    hlist_add_head(&lc->hlist, head);
-    spin_unlock_irqrestore(&lc_objects_lock, irq_flags);
-
-out:
-	mutex_unlock(&load_mutex);
-	printk("lc_objects : %lx on_granary_target_load : %lx, %lx\n", lc_objects, head, hash_index);
-	return;
-}
-
-void
 on_granary_target_unload(struct module *mod)
 {
 
@@ -231,24 +195,24 @@ void cfi_thread_slot_module_enrty(void)
     struct thread_info *thread = current_thread_info();
     register unsigned long current_stack_pointer asm("rsp");
 
-    if(thread->spill_slot[0] == NULL){
-        thread_spill_slot = kmalloc(sizeof(struct thread_private_info), GFP_ATOMIC);
+    if(thread->spill_slot[0] == (unsigned long)NULL){
+        thread_spill_slot = (struct thread_private_info*)kmalloc(sizeof(struct thread_private_info), GFP_ATOMIC);
         thread_spill_slot->stack = NULL;
         thread_spill_slot->is_running_module = 1;
         thread_spill_slot->section_count = 1;
         thread_spill_slot->stack = kmalloc(4*PAGE_SIZE, GFP_ATOMIC);
         thread_spill_slot->stack_start_address = thread;
         thread_spill_slot->copy_stack = 0;
-        thread_spill_slot->current_stack = current_stack_pointer;
-        thread->spill_slot[0] = thread_spill_slot;
+        thread_spill_slot->current_stack = (void*)current_stack_pointer;
+        thread->spill_slot[0] = (unsigned long)thread_spill_slot;
 
         cfi_list_prepend(&atomic_sweep_list, thread_spill_slot);
     } else {
-        thread_spill_slot = thread->spill_slot[0];
+        thread_spill_slot = (struct thread_private_info*)thread->spill_slot[0];
         thread_spill_slot->is_running_module = 1;
         thread_spill_slot->section_count++;
         thread_spill_slot->copy_stack = 0;
-        thread_spill_slot->current_stack = current_stack_pointer;
+        thread_spill_slot->current_stack = (void*)current_stack_pointer;
     }
 
 }
@@ -259,7 +223,7 @@ static int
 find_symbol_callback(struct kernsym *sym, const char *name,
                         struct module *mod, unsigned long addr) {
 
-    if(sym->addr && (sym->addr == addr)){
+    if(sym->addr && (sym->addr == (void*)addr)){
         sym->name = name;
         sym->found = true;
         return 1;
@@ -311,8 +275,6 @@ cfi_print_symbol_name(void *symbol_addr) {
 
     int ret;
     struct kernsym sym;
-    void* value = NULL;
-    char name[SYM_NAME_LEN];
 
 
     if(is_kernel_code(symbol_addr)){

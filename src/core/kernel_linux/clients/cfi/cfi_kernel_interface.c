@@ -10,7 +10,7 @@
 
 #include "cfi_module.h"
 #include "cfi_wrapper.h"
-#include "cfi_kernel_addresses.h"
+//#include "cfi_kernel_addresses.h"
 #if 0 && CFI_SEQUENTIALIZE_MODULE
 #include "cfi_sequence.h"
 #endif
