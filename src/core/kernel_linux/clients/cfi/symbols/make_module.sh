@@ -3,7 +3,7 @@ me=`logname`
 
 host_map=/boot/System.map-`uname -r`
 #client_map=/boot/System.map-`uname -r`
-client_map=../../../../../debugging/linux-3.2.33/System.map
+client_map=../../../../../debugging/linux-3.8.2/System.map
 
 # copy the System.map into a convenient location for Python to extract all names
 sudo cp $host_map ./host_map.txt

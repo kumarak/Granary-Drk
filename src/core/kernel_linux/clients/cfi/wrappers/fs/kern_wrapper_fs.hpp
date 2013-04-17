@@ -59,6 +59,7 @@ FUNC_WRAPPER(generic_block_fiemap, (struct inode *inode, struct fiemap_extent_in
         return ret;
 })
 
+#if 0
 FUNC_WRAPPER(d_alloc_root, (struct inode *inode), {
         struct inode *temp_inode = inode;
         REMOVE_WATCHPOINT(temp_inode);
@@ -69,7 +70,7 @@ FUNC_WRAPPER(d_alloc_root, (struct inode *inode), {
         struct dentry *ret = d_alloc_root(inode);
         return ret;
 })
-
+#endif
 
 
 FUNC_WRAPPER(dquot_initialize, (struct inode *inode, int type), {
