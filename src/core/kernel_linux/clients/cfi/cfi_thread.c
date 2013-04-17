@@ -62,7 +62,7 @@ static int pp_block(char* dest, size_t size, const void* n)
     return snprintf(dest, size, "block_%s", *(const int*)n ? "in" : "out");
 }
 
-static void granary_trace_block(int n)
+static inline void granary_trace_block(int n)
 {
     granary_trace(pp_block, &n, sizeof(n));
 }
@@ -99,7 +99,7 @@ static __inline__ void cfi_list_update_base(struct cfi_list_head *list_head)
         value = meta_info->base_address;
         displacement_part = (ALIAS_ADDRESS_DISPLACEMENT_MASK & ((uint64_t) value));
         index_part = (ALIAS_ADDRESS_INDEX_MASK & ((uint64_t)ptr->node));
-        ptr->node = ((index_part | displacement_part) & ALIAS_ADDRESS_ENABLED);
+        ptr->node = (void*)((index_part | displacement_part) & ALIAS_ADDRESS_ENABLED);
         ptr = ptr->next;
     }
     spin_unlock(&(list_head->list_lock));
@@ -124,8 +124,8 @@ uint64_t cfi_item_update_base(void *ptr){
         index_part = (ALIAS_ADDRESS_INDEX_MASK & ((uint64_t)ptr));
         return (uint64_t)((index_part | displacement_part) & ALIAS_ADDRESS_ENABLED);
     }else {
-        printk("%s : %lx, %lx\n", __FUNCTION__, ptr, meta_info);
-        return ptr;
+        //printk("%s : %lx, %lx\n", __FUNCTION__, (uint64_t)ptr, (uint64_t)meta_info);
+        return (uint64_t)ptr;
     }
 #endif
 }
@@ -136,12 +136,14 @@ void func_traverse_listitem(void *addr){
     unsigned int flag = 0;
 
     struct list_item *list;
-    uint64_t *stack_ptr;
     uint64_t value;
+    uint64_t *stack_bottom;
+    uint64_t *ptr;
+
     struct thread_private_info *thread_private_slot = (struct thread_private_info*)addr;
     thread_private_slot->stack_start_address = (void*)((uint64_t)thread_private_slot->current_stack & 0xffffffffffffc000);
-    uint64_t *stack_bottom = thread_private_slot->stack_start_address + 4*PAGE_SIZE-1;
-    uint64_t *ptr = thread_private_slot->current_stack;
+    stack_bottom = thread_private_slot->stack_start_address + 4*PAGE_SIZE-1;
+    ptr = thread_private_slot->current_stack;
 
     list = module_alloc_list[CFI_ALLOC_WHITE_LIST].head;
 
@@ -152,7 +154,7 @@ void func_traverse_listitem(void *addr){
             while((ptr <= stack_bottom)) {
                 value = (uint64_t)(*ptr);
                 if((((uint64_t)value | KERNEL_ADDRESS_OFFSET) != value) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
-                    if(value == list->node){
+                    if(value == (uint64_t)list->node){
                         flag = 1;
                         break;
                     }
@@ -166,7 +168,7 @@ void func_traverse_listitem(void *addr){
             for(idx = 0; idx < 16; idx++){
                 value = thread_private_slot->regs[idx];
                 if((((uint64_t)value | KERNEL_ADDRESS_OFFSET) != value) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
-                    if(value == list->node){
+                    if(value == (uint64_t)list->node){
                         flag = 1;
                         break;
                     }
@@ -188,7 +190,7 @@ void func_traverse_listitem(void *addr){
 }
 
 void func_module_alloclist(void *addr, void *data){
-    printk(" %s : %lx\n", __FUNCTION__, addr);
+    printk(" %s : %lx\n", __FUNCTION__, (unsigned long)addr);
 
 }
 
@@ -196,7 +198,6 @@ void
 function_scan_alloclist(void)
 {
     uint64_t idx = 1;
-    unsigned int flag = 0;
 
     struct list_item *alloc_list;
     struct list_item *sweep_list;
@@ -207,7 +208,6 @@ function_scan_alloclist(void)
 
     uint64_t *stack_bottom;
     uint64_t *ptr;
-    uint64_t *stack_ptr;
     uint64_t value;
 
     sweep_list = atomic_sweep_list.head;
@@ -230,7 +230,7 @@ function_scan_alloclist(void)
                     uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
                     if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
                         dr_printf("stack scan found : %lx\n", value);
-                        cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
+                        cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base((void*)value));
                     }
                 }
 #endif
@@ -249,7 +249,7 @@ function_scan_alloclist(void)
                     uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
                     if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
                         dr_printf("regs scan found : %lx\n", value);
-                        cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
+                        cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base((void*)value));
                     }
                 }
 #endif
@@ -274,7 +274,7 @@ function_scan_alloclist(void)
             uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
             if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
                 dr_printf("global list found : %lx\n", value);
-                cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
+                cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base((void*)value));
             }
         }
 #endif
@@ -310,15 +310,15 @@ function_scan_alloclist(void)
 
     spin_lock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
     while(alloc_scan_list != NULL){
-    	struct alias_meta *temp_meta;
 #ifdef CFI_NO_WATCHPOINT
+    	struct alias_meta *temp_meta;
     	hashmap_get(module_watchpoint_map, (void*)alloc_scan_list->node, (void**)&meta_info);
 #else
     	meta_info = (struct alias_meta *)get_watchpoint_meta((void*)alloc_scan_list->node);
 #endif
     	if(meta_info != NULL){
     		ptr = (uint64_t*)meta_info->base_address;
-    		while(ptr <= meta_info->limit ){
+    		while(ptr <= (uint64_t*)meta_info->limit ){
     			value = (uint64_t)(*(ptr));
 #ifdef CFI_NO_WATCHPOINT
     			if(hashmap_get(module_watchpoint_map, (void*)value, (void**)&temp_meta)){
@@ -330,7 +330,7 @@ function_scan_alloclist(void)
     				uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
     				if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
     				    dr_printf("module alloc list found : %lx\n", value);
-    					cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
+    					cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base((void*)value));
     				}
     			}
 #endif
@@ -361,15 +361,141 @@ function_scan_alloclist(void)
 int htable_callback(void *data, const char *key, void *value){
     scan_callback fn= (scan_callback)value;
     //printk("key : %lx, value : %lx\n", key, value);
-    if(fn != NULL)
-    	fn(key);
+    //if(fn != NULL)
+    	//fn(key);
+    (void)data;
+    (void)key;
+    (void)value;
+    (void)fn;
     return 0;
+}
+
+bool
+is_watchpoint_address(uint64_t value){
+    if((!((uint64_t)value & ALIAS_ADDRESS_NOT_ENABLED)) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
+        uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
+        if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
+            return true;
+        }
+    }
+    return false;
+}
+
+void
+garbage_collector_scan(void){
+    uint64_t idx = 1;
+
+    struct list_item *alloc_list;
+    struct list_item *sweep_list;
+    struct list_item *global_list;
+    struct list_item *return_list;
+    struct list_item *alloc_scan_list;
+    struct alias_meta *meta_info;
+
+    uint64_t *stack_bottom;
+    uint64_t *ptr;
+    uint64_t value;
+
+    sweep_list = atomic_sweep_list.head;
+    spin_lock(&(atomic_sweep_list.list_lock));
+    while(sweep_list != NULL){
+        struct thread_private_info *thread_private_slot = (struct thread_private_info*)(sweep_list->node);
+        thread_private_slot->stack_start_address = (void*)((uint64_t)thread_private_slot->current_stack & 0xffffffffffffc000);
+        stack_bottom = thread_private_slot->stack_start_address + 4*PAGE_SIZE-1;
+        ptr = thread_private_slot->current_stack;
+
+        if(thread_private_slot != NULL){
+#if 0
+            while((ptr <= stack_bottom)) {
+                value = (uint64_t)(*ptr);
+                if(is_watchpoint_address(value)){
+                    dr_printf("stack scan found : %lx\n", value);
+                    cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base((void*)value));
+                }
+                ptr++;
+            }
+#endif
+            for(idx = 0; idx < 16; idx++){
+                value = thread_private_slot->regs[idx];
+
+                if(is_watchpoint_address(value)){
+                    dr_printf("regs scan found : %lx\n", value);
+                    cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base((void*)value));
+                }
+            }
+        }
+
+        sweep_list = sweep_list->next;
+    }
+    spin_unlock(&(atomic_sweep_list.list_lock));
+
+    global_list = module_global_list.head;
+
+    spin_lock(&(module_global_list.list_lock));
+    while(global_list != NULL){
+        value = (uint64_t)(*(uint64_t*)(global_list->node));
+        if(is_watchpoint_address(value)){
+            dr_printf("global list found : %lx\n", value);
+            cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base((void*)value));
+        }
+        global_list = global_list->next;
+    }
+    spin_unlock(&(module_global_list.list_lock));
+
+    return_list = return_collected_watchpoint.head;
+
+    spin_lock(&(return_collected_watchpoint.list_lock));
+    while(return_list != NULL){
+        value = (uint64_t)((uint64_t*)(return_list->node));
+        if(is_watchpoint_address(value)){
+            dr_printf("return collected found : %lx\n", value);
+            cfi_list_append(&list_collected_watchpoint, (void*)value);
+        }
+        return_list = return_list->next;
+    }
+    spin_unlock(&(return_collected_watchpoint.list_lock));
+
+
+    alloc_scan_list = module_alloc_list[CFI_ALLOC_WHITE_LIST].head;
+
+    spin_lock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
+    while(alloc_scan_list != NULL){
+        meta_info = (struct alias_meta *)get_watchpoint_meta((void*)alloc_scan_list->node);
+        if(meta_info != NULL){
+            ptr = (uint64_t*)meta_info->base_address;
+            while(ptr <= (uint64_t*)meta_info->limit ){
+                value = (uint64_t)(*(ptr));
+                if(is_watchpoint_address(value)){
+                    dr_printf("module alloc list found : %lx\n", value);
+                    cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base((void*)value));
+                }
+                ptr++;
+            }
+        }
+        alloc_scan_list = alloc_scan_list->next;
+    }
+    spin_unlock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
+
+   // cfi_list_update_base(&list_collected_watchpoint);
+   // cfi_list_item_print(&list_collected_watchpoint);
+    //cfi_list_item_print(&module_alloc_list[CFI_ALLOC_WHITE_LIST]);
+
+    spin_lock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
+    alloc_list = module_alloc_list[CFI_ALLOC_WHITE_LIST].head;
+    while(alloc_list != NULL)
+    {
+        if(!cfi_list_item_exist(&list_collected_watchpoint, alloc_list->node)){
+            dr_printf("lost watchpoint addr : %lx, ", alloc_list->node);
+        }
+        alloc_list = alloc_list->next;
+    }
+
+    spin_unlock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
 }
 
 unsigned int
 sweep_thread_init(void *arg)
 {
-    int ret;
     unsigned long flags;
     unsigned long local_flag;
     printk("inside sweep_thread_init\n");
@@ -382,12 +508,13 @@ sweep_thread_init(void *arg)
         do {
             local_flag = flag_memory_snapshot;
         }while(!__sync_bool_compare_and_swap(&flag_memory_snapshot, local_flag, 0x0));
-        cfi_for_each_item(&module_alloc_list[CFI_ALLOC_WHITE_LIST], &func_module_alloclist, NULL);
-        function_scan_alloclist();
+        garbage_collector_scan();
+        //cfi_for_each_item(&module_alloc_list[CFI_ALLOC_WHITE_LIST], &func_module_alloclist, NULL);
+        //function_scan_alloclist();
        // cfi_for_each_item(&atomic_sweep_list, &func_traverse_listitem);
         //cfi_for_each_item(&module_alloc_list, &func_module_alloclist);
         //printk("---------\n");
-        hashmap_iter(kernel_variable_hash, htable_callback, NULL);
+        //hashmap_iter(kernel_variable_hash, htable_callback, NULL);
 
         do {
             local_flag = flag_memory_snapshot;
@@ -406,8 +533,8 @@ sweep_thread_init(void *arg)
 
 void cfi_return_to_kernel(void *ptr){
     uint64_t value = (uint64_t)(ptr);
-    struct alias_meta *meta_info;
 #ifdef CFI_NO_WATCHPOINT
+    struct alias_meta *meta_info;
     if(hashmap_get(module_watchpoint_map, (void*)value, (void**)&meta_info)){
     	cfi_list_append(&return_collected_watchpoint, (void*)cfi_item_update_base(value));
     }
@@ -415,7 +542,7 @@ void cfi_return_to_kernel(void *ptr){
     if((!((uint64_t)value & ALIAS_ADDRESS_NOT_ENABLED)) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
         uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
         if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
-            cfi_list_append(&return_collected_watchpoint, (void*)cfi_item_update_base(value));
+            cfi_list_append(&return_collected_watchpoint, (void*)cfi_item_update_base((void*)value));
            // ptr = (void*)((uint64_t)ptr | ALIAS_ADDRESS_INDEX_MASK);
           //  REMOVE_WATCHPOINT(ptr);
             //printk("return watchpoint : %lx\n", value);

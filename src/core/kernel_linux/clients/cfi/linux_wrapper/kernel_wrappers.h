@@ -1372,7 +1372,7 @@ TYPE_WRAPPER(struct gendisk, {
 #endif
 
 
-
+#define WRAPPER_FOR_struct_block_device
 #ifndef WRAPPER_FOR_struct_block_device
 #define WRAPPER_FOR_struct_block_device
 TYPE_WRAPPER(struct block_device, {
@@ -1386,7 +1386,6 @@ TYPE_WRAPPER(struct block_device, {
         WRAP_RECURSIVE(arg.bd_queue);
         WRAP_RECURSIVE(arg.bd_fsfreeze_mutex);
     }
-    NO_POST
     NO_RETURN
 })
 #endif
@@ -1405,7 +1404,7 @@ TYPE_WRAPPER(struct swap_info_struct, {
 #endif
 
 
-
+#define WRAPPER_FOR_struct_address_space_operations
 #ifndef WRAPPER_FOR_struct_address_space_operations
 #define WRAPPER_FOR_struct_address_space_operations
 TYPE_WRAPPER(struct address_space_operations, {
@@ -1431,7 +1430,6 @@ TYPE_WRAPPER(struct address_space_operations, {
         WRAP_FUNCTION(arg.swap_activate);
         WRAP_FUNCTION(arg.swap_deactivate);
     }
-    NO_POST
     NO_RETURN
 })
 #endif
@@ -1746,7 +1744,7 @@ TYPE_WRAPPER(struct module, {
 #endif
 
 
-
+#define WRAPPER_FOR_struct_file_system_type
 #ifndef WRAPPER_FOR_struct_file_system_type
 #define WRAPPER_FOR_struct_file_system_type
 TYPE_WRAPPER(struct file_system_type, {
@@ -1757,7 +1755,6 @@ TYPE_WRAPPER(struct file_system_type, {
         WRAP_RECURSIVE(arg.owner);
         WRAP_RECURSIVE(arg.next);
     }
-    NO_POST
     NO_RETURN
 })
 #endif
@@ -1798,7 +1795,7 @@ TYPE_WRAPPER(struct super_operations, {
 #endif
 
 
-
+#define WRAPPER_FOR_struct_dquot
 #ifndef WRAPPER_FOR_struct_dquot
 #define WRAPPER_FOR_struct_dquot
 TYPE_WRAPPER(struct dquot, {
@@ -1806,13 +1803,12 @@ TYPE_WRAPPER(struct dquot, {
         WRAP_RECURSIVE(arg.dq_lock);
         WRAP_RECURSIVE(arg.dq_sb);
     }
-    NO_POST
     NO_RETURN
 })
 #endif
 
 
-
+#define WRAPPER_FOR_struct_dquot_operations
 #ifndef WRAPPER_FOR_struct_dquot_operations
 #define WRAPPER_FOR_struct_dquot_operations
 TYPE_WRAPPER(struct dquot_operations, {
@@ -1827,13 +1823,12 @@ TYPE_WRAPPER(struct dquot_operations, {
         WRAP_FUNCTION(arg.write_info);
         WRAP_FUNCTION(arg.get_reserved_space);
     }
-    NO_POST
     NO_RETURN
 })
 #endif
 
 
-
+#define WRAPPER_FOR_struct_quotactl_ops
 #ifndef WRAPPER_FOR_struct_quotactl_ops
 #define WRAPPER_FOR_struct_quotactl_ops
 TYPE_WRAPPER(struct quotactl_ops, {
@@ -1850,13 +1845,12 @@ TYPE_WRAPPER(struct quotactl_ops, {
         WRAP_FUNCTION(arg.get_xstate);
         WRAP_FUNCTION(arg.set_xstate);
     }
-    NO_POST
     NO_RETURN
 })
 #endif
 
 
-
+#define WRAPPER_FOR_struct_export_operations
 #ifndef WRAPPER_FOR_struct_export_operations
 #define WRAPPER_FOR_struct_export_operations
 TYPE_WRAPPER(struct export_operations, {
@@ -1869,7 +1863,6 @@ TYPE_WRAPPER(struct export_operations, {
         WRAP_FUNCTION(arg.get_parent);
         WRAP_FUNCTION(arg.commit_metadata);
     }
-    NO_POST
     NO_RETURN
 })
 #endif
@@ -2002,7 +1995,7 @@ TYPE_WRAPPER(struct super_block, {
 #endif
 
 
-
+#define WRAPPER_FOR_struct_inode
 #ifndef WRAPPER_FOR_struct_inode
 #define WRAPPER_FOR_struct_inode
 TYPE_WRAPPER(struct inode, {
@@ -2019,7 +2012,7 @@ TYPE_WRAPPER(struct inode, {
 #endif
 
 
-
+#define WRAPPER_FOR_struct_dentry
 #ifndef WRAPPER_FOR_struct_dentry
 #define WRAPPER_FOR_struct_dentry
 TYPE_WRAPPER(struct dentry, {
@@ -2060,7 +2053,7 @@ TYPE_WRAPPER(struct iattr, {
 #endif
 
 
-
+//#define WRAPPER_FOR_struct_inode_operations
 #ifndef WRAPPER_FOR_struct_inode_operations
 #define WRAPPER_FOR_struct_inode_operations
 TYPE_WRAPPER(struct inode_operations, {

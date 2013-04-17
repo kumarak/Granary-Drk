@@ -13,6 +13,42 @@
  */
 
 
+TYPE_WRAPPER(struct address_space_operations, {
+        pre {
+            D(kern_printk("    address_space_operations\n");)
+
+            WRAP_FUNC(arg.writepage);
+            WRAP_FUNC(arg.readpage);
+            WRAP_FUNC(arg.writepages);
+            WRAP_FUNC(arg.set_page_dirty);
+            WRAP_FUNC(arg.readpages);
+            WRAP_FUNC(arg.write_begin);
+            WRAP_FUNC(arg.write_end);
+            WRAP_FUNC(arg.bmap);
+            WRAP_FUNC(arg.invalidatepage);
+            WRAP_FUNC(arg.releasepage);
+            WRAP_FUNC(arg.direct_IO);
+            WRAP_FUNC(arg.get_xip_mem);
+            WRAP_FUNC(arg.migratepage);
+            WRAP_FUNC(arg.launder_page);
+            WRAP_FUNC(arg.is_partially_uptodate);
+            WRAP_FUNC(arg.error_remove_page);
+        }
+        no_post
+})
+
+TYPE_WRAPPER(struct inode, {
+        pre {
+            D( kern_printk("    inode\n"); )
+
+            WRAP_RECURSIVE_KERNEL(arg.i_sb);
+            WRAP_RECURSIVE_KERNEL(arg.i_op);
+            WRAP_RECURSIVE_KERNEL(arg.i_fop);
+            WRAP_RECURSIVE_KERNEL(arg.i_mapping);
+        }
+        no_post
+})
+
 #define LOOP_COUNT 5
 
 TYPE_WRAPPER(struct super_block, {
@@ -47,6 +83,32 @@ TYPE_WRAPPER(struct address_space, {
         no_post
 })
 
+TYPE_WRAPPER(struct block_device , {
+        pre {
+            D( kern_printk("     block_device\n"); )
+
+            WRAP_RECURSIVE_KERNEL(arg.bd_inode);
+            WRAP_RECURSIVE_KERNEL(arg.bd_super);
+        }
+        no_post
+})
+
+TYPE_WRAPPER(struct file_system_type, {
+        pre {
+            D( kern_printk("    file_system_type\n"); )
+            WRAP_FUNC(arg.mount);
+            WRAP_FUNC(arg.kill_sb);
+        }
+        no_post
+})
+
+/*TYPE_WRAPPER(get_block_t, {
+        pre {
+            D( kern_printk("    get_block_t\n"); )
+                WRAP_FUNC(arg);
+        }
+        no_post
+})*/
 
 /***********************************************
  * FUNCTION WRAPPER
