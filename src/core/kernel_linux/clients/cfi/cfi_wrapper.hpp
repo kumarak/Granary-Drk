@@ -846,7 +846,10 @@ R (*to_shadow_address(R (*func_ptr)(Args...)))(Args...) {
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 extern "C" {
-#   include "types/kernel_types.hpp"
+#ifndef INCLUDED_KERNEL_TYPES_H_
+#define INCLUDED_KERNEL_TYPES_H_
+#   include "linux_wrapper/kernel_types.h"
+#endif
 }
 
 
@@ -858,7 +861,7 @@ extern "C" {
 /// include all wrappers; must be after the above template definitions
 /// so that partial specializations of cfi_wrapper_impl for FUNC_WRAPPERs
 /// take control for specific functions.
-#include "wrappers/wrappers.hpp"
+#include "linux_wrapper/wrappers.h"
 
 /// C++ constexpr wrapper; we are given the absolute address of the function,
 /// hence why we only care about its address and its types

@@ -160,7 +160,10 @@ def do_write_wrappers(G, V, s, white_list_file):
     s.write("""
 #include <stdint.h>
 extern \"C\" {
-#   include "types/kernel_types.hpp"
+#ifndef INCLUDED_KERNEL_TYPES_H_
+#define INCLUDED_KERNEL_TYPES_H_
+#   include "linux_wrapper/kernel_types.h"
+#endif
 }
 #include "cfi_wrapper.hpp"
 #include "cfi_wrapper.h"
@@ -239,7 +242,7 @@ extern "C" {
         cfi_wrapper_info *w;
         
         //kern_printk("addr_as_i64=%%lu low_bits=%%u d=%%d ", addr_as_i64, low_bits, d);
-        //(void) kern_printk;
+        (void) kern_printk;
         
         if(d < 0) {
             d = -d - 1;

@@ -108,7 +108,7 @@ struct granary_leak_detect *cfi_leak_object_init(struct module *target) {
     return NULL;
 }
 
-
+#if 0
 struct granary_leak_detect *granary_lc_object_lookup(struct module *target)
 {
     unsigned long irq_flags;
@@ -136,7 +136,7 @@ struct granary_leak_detect *granary_lc_object_lookup(struct module *target)
     //printk("lc_objects : %lx granary_lc_object_lookup : %lx, %lx\n", lc_objects, head, hash_index);
     return lc;
 }
-
+#endif
 static struct granary_lc_resource_info *
 resource_info_create(const void *addr, size_t size,
         const void *caller_address)
@@ -269,15 +269,15 @@ granary_lc_handle_free(struct module *mod, const void *addr,
 
         cfi_list_del_item(&module_alloc_list[CFI_ALLOC_WHITE_LIST], addr);
 
-        lc = granary_lc_object_lookup(mod);
+   //     lc = granary_lc_object_lookup(mod);
        // printk("-----%s----- : %lx\n",__FUNCTION__, lc);
         if (lc == NULL) {
                 return;
         }
 
-        spin_lock_irqsave(&top_half_lock, irq_flags);
-        granary_handle_free_event(lc, addr, (size_t)(-1), caller_address);
-        spin_unlock_irqrestore(&top_half_lock, irq_flags);
+       // spin_lock_irqsave(&top_half_lock, irq_flags);
+       // granary_handle_free_event(lc, addr, (size_t)(-1), caller_address);
+       // spin_unlock_irqrestore(&top_half_lock, irq_flags);
 }
 
 
@@ -288,13 +288,13 @@ granary_print_ld_stat(struct module *mod)
     unsigned long irq_flags;
     struct granary_leak_detect *lc = NULL;
 
-    lc = granary_lc_object_lookup(mod);
+   // lc = granary_lc_object_lookup(mod);
     printk("-------------- : %lx\n", lc);
     if (lc == NULL) {
         return;
     }
 
-    spin_lock_irqsave(&top_half_lock, irq_flags);
-    granary_print_allocs_stat(lc);
-    spin_unlock_irqrestore(&top_half_lock, irq_flags);
+   // spin_lock_irqsave(&top_half_lock, irq_flags);
+   // granary_print_allocs_stat(lc);
+   // spin_unlock_irqrestore(&top_half_lock, irq_flags);
 }
