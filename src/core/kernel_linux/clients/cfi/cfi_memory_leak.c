@@ -298,3 +298,16 @@ granary_print_ld_stat(struct module *mod)
    // granary_print_allocs_stat(lc);
    // spin_unlock_irqrestore(&top_half_lock, irq_flags);
 }
+
+
+void
+cfi_handler_alloc(struct module *mod, const void *addr, size_t size,
+        const void *caller_address){
+    cfi_list_append(&module_alloc_list[CFI_ALLOC_WHITE_LIST], addr);
+}
+
+void
+cfi_handler_free(struct module *mod, const void *addr,
+        const void *caller_address){
+        cfi_list_del_item(&module_alloc_list[CFI_ALLOC_WHITE_LIST], addr);
+}

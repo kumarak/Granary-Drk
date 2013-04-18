@@ -138,14 +138,8 @@ cfi_module_init(void) {
     SHADOW_CALL[8] = ((drk_interface_addr >> 16)    & 0xff);
     SHADOW_CALL[9] = ((drk_interface_addr >> 24)    & 0xff);
 
-	/*unsigned long shadow_pages = 0;
-	shadow_pages = (MODULE_SHADOW_END - MODULE_SHADOW_START)/(4*1024);*/
    	register_module_notifier(&module_load_nb);
-  // 	logfile = cfi_file_open("logfile.txt", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU|S_IRWXG|S_IRWXO);
-  // 	cfi_fprintf(logfile, "logfile \n");
-  // 	printk("logfile : %lx", logfile);
 
-   	//cpu_client_cache = kzalloc(/*dr_cpu_count() **/ sizeof(client_cache_info_t*), GFP_KERNEL);
 
    	/* list of allocated pointers by the module*/
    	cfi_list_init(&module_alloc_list[CFI_ALLOC_WHITE_LIST]);
@@ -167,15 +161,13 @@ cfi_module_init(void) {
 
    	//*flag_memory_snapshot = 0x1;
 
-
-/*    sweep_task = kthread_create(sweep_thread_init, NULL, "sweep-thread");
+   	/* sweep thread : it scans the rootset and finds the leaked memory*/
+    sweep_task = kthread_create(sweep_thread_init, NULL, "sweep-thread");
     if (!IS_ERR(sweep_task))
         wake_up_process(sweep_task);
     else
         WARN_ON(1);
-*/
-    granary_tracer_init();
-	/*register_page_fault_notifier(&page_fault_nb);*/
+
     return 0;
 }
 
@@ -185,7 +177,6 @@ cfi_module_exit(void)
     unregister_module_notifier(&module_load_nb);
     kfree((void*)flag_memory_snapshot);
     vfree(shadow_pointer_init);
-    /*unregister_page_fault_notifier(&page_fault_nb);*/
 }
 
 module_init(cfi_module_init);

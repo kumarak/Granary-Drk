@@ -49,23 +49,7 @@ struct alias_meta {
 
 extern void *get_watchpoint_meta(void *addr);
 
-inline bool is_watchpoint(uint64_t addr){
-    if((addr & WATCHPOINT_ADDRESS_MASK) == WATCHPOINT)
-        return true;//(reg_t)((uint64_t)addr | KERNEL_ADDRESS_OFFSET);
-    else
-        return false;
-}
 
-
-static int pp_block(char* dest, size_t size, const void* n)
-{
-    return snprintf(dest, size, "block_%s", *(const int*)n ? "in" : "out");
-}
-
-static void granary_trace_block(int n)
-{
-    granary_trace(pp_block, &n, sizeof(n));
-}
 
 extern struct hashtable_t *kernel_pointer_hash;
 extern struct cfi_list_head module_alloc_list[2];
@@ -105,15 +89,9 @@ static __inline__ void cfi_list_update_base(struct cfi_list_head *list_head)
     spin_unlock(&(list_head->list_lock));
 }
 
-uint64_t cfi_item_update_base(void *ptr){
+static inline uint64_t
+cfi_item_update_base(void *ptr){
     struct alias_meta *meta_info;
-#ifdef CFI_NO_WATCHPOINT
-    hashmap_get(module_watchpoint_map, (void*)ptr, (void**)&meta_info);
-    if(meta_info != NULL)
-    	return meta_info->base_address;
-    else
-    	return ptr;
-#else
     uint64_t index_part;
     uint64_t displacement_part;
     uint64_t value;
@@ -127,10 +105,9 @@ uint64_t cfi_item_update_base(void *ptr){
         printk("%s : %lx, %lx\n", __FUNCTION__, ptr, meta_info);
         return ptr;
     }
-#endif
 }
 
-
+#if 0
 void func_traverse_listitem(void *addr){
     uint64_t idx = 1;
     unsigned int flag = 0;
@@ -186,15 +163,26 @@ void func_traverse_listitem(void *addr){
     //spin_unlock(&(module_alloc_list.list_lock));
 
 }
-
+#endif
 void func_module_alloclist(void *addr, void *data){
     printk(" %s : %lx\n", __FUNCTION__, addr);
 
 }
 
+static inline
+bool is_watchpoint(uint64_t value){
+    if(!(value & ALIAS_ADDRESS_NOT_ENABLED) &&
+            ((uint64_t)value > USER_ADDRESS_OFFSET)){
+        uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
+        if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
+            return true;
+        }
+    }
+    return false;
+}
+
 void
-function_scan_alloclist(void)
-{
+cfi_scan_rootsets(void){
     uint64_t idx = 1;
     unsigned int flag = 0;
 
@@ -221,38 +209,19 @@ function_scan_alloclist(void)
         if(thread_private_slot != NULL){
             while((ptr <= stack_bottom)) {
                 value = (uint64_t)(*ptr);
-#ifdef CFI_NO_WATCHPOINT
-                if(hashmap_get(module_watchpoint_map, (void*)value, (void**)&meta_info)){
-                	cfi_list_append(&list_collected_watchpoint, (void*)value);
+                if(is_watchpoint(value)){
+                    dr_printf("stack scan found : %lx\n", value);
+                    cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
                 }
-#else
-                if((!((uint64_t)value & ALIAS_ADDRESS_NOT_ENABLED)) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
-                    uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
-                    if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
-                        dr_printf("stack scan found : %lx\n", value);
-                        cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
-                    }
-                }
-#endif
                 ptr++;
             }
 
             for(idx = 0; idx < 16; idx++){
                 value = thread_private_slot->regs[idx];
-
-#ifdef CFI_NO_WATCHPOINT
-                if(hashmap_get(module_watchpoint_map, (void*)value, (void**)&meta_info)){
-                	cfi_list_append(&list_collected_watchpoint, (void*)value);
+                if(is_watchpoint(value)){
+                    dr_printf("regs scan found : %lx\n", value);
+                    cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
                 }
-#else
-                if((!((uint64_t)value & ALIAS_ADDRESS_NOT_ENABLED)) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
-                    uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
-                    if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
-                        dr_printf("regs scan found : %lx\n", value);
-                        cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
-                    }
-                }
-#endif
             }
         }
         sweep_list = sweep_list->next;
@@ -260,90 +229,51 @@ function_scan_alloclist(void)
     spin_unlock(&(atomic_sweep_list.list_lock));
 
     global_list = module_global_list.head;
-
     spin_lock(&(module_global_list.list_lock));
     while(global_list != NULL){
         value = (uint64_t)(*(uint64_t*)(global_list->node));
-        //if((((uint64_t)value | KERNEL_ADDRESS_OFFSET) != value) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
-#ifdef CFI_NO_WATCHPOINT
-        if(hashmap_get(module_watchpoint_map, (void*)value, (void**)&meta_info)){
-        	cfi_list_append(&list_collected_watchpoint, (void*)value);
+        if(is_watchpoint(value)){
+            dr_printf("global list found : %lx\n", value);
+            cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
         }
-#else
-        if((!((uint64_t)value & ALIAS_ADDRESS_NOT_ENABLED)) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
-            uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
-            if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
-                dr_printf("global list found : %lx\n", value);
-                cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
-            }
-        }
-#endif
         global_list = global_list->next;
     }
     spin_unlock(&(module_global_list.list_lock));
 
-    return_list = return_collected_watchpoint.head;
 
+    return_list = return_collected_watchpoint.head;
     spin_lock(&(return_collected_watchpoint.list_lock));
     while(return_list != NULL){
         value = (uint64_t)((uint64_t*)(return_list->node));
-        //if((((uint64_t)value | KERNEL_ADDRESS_OFFSET) != value) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
-#ifdef CFI_NO_WATCHPOINT
-        if(hashmap_get(module_watchpoint_map, (void*)value, (void**)&meta_info)){
-        	cfi_list_append(&list_collected_watchpoint, (void*)value);
+        if(is_watchpoint(value)){
+            dr_printf("return collected found : %lx\n", value);
+            cfi_list_append(&list_collected_watchpoint, (void*)value);
         }
-#else
-        if((!((uint64_t)value & ALIAS_ADDRESS_NOT_ENABLED)) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
-            uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
-            if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
-                dr_printf("return collected found : %lx\n", value);
-                cfi_list_append(&list_collected_watchpoint, (void*)value);
-            }
-        }
-#endif
+
         return_list = return_list->next;
     }
     spin_unlock(&(return_collected_watchpoint.list_lock));
 
 
     alloc_scan_list = module_alloc_list[CFI_ALLOC_WHITE_LIST].head;
-
     spin_lock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
     while(alloc_scan_list != NULL){
     	struct alias_meta *temp_meta;
-#ifdef CFI_NO_WATCHPOINT
-    	hashmap_get(module_watchpoint_map, (void*)alloc_scan_list->node, (void**)&meta_info);
-#else
     	meta_info = (struct alias_meta *)get_watchpoint_meta((void*)alloc_scan_list->node);
-#endif
     	if(meta_info != NULL){
     		ptr = (uint64_t*)meta_info->base_address;
     		while(ptr <= meta_info->limit ){
-    			value = (uint64_t)(*(ptr));
-#ifdef CFI_NO_WATCHPOINT
-    			if(hashmap_get(module_watchpoint_map, (void*)value, (void**)&temp_meta)){
-    				cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
-    			}
-#else
-    			//if((((uint64_t)value | KERNEL_ADDRESS_OFFSET) != value) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
-    			if((!((uint64_t)value & ALIAS_ADDRESS_NOT_ENABLED)) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
-    				uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
-    				if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
-    				    dr_printf("module alloc list found : %lx\n", value);
-    					cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
-    				}
-    			}
-#endif
-    			ptr++;
-            }
+    		    value = (uint64_t)(*(ptr));
+    		    if(is_watchpoint(value)){
+    		        dr_printf("module alloc list found : %lx\n", value);
+    		        cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
+    		    }
+    		    ptr++;
+    		}
         }
         alloc_scan_list = alloc_scan_list->next;
     }
     spin_unlock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
-
-   // cfi_list_update_base(&list_collected_watchpoint);
-   // cfi_list_item_print(&list_collected_watchpoint);
-    //cfi_list_item_print(&module_alloc_list[CFI_ALLOC_WHITE_LIST]);
 
     spin_lock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
     alloc_list = module_alloc_list[CFI_ALLOC_WHITE_LIST].head;
@@ -372,22 +302,20 @@ sweep_thread_init(void *arg)
     int ret;
     unsigned long flags;
     unsigned long local_flag;
-    printk("inside sweep_thread_init\n");
-    while (!kthread_should_stop())
-    {
-
+    while (!kthread_should_stop()){
         dr_printf("*******************************************************inside sweep_thread_init\n");
         preempt_disable();
         raw_local_irq_save(flags);
         do {
             local_flag = flag_memory_snapshot;
         }while(!__sync_bool_compare_and_swap(&flag_memory_snapshot, local_flag, 0x0));
+
         cfi_for_each_item(&module_alloc_list[CFI_ALLOC_WHITE_LIST], &func_module_alloclist, NULL);
-        function_scan_alloclist();
+        cfi_scan_rootsets();
        // cfi_for_each_item(&atomic_sweep_list, &func_traverse_listitem);
         //cfi_for_each_item(&module_alloc_list, &func_module_alloclist);
         //printk("---------\n");
-        hashmap_iter(kernel_variable_hash, htable_callback, NULL);
+        //hashmap_iter(kernel_variable_hash, htable_callback, NULL);
 
         do {
             local_flag = flag_memory_snapshot;
@@ -396,7 +324,7 @@ sweep_thread_init(void *arg)
         preempt_enable();
 
         set_current_state(TASK_INTERRUPTIBLE);
-        schedule_timeout(10*HZ/*00*/);
+        schedule_timeout(100*HZ/*00*/);
     }
     set_current_state(TASK_RUNNING);
 

@@ -56,6 +56,14 @@ extern void
 granary_lc_handle_free(struct module *mod, const void *addr,
         const void *caller_address);
 
+extern void
+cfi_handler_alloc(struct module *mod, const void *addr, unsigned long size,
+        const void *caller_address);
+
+extern void
+cfi_handler_free(struct module *mod, const void *addr,
+        const void *caller_address);
+
  struct file_operations;
  extern int __register_chrdev(unsigned int major, unsigned int baseminor,
                               unsigned int count, const char *name,
