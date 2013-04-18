@@ -349,18 +349,12 @@ instrument_memory_write_kernel(void *drcontext, instrlist_t *ilist, instr_t *ins
     opnd_t opnd_unwatched_addr = opnd_create_reg(reg_unwatched_addr);
 
     opnd_t watched_addr_opnd = ops->found_operand;
-    //watched_addr_opnd.size = OPSZ_lea;
+
 
     PRE(ilist, instr, begin_instrumenting);
     PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_watched_addr));
     PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_unwatched_addr));
     PRE(ilist, instr, INSTR_CREATE_pushf(drcontext));
-  /*  PRE(ilist, instr, INSTR_CREATE_or(drcontext,
-                         opnd_create_base_disp(DR_REG_RSP, DR_REG_NULL, 0, 0,
-                                               OPSZ_STACK),
-                         OPND_CREATE_INT32(xflag)));
-
-*/
     PRE(ilist, instr, INSTR_CREATE_lea(drcontext, opnd_watched_addr, opnd_create_base_disp(opnd_get_base(ops->found_operand),
                                                 opnd_get_index(ops->found_operand), opnd_get_scale(ops->found_operand),
                                                 opnd_get_disp(ops->found_operand), OPSZ_lea)));
@@ -897,12 +891,6 @@ memleak_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bo
     else
         break_instr_is_null(drcontext);
 
-    if((pc >= (app_pc) KERNEL_START_ADDR) && (pc < (app_pc) KERNEL_END_ADDR)){
-      //  dr_printf("Opcode : %lx\n", first_instr->opcode);
-        if(first_instr->opcode == 0x11){
-            break_instr_is_null(pc);
-        }
-    }
     for(instr = instrlist_last(bb); instr != NULL; instr = prev_instr)
     {
     	prev_instr = instr_get_prev(instr);
@@ -920,30 +908,23 @@ memleak_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bo
     		}
     	}
 
-    	/*if(instr_is_cti(instr) && instr_num_srcs(instr)){
-    		if(!is_kernel_text(pc))
-    			    cfi_call_instrumentation_snapahot(drcontext, bb, instr, mecontext_snapshot_native);
+    	if(instr_is_cti(instr) && instr_num_srcs(instr)){
+    		if(is_kernel_text(pc)){
+    		    app_pc target = instr->translation;
+    		    instr_t *jmp_instr = INSTR_CREATE_jmp(drcontext, opnd_create_pc(target));
+    		    instr_set_ok_to_mangle(jmp_instr, false);
+    		    PRE(bb, instr, jmp_instr);
+    		}
+    			//    cfi_call_instrumentation_snapahot(drcontext, bb, instr, mecontext_snapshot_native);
 
     		continue;
-    	}*/
+    	}
 
     	if(instr_writes_memory(instr)) {
     		instrument_memory_operations(drcontext, tag, bb, instr, pc, true);
 
     	} else if(instr_reads_memory(instr)) {
     		instrument_memory_operations(drcontext, tag, bb, instr, pc, false);
-    	}
-
-
-    	if((instr->opcode == OP_prefetchnta) ||
-    			(instr->opcode == OP_prefetcht0) ||
-    			(instr->opcode == OP_prefetcht1) ||
-    			(instr->opcode == OP_prefetcht2) ||
-    			(instr->opcode == OP_prefetch) ||
-    			(instr->opcode == OP_prefetchw) ||
-    			(instr->opcode == OP_btr))
-    	{
-    		break_instr_is_null(pc);
     	}
 
     }

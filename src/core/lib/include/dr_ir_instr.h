@@ -44,7 +44,7 @@
 
 
 /**
- * Returns an initialized instr_t allocated on the thread-local heap. 
+ * Returns an initialized instr_t allocated on the thread-local heap.
  * Sets the x86/x64 mode of the returned instr_t to the mode of dcontext.
  */
 instr_t*
@@ -53,46 +53,46 @@ instr_create(void *drcontext);
 /** Initializes \p instr.
  * Sets the x86/x64 mode of \p instr to the mode of dcontext.
  */
-void 
+void
 instr_init(void *drcontext, instr_t *instr);
 
-/** 
+/**
  * Deallocates all memory that was allocated by \p instr.  This
  * includes raw bytes allocated by instr_allocate_raw_bits() and
  * operands allocated by instr_set_num_opnds().  Does not deallocate
  * the storage for \p instr itself.
  */
-void 
+void
 instr_free(void *drcontext, instr_t *instr);
 
-/** 
+/**
  * Performs both instr_free() and instr_init().
  * \p instr must have been initialized.
  */
-void 
+void
 instr_reset(void *drcontext, instr_t *instr);
 
-/** 
+/**
  * Frees all dynamically allocated storage that was allocated by \p instr,
  * except for allocated bits.
  * Also zeroes out \p instr's fields, except for raw bit fields,
  * whether \p instr is instr_ok_to_mangle(), and the x86 mode of \p instr.
  * \p instr must have been initialized.
  */
-void 
+void
 instr_reuse(void *drcontext, instr_t *instr);
 
-/** 
+/**
  * Performs instr_free() and then deallocates the thread-local heap
  * storage for \p instr.
  */
-void 
+void
 instr_destroy(void *drcontext, instr_t *instr);
 
-/** 
+/**
  * Returns the next instr_t in the instrlist_t that contains \p instr.
  * \note The next pointer for an instr_t is inside the instr_t data
- * structure itself, making it impossible to have on instr_t in 
+ * structure itself, making it impossible to have on instr_t in
  * two different InstrLists (but removing the need for an extra data
  * structure for each element of the instrlist_t).
  */
@@ -104,14 +104,14 @@ instr_t*
 instr_get_prev(instr_t *instr);
 
 /** Sets the next field of \p instr to point to \p next. */
-void 
+void
 instr_set_next(instr_t *instr, instr_t *next);
 
 /** Sets the prev field of \p instr to point to \p prev. */
-void 
+void
 instr_set_prev(instr_t *instr, instr_t *prev);
 
-/** 
+/**
  * Gets the value of the user-controlled note field in \p instr.
  * \note Important: is also used when emitting for targets that are other
  * instructions, so make sure to clear or set appropriately the note field
@@ -121,15 +121,15 @@ void *
 instr_get_note(instr_t *instr);
 
 /** Sets the user-controlled note field in \p instr to \p value. */
-void 
+void
 instr_set_note(instr_t *instr, void *value);
 
 /** Return the taken target pc of the (direct branch) instruction. */
-app_pc 
+app_pc
 instr_get_branch_target_pc(instr_t *cti_instr);
 
 /** Set the taken target pc of the (direct branch) instruction. */
-void 
+void
 instr_set_branch_target_pc(instr_t *cti_instr, app_pc pc);
 
 /**
@@ -137,18 +137,18 @@ instr_set_branch_target_pc(instr_t *cti_instr, app_pc pc);
  * or indirect branch with a program address target (NOT an instr_t address target)
  * and \p instr is ok to mangle.
  */
-bool 
+bool
 instr_is_exit_cti(instr_t *instr);
 
 /** Return true iff \p instr's opcode is OP_int, OP_into, or OP_int3. */
-bool 
+bool
 instr_is_interrupt(instr_t *instr);
 
 /**
  * Return true iff \p instr is not a meta-instruction
  * (see instr_set_ok_to_mangle() for more information).
  */
-bool 
+bool
 instr_ok_to_mangle(instr_t *instr);
 
 /**
@@ -171,7 +171,7 @@ instr_ok_to_mangle(instr_t *instr);
  * #instr_set_meta_may_fault to avoid incurring the cost of added
  * sandboxing checks that look for changes to application code.
  */
-void 
+void
 instr_set_ok_to_mangle(instr_t *instr, bool val);
 
 /**
@@ -179,11 +179,11 @@ instr_set_ok_to_mangle(instr_t *instr, bool val);
  * #instr_set_ok_to_mangle (instr, false) and
  * #instr_set_translation (instr, NULL).
  */
-void 
+void
 instr_set_meta_no_translation(instr_t *instr);
 
 /** Return true iff \p instr is to be emitted into the cache. */
-bool 
+bool
 instr_ok_to_emit(instr_t *instr);
 
 /**
@@ -192,7 +192,7 @@ instr_ok_to_emit(instr_t *instr);
  * treated normally by DR for purposes of exits but is not placed into
  * the cache.  It is used for final jumps that are to be elided.
  */
-void 
+void
 instr_set_ok_to_emit(instr_t *instr, bool val);
 
 /**
@@ -202,14 +202,14 @@ instr_set_ok_to_emit(instr_t *instr, bool val);
  * instr_allocate_raw_bits(), after which instr is marked as having
  * valid raw bits.
  */
-int 
+int
 instr_length(void *drcontext, instr_t *instr);
 
 /** Returns true iff \p instr can be encoding as a valid IA-32 instruction. */
-bool 
+bool
 instr_is_encoding_possible(instr_t *instr);
 
-/** 
+/**
  * Encodes \p instr into the memory at \p pc.
  * Uses the x86/x64 mode stored in instr, not the mode of the current thread.
  * Returns the pc after the encoded instr, or NULL if the encoding failed.
@@ -217,7 +217,7 @@ instr_is_encoding_possible(instr_t *instr);
  * of the target must be set with the respective offsets of each instr_t!
  * (instrlist_encode does this automatically, if the target is in the list).
  */
-byte * 
+byte *
 instr_encode(void *drcontext, instr_t *instr, byte *pc);
 
 void

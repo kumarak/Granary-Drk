@@ -141,11 +141,11 @@ instrlist_length(instrlist_t *ilist);
  * The default is to use AT&T-style syntax, unless the \ref op_syntax_intel
  * "-syntax_intel" runtime option is specified.
  */
-void 
+void
 instrlist_disassemble(void *drcontext, app_pc tag,
                       instrlist_t *ilist, file_t outfile);
 
-/** 
+/**
  * Encodes each instruction in \p ilist in turn in contiguous memory starting
  * at \p pc.  Returns the pc after all of the encodings, or NULL if any one
  * of the encodings failed.

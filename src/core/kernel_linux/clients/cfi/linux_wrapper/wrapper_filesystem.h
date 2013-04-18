@@ -354,7 +354,7 @@ FUNC_WRAPPER_VOID(__mark_inode_dirty, (struct inode *inode, int data), {
         __mark_inode_dirty(inode, data);
 })
 
-
+#if 0
 FUNC_WRAPPER_VOID(clear_inode, (struct inode *inode), {
         struct inode *temp_inode = inode;
         int ret;
@@ -365,7 +365,7 @@ FUNC_WRAPPER_VOID(clear_inode, (struct inode *inode), {
         //inode = temp_inode;
         clear_inode(inode);
 })
-
+#endif
 //int block_truncate_page(struct address_space *, loff_t, get_block_t *);
 
 FUNC_WRAPPER(block_truncate_page, (struct address_space *mapping, loff_t from, get_block_t *get_block), {

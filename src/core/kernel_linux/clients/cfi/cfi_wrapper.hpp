@@ -180,13 +180,13 @@ public:
 // wrap an l-value that is a function pointer
 #define WRAP_FUNC(lval) \
     if(lval != 0) {  \
-        D( kern_printk("wrap_function : %lx\n", lval); )  \
+        /*D( kern_printk("wrap_function : %lx\n", lval); )*/  \
         lval = to_shadow_address(lval); \
     }
 
 #define UNALIAS_ADDRESS(lval) \
     if(lval != 0) {  \
-        D( kern_printk("wrap_function : %lx\n", lval); )  \
+        /*D( kern_printk("wrap_function : %lx\n", lval); )*/  \
         lval = to_unaliased_address(lval); \
     }
 
