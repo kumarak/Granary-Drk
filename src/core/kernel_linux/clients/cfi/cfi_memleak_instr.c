@@ -771,22 +771,6 @@ instrument_indirect_call(void *drcontext, instrlist_t *ilist, instr_t *instr, ap
 
 
 
-noinline void break_on_rep_stos(instr_t *instr){
-
-}
-
-noinline void break_instr_is_null(void *addr){
-
-}
-
-noinline void break_lock_instr(void *addr){
-
-}
-
-noinline void break_collect_context(void *addr){
-
-}
-
 bool inline is_kernel_text(app_pc pc){
 	return (pc >= (app_pc) KERNEL_START_ADDR) && (pc < (app_pc) KERNEL_END_ADDR);
 }
@@ -886,11 +870,6 @@ memleak_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bo
 
     first_instr = instrlist_first(bb);
 
-    if(first_instr != NULL)
-        pc = instr_get_app_pc(first_instr);
-    else
-        break_instr_is_null(drcontext);
-
     for(instr = instrlist_last(bb); instr != NULL; instr = prev_instr)
     {
     	prev_instr = instr_get_prev(instr);
@@ -901,12 +880,6 @@ memleak_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bo
 
     	if(!instr_opcode_valid(instr))
     		continue;
-
-    	if(is_kernel_text(pc)){
-    		if(instr->prefixes & 0xf0 == 0xf0){
-    			break_lock_instr(pc);
-    		}
-    	}
 
     	if(instr_is_cti(instr) && instr_num_srcs(instr)){
     		if(is_kernel_text(pc)){

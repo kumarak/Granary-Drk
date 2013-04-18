@@ -1,6 +1,6 @@
 
 EXTRA_CFLAGS=-O1 -g3 $(DR_INCLUDE_FLAGS) -Wframe-larger-than=4096
-#EXTRA_CFLAGS=-O3 -g $(DR_INCLUDE_FLAGS) -Werror -Wframe-larger-than=4096
+#EXTRA_CFLAGS=-O1 -g $(DR_INCLUDE_FLAGS) -Werror -Wframe-larger-than=4096
 
 
 CXX_FLAGS = -nostdlib -fno-exceptions -fno-rtti -std=c++0x -O0 -g3 \
@@ -146,7 +146,7 @@ obj-m += cfi.o
 ../../kernel_linux/clients/cfi/cfi_buffer_overflow.o
 
 # make the kernel wrappers; this is such an ugly hack
-SYS_MAP := $(DR_CORE_DIR)/../debugging/linux-3.2.33/System.map
+SYS_MAP := $(DR_CORE_DIR)/../debugging/linux-3.8.2/System.map
 #SYS_MAP := /boot/System.map-$(shell uname -r)
 $(DR_CORE_DIR)/kernel_linux/modules/../../kernel_linux/clients/cfi/cfi_wrapper.cc: $(DR_CORE_DIR)/kernel_linux/clients/cfi/cfi_wrapper.hpp $(DR_CORE_DIR)/kernel_linux/clients/cfi/wrappers/white_list.txt $(DR_CORE_DIR)/kernel_linux/clients/cfi/types/kernel_types.hpp
 	sudo cp $(SYS_MAP) $(DR_CORE_DIR)/kernel_linux/clients/cfi/wrappers/map.txt
