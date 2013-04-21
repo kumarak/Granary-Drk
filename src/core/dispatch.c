@@ -849,6 +849,12 @@ dispatch_enter_native(dcontext_t *dcontext)
 #define REMOVE_CFI
 
 extern void dr_app_start_on_return(void);
+extern void *radix_tree_tag_set(struct radix_tree_root *root,
+                                unsigned long index, unsigned int tag);
+
+noinline void call_to_radix_tree_tag_set(dcontext){
+    (void)dcontext;
+}
 
 /**
  * Exit instrumentation and jump to the kernel. If this is a call then we go
@@ -859,6 +865,9 @@ static void
 dispatch_exit_module(dcontext_t *dcontext) {
 
     struct cfi_client_extension *cfi = (struct cfi_client_extension *)dr_get_client_extension();
+    if(dcontext->next_tag == (void*)radix_tree_tag_set){
+        call_to_radix_tree_tag_set(dcontext);
+    }
 #if 0
     struct thread_private_info *thread_private_slot;
     thread_private_slot = kernel_get_thread_private_slot_from_rsp((void*)get_mcontext(dcontext)->rsp, 0);
@@ -934,6 +943,8 @@ dispatch_exit_module(dcontext_t *dcontext) {
             }
         }
     }
+
+
 
     //dr_fix_mcontext(dcontext);
 

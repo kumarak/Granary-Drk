@@ -2769,9 +2769,9 @@ void cfi_hotpatch_kernel(void *drcontext){
     cpu_client_cache = client;
     printk("%s\n", __FUNCTION__);
     client->cache_start = dr_thread_alloc(drcontext, CLIENT_CACHE_SIZE);
-    client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_start, (void*)kfree);
-    client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)vfree);
-    client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)kmem_cache_free);
+   // client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_start, (void*)kfree);
+   // client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)vfree);
+   // client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)kmem_cache_free);
 
 }
 
@@ -2822,7 +2822,7 @@ drinit(client_id_t id)
     	dr_register_bb_event(memleak_bb_event);
 #endif
 #ifdef CLIENT_BUFFER_OVERFLOW
-    	dr_register_bb_event(buffer_overflow_bb_event);
+    	dr_register_bb_event(buffer_overflow_policy);
 #endif
     	dr_register_thread_init_event(event_thread_init);
     	dr_register_thread_exit_event(event_thread_exit);

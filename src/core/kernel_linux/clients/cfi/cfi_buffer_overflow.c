@@ -28,19 +28,22 @@ watch_buffer_overflow(void *addr){
 }
 
 static void
-instrument_memory_write(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc pc, struct memory_operand_modifier *ops)
-{
+instrument_memory_write(void *drcontext, instrlist_t *ilist,
+        instr_t *instr, app_pc pc, struct memory_operand_modifier *ops){
+
     unsigned long used_registers = 0;
     bool flag_unwatched_addr = false;
-    reg_id_t reg_watched_addr;
-    reg_id_t reg_unwatched_addr;
-    struct spill_reg_t watched_addr;
-    struct spill_reg_t unwatched_addr;
+    reg_id_t instr_reg;
+    opnd_t instr_reg_opnd;
+    reg_id_t mask_reg;
+    opnd_t mask_reg_opnd;
+    opnd_t instr_opnd;
+
     reg_id_t spill_reg[16];
     opnd_t spill_reg_opnd[16];
 
-    instr_t *addr_is_a_watchpoint = INSTR_CREATE_label(drcontext);
-    instr_t *addr_is_not_a_watchpoint = INSTR_CREATE_label(drcontext);
+    instr_t *addr_watchpoint = INSTR_CREATE_label(drcontext);
+    instr_t *addr_not_watchpoint = INSTR_CREATE_label(drcontext);
     instr_t *begin_instrumenting = INSTR_CREATE_label(drcontext);
     instr_t *done_instrumenting = INSTR_CREATE_label(drcontext);
 
@@ -54,35 +57,35 @@ instrument_memory_write(void *drcontext, instrlist_t *ilist, instr_t *instr, app
     collect_regs(&used_registers, instr, instr_num_srcs, instr_get_src );
     collect_regs(&used_registers, instr, instr_num_dsts, instr_get_dst );
 
-    reg_watched_addr = get_next_free_reg(&used_registers);
-    opnd_t opnd_watched_addr = opnd_create_reg(reg_watched_addr);
+    instr_reg = get_next_free_reg(&used_registers);
+    instr_reg_opnd = opnd_create_reg(instr_reg);
 
-    reg_unwatched_addr = get_next_free_reg(&used_registers);
-    opnd_t opnd_unwatched_addr = opnd_create_reg(reg_unwatched_addr);
+    mask_reg = get_next_free_reg(&used_registers);
+    mask_reg_opnd = opnd_create_reg(mask_reg);
 
-    opnd_t watched_addr_opnd = ops->found_operand;
+    instr_opnd = ops->found_operand;
 
     PRE(ilist, instr, begin_instrumenting);
 
-    PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_watched_addr));
-    PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_unwatched_addr));
+    PRE(ilist, instr, INSTR_CREATE_push(drcontext, instr_reg_opnd));
+    PRE(ilist, instr, INSTR_CREATE_push(drcontext, mask_reg_opnd));
     PRE(ilist, instr, INSTR_CREATE_pushf(drcontext));
 
 
-    PRE(ilist, instr, INSTR_CREATE_lea(drcontext, opnd_watched_addr, opnd_create_base_disp(opnd_get_base(ops->found_operand),
+    PRE(ilist, instr, INSTR_CREATE_lea(drcontext, instr_reg_opnd, opnd_create_base_disp(opnd_get_base(ops->found_operand),
                                                 opnd_get_index(ops->found_operand), opnd_get_scale(ops->found_operand),
                                                 opnd_get_disp(ops->found_operand), OPSZ_lea)));
 
-    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr,
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, mask_reg_opnd,
     									OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
 
-    PRE(ilist, instr, INSTR_CREATE_or(drcontext, opnd_unwatched_addr, opnd_watched_addr));
-    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_unwatched_addr, opnd_watched_addr));
+    PRE(ilist, instr, INSTR_CREATE_or(drcontext, mask_reg_opnd, instr_reg_opnd));
+    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, mask_reg_opnd, instr_reg_opnd));
 
-    PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_je, opnd_create_instr(addr_is_not_a_watchpoint)));
+    PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_je, opnd_create_instr(addr_not_watchpoint)));
 
     /*Address is a watchpoint*/
-    PRE(ilist, instr, addr_is_a_watchpoint);
+    PRE(ilist, instr, addr_watchpoint);
     /*look for buffer overflow*/
     spill_reg[0] = get_next_free_reg(&used_registers);
     spill_reg_opnd[0] = opnd_create_reg(spill_reg[0]);
@@ -91,27 +94,34 @@ instrument_memory_write(void *drcontext, instrlist_t *ilist, instr_t *instr, app
             OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
 
     /*get the descriptor table index*/
-    PRE(ilist, instr, INSTR_CREATE_and(drcontext, spill_reg_opnd[0], opnd_watched_addr));
-    PRE(ilist, instr, INSTR_CREATE_shl(drcontext, spill_reg_opnd[0],  OPND_CREATE_INT8(SHIFT_BIT_COUNT)));
+    PRE(ilist, instr, INSTR_CREATE_and(drcontext, spill_reg_opnd[0], instr_reg_opnd));
+    PRE(ilist, instr, INSTR_CREATE_shl(drcontext, spill_reg_opnd[0],
+                                                   OPND_CREATE_INT8(SHIFT_BIT_COUNT)));
 
     spill_reg[1] = get_next_free_reg(&used_registers);
     spill_reg_opnd[1] = opnd_create_reg(spill_reg[1]);
     PRE(ilist, instr, INSTR_CREATE_push(drcontext, spill_reg_opnd[1]));
 
     PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, spill_reg_opnd[1],
-            OPND_CREATE_INT64(SHADOW_START_ADDR)));
+                                                OPND_CREATE_INT64(SHADOW_START_ADDR)));
 
-    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_unwatched_addr,
-            opnd_create_base_disp(spill_reg[1], spill_reg[0], sizeof(struct alias_meta), 0, OPSZ_PTR)));
+    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, mask_reg_opnd,
+                        opnd_create_base_disp(spill_reg[1], spill_reg[0],
+                                               sizeof(struct alias_meta), 0, OPSZ_PTR)));
 
     PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_jle, opnd_create_instr(do_callback)));
 
-    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_unwatched_addr,
-    		opnd_create_base_disp(spill_reg[1], spill_reg[0], sizeof(struct alias_meta), 8*sizeof(byte), OPSZ_PTR)));
+    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, mask_reg_opnd,
+    		            opnd_create_base_disp(spill_reg[1], spill_reg[0],
+    		                        sizeof(struct alias_meta), 8*sizeof(byte), OPSZ_PTR)));
+
     PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_jle, opnd_create_instr(done_check)));
+
     PRE(ilist, instr, INSTR_CREATE_nop(drcontext));
     PRE(ilist, instr, do_callback);
+
     dr_insert_clean_call(drcontext, ilist, instr, watch_buffer_overflow, false, 1,opnd_unwatched_addr);
+
     PRE(ilist, instr, done_check);
     PRE(ilist, instr, INSTR_CREATE_pop(drcontext, spill_reg_opnd[1]));
     PRE(ilist, instr, INSTR_CREATE_pop(drcontext, spill_reg_opnd[0]));
@@ -135,10 +145,10 @@ instrument_memory_write(void *drcontext, instrlist_t *ilist, instr_t *instr, app
             opnd_create_instr(done_instrumenting)));
 
     /*if address is not a watchpoint*/
-    PRE(ilist, instr, addr_is_not_a_watchpoint);
+    PRE(ilist, instr, addr_not_watchpoint);
     PRE(ilist, instr, INSTR_CREATE_popf(drcontext));
-    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_unwatched_addr));
-    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_watched_addr));
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, mask_reg_opnd));
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, instr_reg_opnd));
     /*** original instruction here ***/
     instr->translation = 0; // hack!
     instr_being_modified(instr, false);
@@ -151,7 +161,7 @@ instrument_memory_write(void *drcontext, instrlist_t *ilist, instr_t *instr, app
 
 
 
-static instr_t*
+void
 instrument_memory_read(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc pc, struct memory_operand_modifier *ops)
 {
     unsigned long used_registers = 0;
@@ -197,14 +207,6 @@ instrument_memory_read(void *drcontext, instrlist_t *ilist, instr_t *instr, app_
                                                 opnd_get_index(ops->found_operand), opnd_get_scale(ops->found_operand),
                                                 opnd_get_disp(ops->found_operand), OPSZ_lea)));
 
-  //  PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr, OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
-  //  PRE(ilist, instr, INSTR_CREATE_and(drcontext, opnd_unwatched_addr, opnd_watched_addr));
-   // PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_unwatched_addr, opnd_unwatched_addr));
-   // PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_je, opnd_create_instr(not_null)));
-  //  PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr, OPND_CREATE_INT64(pc)));
-  //  dr_insert_clean_call(drcontext, ilist, instr, cfi_debug_call, false, 1,opnd_unwatched_addr);
-
-   // PRE(ilist, instr, not_null);
     PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr, OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
     PRE(ilist, instr, INSTR_CREATE_or(drcontext, opnd_unwatched_addr, opnd_watched_addr));
     PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_unwatched_addr, opnd_watched_addr));
@@ -461,8 +463,13 @@ instrument_memory_operations(void *drcontext, void* tag,
 	 		 break;
 	 }
 
-	 if(instr->opcode == OP_rep_stos || instr->opcode == OP_rep_movs){
+	 if(instr->opcode == OP_rep_stos){
 	     instrument_rep_stos(drcontext, ilist, instr, pc, &ops, is_write);
+	     return;
+	 }
+
+	 if(instr->opcode == OP_rep_movs){
+	     instrument_rep_movs(drcontext, ilist, instr, pc, &ops, is_write);
 	     return;
 	 }
 
@@ -521,10 +528,6 @@ instrument_memory_operations(void *drcontext, void* tag,
 	(void)tag;
 }
 
-static
-noinline void break_lock_instr(void *addr){
-
-}
 
 static
 bool inline is_kernel_text(app_pc pc){
@@ -532,7 +535,7 @@ bool inline is_kernel_text(app_pc pc){
 }
 
 dr_emit_flags_t
-buffer_overflow_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bool translating)
+buffer_overflow_policy(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bool translating)
 {
 	instr_t *instr,*prev_instr;
 	app_pc pc;
@@ -553,11 +556,16 @@ buffer_overflow_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_t
 		if(!instr_opcode_valid(instr))
 			continue;
 
-		if(is_kernel_text(pc)){
-			if(instr->prefixes & 0xf0 == 0xf0){
-				break_lock_instr(pc);
-			}
-		}
+        if(instr_is_cti(instr) && instr_num_srcs(instr)){
+            if(is_kernel_text(pc)){
+                app_pc target = instr->translation;
+                instr_t *jmp_instr = INSTR_CREATE_jmp(drcontext, opnd_create_pc(target));
+                instr_set_ok_to_mangle(jmp_instr, false);
+                PRE(bb, instr, jmp_instr);
+            }
+            continue;
+        }
+
 
 		if(instr_writes_memory(instr)) {
 			instrument_memory_operations(drcontext, tag, bb, instr, pc, true);

@@ -118,22 +118,19 @@ emit_hotpatch_code(void *drcontext, client_cache_info_t *client, byte *pc, app_p
     hotpatch_instruction[3] = ((offset_val >> 16)    & 0xff);
     hotpatch_instruction[4] = ((offset_val >> 24)    & 0xff);
 
-    while(i < len){
+  /*  while(i < len){
         temp = (uint64_t)(hotpatch_instruction[i]);
         hotpatch_instr = (hotpatch_instr|(temp << 8*i));
         i++;
     }
-
+*/
     uint64_t pc_start_i = (uint64_t)pc_start_t;
-
-    //set_memory_rw(begin_pfn << PAGE_SHIFT, 1);
 
     do {
         oldval = *(addr);
         newval = hotpatch_instr;
     }while(!__sync_bool_compare_and_swap(addr, oldval, newval));
 
-    //set_memory_ro(begin_pfn << PAGE_SHIFT, 1);
     /*make a call to instrumentation function*/
     return pc_end;
 }

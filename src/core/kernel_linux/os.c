@@ -1723,6 +1723,10 @@ handler_general_protection_fault(dcontext_t* drcontext, interrupt_stack_frame_t*
     if (local)
         SELF_PROTECT_LOCAL(dcontext, WRITABLE);
 
+    if(frame->xip == 0xffffffff8130c0ad){
+        break_on_address(frame->xip);
+    }
+
     instrumented_xip = dr_get_basic_block(dcontext, frame->xip);
 
     if(instrumented_xip)
@@ -2028,40 +2032,20 @@ handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
 
     STATS_INC(num_interrupts);
 
-    if(vector == VECTOR_PAGE_FAULT)
-     {
-        break_on_pagefault(frame, mcontext);
-    	/*if (frame->xip >= 0xffffffffa0000000)
-    	{
-    		//pagefault_handler(frame->xip);
-    	}
-     	return 2;*/
-     }
-
     if (vector == VECTOR_NMI) {
         nmi_handler();
     }
 
-    if(vector < VECTOR_EXCEPTION_END)
-    {
+    if(vector < VECTOR_EXCEPTION_END){
         exception_handler();
     }
 
-#ifdef DEBUG
-    /* Sanity check for interrupt stack frame. */
-   /* ASSERT(!TEST(EFLAGS_IF, mcontext->xflags));
-    ASSERT(mcontext->pc == 0);
-    if (vector_has_error_code(vector)) {
-        ASSERT(frame->error_code != MAGIC_FAKE_ERROR);
-    } else {
-        ASSERT(frame->error_code == MAGIC_FAKE_ERROR);
-    }
-    ASSERT(mcontext->rsp == (reg_t) &frame->error_code);
-    ASSERT(mcontext->rsp - 2 * sizeof(reg_t) == (reg_t) &mcontext->pc);
-    ASSERT(ALIGNED(mcontext->rsp,  INTERRUPT_STACK_FRAME_ALIGNMENT));*/
-#endif
-
     dcontext = get_thread_private_dcontext();
+
+    if(vector == VECTOR_PAGE_FAULT) {
+        handle_pagefault_interrupt(dcontext, frame, mcontext);
+     }
+
     ASSERT(dcontext != NULL);
     ostd = (os_thread_data_t *) dcontext->os_field;
     ASSERT(ostd != NULL);
