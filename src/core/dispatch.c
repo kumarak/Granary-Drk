@@ -390,10 +390,10 @@ static bool
 is_module_exit_point(dcontext_t *dcontext) {
     //if(get_thread_private_slot(SPILL_SLOT_2)) {
     //dr_get_symbol_name(dcontext->next_tag);
- //   if(dcontext->gp_pc == dcontext->next_tag){
+    //if(dcontext->gp_pc == dcontext->next_tag){
       //  dcontext->is_general_fault = false;
-   //     return false;
-   // }
+        //return false;
+    //}
     return ((dcontext->next_tag >= (app_pc) KERNEL_START_ADDR) && (dcontext->next_tag < (app_pc) KERNEL_END_ADDR));
 }
 
@@ -865,13 +865,12 @@ static void
 dispatch_exit_module(dcontext_t *dcontext) {
 
     struct cfi_client_extension *cfi = (struct cfi_client_extension *)dr_get_client_extension();
-    if(dcontext->next_tag == (void*)radix_tree_tag_set){
-        call_to_radix_tree_tag_set(dcontext);
-    }
-#if 0
     struct thread_private_info *thread_private_slot;
+
     thread_private_slot = kernel_get_thread_private_slot_from_rsp((void*)get_mcontext(dcontext)->rsp, 0);
+
     if(thread_private_slot != NULL){
+
         thread_private_slot->is_running_module = 0;
         thread_private_slot->copy_stack = 1;
         thread_private_slot->current_stack = (void*)get_mcontext(dcontext)->rsp;
@@ -880,8 +879,6 @@ dispatch_exit_module(dcontext_t *dcontext) {
             thread_private_slot->stack = kernel_memcpy(thread_private_slot->stack,
         					    thread_private_slot->stack_start_address, 4*PAGE_SIZE);
         }
-
-       // copy_mcontext(get_mcontext(dcontext), &(thread_private_slot->mc));
 
         thread_private_slot->regs[0] = get_mcontext(dcontext)->rax;
         thread_private_slot->regs[1] = get_mcontext(dcontext)->rbx;
@@ -900,34 +897,20 @@ dispatch_exit_module(dcontext_t *dcontext) {
         thread_private_slot->regs[14] = get_mcontext(dcontext)->r14;
         thread_private_slot->regs[15] = get_mcontext(dcontext)->r15;
     }
-#endif
 
     /* call any client callbacks to handling module exits; these might
      * change the dcontext->next_tag. */
     if(dcontext->last_exit->flags & LINK_RETURN) {
-//        if(thread_private_slot != NULL){
-  //          thread_private_slot->section_count--;
-    //    }
-#if 0
-        if(thread_private_slot->section_count == 0){
-            thread_private_slot->regs[0] = 0;
-            thread_private_slot->regs[1] = 0;
-            thread_private_slot->regs[2] = 0;
-            thread_private_slot->regs[3] = 0;
-            thread_private_slot->regs[4] = 0;
-            thread_private_slot->regs[5] = 0;
-            thread_private_slot->regs[6] = 0;
-            thread_private_slot->regs[7] = 0;
-            thread_private_slot->regs[8] = 0;
-            thread_private_slot->regs[9] = 0;
-            thread_private_slot->regs[10] = 0;
-            thread_private_slot->regs[11] = 0;
-            thread_private_slot->regs[12] = 0;
-            thread_private_slot->regs[13] = 0;
-            thread_private_slot->regs[14] = 0;
-            thread_private_slot->regs[15] = 0;
+        if(thread_private_slot != NULL){
+            thread_private_slot->section_count--;
+            if(thread_private_slot->section_count == 0){
+                int i=0;
+                while(i < 16){
+                    thread_private_slot->regs[i] = 0;
+                    i++;
+                }
+            }
         }
-#endif
     } else if(dcontext->last_exit->flags & LINK_CALL){
         if(dcontext->next_tag != (app_pc)dr_app_stop){
             byte *return_addr = dr_get_stack_pointer_value(dcontext);
@@ -943,10 +926,6 @@ dispatch_exit_module(dcontext_t *dcontext) {
             }
         }
     }
-
-
-
-    //dr_fix_mcontext(dcontext);
 
     dispatch_enter_native(dcontext);
 }

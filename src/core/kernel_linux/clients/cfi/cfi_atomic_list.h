@@ -32,13 +32,18 @@ static __inline__ void cfi_list_init(struct cfi_list_head *list_head){
     spin_lock_init(&(list_head->list_lock));
 }
 
-static __inline__ void cfi_list_append(struct cfi_list_head *list_head, void *node)
-{
-    struct list_item *ptr;
-    //struct list_item *head;
-    unsigned int exist = 0;
-    struct list_item *list = kmalloc(sizeof(struct list_item), GFP_ATOMIC);
+static __inline__ unsigned long
+cfi_get_list_count(struct cfi_list_head *list_head){
+    return list_head->count;
+}
 
+static __inline__ void
+cfi_list_append(struct cfi_list_head *list_head, void *node){
+    struct list_item *ptr;
+    unsigned int exist = 0;
+    struct list_item *temp;
+    struct list_item *list = kmalloc(sizeof(struct list_item), GFP_ATOMIC);
+   // printk("adding items to list : %lx\n", node);
     if(list == NULL){
         return;
     }
@@ -64,7 +69,9 @@ static __inline__ void cfi_list_append(struct cfi_list_head *list_head, void *no
     }
 
     if(!exist) {
+        temp = ptr->next;
         ptr->next = list;
+        list->next = temp;
         list_head->count++;
     } else {
         kfree(list);
@@ -72,12 +79,9 @@ static __inline__ void cfi_list_append(struct cfi_list_head *list_head, void *no
     spin_unlock(&(list_head->list_lock));
 }
 
-static __inline__ unsigned int cfi_list_item_exist(struct cfi_list_head *list_head, void *node)
-{
+static __inline__ unsigned int
+cfi_list_item_exist(struct cfi_list_head *list_head, void *node){
     struct list_item *ptr;
-    //struct list_item *temp_ptr;
-    //struct list_item *temp_node;
-    //struct list_item *prev_ptr;
     unsigned int flag = 0;
 
     spin_lock(&(list_head->list_lock));
@@ -117,10 +121,6 @@ static __inline__ unsigned int cfi_list_item_exist(struct cfi_list_head *list_he
 static __inline__ void cfi_list_item_print(struct cfi_list_head *list_head)
 {
     struct list_item *ptr;
-    //struct list_item *temp_ptr;
-    //struct list_item *temp_node;
-    //struct list_item *prev_ptr;
-    //unsigned int flag = 0;
 
     spin_lock(&(list_head->list_lock));
     dr_printf("collected watchpoint : ");
@@ -133,44 +133,8 @@ static __inline__ void cfi_list_item_print(struct cfi_list_head *list_head)
     spin_unlock(&(list_head->list_lock));
 }
 
-
-
-/*
-
-static __inline__ void cfi_list_append(struct cfi_list_head *list_head, void *node)
-{
-	struct list_item *ptr;
-	struct list_item *head;
-	struct list_item *list = kmalloc(sizeof(struct list_item), GFP_ATOMIC);
-
-	if(list == NULL){
-		return;
-	}
-
-	list->node = node;
-	list->next = NULL;
-
-	if( !list_head->head) {
-		//list_head->head = list;	//do compare and swap
-	    do{
-	        head = list_head->head;
-	    }while(!__sync_bool_compare_and_swap(&list_head->head, head, list));
-		return;
-	}
-
-	ptr = list_head->head;
-	while(ptr->next != NULL) {
-		ptr = ptr->next;
-	}
-
-	//ptr->next = list;
-	do {
-	    head = ptr->next;
-	}while (!__sync_bool_compare_and_swap(&ptr->next, head, list));
-}
-*/
-static __inline__ void cfi_list_prepend(volatile struct cfi_list_head *list_head, void *node)
-{
+static __inline__ void
+cfi_list_prepend(volatile struct cfi_list_head *list_head, void *node){
 	//struct list_item *ptr;
 	struct list_item *head;
 	struct list_item *list = kmalloc(sizeof(struct list_item), GFP_ATOMIC);
@@ -189,7 +153,8 @@ static __inline__ void cfi_list_prepend(volatile struct cfi_list_head *list_head
 	} while (!__sync_bool_compare_and_swap(&(list_head->head), head, list));
 }
 
-static __inline__ void cfi_list_del_item(struct cfi_list_head *list_head, void *node)
+static __inline__ void
+cfi_list_del_item(struct cfi_list_head *list_head, void *node)
 {
 	struct list_item *ptr;
 	struct list_item *temp_ptr;
@@ -220,7 +185,6 @@ static __inline__ void cfi_list_del_item(struct cfi_list_head *list_head, void *
 		        temp_ptr->next = NULL;
                 list_head->count--;
                 kfree(temp_ptr);
-                //printk("item is freed : %lx\n", node);
                 break;
 		    }
 			ptr = ptr->next;
@@ -231,6 +195,7 @@ static __inline__ void cfi_list_del_item(struct cfi_list_head *list_head, void *
 		        temp_ptr = ptr->next;
 		        ptr->next= NULL;
 		        temp_ptr->next = NULL;
+		        list_head->count--;
 		        kfree(temp_ptr);
 		       // printk("item is freed : %lx\n", node);
 		    }
@@ -240,60 +205,45 @@ static __inline__ void cfi_list_del_item(struct cfi_list_head *list_head, void *
 
 	spin_unlock(&(list_head->list_lock));
 	return;
-	/*
-	if(ptr->next == NULL){
-		if(ptr->node == node){
-			list_head->head = ptr->next;
-		*/	/*
-		    do{
-		      temp_node = ptr->next;
-		    }while (__sync_bool_compare_and_swap(&list_head->head, temp_node, NULL) == false);
-			kfree(ptr);*/
-		/*}
-	}
-
-	while((ptr->next->node != node) && (ptr->next->next != NULL)){
-		ptr = ptr->next;
-	}
-
-	if(ptr->next->node == node){
-	    do {
-	        temp_ptr = ptr->next;
-	    } while (__sync_bool_compare_and_swap(&ptr->next, temp_ptr, temp_ptr->next) == false);
-
-	    kfree(temp_ptr);
-	}*/
-
 }
 
-/*
-static __inline__ void cfi_list_del(struct cfi_list_head *list_head)
+static __inline__ void
+cfi_list_delete_all(struct cfi_list_head *list_head)
 {
     struct list_item *ptr;
-    struct list_item *temp_ptr;
+    struct list_item *next_ptr;
 
-    ptr = list_head->head;
-
-    while(ptr){
-        temp_ptr = ptr;
-        ptr = ptr->next;
-        do{
-
-        }while (__sync_bool_compare_and_swap(&list_head->head, list_head->head, ptr) == false);
-        kfree(temp_ptr);
+    spin_lock(&(list_head->list_lock));
+    if( !list_head->head) {
+        spin_unlock(&(list_head->list_lock));
+        return;
     }
 
+    ptr = list_head->head;
+    while(ptr->next != NULL){
+        next_ptr = ptr->next;
+        kfree(ptr);
+        ptr = next_ptr;
+    }
+
+    if(ptr->next == NULL){
+        kfree(ptr);
+    }
+
+    list_head->head = NULL;
+    list_head->count = 0;
+    spin_unlock(&(list_head->list_lock));
+    return;
 }
-*/
-static __inline__ void cfi_for_each_item(struct cfi_list_head *list_head, int(*list_callback)(void*, void*), void *data)
+
+static __inline__ void
+cfi_for_each_item(struct cfi_list_head *list_head, int(*list_callback)(void*, void*), void *data)
 {
     struct list_item *ptr;
 
     int ret = 0;
 
     ptr = list_head->head;
-
-    //dr_printf("%s : %lx\n", __FUNCTION__, list_head->count);
 
     while((ptr != NULL) && (ret == 0)){
         ret = list_callback((void*)ptr->node, data);

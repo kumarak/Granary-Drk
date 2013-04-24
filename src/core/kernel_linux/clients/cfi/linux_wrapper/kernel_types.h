@@ -9915,7 +9915,7 @@ int match_octal ( substring_t * , int * result ) ;
 int match_hex ( substring_t * , int * result ) ;
 size_t match_strlcpy ( char * , const substring_t * , size_t ) ;
 char * match_strdup ( const substring_t * ) ;
-__attribute__ ( ( format ( printf , 4 , 5 ) ) ) struct task_struct * kthread_create_on_node ( int ( * threadfn ) ( void * data ) , void * data , int node , const char namefmt [ ] , ... ) ;
+struct task_struct * kthread_create_on_node ( int ( * threadfn ) ( void * data ) , void * data , int node , const char namefmt [ ]) ;
 struct task_struct * kthread_create_on_cpu ( int ( * threadfn ) ( void * data ) , void * data , unsigned int cpu , const char * namefmt ) ;
 void kthread_bind ( struct task_struct * k , unsigned int cpu ) ;
 int kthread_stop ( struct task_struct * k ) ;

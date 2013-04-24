@@ -19,6 +19,7 @@
 #include "fcache.h"
 #include "cr.h"
 #include "monitor.h"
+#include "code_cache_kernel.h"
 
 #ifdef CLIENT_INTERFACE
 # include "instrument.h"
@@ -1519,6 +1520,11 @@ void returning_to_gencode()
 #define MODULE_SHADOW_END_EXTENDED 	0xffffffffff000000
 #define MODULE_SHADOW_START MODULE_END_ADDR
 
+noinline void
+general_fault_on_granary_code(void* addr){
+
+}
+
 static
 int handle_pagefault_interrupt(dcontext_t* dcontext, interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext)
 {
@@ -1527,6 +1533,11 @@ int handle_pagefault_interrupt(dcontext_t* dcontext, interrupt_stack_frame_t* fr
 	if((frame->xip < MODULE_START_ADDR) || (frame->xip >= MODULE_END_ADDR))
 	{
 		return ret;
+	}
+
+	if(dr_is_granary_code(frame->xip)){
+	    general_fault_on_granary_code(frame->xip);
+	    return ret;
 	}
 
     ENTERING_DR();
@@ -1653,10 +1664,6 @@ void for_each_src_operand(instr_t *in, void *state, opnd_callback_t *callback) {
 
 //*********************************************************************************************
 
-noinline void
-general_fault_on_granary_code(void* addr){
-
-}
 
 noinline void
 general_fault_on_new_pc(unsigned long count, void* addr)
@@ -1716,26 +1723,28 @@ handler_general_protection_fault(dcontext_t* drcontext, interrupt_stack_frame_t*
         general_fault_on_granary_code(frame->xip);
     }
 
+    if((app_pc)frame->xip == (app_pc)(0xffffffff81075376ULL)){
+        break_on_address(frame->xip);
+    }
+
+    if(((app_pc)frame->xip > (app_pc)0xffffffff81075370ULL) && ((app_pc)frame->xip <= (app_pc)0xffffffff8107539cULL))
+    {
+        general_fault_on_granary_code(frame->xip);
+    }
 
     dcontext = get_thread_private_dcontext();
     ENTERING_DR();
     local = local_heap_protected(dcontext);
     if (local)
         SELF_PROTECT_LOCAL(dcontext, WRITABLE);
-
-    if(frame->xip == 0xffffffff8130c0ad){
-        break_on_address(frame->xip);
-    }
+#if 1
 
     instrumented_xip = dr_get_basic_block(dcontext, frame->xip);
 
     if(instrumented_xip)
         frame->xip = instrumented_xip;
-
+#endif
 #if 0
-
-    if(frame->xip != 0xffffffff812e0500 &&
-    		frame->xip != 0xffffffff812e0503) {
     	//mcontext->xip = frame->xip;
     	dcontext->next_tag = frame->xip;
     	dcontext->next_app_tag = frame->xip;
@@ -1745,8 +1754,8 @@ handler_general_protection_fault(dcontext_t* drcontext, interrupt_stack_frame_t*
     	dcontext->is_general_fault = true;
     	transfer_to_dispatch(dcontext, 0, mcontext);
     	ASSERT_NOT_REACHED();
-    }
-
+#endif
+#if 0
 #if 0
 #if 0
     if(dcontext->gp_instr == NULL)
@@ -2043,7 +2052,8 @@ handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
     dcontext = get_thread_private_dcontext();
 
     if(vector == VECTOR_PAGE_FAULT) {
-        handle_pagefault_interrupt(dcontext, frame, mcontext);
+        break_on_address(frame->xip);
+       // handle_pagefault_interrupt(dcontext, frame, mcontext);
      }
 
     ASSERT(dcontext != NULL);

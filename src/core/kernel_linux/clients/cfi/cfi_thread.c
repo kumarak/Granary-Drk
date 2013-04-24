@@ -107,66 +107,9 @@ cfi_item_update_base(void *ptr){
     }
 }
 
-#if 0
-void func_traverse_listitem(void *addr){
-    uint64_t idx = 1;
-    unsigned int flag = 0;
-
-    struct list_item *list;
-    uint64_t *stack_ptr;
-    uint64_t value;
-    struct thread_private_info *thread_private_slot = (struct thread_private_info*)addr;
-    thread_private_slot->stack_start_address = (void*)((uint64_t)thread_private_slot->current_stack & 0xffffffffffffc000);
-    uint64_t *stack_bottom = thread_private_slot->stack_start_address + 4*PAGE_SIZE-1;
-    uint64_t *ptr = thread_private_slot->current_stack;
-
-    list = module_alloc_list[CFI_ALLOC_WHITE_LIST].head;
-
-    //spin_lock(&(module_alloc_list.list_lock));
-    if(thread_private_slot != NULL) {
-        while(list != NULL){
-            flag = 0;
-            while((ptr <= stack_bottom)) {
-                value = (uint64_t)(*ptr);
-                if((((uint64_t)value | KERNEL_ADDRESS_OFFSET) != value) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
-                    if(value == list->node){
-                        flag = 1;
-                        break;
-                    }
-                   // if(is_watchpoint(value)) {
-                     //   look_stack(value);
-                       // dr_printf("watchpoint address  list: stack : %lx  value %lx bottom : %lx\n", ptr, value, stack_bottom);
-                    //}
-                }
-                ptr++;
-            }
-            for(idx = 0; idx < 16; idx++){
-                value = thread_private_slot->regs[idx];
-                if((((uint64_t)value | KERNEL_ADDRESS_OFFSET) != value) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
-                    if(value == list->node){
-                        flag = 1;
-                        break;
-                    }
-                   // if(is_watchpoint(value)) {
-                       // look_stack(value);
-                      //  dr_printf("watchpoint address  list: stack : %lx  value %lx bottom : %lx\n", ptr, value, stack_bottom);
-                    //}
-                }
-            }
-
-            //if(flag == 0){
-
-            //}
-            list = list->next;
-        }
-    }
-    //spin_unlock(&(module_alloc_list.list_lock));
-
-}
-#endif
-void func_module_alloclist(void *addr, void *data){
-    printk(" %s : %lx\n", __FUNCTION__, addr);
-
+bool func_module_alloclist(void *addr, void *data){
+    printk("%lx\t", addr);
+    return 0;
 }
 
 static inline
@@ -179,6 +122,26 @@ bool is_watchpoint(uint64_t value){
         }
     }
     return false;
+}
+
+static inline bool move_object_to_graylist(void *value){
+   /* if(cfi_list_item_exist(&module_alloc_list[CFI_ALLOC_WHITE_LIST], value)){
+        cfi_list_item_delete(&module_alloc_list[CFI_ALLOC_WHITE_LIST], value);
+    }
+*/
+ /*   if(!cfi_list_item_exist(&module_alloc_list[CFI_ALLOC_GRAY_LIST], value)){
+        cfi_list_append(&module_alloc_list[CFI_ALLOC_GRAY_LIST], value);
+    }
+*/
+    return true;
+}
+
+static inline void
+cfi_update_item_list(void){
+    dr_printf("white list : ");
+    cfi_list_item_print(&module_alloc_list[CFI_ALLOC_WHITE_LIST]);
+    dr_printf("gray list : ");
+    cfi_list_item_print(&module_alloc_list[CFI_ALLOC_GREY_LIST]);
 }
 
 void
@@ -198,43 +161,12 @@ cfi_scan_rootsets(void){
     uint64_t *stack_ptr;
     uint64_t value;
 
-    sweep_list = atomic_sweep_list.head;
-    spin_lock(&(atomic_sweep_list.list_lock));
-    while(sweep_list != NULL){
-        struct thread_private_info *thread_private_slot = (struct thread_private_info*)(sweep_list->node);
-        thread_private_slot->stack_start_address = (void*)((uint64_t)thread_private_slot->current_stack & 0xffffffffffffc000);
-        stack_bottom = thread_private_slot->stack_start_address + 4*PAGE_SIZE-1;
-        ptr = thread_private_slot->current_stack;
-
-        if(thread_private_slot != NULL){
-            while((ptr <= stack_bottom)) {
-                value = (uint64_t)(*ptr);
-                if(is_watchpoint(value)){
-                    dr_printf("stack scan found : %lx\n", value);
-                    cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
-                }
-                ptr++;
-            }
-
-            for(idx = 0; idx < 16; idx++){
-                value = thread_private_slot->regs[idx];
-                if(is_watchpoint(value)){
-                    dr_printf("regs scan found : %lx\n", value);
-                    cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
-                }
-            }
-        }
-        sweep_list = sweep_list->next;
-    }
-    spin_unlock(&(atomic_sweep_list.list_lock));
-
     global_list = module_global_list.head;
     spin_lock(&(module_global_list.list_lock));
     while(global_list != NULL){
         value = (uint64_t)(*(uint64_t*)(global_list->node));
         if(is_watchpoint(value)){
-            dr_printf("global list found : %lx\n", value);
-            cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
+            cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], (void*)cfi_item_update_base(value));
         }
         global_list = global_list->next;
     }
@@ -246,45 +178,60 @@ cfi_scan_rootsets(void){
     while(return_list != NULL){
         value = (uint64_t)((uint64_t*)(return_list->node));
         if(is_watchpoint(value)){
-            dr_printf("return collected found : %lx\n", value);
-            cfi_list_append(&list_collected_watchpoint, (void*)value);
+            cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], (void*)cfi_item_update_base(value));
         }
-
         return_list = return_list->next;
     }
     spin_unlock(&(return_collected_watchpoint.list_lock));
+
+    sweep_list = atomic_sweep_list.head;
+    spin_lock(&(atomic_sweep_list.list_lock));
+    while(sweep_list != NULL){
+        struct thread_private_info *thread_private_slot = (struct thread_private_info*)(sweep_list->node);
+        thread_private_slot->stack_start_address = (void*)((uint64_t)thread_private_slot->current_stack & 0xffffffffffffc000);
+        stack_bottom = thread_private_slot->stack_start_address + 4*PAGE_SIZE-1;
+        ptr = thread_private_slot->current_stack;
+
+        if(thread_private_slot != NULL){
+
+            while((ptr <= stack_bottom)) {
+                value = (uint64_t)(*ptr);
+                if(is_watchpoint(value)){
+                    cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], (void*)cfi_item_update_base(value));
+                }
+                ptr++;
+            }
+
+            for(idx = 0; idx < 16; idx++){
+                value = thread_private_slot->regs[idx];
+                if(is_watchpoint(value)){
+                    cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], (void*)cfi_item_update_base(value));
+                }
+            }
+        }
+        sweep_list = sweep_list->next;
+    }
+    spin_unlock(&(atomic_sweep_list.list_lock));
+
 
 
     alloc_scan_list = module_alloc_list[CFI_ALLOC_WHITE_LIST].head;
     spin_lock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
     while(alloc_scan_list != NULL){
-    	struct alias_meta *temp_meta;
-    	meta_info = (struct alias_meta *)get_watchpoint_meta((void*)alloc_scan_list->node);
-    	if(meta_info != NULL){
-    		ptr = (uint64_t*)meta_info->base_address;
-    		while(ptr <= meta_info->limit ){
-    		    value = (uint64_t)(*(ptr));
-    		    if(is_watchpoint(value)){
-    		        dr_printf("module alloc list found : %lx\n", value);
-    		        cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
-    		    }
-    		    ptr++;
-    		}
+        struct alias_meta *temp_meta;
+        meta_info = (struct alias_meta *)get_watchpoint_meta((void*)alloc_scan_list->node);
+        if(meta_info != NULL){
+            ptr = (uint64_t*)meta_info->base_address;
+            while(ptr <= meta_info->limit ){
+                value = (uint64_t)(*(ptr));
+                if(is_watchpoint(value)){
+                    cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], (void*)cfi_item_update_base(value));
+                }
+                ptr++;
+            }
         }
         alloc_scan_list = alloc_scan_list->next;
     }
-    spin_unlock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
-
-    spin_lock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
-    alloc_list = module_alloc_list[CFI_ALLOC_WHITE_LIST].head;
-    while(alloc_list != NULL)
-    {
-        if(!cfi_list_item_exist(&list_collected_watchpoint, alloc_list->node)){
-            dr_printf("lost watchpoint addr : %lx, ", alloc_list->node);
-        }
-        alloc_list = alloc_list->next;
-    }
-
     spin_unlock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
 }
 
@@ -310,13 +257,17 @@ sweep_thread_init(void *arg)
             local_flag = flag_memory_snapshot;
         }while(!__sync_bool_compare_and_swap(&flag_memory_snapshot, local_flag, 0x0));
 
+        printk("white list count : %lx\n", cfi_get_list_count(&module_alloc_list[CFI_ALLOC_WHITE_LIST]));
         cfi_for_each_item(&module_alloc_list[CFI_ALLOC_WHITE_LIST], &func_module_alloclist, NULL);
-        cfi_scan_rootsets();
-       // cfi_for_each_item(&atomic_sweep_list, &func_traverse_listitem);
-        //cfi_for_each_item(&module_alloc_list, &func_module_alloclist);
-        //printk("---------\n");
-        //hashmap_iter(kernel_variable_hash, htable_callback, NULL);
+        printk("\n");
 
+        cfi_scan_rootsets();
+
+        printk("grey list count : %lx\n", cfi_get_list_count(&module_alloc_list[CFI_ALLOC_GREY_LIST]));
+        cfi_for_each_item(&module_alloc_list[CFI_ALLOC_GREY_LIST], &func_module_alloclist, NULL);
+        printk("\n");
+        cfi_list_delete_all(&module_alloc_list[CFI_ALLOC_GREY_LIST]);
+        printk("\nkernel objects hashtable count : %lx\n", hashmap_get_item_count(kernel_pointer_hash));
         do {
             local_flag = flag_memory_snapshot;
         }while(!__sync_bool_compare_and_swap(&flag_memory_snapshot, local_flag, 0x1));
@@ -335,20 +286,11 @@ sweep_thread_init(void *arg)
 void cfi_return_to_kernel(void *ptr){
     uint64_t value = (uint64_t)(ptr);
     struct alias_meta *meta_info;
-#ifdef CFI_NO_WATCHPOINT
-    if(hashmap_get(module_watchpoint_map, (void*)value, (void**)&meta_info)){
-    	cfi_list_append(&return_collected_watchpoint, (void*)cfi_item_update_base(value));
-    }
-#else
     if((!((uint64_t)value & ALIAS_ADDRESS_NOT_ENABLED)) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
         uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
         if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
             cfi_list_append(&return_collected_watchpoint, (void*)cfi_item_update_base(value));
-           // ptr = (void*)((uint64_t)ptr | ALIAS_ADDRESS_INDEX_MASK);
-          //  REMOVE_WATCHPOINT(ptr);
-            //printk("return watchpoint : %lx\n", value);
         }
     }
-#endif
 }
 

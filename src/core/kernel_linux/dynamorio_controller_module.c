@@ -45,8 +45,39 @@ smp_hotpatch_callback(void *addr){
     return 0;
 }
 
-void set_kernel_text_rw(void)
+static void set_page_attributes(
+    int (*set_memory_)(unsigned long, int),
+    void *begin,
+    void *end
+) {
+    const uint64_t begin_pfn = PFN_DOWN(((uint64_t) begin));
+    const uint64_t end_pfn = PFN_DOWN(((uint64_t) end));
+
+    if(begin == end) {
+        return;
+    }
+
+    if(end_pfn > begin_pfn) {
+        set_memory_(begin_pfn << PAGE_SHIFT, end_pfn - begin_pfn);
+
+    } else if(end_pfn == begin_pfn) {
+        set_memory_(begin_pfn << PAGE_SHIFT, 1);
+    }
+}
+
+void set_kernel_rw(void)
 {
+    set_page_attributes(
+             set_memory_rw,
+             (void*)kfree,
+             (void*)kfree + PAGE_SIZE);
+/*
+     set_page_attributes(
+             set_memory_rw,
+             vmod->module_init + vmod->init_text_size,
+             vmod->module_init + vmod->init_text_size + (vmod->init_ro_size - vmod->init_text_size));
+*/
+    /*
     void *addr = (void*)kfree;
     unsigned long begin_pfn = PFN_DOWN((unsigned long)addr);
     set_memory_rw(begin_pfn << PAGE_SHIFT, 1);
@@ -55,11 +86,11 @@ void set_kernel_text_rw(void)
     set_memory_rw(begin_pfn << PAGE_SHIFT, 1);
     addr = (void*)kmem_cache_free;
     begin_pfn = PFN_DOWN((unsigned long)addr);
-    set_memory_rw(begin_pfn << PAGE_SHIFT, 1);
+    set_memory_rw(begin_pfn << PAGE_SHIFT, 1);*/
 }
 
 
-void set_kernel_text_ro(void)
+void set_kernel_ro(void)
 {
     void *addr = (void*)kfree;
     unsigned long begin_pfn = PFN_DOWN((unsigned long)addr);
@@ -101,9 +132,9 @@ init_ioctl(struct inode* inode, struct file* file,
     initialized = true;
     dr_pre_smp_init(&dr_exports, cmd.options);
     on_each_cpu(smp_init_and_takeover, NULL, false /* wait */);
-//    set_kernel_text_rw();
-//    stop_machine(smp_hotpatch_callback, 0, 0);
-//    set_kernel_text_ro();
+    set_kernel_rw();
+    stop_machine(smp_hotpatch_callback, 0, 0);
+    //set_kernel_text_ro();
     /* We will return here on the calling CPU, but it will be under DR's
      * control. */
     return 0;
@@ -137,7 +168,7 @@ copy_export_to_user(void *data, unsigned long size, unsigned long max_size,
                     stats_buffer_t *buffer)
 {
     if (size > max_size) {
-        printk("User buffer is too small (%luB) to hold kstats (%luB).\n", 
+        printk("User buffer is too small (%luB) to hold kstats (%luB).\n",
                max_size, size);
         return -EINVAL;
     }

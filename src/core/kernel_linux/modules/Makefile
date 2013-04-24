@@ -80,7 +80,8 @@ EXTRA_AFLAGS=$(DR_INCLUDE_FLAGS)\
 ../../kernel_linux/page_table.o\
 ../../kernel_linux/kernel_interface.o\
 ../../kernel_linux/dynamorio_module_interface.o\
-../../kernel_linux/dynamorio_module.o
+../../kernel_linux/dynamorio_module.o \
+../../kernel_linux/code_cache_kernel.o
 
 obj-m += dr_kernel_utils.o
 	dr_kernel_utils-objs :=\
@@ -144,6 +145,8 @@ obj-m += cfi.o
 ../../kernel_linux/clients/cfi/cfi_memleak_instr.o \
 ../../kernel_linux/clients/cfi/cfi_hotpatch.o	\
 ../../kernel_linux/clients/cfi/cfi_buffer_overflow.o
+#\
+../../kernel_linux/clients/cfi/linux_wrapper/linux_wrapper.o
 
 # make the kernel wrappers; this is such an ugly hack
 SYS_MAP := $(DR_CORE_DIR)/../debugging/linux-3.8.2/System.map

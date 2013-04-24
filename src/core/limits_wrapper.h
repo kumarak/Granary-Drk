@@ -27,12 +27,12 @@
 #   define CHAR_MIN	SCHAR_MIN
 #   define CHAR_MAX	SCHAR_MAX
 #  endif
-
+#if 0
 /* Minimum and maximum values a `signed short int' can hold.  */
 #  define SHRT_MIN	(-32768)
 #  define SHRT_MAX	32767
 
 /* Maximum value an `unsigned short int' can hold.  (Minimum is 0.)  */
 #  define USHRT_MAX	65535
-
+#endif
 #endif

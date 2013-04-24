@@ -7141,6 +7141,8 @@ emulate(dcontext_t *dcontext, app_pc pc, dr_mcontext_t *mc)
     return next_pc;
 }
 
+
+
 fragment_t *
 build_basic_block(dcontext_t *dcontext, app_pc start, uint initial_flags,
                         bool link, bool visible _IF_CLIENT(bool for_trace)
@@ -7148,6 +7150,7 @@ build_basic_block(dcontext_t *dcontext, app_pc start, uint initial_flags,
 {
     fragment_t *f;
     build_bb_t bb;
+   // app_pc lookup_tag = (app_pc)((uint64_t)start & KERNEL_POLICY_MASK);
 
     init_interp_build_bb(dcontext, &bb, start, initial_flags
                          _IF_CLIENT(for_trace) _IF_CLIENT(unmangled_ilist));
@@ -7163,11 +7166,12 @@ app_pc
 dr_get_basic_block(dcontext_t *dcontext, app_pc start_pc){
 
     fragment_t *f;
+  //  app_pc lookup_tag = (app_pc)((uint64_t)start_pc & KERNEL_POLICY_MASK);
 
     f = fragment_lookup(dcontext, start_pc);
 
     if(f == NULL) {
-        f = build_basic_block(dcontext, start_pc, 0, true, true, 0, 0);
+        f = build_basic_block(dcontext, start_pc, 0, false, true, 0, 0);
     }
     return f->start_pc;
 }

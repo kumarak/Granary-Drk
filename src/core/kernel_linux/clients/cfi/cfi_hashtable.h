@@ -23,6 +23,9 @@ typedef struct hashtable_t hashtable_t;
 
 typedef int(*hashtable_callback)(void *data, const char *key, void *value);
 
+int
+hashmap_get_item_count(struct hashtable_t *htable);
+
 /**
  * Creates a new hashtable and allocates space for it.
  * @return 0 on success.

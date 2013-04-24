@@ -28,9 +28,9 @@ noinline void break_kernel_object(void *addr){
 
 void cfi_kfree(void *addr){
     void *value;
-    if(hashmap_get(kernel_pointer_hash, (void*)addr, &value)){
-        break_kernel_object(addr);
-    }
+    //if(hashmap_get(kernel_pointer_hash, (void*)addr, &value)){
+      //  break_kernel_object(addr);
+    //}
 }
 
 void cfi_vfree(void *addr){
@@ -72,7 +72,7 @@ emit_hotpatch_code(void *drcontext, client_cache_info_t *client, byte *pc, app_p
     unsigned long long hotpatch_instr = 0ULL;
     unsigned long long temp = 0ULL;
 
-    unsigned char hotpatch_instruction[] = {
+    unsigned long hotpatch_instruction[] = {
         0xe9, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00
     };
@@ -118,19 +118,62 @@ emit_hotpatch_code(void *drcontext, client_cache_info_t *client, byte *pc, app_p
     hotpatch_instruction[3] = ((offset_val >> 16)    & 0xff);
     hotpatch_instruction[4] = ((offset_val >> 24)    & 0xff);
 
+    hotpatch_instr = (uint64_t){(hotpatch_instruction[0])
+                                + (hotpatch_instruction[1] << 8)
+                                + (hotpatch_instruction[2] << 16)
+                                + (hotpatch_instruction[3] << 24)
+                                + (hotpatch_instruction[4] << 32)};
+
+    newval = hotpatch_instr;
+
   /*  while(i < len){
         temp = (uint64_t)(hotpatch_instruction[i]);
         hotpatch_instr = (hotpatch_instr|(temp << 8*i));
         i++;
     }
 */
-    uint64_t pc_start_i = (uint64_t)pc_start_t;
+  //  uint64_t pc_start_i = (uint64_t)pc_start_t;
+  //  memset(addr, newval, 0x8);
 
     do {
         oldval = *(addr);
-        newval = hotpatch_instr;
     }while(!__sync_bool_compare_and_swap(addr, oldval, newval));
 
     /*make a call to instrumentation function*/
     return pc_end;
+}
+
+byte*
+hijack_kernel_function(void *drcontext, client_cache_info_t *client,
+                          byte *pc, app_pc src_addr, app_pc target_addr){
+
+    unsigned long long hotpatch_instr = 0ULL;
+    uint64_t newval, oldval;
+
+    unsigned long hotpatch_instruction[] = {
+        0xe9, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00
+    };
+
+    uint64_t offset_val = ((uint64_t)(target_addr - src_addr));
+
+    hotpatch_instruction[1] = ((offset_val >> 0)     & 0xff);
+    hotpatch_instruction[2] = ((offset_val >> 8)     & 0xff);
+    hotpatch_instruction[3] = ((offset_val >> 16)    & 0xff);
+    hotpatch_instruction[4] = ((offset_val >> 24)    & 0xff);
+
+    hotpatch_instr = (uint64_t){(hotpatch_instruction[0])
+                                + (hotpatch_instruction[1] << 8)
+                                + (hotpatch_instruction[2] << 16)
+                                + (hotpatch_instruction[3] << 24)
+                                + (hotpatch_instruction[4] << 32)};
+
+    newval = hotpatch_instr;
+
+    do {
+        oldval = *((uint64_t*)src_addr);
+    }while(!__sync_bool_compare_and_swap(src_addr, oldval, newval));
+
+    /*make a call to instrumentation function*/
+    return pc;
 }

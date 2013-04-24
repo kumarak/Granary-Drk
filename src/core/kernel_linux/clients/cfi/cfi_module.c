@@ -25,7 +25,9 @@
 
 /*Memleak declaration*/
 
-struct cfi_list_head module_alloc_list[2] = {{ .head = NULL, .count = 0 }, {.head = NULL, .count = 0 }};
+struct cfi_list_head module_alloc_list[3] =     {{.head = NULL, .count = 0 },
+                                                 {.head = NULL, .count = 0 },
+                                                 {.head = NULL, .count = 0}};
 
 
 DEFINE_HASHTABLE(*alloc_pointer_hash);
@@ -143,7 +145,8 @@ cfi_module_init(void) {
 
    	/* list of allocated pointers by the module*/
    	cfi_list_init(&module_alloc_list[CFI_ALLOC_WHITE_LIST]);
-   	cfi_list_init(&module_alloc_list[CFI_ALLOC_GRAY_LIST]);
+   	cfi_list_init(&module_alloc_list[CFI_ALLOC_GREY_LIST]);
+   	cfi_list_init(&module_alloc_list[CFI_LOST_REFERENCE]);
 
     cfi_list_init(&module_global_list);
    	cfi_list_init(&atomic_sweep_list);
@@ -161,8 +164,8 @@ cfi_module_init(void) {
 
    	//*flag_memory_snapshot = 0x1;
 
-   	/* sweep thread : it scans the rootset and finds the leaked memory*/
-    sweep_task = kthread_create(sweep_thread_init, NULL, "sweep-thread");
+   	/*sweep thread : it scans the rootset and finds the leaked memory*/
+   	sweep_task = kthread_create(sweep_thread_init, NULL, "sweep-thread");
     if (!IS_ERR(sweep_task))
         wake_up_process(sweep_task);
     else

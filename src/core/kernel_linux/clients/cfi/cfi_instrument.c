@@ -2759,6 +2759,8 @@ at_return(app_pc instr_addr, app_pc target_addr)
    // granary_print_ld_stat(target_module);
 }
 
+//#include "linux_wrapper/linux_wrapper.h"
+
 extern client_cache_info_t *cpu_client_cache;
 
 uint64_t flag = 0x0;
@@ -2769,7 +2771,8 @@ void cfi_hotpatch_kernel(void *drcontext){
     cpu_client_cache = client;
     printk("%s\n", __FUNCTION__);
     client->cache_start = dr_thread_alloc(drcontext, CLIENT_CACHE_SIZE);
-   // client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_start, (void*)kfree);
+    client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_start, (void*)(kfree));
+    //client->cache_ptr = hijack_kernel_function(drcontext, client, client->cache_start, (void*)__ticket_spin_is_locked, (void*)cfi__ticket_spin_is_locked);
    // client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)vfree);
    // client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)kmem_cache_free);
 

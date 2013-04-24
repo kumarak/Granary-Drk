@@ -268,31 +268,33 @@ TYPE_WRAPPER(struct aio_ring_info, {
 #endif
 
 
-#define WRAPPER_FOR_struct_work_struct
+//#define WRAPPER_FOR_struct_work_struct
 #ifndef WRAPPER_FOR_struct_work_struct
 #define WRAPPER_FOR_struct_work_struct
 TYPE_WRAPPER(struct work_struct, {
     PRE_WRAP {
         WRAP_FUNCTION(arg.func);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
 
 
-#define WRAPPER_FOR_struct_timer_list
+//#define WRAPPER_FOR_struct_timer_list
 #ifndef WRAPPER_FOR_struct_timer_list
 #define WRAPPER_FOR_struct_timer_list
 TYPE_WRAPPER(struct timer_list, {
     PRE_WRAP {
         WRAP_FUNCTION(arg.function);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
 
 
-#define WRAPPER_FOR_struct_delayed_work
+//#define WRAPPER_FOR_struct_delayed_work
 #ifndef WRAPPER_FOR_struct_delayed_work
 #define WRAPPER_FOR_struct_delayed_work
 TYPE_WRAPPER(struct delayed_work, {
@@ -300,6 +302,7 @@ TYPE_WRAPPER(struct delayed_work, {
         WRAP_RECURSIVE(arg.work);
         WRAP_RECURSIVE(arg.timer);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
@@ -375,7 +378,7 @@ TYPE_WRAPPER(struct fasync_struct, {
 #endif
 
 
-#define WRAPPER_FOR_struct_file_lock_operations
+//#define WRAPPER_FOR_struct_file_lock_operations
 #ifndef WRAPPER_FOR_struct_file_lock_operations
 #define WRAPPER_FOR_struct_file_lock_operations
 TYPE_WRAPPER(struct file_lock_operations, {
@@ -384,6 +387,7 @@ TYPE_WRAPPER(struct file_lock_operations, {
         WRAP_FUNCTION(arg.fl_copy_lock);
         WRAP_FUNCTION(arg.fl_release_private);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
@@ -4319,7 +4323,7 @@ TYPE_WRAPPER(struct nf_hook_ops, {
 #endif
 
 
-#define WRAPPER_FOR_struct_buffer_head
+//#define WRAPPER_FOR_struct_buffer_head
 #ifndef WRAPPER_FOR_struct_buffer_head
 #define WRAPPER_FOR_struct_buffer_head
 TYPE_WRAPPER(struct buffer_head, {
@@ -4331,6 +4335,7 @@ TYPE_WRAPPER(struct buffer_head, {
         WRAP_FUNCTION(arg.b_end_io);
         WRAP_RECURSIVE(arg.b_assoc_map);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
@@ -4350,7 +4355,7 @@ TYPE_WRAPPER(struct jbd2_buffer_trigger_type, {
 #endif
 
 
-#define WRAPPER_FOR_struct_journal_head
+//#define WRAPPER_FOR_struct_journal_head
 #ifndef WRAPPER_FOR_struct_journal_head
 #define WRAPPER_FOR_struct_journal_head
 TYPE_WRAPPER(struct journal_head, {
@@ -4366,12 +4371,13 @@ TYPE_WRAPPER(struct journal_head, {
         WRAP_RECURSIVE(arg.b_triggers);
         WRAP_RECURSIVE(arg.b_frozen_triggers);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
 
 
-#define WRAPPER_FOR_struct_transaction_s
+//#define WRAPPER_FOR_struct_transaction_s
 #ifndef WRAPPER_FOR_struct_transaction_s
 #define WRAPPER_FOR_struct_transaction_s
 TYPE_WRAPPER(struct transaction_s, {
@@ -4388,6 +4394,7 @@ TYPE_WRAPPER(struct transaction_s, {
         WRAP_RECURSIVE(arg.t_cpnext);
         WRAP_RECURSIVE(arg.t_cpprev);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
@@ -4405,7 +4412,7 @@ TYPE_WRAPPER(struct crypto_shash, {
 #endif
 
 
-#define WRAPPER_FOR_struct_journal_s
+//#define WRAPPER_FOR_struct_journal_s
 #ifndef WRAPPER_FOR_struct_journal_s
 #define WRAPPER_FOR_struct_journal_s
 TYPE_WRAPPER(struct journal_s, {
@@ -4427,6 +4434,7 @@ TYPE_WRAPPER(struct journal_s, {
         WRAP_RECURSIVE(arg.j_proc_entry);
         WRAP_RECURSIVE(arg.j_chksum_driver);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
@@ -5601,13 +5609,14 @@ TYPE_WRAPPER(struct bio_pair, {
 #endif
 
 
-#define WRAPPER_FOR_struct_dm_dev
+//#define WRAPPER_FOR_struct_dm_dev
 #ifndef WRAPPER_FOR_struct_dm_dev
 #define WRAPPER_FOR_struct_dm_dev
 TYPE_WRAPPER(struct dm_dev, {
     PRE_WRAP {
         WRAP_RECURSIVE(arg.bdev);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
@@ -5642,13 +5651,14 @@ TYPE_WRAPPER(struct target_type, {
 #endif
 
 
-#define WRAPPER_FOR_struct_dm_target
+//#define WRAPPER_FOR_struct_dm_target
 #ifndef WRAPPER_FOR_struct_dm_target
 #define WRAPPER_FOR_struct_dm_target
 TYPE_WRAPPER(struct dm_target, {
     PRE_WRAP {
         WRAP_RECURSIVE(arg.type);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
@@ -5708,13 +5718,14 @@ TYPE_WRAPPER(struct shash_desc, {
 #endif
 
 
-#define WRAPPER_FOR_struct_dm_target_callbacks
+//#define WRAPPER_FOR_struct_dm_target_callbacks
 #ifndef WRAPPER_FOR_struct_dm_target_callbacks
 #define WRAPPER_FOR_struct_dm_target_callbacks
 TYPE_WRAPPER(struct dm_target_callbacks, {
     PRE_WRAP {
         WRAP_FUNCTION(arg.congested_fn);
     }
+    NO_POST
     NO_RETURN
 })
 #endif

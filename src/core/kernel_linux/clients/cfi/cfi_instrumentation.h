@@ -41,6 +41,7 @@
 
 enum {
     WATCHPOINT_INDEX_MASK   = 0xffff800000000000ULL,
+    WATCHPOINT_BASE         = 0x0000880000000000ULL,
     SHADOW_START_ADDR       = 0xffffffffe0000000ULL,
     SHADOW_END_ADDR         = 0xffffffffff000000ULL,
     SHIFT_BIT_COUNT         = 0x30
@@ -578,6 +579,6 @@ dr_emit_flags_t
 memleak_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bool translating);
 
 dr_emit_flags_t
-buffer_overflow_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bool translating);
+buffer_overflow_policy(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bool translating);
 
 #endif /* CFI_INSTRUMENTATION_H_ */

@@ -10,8 +10,8 @@
 
 //#define CFI_NO_WATCHPOINT
 
-#define CLIENT_BUFFER_OVERFLOW
-//#define CLIENT_MEMORY_LEAK
+//#define CLIENT_BUFFER_OVERFLOW
+#define CLIENT_MEMORY_LEAK
 
 enum {
 	CFI_ALIAS_ADDRESS_NOT_ENABLED               = 0x8000000000000000ULL,
@@ -24,7 +24,8 @@ enum {
 
 enum {
     CFI_ALLOC_WHITE_LIST,
-    CFI_ALLOC_GRAY_LIST
+    CFI_ALLOC_GREY_LIST,
+    CFI_LOST_REFERENCE
 };
 
 #define DISPLAY_STRING(msg) dr_printf("%s\n", msg);

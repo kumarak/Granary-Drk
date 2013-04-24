@@ -11,3 +11,6 @@ b do_spurious_interrupt_bug
 b report_bug
 b bad_area_nosemaphore
 b general_fault_on_granary_code
+b break_on_pagefault
+b watch_buffer_overflow
+b break_on_address

@@ -93,7 +93,7 @@ MODULE_TYPE_WRAPPER(struct inode *, {
     pre {
 #ifndef CFI_NO_WATCHPOINT
     	if(!is_watchpoint_address(arg)){
-            kern_printk("struct inode is getting wrapped %lx\n", arg);
+            P(kern_printk("struct inode is getting wrapped %lx\n", arg);)
             ADD_TO_HASH(arg, SCAN_HEAD_FUNC(struct inode*))
     	}
 #else
@@ -105,6 +105,8 @@ MODULE_TYPE_WRAPPER(struct inode *, {
         }
 #endif
     }
+    no_post
+#if 0
     post {
 #ifndef CFI_NO_WATCHPOINT
     	if(!is_watchpoint_address(arg)){
@@ -119,9 +121,9 @@ MODULE_TYPE_WRAPPER(struct inode *, {
         }
 #endif
     }
+#endif
 })
 
-#if 0
 
 TYPE_SCAN_WRAPPER(struct block_device*, {
     SCAN_HEAD{
@@ -137,7 +139,7 @@ TYPE_SCAN_WRAPPER(struct block_device*, {
         SCAN_RECURSIVE(arg->bd_super);
         SCAN_RECURSIVE(arg->bd_mutex);
         SCAN_RECURSIVE(arg->bd_inodes);
-        SCAN_RECURSIVE(arg->bd_holder_list);
+     //   SCAN_RECURSIVE(arg->bd_holder_list);
         SCAN_RECURSIVE(arg->bd_contains);
         SCAN_RECURSIVE(arg->bd_part);
         SCAN_RECURSIVE(arg->bd_disk);
@@ -160,7 +162,7 @@ TYPE_SCAN_WRAPPER(struct block_device, {
         SCAN_RECURSIVE(arg.bd_super);
         SCAN_RECURSIVE(arg.bd_mutex);
         SCAN_RECURSIVE(arg.bd_inodes);
-        SCAN_RECURSIVE(arg.bd_holder_list);
+       // SCAN_RECURSIVE(arg.bd_holder_list);
         SCAN_RECURSIVE(arg.bd_contains);
         SCAN_RECURSIVE(arg.bd_part);
         SCAN_RECURSIVE(arg.bd_disk);
@@ -184,6 +186,8 @@ MODULE_TYPE_WRAPPER(struct block_device* , {
         }
 #endif
     }
+    no_post
+#if 0
     post {
 #ifndef CFI_NO_WATCHPOINT
         if(!is_watchpoint_address(arg)){
@@ -198,6 +202,7 @@ MODULE_TYPE_WRAPPER(struct block_device* , {
         }
 #endif
     }
+#endif
 })
 
 
@@ -211,7 +216,7 @@ TYPE_SCAN_WRAPPER(struct file_system_type, {
     }
     SCAN {
         HASHMAP_PUT(htable, (void*)&arg, (void*)type_class<ArgT__>::get_size());
-        SCAN_FUNC(arg.get_sb);
+        //SCAN_FUNC(arg.get_sb);
         SCAN_FUNC(arg.kill_sb);
         SCAN_RECURSIVE(arg.owner);
         SCAN_RECURSIVE(arg.next);
@@ -221,7 +226,7 @@ TYPE_SCAN_WRAPPER(struct file_system_type, {
         SCAN_RECURSIVE(arg.i_lock_key);
         SCAN_RECURSIVE(arg.i_mutex_key);
         SCAN_RECURSIVE(arg.i_mutex_dir_key);
-        SCAN_RECURSIVE(arg.i_alloc_sem_key);
+       // SCAN_RECURSIVE(arg.i_alloc_sem_key);
     }
 })
 
@@ -235,7 +240,7 @@ TYPE_SCAN_WRAPPER(struct file_system_type*, {
     }
     SCAN {
         HASHMAP_PUT(htable, (void*)arg, (void*)type_class<ArgT__>::get_size());
-        SCAN_FUNC(arg->get_sb);
+        //SCAN_FUNC(arg->get_sb);
         SCAN_FUNC(arg->kill_sb);
         SCAN_RECURSIVE(arg->owner);
         SCAN_RECURSIVE(arg->next);
@@ -245,24 +250,27 @@ TYPE_SCAN_WRAPPER(struct file_system_type*, {
         SCAN_RECURSIVE(arg->i_lock_key);
         SCAN_RECURSIVE(arg->i_mutex_key);
         SCAN_RECURSIVE(arg->i_mutex_dir_key);
-        SCAN_RECURSIVE(arg->i_alloc_sem_key);
+       // SCAN_RECURSIVE(arg->i_alloc_sem_key);
     }
 })
 
 MODULE_TYPE_WRAPPER(struct file_system_type* , {
     pre {
         if(!is_watchpoint_address(arg)){
-                kern_printk("struct file_system_type");
+                P(kern_printk("struct file_system_type");)
                 ADD_TO_HASH(arg, SCAN_HEAD_FUNC(struct file_system_type*))
         }
 
     }
+    no_post
+#if 0
     post {
         if(!is_watchpoint_address(arg)){
             kern_printk("post scan struct file_system_type\n");
             SCAN_HEAD_FUNC(struct file_system_type*)(arg);
         }
     }
+#endif
 })
 
 
@@ -281,15 +289,15 @@ TYPE_SCAN_WRAPPER(struct super_operations, {
         SCAN_FUNC(arg.dirty_inode);
         SCAN_FUNC(arg.write_inode);
         SCAN_FUNC(arg.drop_inode);
-        SCAN_FUNC(arg.delete_inode);
+   //     SCAN_FUNC(arg.delete_inode);
         SCAN_FUNC(arg.put_super);
-        SCAN_FUNC(arg.write_super);
+   //     SCAN_FUNC(arg.write_super);
         SCAN_FUNC(arg.sync_fs);
         SCAN_FUNC(arg.freeze_fs);
         SCAN_FUNC(arg.unfreeze_fs);
         SCAN_FUNC(arg.statfs);
         SCAN_FUNC(arg.remount_fs);
-        SCAN_FUNC(arg.clear_inode);
+       // SCAN_FUNC(arg.clear_inode);
         SCAN_FUNC(arg.umount_begin);
         SCAN_FUNC(arg.show_options);
         SCAN_FUNC(arg.show_stats);
@@ -307,13 +315,15 @@ MODULE_TYPE_WRAPPER(struct super_operations* , {
         }
 
     }
+    no_post
+#if 0
     post {
     	if(!is_watchpoint_address(arg)){
             kern_printk("post scan struct super_operation\n");
             SCAN_HEAD_FUNC(struct super_operations)(*arg);
         }
     }
-
+#endif
 })
 
 
@@ -369,10 +379,12 @@ MODULE_TYPE_WRAPPER(struct dentry* , {
     pre {
         void *value;
         if(!is_watchpoint_address(arg)){
-                kern_printk("struct dentry");
+                P(kern_printk("struct dentry");)
                 ADD_TO_HASH(arg, SCAN_HEAD_FUNC(struct dentry*))
         }
     }
+    no_post
+#if 0
     post {
         void *value;
         if(!is_watchpoint_address(arg)){
@@ -380,6 +392,7 @@ MODULE_TYPE_WRAPPER(struct dentry* , {
             SCAN_HEAD_FUNC(struct dentry*)(arg);
         }
     }
+#endif
 })
 
 
@@ -400,16 +413,19 @@ TYPE_SCAN_WRAPPER(struct posix_acl, {
 MODULE_TYPE_WRAPPER(struct posix_acl* , {
     pre {
         if(!is_watchpoint_address(arg)){
-            kern_printk("struct posix_acl");
+            P(kern_printk("struct posix_acl");)
             ADD_TO_HASH(arg, SCAN_HEAD_FUNC(struct posix_acl))
         }
     }
+    no_post
+#if 0
     post {
         if(!is_watchpoint_address(arg)){
             kern_printk("post scan struct posix_acl\n");
             SCAN_HEAD_FUNC(struct posix_acl)(*arg);
         }
     }
+#endif
 })
 
 
@@ -431,7 +447,7 @@ TYPE_SCAN_WRAPPER(struct super_block, {
         SCAN_RECURSIVE(arg.s_export_op);
         SCAN_RECURSIVE(arg.s_root);
         SCAN_RECURSIVE(arg.s_umount);
-        SCAN_RECURSIVE(arg.s_lock);
+       // SCAN_RECURSIVE(arg.s_lock);
         SCAN_RECURSIVE(arg.s_active);
         SCAN_RECURSIVE(arg.s_inodes);
         SCAN_RECURSIVE(arg.s_anon);
@@ -442,7 +458,7 @@ TYPE_SCAN_WRAPPER(struct super_block, {
         SCAN_RECURSIVE(arg.s_mtd);
         SCAN_RECURSIVE(arg.s_instances);
         SCAN_RECURSIVE(arg.s_dquot);
-        SCAN_RECURSIVE(arg.s_wait_unfrozen);
+       // SCAN_RECURSIVE(arg.s_wait_unfrozen);
         SCAN_RECURSIVE(arg.s_vfs_rename_mutex);
     }
 })
@@ -451,10 +467,12 @@ MODULE_TYPE_WRAPPER(struct super_block* , {
     pre {
         void *value;
         if(!is_watchpoint_address(arg)){
-            kern_printk("struct super_block\n");
+            P(kern_printk("struct super_block\n");)
             ADD_TO_HASH(arg, SCAN_HEAD_FUNC(struct super_block))
         }
     }
+    no_post
+#if 0
     post {
         void *value;
         if(!is_watchpoint_address(arg)){
@@ -462,6 +480,7 @@ MODULE_TYPE_WRAPPER(struct super_block* , {
             SCAN_HEAD_FUNC(struct super_block)(*arg);
         }
     }
+#endif
 })
 
 //struct rb_root { struct rb_node * rb_node ; } ;
@@ -501,12 +520,15 @@ MODULE_TYPE_WRAPPER(struct rb_root* , {
             ADD_TO_HASH(arg, SCAN_HEAD_FUNC(struct rb_root))
         }
     }
+    no_post
+#if 0
     post {
         if(!is_watchpoint_address(arg)){
             kern_printk("post scan struct rb_root\n");
             SCAN_HEAD_FUNC(struct rb_root*)(arg);
         }
     }
+#endif
 })
 
 #if 0
@@ -591,7 +613,7 @@ TYPE_SCAN_WRAPPER( struct address_space, {
             SCAN_FUNC(arg.i_mmap_writable);
             SCAN_RECURSIVE(arg.i_mmap);
             SCAN_RECURSIVE(arg.i_mmap_nonlinear);
-            SCAN_FUNC(arg.truncate_count);
+            //SCAN_FUNC(arg.truncate_count);
             SCAN_FUNC(arg.nrpages);
             SCAN_FUNC(arg.writeback_index);
             SCAN_RECURSIVE(arg.a_ops);
@@ -617,7 +639,7 @@ TYPE_SCAN_WRAPPER( struct address_space*, {
             SCAN_FUNC(arg->i_mmap_writable);
             SCAN_RECURSIVE(arg->i_mmap);
             SCAN_RECURSIVE(arg->i_mmap_nonlinear);
-            SCAN_FUNC(arg->truncate_count);
+            //SCAN_FUNC(arg->truncate_count);
             SCAN_FUNC(arg->nrpages);
             SCAN_FUNC(arg->writeback_index);
             SCAN_RECURSIVE(arg->a_ops);
@@ -637,6 +659,8 @@ MODULE_TYPE_WRAPPER(struct address_space* , {
         }
 
     }
+    no_post
+#if 0
     post {
         if(!is_watchpoint_address(arg)){
             kern_printk("post scan struct address_space\n");
@@ -644,6 +668,7 @@ MODULE_TYPE_WRAPPER(struct address_space* , {
         }
 
     }
+#endif
 })
 #if 0
 #endif
@@ -724,7 +749,7 @@ TYPE_SCAN_WRAPPER( struct seq_file, {
             SCAN_FUNC(arg.version);
             SCAN_RECURSIVE(arg.lock);
             SCAN_RECURSIVE(arg.op);
-            SCAN_FUNC(arg.private_data);
+           // SCAN_FUNC(arg.private_data);
         }
 })
 
@@ -766,18 +791,20 @@ TYPE_SCAN_WRAPPER( struct seq_file*, {
             SCAN_FUNC(arg->version);
             SCAN_RECURSIVE(arg->lock);
             SCAN_RECURSIVE(arg->op);
-            SCAN_FUNC(arg->private_data);
+            //SCAN_FUNC(arg->private_data);
         }
 })
 
 MODULE_TYPE_WRAPPER(struct seq_file* , {
     pre {
         if(!is_watchpoint_address(arg)){
-            kern_printk("struct seq_file : %lx\n", arg);
+            P(kern_printk("struct seq_file : %lx\n", arg);)
             ADD_TO_HASH(arg, SCAN_HEAD_FUNC(struct seq_file*))
         }
 
     }
+    no_post
+#if 0
     post {
         if(!is_watchpoint_address(arg)){
             kern_printk("post scan struct seq_file : %lx\n", arg);
@@ -785,6 +812,7 @@ MODULE_TYPE_WRAPPER(struct seq_file* , {
         }
 
     }
+#endif
 })
 
 TYPE_SCAN_WRAPPER( struct vfsmount, {
@@ -798,9 +826,9 @@ TYPE_SCAN_WRAPPER( struct vfsmount, {
 
         SCAN {
             HASHMAP_PUT(htable, (void*)&arg, (void*)type_class<ArgT__>::get_size());
-            SCAN_RECURSIVE(arg.mnt_hash);
+            //SCAN_RECURSIVE(arg.mnt_hash);
             //SCAN_RECURSIVE(arg.mnt_parent);
-            SCAN_RECURSIVE(arg.mnt_mountpoint);
+            /*SCAN_RECURSIVE(arg.mnt_mountpoint);
             SCAN_RECURSIVE(arg.mnt_root);
             SCAN_RECURSIVE(arg.mnt_sb);
             SCAN_RECURSIVE(arg.mnt_mounts);
@@ -819,7 +847,7 @@ TYPE_SCAN_WRAPPER( struct vfsmount, {
             SCAN_FUNC(arg.mnt_expiry_mark);
             SCAN_FUNC(arg.mnt_pinned);
             SCAN_FUNC(arg.mnt_ghosts);
-            SCAN_FUNC(arg.mnt_writers);
+            SCAN_FUNC(arg.mnt_writers);*/
         }
 })
 
@@ -834,32 +862,32 @@ TYPE_SCAN_WRAPPER( struct vfsmount *, {
 
         SCAN {
             HASHMAP_PUT(htable, (void*)arg, (void*)type_class<ArgT__>::get_size());
-            kern_printk("arg->mnt_hash : %lx\n", arg->mnt_mountpoint);
-            SCAN_RECURSIVE(arg->mnt_hash);
+            //kern_printk("arg->mnt_hash : %lx\n", arg->mnt_mountpoint);
+           // SCAN_RECURSIVE(arg->mnt_hash);
             /* the parent address of vfsmount, no required to scan this.*/
             /*if(arg->mnt_parent){
                 SCAN_RECURSIVE(arg->mnt_parent);
             }*/
-            SCAN_RECURSIVE(arg->mnt_mountpoint);
-            SCAN_RECURSIVE(arg->mnt_root);
-            SCAN_RECURSIVE(arg->mnt_sb);
-            SCAN_RECURSIVE(arg->mnt_mounts);
-            SCAN_RECURSIVE(arg->mnt_child);
-            SCAN_FUNC(arg->mnt_flags);
-            SCAN_FUNC(arg->mnt_devname);
-            SCAN_RECURSIVE(arg->mnt_list);
-            SCAN_RECURSIVE(arg->mnt_expire);
-            SCAN_RECURSIVE(arg->mnt_share);
-            SCAN_RECURSIVE(arg->mnt_slave_list);
-            SCAN_RECURSIVE(arg->mnt_slave);
-            SCAN_RECURSIVE(arg->mnt_master);
-            SCAN_RECURSIVE(arg->mnt_ns);
-            SCAN_FUNC(arg->mnt_id);
-            SCAN_FUNC(arg->mnt_group_id);
-            SCAN_FUNC(arg->mnt_expiry_mark);
-            SCAN_FUNC(arg->mnt_pinned);
-            SCAN_FUNC(arg->mnt_ghosts);
-            SCAN_FUNC(arg->mnt_writers);
+            //SCAN_RECURSIVE(arg->mnt_mountpoint);
+            //SCAN_RECURSIVE(arg->mnt_root);
+            //SCAN_RECURSIVE(arg->mnt_sb);
+            //SCAN_RECURSIVE(arg->mnt_mounts);
+            //SCAN_RECURSIVE(arg->mnt_child);
+            //SCAN_FUNC(arg->mnt_flags);
+            //SCAN_FUNC(arg->mnt_devname);
+            //SCAN_RECURSIVE(arg->mnt_list);
+            //SCAN_RECURSIVE(arg->mnt_expire);
+            //SCAN_RECURSIVE(arg->mnt_share);
+            //SCAN_RECURSIVE(arg->mnt_slave_list);
+            //SCAN_RECURSIVE(arg->mnt_slave);
+            //SCAN_RECURSIVE(arg->mnt_master);
+            //SCAN_RECURSIVE(arg->mnt_ns);
+            //SCAN_FUNC(arg->mnt_id);
+           // SCAN_FUNC(arg->mnt_group_id);
+            //SCAN_FUNC(arg->mnt_expiry_mark);
+            //SCAN_FUNC(arg->mnt_pinned);
+           // SCAN_FUNC(arg->mnt_ghosts);
+           // SCAN_FUNC(arg->mnt_writers);
         }
 })
 
@@ -870,12 +898,15 @@ MODULE_TYPE_WRAPPER(struct vfsmount* , {
                 ADD_TO_HASH(arg, SCAN_HEAD_FUNC(struct vfsmount*))
             }
         }
+        no_post
+#if 0
         post {
             if(!is_watchpoint_address(arg)){
                 kern_printk("post scan struct vfsmount : %lx\n", arg);
                 SCAN_HEAD_FUNC(struct vfsmount*)(arg);
             }
         }
+#endif
 })
 
 TYPE_SCAN_WRAPPER( struct fid, {
@@ -917,16 +948,19 @@ TYPE_SCAN_WRAPPER( struct fid*, {
 MODULE_TYPE_WRAPPER(struct fid* , {
     pre {
     	if(!is_watchpoint_address(arg)){
-            kern_printk("struct fid\n");
+            P(kern_printk("struct fid\n");)
             ADD_TO_HASH(arg, SCAN_HEAD_FUNC(struct fid*))
         }
     }
+    no_post
+#if 0
     post {
     	if(!is_watchpoint_address(arg)){
             kern_printk("post scan struct fid\n");
            // SCAN_HEAD_FUNC(struct fid*)(arg);
         }
     }
+#endif
 })
 
 TYPE_SCAN_WRAPPER( __kernel_fsid_t, {
@@ -935,7 +969,7 @@ TYPE_SCAN_WRAPPER( __kernel_fsid_t, {
         hashmap_init(128, &htable);
         if(!is_watchpoint_address(arg))
         	SCAN_FUNCTION(__kernel_fsid_t)(htable, arg);
-        //hashmap_destroy(htable);
+        hashmap_destroy(htable);
     }
     SCAN {
         HASHMAP_PUT(htable, (void*)&arg, (void*)type_class<ArgT__>::get_size());
@@ -950,7 +984,7 @@ TYPE_SCAN_WRAPPER( __kernel_fsid_t*, {
         hashmap_init(128, &htable);
         if(!is_watchpoint_address(arg))
         	SCAN_FUNCTION(__kernel_fsid_t *)(htable, arg);
-        //hashmap_destroy(htable);
+        hashmap_destroy(htable);
     }
     SCAN {
         HASHMAP_PUT(htable, (void*)arg, (void*)type_class<ArgT__>::get_size());
@@ -965,7 +999,7 @@ TYPE_SCAN_WRAPPER(struct kstatfs , {
 			hashmap_init(128, &htable);
 			if(!is_watchpoint_address(arg))
 				SCAN_FUNCTION(struct kstatfs)(htable, arg);
-			//hashmap_destroy(htable);
+			hashmap_destroy(htable);
 		}
 
 		SCAN {
@@ -1020,18 +1054,20 @@ TYPE_SCAN_WRAPPER(struct kstatfs* , {
 MODULE_TYPE_WRAPPER(struct kstatfs* , {
     pre {
     	if(!is_watchpoint_address(arg)){
-            kern_printk("struct kstatfs\n");
+            P(kern_printk("struct kstatfs\n");)
             ADD_TO_HASH(arg, SCAN_HEAD_FUNC(struct kstatfs*))
         }
     }
+    no_post
+#if 0
     post {
     	if(!is_watchpoint_address(arg)){
             kern_printk("post scan struct kstatfs\n");
             //SCAN_HEAD_FUNC(struct kstatfs*)(arg);
         }
     }
+#endif
 })
 
-#endif
 
 #endif /* DYNAMIC_WRAPPER_HPP_ */

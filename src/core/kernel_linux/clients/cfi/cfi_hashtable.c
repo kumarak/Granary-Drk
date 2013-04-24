@@ -31,6 +31,9 @@ struct hashtable_t {
 };
 
 
+int hashmap_get_item_count(struct hashtable_t *htable){
+    return htable->count;
+}
 
 /**
  * Creates a new struct hashtable_t and allocates space for it.

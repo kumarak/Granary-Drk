@@ -130,7 +130,7 @@ FUNC_WRAPPER(iget_locked, (struct super_block *sb, unsigned long ino), {
         WRAP_RECURSIVE_KERNEL(arg_sop);
         return iget_locked(sb, ino);
 })
-
+#if 1
 FUNC_WRAPPER(security_inode_init_security, ( struct inode * inode , struct inode * dir ,
         const struct qstr * qstr , initxattrs initxattrs , void * fs_data ), {
       //  struct inode *temp_inode = inode;
@@ -143,7 +143,7 @@ FUNC_WRAPPER(security_inode_init_security, ( struct inode * inode , struct inode
         ret = security_inode_init_security(inode, dir, qstr, initxattrs, fs_data);
         return ret;
 })
-
+#endif
 FUNC_WRAPPER(__bread, ( struct block_device * bdev , sector_t block , unsigned size ), {
         struct buffer_head *ret = __bread(bdev, block, size);
         return ret;
@@ -405,5 +405,112 @@ FUNC_WRAPPER(__block_write_begin, ( struct page * page , loff_t pos ,
         return __block_write_begin(page, pos, len, get_block);
 })
 
+//void * radix_tree_tag_set ( struct radix_tree_root * root , unsigned long index , unsigned int tag ) ;
+FUNC_WRAPPER(radix_tree_tag_set, ( struct radix_tree_root * root , unsigned long index , unsigned int tag ), {
+    REMOVE_WATCHPOINT(root);
+    return radix_tree_tag_set(root, index, tag);
+})
+
+//void * radix_tree_tag_clear ( struct radix_tree_root * root , unsigned long index , unsigned int tag ) ;
+FUNC_WRAPPER(radix_tree_tag_clear, ( struct radix_tree_root * root , unsigned long index , unsigned int tag ), {
+        REMOVE_WATCHPOINT(root);
+        return radix_tree_tag_clear(root, index, tag);
+})
+
+extern int __ticket_spin_is_locked(arch_spinlock_t *lock);
+
+FUNC_WRAPPER(__ticket_spin_is_locked, (arch_spinlock_t *lock), {
+        REMOVE_WATCHPOINT(lock);
+        return __ticket_spin_is_locked(lock);
+})
+
+//void delayed_work_timer_fn ( unsigned long __data ) ;
+FUNC_WRAPPER_VOID(delayed_work_timer_fn, (unsigned long __data),{
+    delayed_work_timer_fn(__data);
+})
+
+
+FUNC_WRAPPER(queue_work,( struct workqueue_struct * wq , struct work_struct * work ), {
+    return queue_work(wq , work);
+})
+
+FUNC_WRAPPER(queue_delayed_work,( struct workqueue_struct * wq , struct delayed_work * work , unsigned long delay ), {
+    return queue_delayed_work(wq , work, delay);
+})
+
+FUNC_WRAPPER_VOID(inode_init_once, ( struct inode *inode ) ,{
+        inode_init_once(inode);
+})
+
+//extern struct rb_node *rb_first(const struct rb_root *);
+FUNC_WRAPPER(rb_first, (const struct rb_root *rb),{
+    REMOVE_WATCHPOINT(rb);
+    return rb_first(rb);
+})
+
+FUNC_WRAPPER(_copy_to_user, (void *to, void *from, unsigned len), {
+        REMOVE_WATCHPOINT(from);
+        return _copy_to_user(to, from, len);
+})
+
+FUNC_WRAPPER(_copy_from_user, (void *to, void *from, unsigned len), {
+        REMOVE_WATCHPOINT(to);
+        return _copy_from_user(to, from, len);
+})
+
+/*
+FUNC_WRAPPER(kthread_create_on_node, ( threadfn thread_fun, void *data , int node, const char namefmt[], ... ), {
+        struct kthread_create_info *create(0);
+        char format_buff[sizeof(create->result->comm)];
+        va_list args;
+        va_start(args, namefmt);
+        kern_vsnprintf(&(format_buff[0]), sizeof(format_buff), namefmt, args);
+        va_end(args);
+        WRAP_FUNC(thread_fun);
+        D( kern_printk(" kthread_create wrapped !!!!!!!!!!!!!!!!!!  : %lx",thread_fun); )
+        return kthread_create_on_node(thread_fun, data, node, format_buff);
+})
+
+*/
+//#if defined(CAN_WRAP_kthread_create_on_node) && CAN_WRAP_kthread_create_on_node
+#   define WRAPPER_FOR_kthread_create_on_node 1
+    FUNC_WRAPPER(kthread_create_on_node, (
+        int (*threadfn)(void *),
+        void *data,
+        int node,
+        const char namefmt[],
+        ...
+    ), {
+        va_list args__;
+        va_start(args__, namefmt);
+
+        WRAP_FUNC(threadfn);
+        char name_buff[sizeof(task_struct().comm)];
+        vsnprintf(&(name_buff[0]), sizeof(name_buff), namefmt, args__);
+        struct task_struct *ret = kthread_create_on_node(threadfn, data, node, name_buff);
+        va_end(args__);
+        return ret;
+    })
+//#endif
+
+#if defined(CAN_WRAP_kthread_create) && CAN_WRAP_kthread_create
+#   define WRAPPER_FOR_kthread_create 1
+    FUNC_WRAPPER(kthread_create, (
+        int (*threadfn)(void *),
+        void *data,
+        const char namefmt[],
+        ...
+    ), {
+        va_list args__;
+        va_start(args__, namefmt);
+
+        WRAP_FUNC(threadfn);
+        char name_buff[sizeof(task_struct().comm)];
+        vsnprintf(&(name_buff[0]), sizeof(name_buff), namefmt, args__);
+        struct task_struct *ret = kthread_create(threadfn, data, name_buff);
+        va_end(args__);
+        return ret;
+    })
+#endif
 
 #endif /* WRAPPER_FILESYSTEM_H_ */

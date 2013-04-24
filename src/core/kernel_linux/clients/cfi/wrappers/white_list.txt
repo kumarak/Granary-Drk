@@ -15,7 +15,311 @@ kmem_cache_shrink
 kmem_cache_free
 kmem_cache_size
 kmem_cache_alloc_trace
+kmem_cache_alloc
+kmalloc_order_trace
 kmalloc_caches
 __kmalloc
 memset
 kfree
+
+radix_tree_tag_set
+radix_tree_tag_clear
+
+dm_get_device
+dm_bufio_new
+dm_table_get_mode
+dm_register_target
+dm_bufio_write_dirty_buffers
+dm_unregister_target
+dm_bufio_release
+dm_bufio_read
+dm_bufio_write_dirty_buffers_async
+dm_bufio_client_create
+dm_bufio_client_destroy
+
+generic_block_fiemap
+generic_block_bmap
+
+kstrtoll
+--__alloc_workqueue_key
+queue_work
+mutex_unlock
+        { 0x8c2cb6f, "kthread_create_on_node" },
+__mutex_init
+
+_cond_resched
+mutex_lock
+destroy_workqueue
+down
+bio_endio
+wake_up_process
+__ticket_spin_is_locked
+queue_delayed_work
+queue_work
+delayed_work_timer_fn
+block_write_full_page
+__block_write_begin
+
+mpage_readpages
+mpage_readpage
+
+security_inode_init_security
+posix_acl_chmod
+posix_acl_create
+current_umask
+posix_acl_to_xattr
+posix_acl_alloc
+posix_acl_valid
+posix_acl_from_xattr
+init_user_ns
+kfree_call_rcu
+posix_acl_equiv_mode
+mb_cache_destroy
+mb_cache_create
+mb_cache_shrink
+up_write
+down_write
+up_read
+down_read
+mb_cache_entry_find_next
+mb_cache_entry_find_first
+mb_cache_entry_get
+mb_cache_entry_free
+mb_cache_entry_release
+mb_cache_entry_insert
+mb_cache_entry_alloc
+journal_dirty_metadata
+journal_get_create_access
+journal_revoke
+journal_forget
+journal_get_write_access
+journal_get_undo_access
+half_md4_transform
+page_put_link
+page_follow_link_light
+generic_readlink
+dquot_destroy
+dquot_alloc
+dquot_set_dqblk
+dquot_get_dqblk
+dquot_set_dqinfo
+dquot_get_dqinfo
+dquot_quota_sync
+kill_block_super
+trace_event_raw_init
+    { 0x74252861, "ftrace_event_reg" },
+    { 0x60a13e90, "rcu_barrier" },
+kmem_cache_create
+journal_force_commit
+dquot_resume
+dquot_quota_off
+journal_create
+__bdevname
+dquot_quota_on_mount
+--d_make_root
+journal_init_dev
+set_blocksize
+blkdev_get_by_dev
+journal_update_format
+journal_check_available_features
+journal_wipe
+    { 0x6e297a62, "__percpu_counter_init" },
+journal_load
+bdev_read_only
+    { 0x307c2fd0, "generic_check_addressable" },
+sb_set_blocksize
+    { 0x20000329, "simple_strtoul" },
+sb_min_blocksize
+bdevname
+    { 0xe8672f3c, "__cleancache_init_fs" },
+    { 0xa1c5a3b3, "cleancache_enabled" },
+    { 0x52b3db31, "journal_clear_err" },
+    { 0x9544a7e5, "journal_errno" },
+    { 0x2172b536, "dquot_mark_dquot_dirty" },
+    { 0x45362ae6, "dquot_commit" },
+    { 0xae0a1a90, "dquot_acquire" },
+    { 0xd92445a4, "dquot_release" },
+    { 0xfaacae78, "dquot_commit_info" },
+journal_start
+    { 0x3c3d3896, "blkdev_put" },
+    { 0xf6e6c9c3, "sync_blockdev" },
+    { 0xc0a2adda, "invalidate_bdev" },
+    { 0x45044497, "percpu_counter_destroy" },
+    { 0xa3383f42, "journal_destroy" },
+    { 0x16b0d9f9, "dquot_disable" },
+    { 0xd65afab0, "journal_stop" },
+    { 0x7c1372e8, "panic" },
+    { 0x58d7d9bd, "journal_abort" },
+    { 0x832008d5, "sync_dirty_buffer" },
+    { 0x819cf0af, "journal_init_inode" },
+    { 0x6010669b, "make_bad_inode" },
+    { 0x4e3567f7, "match_int" },
+    { 0x44e9a829, "match_token" },
+    { 0x85df9b6c, "strsep" },
+    { 0x349cba85, "strchr" },
+    { 0xe2d5255a, "strcmp" },
+    { 0xacf4d843, "match_strdup" },
+    { 0x34184afe, "current_kernel_time" },
+    { 0xc7c3b4ea, "dquot_quota_on" },
+    { 0xf0fdf6cb, "__stack_chk_fail" },
+    { 0xee0a055c, "__percpu_counter_sum" },
+    { 0x941fa9c, "trace_define_field" },
+inode_init_once
+    { 0x274de7cb, "__mutex_init" },
+    { 0x2a6e6109, "__init_rwsem" },
+    { 0x167c5967, "print_hex_dump" },
+    { 0xa75312bc, "call_rcu_sched" },
+    { 0x7e799b1c, "journal_start_commit" },
+    { 0xc6f6a95c, "dquot_writeback_dquots" },
+    { 0x8b618d08, "overflowuid" },
+    { 0x7171121c, "overflowgid" },
+    { 0x2b0e63e3, "seq_puts" },
+    { 0x789bdca3, "seq_printf" },
+    { 0x73668838, "try_to_free_buffers" },
+generic_fh_to_dentry
+generic_fh_to_parent
+mount_bdev
+    { 0x498d293a, "trace_buffer_unlock_commit" },
+    { 0x94fcbd64, "filter_current_check_discard" },
+    { 0x9621849f, "ring_buffer_event_data" },
+    { 0xfef8a166, "trace_current_buffer_lock_reserve" },
+    { 0x78764f4e, "pv_irq_ops" },
+    { 0x2268b557, "perf_tp_event" },
+    { 0x7628f3c7, "this_cpu_off" },
+    { 0xe6602e9f, "perf_trace_buf_prepare" },
+    { 0x1e3a88fb, "trace_seq_printf" },
+    { 0x8354ba9f, "__page_symlink" },
+    { 0x754d539c, "strlen" },
+    { 0x5a921311, "strncmp" },
+    { 0x4f21c2c2, "d_obtain_alias" },
+    { 0xd165565f, "ihold" },
+    { 0xe03c8e08, "inc_nlink" },
+    { 0x1189372b, "d_instantiate" },
+    { 0x9d56ee4b, "drop_nlink" },
+    { 0x31e4ef79, "d_splice_alias" },
+    { 0x449ad0a7, "memcmp" },
+    { 0xb0e602eb, "memmove" },
+_copy_to_user
+    { 0xb2fd5ceb, "__put_user_4" },
+    { 0x342cf5a, "mnt_drop_write_file" },
+_copy_from_user
+    { 0x6729d3df, "__get_user_4" },
+    { 0xf43980a4, "mnt_want_write_file" },
+    { 0xa22b3a79, "inode_owner_or_capable" },
+    { 0xdf59c1a3, "generic_error_remove_page" },
+    { 0x88b732fe, "block_is_partially_uptodate" },
+    { 0xd5b542c6, "buffer_migrate_page" },
+    { 0x597511f3, "filemap_write_and_wait" },
+    { 0x86e98c11, "clear_inode" },
+    { 0x77d4bb8c, "__blockdev_direct_IO" },
+    { 0xa38b9832, "truncate_setsize" },
+    { 0x354d02bb, "inode_dio_wait" },
+    { 0x106a0635, "setattr_copy" },
+    { 0x4101e1a0, "dquot_transfer" },
+    { 0x9fd78ad3, "inode_change_ok" },
+    { 0x3d9ee9f0, "clear_page" },
+    { 0xceea9d6c, "mark_buffer_dirty" },
+    { 0x7b0c54f7, "find_or_create_page" },
+    { 0xb3fcf35d, "page_zero_new_buffers" },
+    { 0xbe7e0d52, "grab_cache_page_write_begin" },
+    { 0x16f6c6b7, "put_page" },
+    { 0xfbb2f07d, "block_write_end" },
+    { 0x89b698bd, "truncate_inode_pages" },
+    { 0xe00c9d58, "__find_get_block" },
+    { 0xdf929370, "fs_overflowgid" },
+    { 0x25820c64, "fs_overflowuid" },
+    { 0x6b2dc060, "dump_stack" },
+    { 0x91001c37, "init_special_inode" },
+    { 0x66add520, "iget_failed" },
+    { 0x764bc969, "set_nlink" },
+iget_locked
+journal_dirty_data
+generic_block_fiemap
+__block_write_begin
+__wait_on_buffer
+submit_bh
+end_buffer_read_sync
+    { 0xbede4f95, "__lock_buffer" },
+    { 0x251ff644, "unlock_buffer" },
+    { 0xfb578fc5, "memset" },
+    { 0x8d188117, "create_empty_buffers" },
+    { 0x17f53b4b, "block_write_full_page" },
+    { 0x2626733c, "unlock_page" },
+    { 0x3053feb3, "redirty_page_for_writepage" },
+journal_blocks_per_page
+journal_extend
+generic_block_bmap
+journal_unlock_updates
+journal_flush
+journal_lock_updates
+journal_invalidatepage
+    { 0x16305289, "warn_slowpath_null" }
+journal_try_to_free_buffers
+    { 0x14f1164a, "__set_page_dirty_nobuffers" },
+journal_restart
+    { 0xcbb02eeb, "is_bad_inode" },
+    { 0x6a07b4fa, "inode_init_owner" },
+    { 0x2e02d816, "unlock_new_inode" },
+    { 0xb4663f20, "clear_nlink" },
+    { 0x8f5d20ea, "dquot_drop" },
+    { 0x22823ddf, "dquot_free_inode" },
+    { 0xfb44ac35, "dquot_alloc_inode" },
+    { 0x8a65b07f, "dquot_initialize" },
+    { 0xf33dccff, "insert_inode_locked" },
+    { 0x405c1144, "get_seconds" },
+    { 0x79aa04a2, "get_random_bytes" },
+    { 0xf3691bf7, "iput" },
+    { 0x1c85d265, "new_inode" },
+    { 0x94fb1ded, "__bread" },
+    { 0x6239095, "blkdev_issue_flush" },
+    { 0x91934422, "journal_trans_will_send_data_barrier" },
+    { 0xbbadb5f2, "log_wait_commit" },
+    { 0x8fc57f29, "log_start_commit" },
+    { 0xf1ccad68, "filemap_write_and_wait_range" },
+    { 0xb63d9add, "generic_file_splice_read" },
+    { 0x58d475fc, "generic_file_splice_write" },
+    { 0xfc6c82fa, "dquot_file_open" },
+    { 0x35767ba1, "generic_file_mmap" },
+    { 0xb10a5520, "generic_file_aio_write" },
+    { 0xb6df5c9d, "generic_file_aio_read" },
+    { 0xb23304d9, "do_sync_write" },
+    { 0x60193d39, "do_sync_read" },
+    { 0x1e61d1a, "generic_removexattr" },
+    { 0xd983e624, "generic_getxattr" },
+    { 0x19d0f5ea, "generic_setxattr" },
+    { 0xe7180a8b, "mutex_unlock" },
+    { 0x9a2fd821, "mutex_lock" },
+    { 0x16c1b18b, "filemap_flush" },
+    { 0xe0758053, "generic_read_dir" },
+    { 0x69acdf38, "memcpy" },
+    { 0x49193d3c, "page_cache_sync_readahead" },
+    { 0x6aaa0849, "generic_file_llseek" },
+    { 0x138ac49b, "generic_file_llseek_size" },
+    { 0xeb3db8c6, "blkdev_issue_discard" },
+    { 0x5f92c411, "__dquot_alloc_space" },
+    { 0xe92a534b, "journal_force_commit_nested" },
+    { 0x69f878ce, "__mark_inode_dirty" },
+    { 0x177d46cd, "__dquot_free_space" },
+    { 0xa1c76e0a, "_cond_resched" },
+    { 0x6f4c812f, "__percpu_counter_add" },
+    { 0x5240ee7, "percpu_counter_batch" },
+    { 0x570eaaf0, "kmalloc_caches" },
+_raw_spin_trylock
+rb_prev
+journal_release_buffer
+pv_lock_ops
+_raw_spin_lock
+rb_insert_color
+__brelse
+bh_submit_read
+bh_uptodate_or_lock
+__getblk
+find_next_zero_bit
+rb_next
+rb_first
+in_group_p
+capable
+rb_erase
+
+kthread_create_on_node
+kthread_create

@@ -9,7 +9,7 @@
 #define WRAPPER_ALLOCATORS_H_
 
 #define FUNCTION_WRAPPER FUNC_WRAPPER
-#define P(x) x
+#define P(x)
 
 #define CAN_WRAP___kmalloc 1
 #if defined(CAN_WRAP___kmalloc) && CAN_WRAP___kmalloc
@@ -19,7 +19,7 @@ FUNCTION_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
     ADD_WATCHPOINT(watchpoint_addr, size);
     /*collect the watchpoint address*/
     cfi_handler_alloc(target_module, watchpoint_addr, size, NULL);
-    kern_printk("__kmalloc wrapper  : %lx, %lx\n", watchpoint_addr, size);
+    P(kern_printk("__kmalloc wrapper  : %lx, %lx\n", watchpoint_addr, size);)
     return watchpoint_addr;
 })
 #endif
@@ -87,7 +87,7 @@ FUNC_WRAPPER(kmem_cache_alloc_trace, (struct kmem_cache *s, gfp_t gfpflags, size
     if(s->ctor != NULL)
         s->ctor(watch_ptr);
     cfi_handler_alloc(target_module, watch_ptr, size, NULL);
-    kern_printk("kmem_cache_alloc_trace wrapper : %lx  : %lx\n", (uint64_t)watch_ptr, size);
+    P(kern_printk("kmem_cache_alloc_trace wrapper : %lx  : %lx\n", (uint64_t)watch_ptr, size);)
     return watch_ptr;
 })
 //void *kmem_cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)

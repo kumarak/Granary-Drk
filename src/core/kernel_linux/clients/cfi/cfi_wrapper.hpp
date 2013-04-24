@@ -11,6 +11,8 @@
 
 #define D(x)
 
+#include <stdarg.h>
+
 extern "C" {
 
     #include "cfi_defines.h"
@@ -511,14 +513,13 @@ FORCE_INLINE void arg_post_wrapper(int) {
 /// unroll and wrap arguments by type
 template <template<typename> class Wrap, typename Arg, typename... Rest>
 inline void arg_pre_wrapper(const int depth__, Arg &arg, Rest&... rest) {
-	D(kern_printk("%s\n", __FUNCTION__));
     recursive_wrapper<Wrap, Arg>::pre_wrap(arg, depth__);
     arg_pre_wrapper<Wrap, Rest...>(depth__, rest...);
 }
 
 template <template<typename> class Wrap, typename Arg, typename... Rest>
 inline void arg_post_wrapper(const int depth__, Arg &arg, Rest&... rest) {
-	D(kern_printk("%s\n", __FUNCTION__));
+
     recursive_wrapper<Wrap, Arg>::post_wrap(arg, depth__);
     arg_post_wrapper<Wrap, Rest...>(depth__, rest...);
 }
@@ -696,7 +697,7 @@ public:
         if(is_kernel_virtual_address_space(ret)
                 && IS_WATCHPOINT(ret)){
             cfi_return_to_kernel((void*)ret);
-            kern_printk("return object : %lx\n", ret);
+            //kern_printk("return object : %lx\n", ret);
         }
 
         //SCAN_HEAD_FUNC(R)(ret);
