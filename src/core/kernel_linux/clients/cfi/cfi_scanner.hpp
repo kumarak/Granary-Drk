@@ -19,7 +19,7 @@
 /// that operates on the 'arg' variable
 
 #define SCAN \
-    FORCE_INLINE static void scan(struct hashtable_t *htable, ArgT__ &arg)
+    FORCE_INLINE static void scan(struct hashtable_t *htable, ArgT__ &arg, const int depth__)
 
 
 
@@ -37,10 +37,8 @@
     };
 
 // Scan an l-value that is a function pointer
-#define SCAN_FUNC(lval) \
-    if(!IS_WATCHPOINT(lval)) {  \
-            is_watchpoint_address(lval); \
-    }
+#define SCAN_FUNCTION(lval) \
+        address_scanner_function(lval); \
 
 
 //#define SCAN_PTR SCAN_FUNC
@@ -51,31 +49,25 @@
 // recursively Scan
 
 #define SCAN_RECURSIVE(lval)  \
-        if(!IS_WATCHPOINT(lval)){	\
-            scan_recursive<scan_function, DECLTYPE(lval)>(htable, lval); \
-        }
-
-#if 0
-        void *value; \
-        if(!hashmap_get(htable, (void*)(&lval), (void**)&value)){   \
-			scan_recursive<scan_function, DECLTYPE(lval)>(htable, lval); \
-        }
-#endif
+            if(depth__ <= MAX_DEPTH_SCANNER)    {   \
+                scan_recursive<scan_function, DECLTYPE(lval)>(htable, lval, depth__+1);\
+            }
 
 #define SCAN_RECURSIVE_PTR(lval)  \
-			if(!IS_WATCHPOINT(lval)){	\
-				scan_recursive<scan_function, DECLTYPE(lval)>(htable, lval); \
-			}
-#if 0
-        if(lval != NULL) {  \
-            void *value; \
-            if(!hashmap_get(htable, (void*)(lval), (void**)&value)){   \
-                scan_recursive<scan_function, DECLTYPE(lval)>(htable, lval); \
-            }   \
+        if(!is_alias_address((uint64_t)lval)) {  \
+                if(NULL != (uint64_t*)&(*lval)) {   \
+                    if(depth__ <= MAX_DEPTH_SCANNER)    {   \
+                        scan_recursive<scan_function, DECLTYPE(*(lval))>(htable, *(lval), depth__+1);   \
+                    }\
+                }   \
+        } else {    \
+            cfi_collect_watcpoint((void*)0, (void*)lval);   \
         }
-#endif
-#define SCAN_FUNCTION(type_name) \
-        scan_function<type_name>::scan_impl::scan
+
+#define MAX_DEPTH_SCANNER 5
+
+#define SCANNER(type_name) \
+        scan_function<type_name>::scan_impl::scan(htable, arg, MAX_DEPTH_SCANNER)
 
 #define SCAN_HEAD_FUNC(type_name) \
         scan_function<type_name>::scan_impl::scan_head
@@ -106,6 +98,8 @@ public:
 };
 
 
+
+
 template <typename T>
 class scan_function {
 public:
@@ -116,7 +110,7 @@ public:
 
 	struct scan_impl {
 	    FORCE_INLINE static void scan_head(T &) { }
-		FORCE_INLINE static void scan(struct hashtable_t *htable, T &) { }
+		FORCE_INLINE static void scan(struct hashtable_t *htable, T & , const int depth__) { }
 	};
 };
 
@@ -130,7 +124,7 @@ public:
 	static unsigned id_;
 	struct scan_impl{
 	    FORCE_INLINE static void scan_head(void*) { }
-		FORCE_INLINE static void scan(struct hashtable_t *htable, void*) { }
+		FORCE_INLINE static void scan(struct hashtable_t *htable, void*, const int depth__) { }
 	};
 };
 
@@ -142,9 +136,9 @@ public:
     enum {
         NUM = Scan<Arg>::NUM
     };
-//Scan<Arg>::scan_impl::scan(arg, depth__, static_tag<Tag>::tag);
-    inline static void pre_scan(struct hashtable_t* htable, Arg &arg) {
-        Scan<Arg>::scan_impl::scan(htable, arg);
+
+    inline static void pre_scan(struct hashtable_t* htable, Arg &arg, const int depth__) {
+        Scan<Arg>::scan_impl::scan(htable, arg, depth__);
     }
 };
 
@@ -160,8 +154,8 @@ public:
         NUM = Scan<Arg>::NUM
     };
 
-    inline static void pre_scan(struct hashtable_t* htable, const Arg &arg) {
-        recursive_scanner<Scan, Arg>::pre_scan(htable, const_cast<Arg &>(arg));
+    inline static void pre_scan(struct hashtable_t* htable, const Arg &arg, const int depth__) {
+        recursive_scanner<Scan, Arg>::pre_scan(htable, const_cast<Arg &>(arg), depth__);
     }
 };
 
@@ -175,12 +169,12 @@ public:
 			: recursive_scanner<Scan, Arg>::NUM
     };
 
-    inline static void pre_scan(struct hashtable_t* htable, Arg *&arg) {
+    inline static void pre_scan(struct hashtable_t* htable, Arg *&arg, const int depth__) {
         if(((Arg *) 4095) < arg) {
         	if(Scan<Arg *>::IS_DEFINED) {
-        		recursive_scanner_base<Scan, Arg *>::pre_scan(htable, arg);
+        		recursive_scanner_base<Scan, Arg *>::pre_scan(htable, arg, depth__);
         	} else {
-        		recursive_scanner<Scan, Arg>::pre_scan(htable, *arg);
+        		recursive_scanner<Scan, Arg>::pre_scan(htable, *arg, depth__);
         	}
         }
     }
@@ -194,9 +188,9 @@ public:
         NUM = recursive_scanner<Scan, Arg *>::NUM
     };
 
-    inline static void pre_scan(struct hashtable_t* htable, Arg **&arg) {
+    inline static void pre_scan(struct hashtable_t* htable, Arg **&arg, const int depth__) {
         if(((Arg **) 4095) < arg) {
-            recursive_scanner<Scan, Arg *>::pre_scan(htable, *arg);
+            recursive_scanner<Scan, Arg *>::pre_scan(htable, *arg, depth__);
         }
     }
 };
@@ -211,10 +205,10 @@ public:
         NUM = Scan<Arg *>::NUM
     };
 
-    inline static void pre_scan(struct hashtable_t* htable, Arg *&arg) {
+    inline static void pre_scan(struct hashtable_t* htable, Arg *&arg, const int depth__) {
         if(((Arg *) 4095) < arg) {
             pre_tag tag;
-            Scan<Arg *>::scan_impl::scan(htable, arg);
+            Scan<Arg *>::scan_impl::scan(htable, arg, depth__);
         }
     }
 };
@@ -229,7 +223,7 @@ public:
         NUM = 0
     };
 
-    FORCE_INLINE static void pre_scan(struct hashtable_t* htable, void *) { }
+    FORCE_INLINE static void pre_scan(struct hashtable_t* htable, void *, const int) { }
 };
 
 template <template<typename> class Scan>
@@ -239,13 +233,14 @@ public:
         NUM = 0
     };
 
-    FORCE_INLINE static void pre_scan(struct hashtable_t* htable, const void *) { }
+    FORCE_INLINE static void pre_scan(struct hashtable_t* htable, const void *, const int) { }
 };
 
 template <template<typename> class Scan, typename Arg>
-void scan_recursive(struct hashtable_t* htable, Arg &arg) {
-    recursive_scanner<Scan, Arg>::pre_scan(htable, arg);
+void scan_recursive(struct hashtable_t* htable, Arg &arg, const int depth__) {
+    recursive_scanner<Scan, Arg>::pre_scan(htable, arg, depth__);
 }
+
 
 
 template <template<typename> class Scan>
@@ -254,52 +249,29 @@ void arg_pre_scanner(int) {
 }
 
 template <typename T>
-bool is_watchpoint_address(T* func_ptr) {
-    uint64_t addr((uint64_t) func_ptr);
-    if((!(addr & CFI_ALIAS_ADDRESS_NOT_ENABLED)) && ((addr | CFI_ALIAS_ADDRESS_INDEX_MASK ) != addr)){
-    	return true;
+bool address_scanner_function(T* func_ptr) {
+    //kern_printk("address scanner function one\n");
+    uint64_t value = (uint64_t)(func_ptr);
+    if(is_alias_address(value)) {
+        cfi_collect_watcpoint((void*)0, (void*)value);
     }
-
-    return false;
-#if 0
-    void *value;
-    if(hashmap_get(module_watchpoint_map, (void*)addr, (void**)&value)){
-        return true;
-    }
-    return false;
-#endif
-}
-
-template <typename T>
-bool is_watchpoint_address(T func_ptr) {
-    //return IS_WATCHPOINT(func_ptr);
-#if 0
-    uint64_t addr((uint64_t) func_ptr);
-    if((!(addr & CFI_ALIAS_ADDRESS_NOT_ENABLED)) && ((addr | CFI_ALIAS_ADDRESS_INDEX_MASK ) != addr)){
-    	return true;
-    }
-
-    return false;
-#endif
     return true;
-#if 0
-    void *value;
-    if(hashmap_get(module_watchpoint_map, (void*)addr, (void**)&value)){
-        return true;
-    }
-    return false;
-#endif
 }
-/*
+
 template <typename T>
-bool is_watchpoint_address(T func_ptr) {
-    uint64_t addr((uint64_t) func_ptr);
-    void *value;
-    if(hashmap_get(module_watchpoint_map, (void*)addr, (void**)&value)){
-        return true;
+bool address_scanner_function(T addr) {
+    //kern_printk("address scanner function two\n");
+    unsigned int size = type_class<T>::get_size();
+    unsigned int i = 0;
+    uint64_t *ptr = (uint64_t*)&addr;
+    uint64_t value = (uint64_t)(*ptr);
+    while(i <= size){
+        if(is_alias_address(value)) {
+            cfi_collect_watcpoint(ptr, (void*)value);
+        }
+        ptr++;
+        i += 8;
     }
-    return false;
 }
-*/
 
 #endif /* CFI_SCANNER_HPP_ */

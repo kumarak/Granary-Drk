@@ -47,6 +47,8 @@ void cfi_debug_call(void *addr) {
     dr_printf("%s : %lx\n",__FUNCTION__, addr);
 }
 
+#if 0
+
 static instr_t*
 instrument_reg_save(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc pc, opnd_t src_opnd, struct memory_operand_modifier *ops)
 {
@@ -132,11 +134,12 @@ instrument_reg_save(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc 
     POST(ilist, instr, done_instrumenting);
 }
 
-
+#endif
 
 void
-instrument_memory_write(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc pc, struct memory_operand_modifier *ops)
-{
+instrument_memory_write(void *drcontext, instrlist_t *ilist,
+        instr_t *instr, app_pc pc, struct memory_operand_modifier *ops){
+
     unsigned long used_registers = 0;
     bool flag_unwatched_addr = false;
     reg_id_t reg_watched_addr;
@@ -167,7 +170,6 @@ instrument_memory_write(void *drcontext, instrlist_t *ilist, instr_t *instr, app
     opnd_t opnd_unwatched_addr = opnd_create_reg(reg_unwatched_addr);
 
     opnd_t watched_addr_opnd = ops->found_operand;
-    //watched_addr_opnd.size = OPSZ_lea;
 
     PRE(ilist, instr, begin_instrumenting);
     PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_watched_addr));
@@ -216,6 +218,7 @@ instrument_memory_write(void *drcontext, instrlist_t *ilist, instr_t *instr, app
     PRE(ilist, instr, INSTR_CREATE_popf(drcontext));
     PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_unwatched_addr));
     PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_watched_addr));
+
     /*** original instruction here ***/
     instr->translation = 0; // hack!
     instr_being_modified(instr, false);
@@ -228,9 +231,10 @@ instrument_memory_write(void *drcontext, instrlist_t *ilist, instr_t *instr, app
 
 
 
-static instr_t*
-instrument_memory_read(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc pc, struct memory_operand_modifier *ops)
-{
+void
+instrument_memory_read(void *drcontext, instrlist_t *ilist,
+        instr_t *instr, app_pc pc, struct memory_operand_modifier *ops){
+
     unsigned long used_registers = 0;
     bool flag_unwatched_addr = false;
     reg_id_t reg_watched_addr;
@@ -262,7 +266,7 @@ instrument_memory_read(void *drcontext, instrlist_t *ilist, instr_t *instr, app_
     opnd_t opnd_unwatched_addr = opnd_create_reg(reg_unwatched_addr);
 
     opnd_t watched_addr_opnd = ops->found_operand;
-    //watched_addr_opnd.size = OPSZ_lea;
+
 
     PRE(ilist, instr, begin_instrumenting);
     PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_watched_addr));
@@ -274,14 +278,6 @@ instrument_memory_read(void *drcontext, instrlist_t *ilist, instr_t *instr, app_
                                                 opnd_get_index(ops->found_operand), opnd_get_scale(ops->found_operand),
                                                 opnd_get_disp(ops->found_operand), OPSZ_lea)));
 
-  //  PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr, OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
-  //  PRE(ilist, instr, INSTR_CREATE_and(drcontext, opnd_unwatched_addr, opnd_watched_addr));
-   // PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_unwatched_addr, opnd_unwatched_addr));
-   // PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_je, opnd_create_instr(not_null)));
-  //  PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr, OPND_CREATE_INT64(pc)));
-  //  dr_insert_clean_call(drcontext, ilist, instr, cfi_debug_call, false, 1,opnd_unwatched_addr);
-
-   // PRE(ilist, instr, not_null);
     PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr, OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
     PRE(ilist, instr, INSTR_CREATE_or(drcontext, opnd_unwatched_addr, opnd_watched_addr));
     PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_unwatched_addr, opnd_watched_addr));
@@ -320,196 +316,14 @@ instrument_memory_read(void *drcontext, instrlist_t *ilist, instr_t *instr, app_
     POST(ilist, instr, done_instrumenting);
 
 }
-
-static instr_t*
-instrument_memory_write_kernel(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc pc, struct memory_operand_modifier *ops)
-{
-    unsigned long used_registers = 0;
-    bool flag_unwatched_addr = false;
-    reg_id_t reg_watched_addr;
-    reg_id_t reg_unwatched_addr;
-    struct spill_reg_t watched_addr;
-    struct spill_reg_t unwatched_addr;
-    struct spill_reg_t spill_reg[16];
-    dcontext_t* dcontext = (dcontext_t*)drcontext;
-    reg_t xflag = dr_get_gp_xflag((void*)dcontext);
-
-    instr_t *addr_is_a_watchpoint = INSTR_CREATE_label(drcontext);
-    instr_t *addr_is_not_a_watchpoint = INSTR_CREATE_label(drcontext);
-    instr_t *begin_instrumenting = INSTR_CREATE_label(drcontext);
-    instr_t *done_instrumenting = INSTR_CREATE_label(drcontext);
-    instr_t *not_null = INSTR_CREATE_label(drcontext);
-
-    instr_t *done_check = INSTR_CREATE_label(drcontext);
-    instr_t *nop = INSTR_CREATE_nop(drcontext);
-    instr_t *do_callback = INSTR_CREATE_label(drcontext);
-    instr_t *next_nop = INSTR_CREATE_label(drcontext);
-    instr_t *emulated;
-    instr_t *cursor = instr;
-
-    collect_regs(&used_registers, instr, instr_num_srcs, instr_get_src );
-    collect_regs(&used_registers, instr, instr_num_dsts, instr_get_dst );
-
-    reg_watched_addr = get_next_free_reg(&used_registers);
-    opnd_t opnd_watched_addr = opnd_create_reg(reg_watched_addr);
-
-    reg_unwatched_addr = get_next_free_reg(&used_registers);
-    opnd_t opnd_unwatched_addr = opnd_create_reg(reg_unwatched_addr);
-
-    opnd_t watched_addr_opnd = ops->found_operand;
-
-
-    PRE(ilist, instr, begin_instrumenting);
-    PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_watched_addr));
-    PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_unwatched_addr));
-    PRE(ilist, instr, INSTR_CREATE_pushf(drcontext));
-    PRE(ilist, instr, INSTR_CREATE_lea(drcontext, opnd_watched_addr, opnd_create_base_disp(opnd_get_base(ops->found_operand),
-                                                opnd_get_index(ops->found_operand), opnd_get_scale(ops->found_operand),
-                                                opnd_get_disp(ops->found_operand), OPSZ_lea)));
-
-    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr, OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
-
-    PRE(ilist, instr, INSTR_CREATE_or(drcontext, opnd_unwatched_addr, opnd_watched_addr));
-    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_unwatched_addr, opnd_watched_addr));
-
-    PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_je, opnd_create_instr(addr_is_not_a_watchpoint)));
-
-    PRE(ilist, instr, addr_is_a_watchpoint);
-
-    emulated = instr_clone(drcontext, instr);
-    emulated->translation = 0;
-
-    ops->replacement_operand = opnd_create_base_disp(
-            reg_unwatched_addr, DR_REG_NULL,1, 0 , ops->found_operand.size);
-
-    for_each_operand(emulated, ops,
-            (opnd_callback_t *) memory_operand_replacer);
-    PRE(ilist, instr, INSTR_CREATE_popf(drcontext));
-    PRE(ilist, instr, emulated);
-    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_unwatched_addr));
-    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_watched_addr));
-
-    PRE(ilist, instr, INSTR_CREATE_jmp_short(drcontext,
-            opnd_create_instr(done_instrumenting)));
-
-    PRE(ilist, instr, addr_is_not_a_watchpoint);
-    PRE(ilist, instr, INSTR_CREATE_popf(drcontext));
-    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_unwatched_addr));
-    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_watched_addr));
-    /*** original instruction here ***/
-    instr->translation = 0; // hack!
-    instr_being_modified(instr, false);
-    instr_set_ok_to_mangle(instr, false);
-
-    nop->translation = pc + instr->length;
-    POST(ilist, instr, nop);
-    POST(ilist, instr, done_instrumenting);
-}
-
-
-static instr_t*
-instrument_memory_read_kernel(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc pc, struct memory_operand_modifier *ops)
-{
-    unsigned long used_registers = 0;
-    bool flag_unwatched_addr = false;
-    reg_id_t reg_watched_addr;
-    reg_id_t reg_unwatched_addr;
-    struct spill_reg_t watched_addr;
-    struct spill_reg_t unwatched_addr;
-    struct spill_reg_t spill_reg[16];
-    dcontext_t* dcontext = (dcontext_t*)drcontext;
-    reg_t xflag = dr_get_gp_xflag((void*)dcontext);
-
-
-    instr_t *addr_is_a_watchpoint = INSTR_CREATE_label(drcontext);
-    instr_t *addr_is_not_a_watchpoint = INSTR_CREATE_label(drcontext);
-    instr_t *begin_instrumenting = INSTR_CREATE_label(drcontext);
-    instr_t *done_instrumenting = INSTR_CREATE_label(drcontext);
-
-    instr_t *done_check = INSTR_CREATE_label(drcontext);
-    instr_t *nop = INSTR_CREATE_nop(drcontext);
-    instr_t *do_callback = INSTR_CREATE_label(drcontext);
-    instr_t *next_nop = INSTR_CREATE_label(drcontext);
-    instr_t *not_null = INSTR_CREATE_label(drcontext);
-    instr_t *emulated;
-    instr_t *cursor = instr;
-
-    collect_regs(&used_registers, instr, instr_num_srcs, instr_get_src );
-    collect_regs(&used_registers, instr, instr_num_dsts, instr_get_dst );
-
-    reg_watched_addr = get_next_free_reg(&used_registers);
-    opnd_t opnd_watched_addr = opnd_create_reg(reg_watched_addr);
-
-    reg_unwatched_addr = get_next_free_reg(&used_registers);
-    opnd_t opnd_unwatched_addr = opnd_create_reg(reg_unwatched_addr);
-
-    opnd_t watched_addr_opnd = ops->found_operand;
-    //watched_addr_opnd.size = OPSZ_lea;
-
-    PRE(ilist, instr, begin_instrumenting);
-    PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_watched_addr));
-    PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_unwatched_addr));
-    PRE(ilist, instr, INSTR_CREATE_pushf(drcontext));
-    PRE(ilist, instr, INSTR_CREATE_or(drcontext,
-                         opnd_create_base_disp(DR_REG_RSP, DR_REG_NULL, 0, 0,
-                                               OPSZ_STACK),
-                         OPND_CREATE_INT32(xflag)));
-
-
-    PRE(ilist, instr, INSTR_CREATE_lea(drcontext, opnd_watched_addr, opnd_create_base_disp(opnd_get_base(ops->found_operand),
-                                                opnd_get_index(ops->found_operand), opnd_get_scale(ops->found_operand),
-                                                opnd_get_disp(ops->found_operand), OPSZ_lea)));
-
-   // PRE(ilist, instr, not_null);
-    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr, OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
-    PRE(ilist, instr, INSTR_CREATE_or(drcontext, opnd_unwatched_addr, opnd_watched_addr));
-    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_unwatched_addr, opnd_watched_addr));
-
-    PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_je, opnd_create_instr(addr_is_not_a_watchpoint)));
-
-    PRE(ilist, instr, addr_is_a_watchpoint);
-
-    emulated = instr_clone(drcontext, instr);
-    emulated->translation = 0;
-
-    ops->replacement_operand = opnd_create_base_disp(
-            reg_unwatched_addr, DR_REG_NULL,1, 0 , ops->found_operand.size);
-
-    for_each_operand(emulated, ops,
-            (opnd_callback_t *) memory_operand_replacer);
-    PRE(ilist, instr, INSTR_CREATE_popf(drcontext));
-    PRE(ilist, instr, emulated);
-    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_unwatched_addr));
-    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_watched_addr));
-
-    PRE(ilist, instr, INSTR_CREATE_jmp_short(drcontext,
-            opnd_create_instr(done_instrumenting)));
-
-    PRE(ilist, instr, addr_is_not_a_watchpoint);
-    PRE(ilist, instr, INSTR_CREATE_popf(drcontext));
-    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_unwatched_addr));
-    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_watched_addr));
-    /*** original instruction here ***/
-    instr->translation = 0; // hack!
-    instr_being_modified(instr, false);
-    instr_set_ok_to_mangle(instr, false);
-
-    nop->translation = pc + instr->length;
-    POST(ilist, instr, nop);
-    POST(ilist, instr, done_instrumenting);
-
-
-}
-
 
 static void
-instrument_write_rep_stos(void *drcontext, instrlist_t *ilist, instr_t *instr,
-		app_pc pc, struct memory_operand_modifier *ops, bool is_write)
-{
+instrument_write_rep_stos(void *drcontext, instrlist_t *ilist,
+        instr_t *instr, app_pc pc, struct memory_operand_modifier *ops, bool is_write){
+
     unsigned long used_registers = 0;
     reg_id_t instr_reg;
     opnd_t instr_opnd;
-   // opnd_t instr_opnd_dsts;
     opnd_t opnd_instr_reg;
     instr_t *emulated;
 
@@ -530,21 +344,16 @@ instrument_write_rep_stos(void *drcontext, instrlist_t *ilist, instr_t *instr,
         instr_opnd = instr_get_src(instr, 0);
     }
 
-    //reg_id_t instr_reg_dsts = opnd_get_base(instr_opnd_dsts);
-    //opnd_t opnd_instr_reg_dsts = opnd_create_reg(instr_reg_dsts);
-
     instr_reg = opnd_get_base(instr_opnd);
     opnd_instr_reg = opnd_create_reg(instr_reg);
 
     PRE(ilist, instr, begin_instrumenting);
     PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_instr_reg));
-    //PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_instr_reg_src));
     PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_reg_mask));
     PRE(ilist, instr, INSTR_CREATE_pushf(drcontext));
     PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_reg_mask, OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
 
     PRE(ilist, instr, INSTR_CREATE_or(drcontext, opnd_instr_reg, opnd_reg_mask));
-    //PRE(ilist, instr, INSTR_CREATE_or(drcontext, opnd_instr_reg_src, opnd_reg_mask));
 
     emulated = instr_clone(drcontext, instr);
     emulated->translation = 0;
@@ -832,37 +641,6 @@ instrument_mem_instr_xadd(void *drcontext, instrlist_t *ilist,
         POST(ilist, instr, done_instrumenting);
     }
 }
-
-
-
-noinline void
-kernel_instr_is_cti(instr_t* instr)
-{
-
-}
-
-static void
-instrument_indirect_call(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc pc)
-{
-    unsigned long used_registers = 0;
-    reg_id_t dsts_reg;
-    opnd_t opnd_dsts;
-    opnd_t opnd_dsts_reg;
-    instr_t *emulated;
-
-    instr_t *begin_instrumenting = INSTR_CREATE_label(drcontext);
-    instr_t *done_instrumenting = INSTR_CREATE_label(drcontext);
-    instr_t *nop = INSTR_CREATE_nop(drcontext);
-
-    collect_regs(&used_registers, instr, instr_num_srcs, instr_get_src );
-    collect_regs(&used_registers, instr, instr_num_dsts, instr_get_dst );
-
-    reg_id_t reg_mask = get_next_free_reg(&used_registers);
-    opnd_t opnd_reg_mask = opnd_create_reg(reg_mask);
-
-}
-
-
 
 static bool inline is_kernel_text(app_pc pc){
 	return (pc >= (app_pc) KERNEL_START_ADDR) && (pc < (app_pc) KERNEL_END_ADDR);

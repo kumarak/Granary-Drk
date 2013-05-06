@@ -35,18 +35,20 @@ TYPE_WRAPPER(struct address_space_operations, {
             WRAP_FUNC(arg.error_remove_page);
         }
         no_post
+        no_return
 })
 
 TYPE_WRAPPER(struct inode, {
         pre {
-            D( kern_printk("    inode\n"); )
-
+            D( kern_printk("    wrapping inode\n"); )
+          //  ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct inode));
             WRAP_RECURSIVE_KERNEL(arg.i_sb);
             WRAP_RECURSIVE_KERNEL(arg.i_op);
             WRAP_RECURSIVE_KERNEL(arg.i_fop);
             WRAP_RECURSIVE_KERNEL(arg.i_mapping);
         }
-        no_post
+                no_post
+        no_return
 })
 
 #define LOOP_COUNT 5
@@ -54,7 +56,7 @@ TYPE_WRAPPER(struct inode, {
 TYPE_WRAPPER(struct super_block, {
         pre {
             D(kern_printk("    super_block\n");)
-
+          //  ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct super_block));
             WRAP_RECURSIVE_KERNEL(arg.s_type);
             WRAP_RECURSIVE_KERNEL(arg.s_op);
             WRAP_RECURSIVE_KERNEL(arg.s_export_op);
@@ -72,7 +74,8 @@ TYPE_WRAPPER(struct super_block, {
                 }
             }
         }
-        no_post
+                no_post
+        no_return
 })
 
 TYPE_WRAPPER(struct address_space, {
@@ -80,7 +83,8 @@ TYPE_WRAPPER(struct address_space, {
             D( kern_printk("    address_space\n");)
                 WRAP_RECURSIVE_KERNEL(arg.a_ops);
         }
-        no_post
+                no_post
+        no_return
 })
 
 TYPE_WRAPPER(struct block_device , {
@@ -90,7 +94,8 @@ TYPE_WRAPPER(struct block_device , {
             WRAP_RECURSIVE_KERNEL(arg.bd_inode);
             WRAP_RECURSIVE_KERNEL(arg.bd_super);
         }
-        no_post
+                no_post
+        no_return
 })
 
 TYPE_WRAPPER(struct file_system_type, {
@@ -99,7 +104,8 @@ TYPE_WRAPPER(struct file_system_type, {
             WRAP_FUNC(arg.mount);
             WRAP_FUNC(arg.kill_sb);
         }
-        no_post
+                no_post
+        no_return
 })
 
 /*TYPE_WRAPPER(get_block_t, {
@@ -107,7 +113,8 @@ TYPE_WRAPPER(struct file_system_type, {
             D( kern_printk("    get_block_t\n"); )
                 WRAP_FUNC(arg);
         }
-        no_post
+                no_post
+        no_return
 })*/
 
 /***********************************************
@@ -115,6 +122,7 @@ TYPE_WRAPPER(struct file_system_type, {
  */
 
 FUNC_WRAPPER(register_filesystem, (struct file_system_type * fs), {
+        //ADD_TO_HASH(fs, SCAN_HEAD_FUNC(struct file_system_type));
         WRAP_FUNC(fs->mount);
         WRAP_FUNC(fs->kill_sb);
         return register_filesystem(fs);
@@ -122,12 +130,12 @@ FUNC_WRAPPER(register_filesystem, (struct file_system_type * fs), {
 
 FUNC_WRAPPER(iget_locked, (struct super_block *sb, unsigned long ino), {
         struct super_operations *arg_sop = (struct super_operations*)sb->s_op;
-        kern_printk("super_operation access : %lx", sb->s_op);
         //WRAP_FUNC(TO_UNWATCHED_ADDRESS(arg_sop)->alloc_inode);
         //WRAP_FUNC(TO_UNWATCHED_ADDRESS(arg_sop)->destroy_inode);
         //WRAP_FUNC(TO_UNWATCHED_ADDRESS(arg_sop)->dirty_inode);
         //WRAP_FUNC(TO_UNWATCHED_ADDRESS(arg_sop)->write_inode);
         WRAP_RECURSIVE_KERNEL(arg_sop);
+        //ADD_TO_HASH(TO_UNWATCHED_ADDRESS(sb), SCAN_HEAD_FUNC(struct super_block));
         return iget_locked(sb, ino);
 })
 #if 1

@@ -616,6 +616,8 @@ extern void *instrlist_meta_append;
 EXPORT_SYMBOL_GPL(instrlist_meta_append);
 extern void *dr_global_alloc;
 EXPORT_SYMBOL_GPL(dr_global_alloc);
+extern void *dr_register_add_to_list_func;
+EXPORT_SYMBOL_GPL(dr_register_add_to_list_func);
 extern void *reg_is_extended;
 EXPORT_SYMBOL_GPL(reg_is_extended);
 extern void *dr_barrier_wait;

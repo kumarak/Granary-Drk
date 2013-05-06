@@ -123,7 +123,7 @@ alias_meta_thread *alias_meta_thread::FREE_LIST = 0;
 /// Watchpoint meta information. An RCU watchpoint is
 /// either a source (with thread-specific meta-information)
 /// or is an alias of a source (i.e. alias = rcu_dereference(source)).
-/// 
+///
 /// Sources are not allowed to be accessed, only aliases. This
 /// enforces that every read/write must be on a RCU-dereferenced
 /// pointer. However, sources maintain the thread generation
@@ -133,6 +133,7 @@ struct alias_meta {
 
     uint64_t base_address;
     uint64_t limit;
+    uint64_t bitflags;
 
 } __attribute__((packed));
 

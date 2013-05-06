@@ -10,38 +10,28 @@
 
 
 struct kernel_module {
-
-	int is_instrumented;
-
-	/// Various module addresses.
-	void *address;
+    int is_instrumented;
+	void *mod;
 
 	void *text_begin;
 	void *text_end;
 
-	void *ro_text_begin;
-	void *ro_text_end;
+	void *rodata_begin;
+	void *rodata_end;
 
 	void *ro_init_begin;
 	void *ro_init_end;
 
-	/// The name.
-	const char *name;
+	void *data_begin;
+	void *data_end;
 
-	/// The current module state.
-	enum {
-		STATE_LIVE,
-		STATE_COMING,
-		STATE_GOING
-	} state;
+	void *bss_begin;
+	void *bss_end;
 
 	/// The next module object in the list of module objects.
 	struct kernel_module *next;
 };
 
-#define MODULE_COUNT 5
-
-struct kernel_module loaded_modules[MODULE_COUNT] = {0,};
 
 
 

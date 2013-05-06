@@ -5,18 +5,18 @@
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * * Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * * Redistributions in binary form must reproduce the above copyright notice,
  *   this list of conditions and the following disclaimer in the documentation
  *   and/or other materials provided with the distribution.
- * 
+ *
  * * Neither the name of VMware, Inc. nor the names of its contributors may be
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -58,6 +58,8 @@
 /* DR_API EXPORT VERBATIM */
 #ifndef PAGE_SIZE
 # define PAGE_SIZE (4*1024) /**< Size of a page of memory. */
+# define THREAD_SIZE_ORDER       2
+# define THREAD_SIZE  (PAGE_SIZE << THREAD_SIZE_ORDER)
 #else
 # if PAGE_SIZE != 4096
 #  error bag page size
@@ -79,7 +81,7 @@ enum {
 /* Family and Model
  *   Intel 486                 Family 4
  *   Intel Pentium             Family 5
- *   Intel Pentium Pro         Family 6, Model 0 and 1 
+ *   Intel Pentium Pro         Family 6, Model 0 and 1
  *   Intel Pentium 2           Family 6, Model 3, 5, and 6
  *   Intel Celeron             Family 6, Model 5 and 6
  *   Intel Pentium 3           Family 6, Model 7, 8, 10, 11
@@ -181,7 +183,7 @@ typedef enum {
     FEATURE_EST =       7 + 32,         /**< Enhanced Speedstep Technology */
     FEATURE_TM2 =       8 + 32,         /**< Thermal Monitor 2 */
     FEATURE_SSSE3 =     9 + 32,         /**< SSSE3 Extensions supported */
-    FEATURE_CID =       10 + 32,        /**< Context ID */ 
+    FEATURE_CID =       10 + 32,        /**< Context ID */
     FEATURE_CX16 =      13 + 32,        /**< CMPXCHG16B instruction supported */
     FEATURE_xPTR =      14 + 32,        /**< Send Task Priority Messages */
     /* extended features returned in edx */
@@ -229,7 +231,7 @@ proc_get_cache_line_size(void);
 
 DR_API
 /** Returns true only if \p addr is cache-line-aligned. */
-bool 
+bool
 proc_is_cache_aligned(void *addr);
 
 void
@@ -251,7 +253,7 @@ uint
 proc_get_vendor(void);
 
 DR_API
-/** 
+/**
  * Returns the processor family as given by the cpuid instruction,
  * adjusted by the extended family as described in the Intel documentation.
  * The FAMILY_ constants identify important family values.
@@ -265,7 +267,7 @@ uint
 proc_get_type(void);
 
 DR_API
-/** 
+/**
  * Returns the processor model as given by the cpuid instruction,
  * adjusted by the extended model as described in the Intel documentation.
  * The MODEL_ constants identify important model values.
@@ -330,10 +332,10 @@ DR_API
  * 108 bytes for those without (where this routine does not support
  * 16-bit operand sizing).  \note proc_fpstate_save_size() can be used
  * to determine the particular size needed.
- * 
+ *
  * DR does NOT save the application's floating-point, MMX, or SSE state
- * on context switches!  Thus if a client performs any floating-point 
- * operations in its main routines called by DR, the client must save 
+ * on context switches!  Thus if a client performs any floating-point
+ * operations in its main routines called by DR, the client must save
  * and restore the floating-point/MMX/SSE state.
  * If the client needs to do so inside the code cache the client should implement
  * that itself.
@@ -350,7 +352,7 @@ DR_API
  * support 16-bit operand sizing).  \note proc_fpstate_save_size() can
  * be used to determine the particular size needed.
  */
-void 
+void
 proc_restore_fpstate(byte *buf);
 
 #endif /* _PROC_H_ */

@@ -16,7 +16,7 @@
 */
 
 #define DECLARE_HASH(name) struct hashtable_t *htable
-#define HASHMAP_PUT hashmap_put
+#define HASHMAP_PUT //hashmap_put
 
 extern struct module *target_module;
 struct kernsym;
@@ -63,6 +63,15 @@ cfi_handler_alloc(struct module *mod, const void *addr, unsigned long size,
 extern void
 cfi_handler_free(struct module *mod, const void *addr,
         const void *caller_address);
+
+extern void
+cfi_handler_lost(struct module *mod, const void *addr,
+        const void *caller_address);
+
+extern void
+cfi_collect_watcpoint(const void *src, const void *wp);
+
+extern void cfi_dump_stack();
 
  struct file_operations;
  extern int __register_chrdev(unsigned int major, unsigned int baseminor,

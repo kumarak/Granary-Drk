@@ -12,11 +12,14 @@
 #include "cfi_memory_leak.h"
 #include "cfi_module.h"
 #include "cfi_atomic_list.h"
+#include "cfi_hashtable.h"
 
 extern struct hlist_head lc_objects[LC_TABLE_SIZE];
 extern struct cfi_list_head atomic_sweep_list;
 
-extern struct cfi_list_head module_alloc_list[2];
+extern struct cfi_list_head module_alloc_list[4];
+extern struct hashtable_t *module_alloc_hash[3];
+extern struct cfi_list_head kernel_leaked_watchpoints;
 
 
 void
@@ -303,11 +306,27 @@ granary_print_ld_stat(struct module *mod)
 void
 cfi_handler_alloc(struct module *mod, const void *addr, size_t size,
         const void *caller_address){
-    cfi_list_append(&module_alloc_list[CFI_ALLOC_WHITE_LIST], addr);
+    unsigned int value = 0x1;
+    if(NULL != addr){
+        cfi_list_append(&module_alloc_list[CFI_ALLOC_WHITE_LIST], addr);
+    }
+    //hashmap_put(module_alloc_hash[CFI_ALLOC_WHITE_LIST], addr, value);
 }
 
 void
 cfi_handler_free(struct module *mod, const void *addr,
         const void *caller_address){
-        cfi_list_del_item(&module_alloc_list[CFI_ALLOC_WHITE_LIST], addr);
+        if(NULL != addr){
+          cfi_list_del_item(&module_alloc_list[CFI_ALLOC_WHITE_LIST], addr);
+          cfi_list_del_item(&kernel_leaked_watchpoints, addr);
+          cfi_list_append(&module_alloc_list[CFI_COLLECT_LIST], addr);
+        }
+
+        //hashmap_delete(module_alloc_hash[CFI_ALLOC_WHITE_LIST], addr);
+}
+
+void
+cfi_handler_lost(struct module *mod, const void *addr,
+        const void *caller_address){
+    cfi_list_append(&module_alloc_list[CFI_LOST_REFERENCE], addr);
 }

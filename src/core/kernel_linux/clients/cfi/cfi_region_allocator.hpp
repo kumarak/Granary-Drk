@@ -40,15 +40,17 @@ private:
     T *slide(void) throw() {
 
         mem_t allocated_addr((mem_t)__sync_fetch_and_add(&(this->next), SIZE));
-        /*
-        mem_t allocated_addr(cfi_atomic_change(
-            (volatile mem_t *) &(this->next),
-            add_sizeof_T));*/
 
         return (T *) allocated_addr;
     }
 
 public:
+
+    void init(){
+        this->begin = (T*) MODULE_SHADOW_END;
+        this->end = (T*)MODULE_SHADOW_END_EXTENDED;
+        this->next = this->begin;
+    }
 
     /// initialize the bump pointer allocator;
     atomic_region_allocator(void *begin_, void *end_) throw()
@@ -66,12 +68,17 @@ public:
     }
 
     T *allocate(void) throw() {
-    	if(this->begin == NULL){
-    		this->begin = (T*) MODULE_SHADOW_END;
-    		this->end = (T*)MODULE_SHADOW_END_EXTENDED;
-    		this->next = this->begin;
-    	}
         return (T *) memset(slide(), 0, SIZE);
+    }
+
+    T *allocate_index(unsigned long index) throw() {
+        T* meta = this->begin + index;
+        return (T *) memset(meta, 0, SIZE);
+    }
+
+    T *get_index(unsigned long index) throw() {
+        T* meta = this->begin + index;
+        return (T *) meta;
     }
 
     inline bool is_allocated(const T *addr) const throw() {

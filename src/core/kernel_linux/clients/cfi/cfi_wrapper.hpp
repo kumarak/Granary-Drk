@@ -27,6 +27,9 @@ extern "C" {
 #define MODULE_SHADOW_START MODULE_END_ADDR
 #define MODULE_SHADOW_OFFSET 0x20000000
 
+#define ADD_TO_HASH(key, value)\
+            hashmap_put(kernel_pointer_hash, (void*)key, (void*)value);
+
 
 #define ENABLE_TAINT_TRACKING 0
 #if defined(__GNUC__) && ((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 2)))
@@ -55,6 +58,7 @@ bool is_kernel_virtual_address_space(T addr) {
 /// by means of function overloading.
 class pre_tag { };
 class post_tag { };
+class return_tag { };
 
 
 
@@ -74,9 +78,6 @@ public:
     typedef T type;
 };
 
-//#include "cfi_alias.hpp"
-
-
 
 /// used to more easily define wrappers in terms of a type and a function body
 /// that operates on the 'arg' variable
@@ -92,12 +93,14 @@ public:
 /// the tracking will be auto-performed
 #define pre wrap_func(pre_tag,1)
 #define post wrap_func(post_tag,1)
+#define wrap_return wrap_func(return_tag,1)
 
 #define wrap_pre wrap_func_ptr(pre_tag,1)
 
 /// if one doesn't define pre/post, then tracking isn't defined
 #define no_pre wrap_func(pre_tag,0) { (void) depth__; (void) tag__; }
 #define no_post wrap_func(post_tag,0) { (void) depth__; (void) tag__; }
+#define no_return wrap_func(return_tag,0) { (void) depth__; (void) tag__; }
 
 #define no_wrap_pre wrap_func_ptr(pre_tag,0) { (void) depth__; (void) tag__; }
 #define no_wrap_post wrap_func_ptr(post_tag,0) { (void) depth__; (void) tag__; }
@@ -182,13 +185,11 @@ public:
 // wrap an l-value that is a function pointer
 #define WRAP_FUNC(lval) \
     if(lval != 0) {  \
-        /*D( kern_printk("wrap_function : %lx\n", lval); )*/  \
         lval = to_shadow_address(lval); \
     }
 
 #define UNALIAS_ADDRESS(lval) \
     if(lval != 0) {  \
-        /*D( kern_printk("wrap_function : %lx\n", lval); )*/  \
         lval = to_unaliased_address(lval); \
     }
 
@@ -202,8 +203,6 @@ public:
     }
 
 #include <stdint.h>
-//#include <string.h>
-//#include <cstdarg>
 #include "cfi_wrapper.h"
 #include "cfi_kernel_addresses.h" // generated file
 #include "symbols/symbol_get_addr.h"
@@ -246,9 +245,6 @@ typedef int (sys_getpid)(void);
 typedef int (sys_gettid)(void);
 
 static printf_type *kern_printk = (printf_type *) KERN_ADDR_printk;
-//static vsnprintf_type *kern_vsnprintf = (vsnprintf_type *) KERN_ADDR_vsnprintf;
-//static sys_getpid *getpid = (sys_getpid *)SYS_GETPID;
-//static sys_gettid *gettid = (sys_gettid *)SYS_GETTID;
 
 /// wrap an argument based on its type
 #define MAKE_BASE_WRAPPER(class_name)  \
@@ -262,8 +258,10 @@ static printf_type *kern_printk = (printf_type *) KERN_ADDR_printk;
         struct impl { \
             constexpr static int track_wrapper(pre_tag) { return 0; } \
             constexpr static int track_wrapper(post_tag) { return 0; } \
+            constexpr static int track_wrapper(return_tag) { return 0; } \
             FORCE_INLINE static void wrap(T &, int, pre_tag) { } \
             FORCE_INLINE static void wrap(T &, int, post_tag) { } \
+            FORCE_INLINE static void wrap(T &, int, return_tag) { } \
         }; \
     }; \
     \
@@ -277,8 +275,10 @@ static printf_type *kern_printk = (printf_type *) KERN_ADDR_printk;
         struct impl { \
             constexpr static int track_wrapper(pre_tag) { return 0; } \
             constexpr static int track_wrapper(post_tag) { return 0; } \
+            constexpr static int track_wrapper(return_tag) { return 0; } \
             FORCE_INLINE static void wrap(void *, int, pre_tag) { } \
             FORCE_INLINE static void wrap(void *, int, post_tag) { } \
+            FORCE_INLINE static void wrap(void *, int, return_tag) { } \
         }; \
     };
 
@@ -365,6 +365,15 @@ public:
         };
         tracked_recursive_wrapper<Wrap, Arg, post_tag, TRACK_TYPE>::wrap(arg, depth__);
     }
+    inline static void return_wrap(Arg &arg, const int depth__) {
+        enum {
+            CAN_TRACK_WRAPPER = !!Wrap<Arg>::impl::track_wrapper(return_tag()),
+            IS_TRACKED = !!IS_TRACKED_TYPE(typename, Arg),
+            IS_STRUCT_TRACKED = !!IS_STRUCT_TRACKED_TYPE(typename, Arg),
+            TRACK_TYPE = CAN_TRACK_WRAPPER ? (IS_TRACKED + IS_STRUCT_TRACKED) : 0,
+        };
+        //tracked_recursive_wrapper<Wrap, Arg, return_tag, TRACK_TYPE>::wrap(arg, depth__);
+    }
 };
 
 /// type reduction for recursive wrappers
@@ -384,6 +393,9 @@ public:
     }
     inline static void post_wrap(const Arg &arg, const int depth__) {
         recursive_wrapper<Wrap, Arg>::post_wrap(const_cast<Arg &>(arg), depth__);
+    }
+    inline static void retrun_wrap(const Arg &arg, const int depth__) {
+        recursive_wrapper<Wrap, Arg>::return_wrap(const_cast<Arg &>(arg), depth__);
     }
 };
 
@@ -415,6 +427,15 @@ public:
 			}
         }
     }
+    inline static void return_wrap(Arg *&arg, const int depth__) {
+        if(((Arg *) 4095) < arg) {
+            if(Wrap<Arg *>::IS_DEFINED) {
+                recursive_wrapper_base<Wrap, Arg *>::return_wrap(arg, depth__);
+            } else {
+                recursive_wrapper<Wrap, Arg>::return_wrap(*arg, depth__);
+            }
+        }
+    }
 };
 
 template <template<typename> class Wrap, typename Arg>
@@ -433,6 +454,11 @@ public:
     inline static void post_wrap(Arg **&arg, const int depth__) {
         if(((Arg **) 4095) < arg) {
             recursive_wrapper<Wrap, Arg *>::post_wrap(*arg, depth__);
+        }
+    }
+    inline static void return_wrap(Arg **&arg, const int depth__) {
+        if(((Arg **) 4095) < arg) {
+            recursive_wrapper<Wrap, Arg *>::return_wrap(*arg, depth__);
         }
     }
 };
@@ -459,6 +485,12 @@ public:
             Wrap<Arg *>::impl::wrap(arg, depth__, tag);
         }
     }
+    inline static void return_wrap(Arg *&arg, const int depth__) {
+        if(((Arg *) 4095) < arg) {
+            return_tag tag;
+            Wrap<Arg *>::impl::wrap(arg, depth__, tag);
+        }
+    }
 };
 
 template <template<typename> class Wrap, typename Arg>
@@ -473,6 +505,7 @@ public:
 
     FORCE_INLINE static void pre_wrap(void *, int) { }
     FORCE_INLINE static void post_wrap(void *, int) { }
+    FORCE_INLINE static void return_wrap(void *, int) { }
 };
 
 template <template<typename> class Wrap>
@@ -484,6 +517,7 @@ public:
 
     FORCE_INLINE static void pre_wrap(const void *, int) { }
     FORCE_INLINE static void post_wrap(const void *, int) { }
+    FORCE_INLINE static void return_wrap(const void *, int) { }
 };
 
 /// recursively wrap some argument; benefits from type deduction
@@ -509,7 +543,12 @@ template <template<typename> class Wrap >
 FORCE_INLINE void arg_post_wrapper(int) {
 	D(kern_printk("%s\n", __FUNCTION__));
 }
-
+/*
+template <template<typename> class Wrap >
+FORCE_INLINE void arg_return_wrapper(int) {
+    D(kern_printk("%s\n", __FUNCTION__));
+}
+*/
 /// unroll and wrap arguments by type
 template <template<typename> class Wrap, typename Arg, typename... Rest>
 inline void arg_pre_wrapper(const int depth__, Arg &arg, Rest&... rest) {
@@ -526,11 +565,8 @@ inline void arg_post_wrapper(const int depth__, Arg &arg, Rest&... rest) {
 
 template <template<typename> class Wrap, typename Arg>
 inline void arg_return_wrapper(const int depth__, Arg &arg){
-
-    //SCAN_HEAD_FUNC(Arg)
-    //kern_printk("arg_return_wrapper  : %lx\n", arg);
-   // cfi_return_to_kernel((void*)arg);
-
+    kern_printk("************************return wrapper count*******************************\n");
+    recursive_wrapper<Wrap, Arg>::return_wrap(arg, depth__);
 }
 
 /// count how many arguments are being wrapped
@@ -694,22 +730,24 @@ public:
         dr_app_start();
         R ret(((orig_func_type *) addr)(args...));
         /* implicit dr_app_stop(); */
-        if(is_kernel_virtual_address_space(ret)
-                && IS_WATCHPOINT(ret)){
-            cfi_return_to_kernel((void*)ret);
-            //kern_printk("return object : %lx\n", ret);
+
+        if(is_kernel_virtual_address_space(ret)){
+            if(!is_alias_address((uint64_t)ret)){
+                kern_printk( "adding return object for type scanning\n");
+               // ADD_TO_HASH(ret, SCAN_HEAD_FUNC(DECLTYPE(*ret)));
+            }else {
+                cfi_return_to_kernel((void*)ret);
+            }
         }
 
-        //SCAN_HEAD_FUNC(R)(ret);
-        //cfi_return_to_kernel((void*)ret);
-      //  scan_function<R>::scan(ret);
         if(count_wrappers<module_wrap_type, Args...>::HAS_ANY) {
             arg_post_wrapper<module_wrap_type, Args...>(depth__, args...);
         }
 
-        /*if(count_wrappers<module_wrap_type, R>::HAS_ANY){
+        if(count_wrappers<module_wrap_type, R>::HAS_ANY) {
             arg_return_wrapper<module_wrap_type, R>(depth__, ret);
-        }*/
+        }
+
         return ret;
     }
 };
@@ -777,14 +815,6 @@ struct cfi_dynamic_wrapper_ret_impl {
 	}
 };
 
-void break_on_kernel_wrapper()
-{
-
-}
-
-extern "C" {
-extern void cfi_enter_module_from_shadow(void);
-}
 
 /// convert an arbitrary function type into one that is in the shadow module
 /// iff the original is in the shadow
@@ -793,7 +823,6 @@ R (*to_shadow_address(R (*func_ptr)(Args...)))(Args...) {
     typedef R (func_type)(Args...);
 
     uint64_t addr((uint64_t) func_ptr);
-    break_on_kernel_wrapper();
 
     // the address is already in the shadow
     if(MODULE_SHADOW_START <= addr && addr < MODULE_SHADOW_END) {
@@ -871,7 +900,6 @@ constexpr cfi_type_erased_func_ptr cfi_wrapper(R (*)(Args...)) {
     return (cfi_type_erased_func_ptr) cfi_wrapper_impl<addr, R, Args...>::wrapper;
 }
 
-//#include "cfi_atomic_list.hpp"
 
 #undef D
 #undef pre

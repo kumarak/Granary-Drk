@@ -5203,6 +5203,21 @@ dr_set_stack_pointer_value(void *drcontext, void *addr)
 	*((reg_t*)get_mcontext(dcontext)->rsp) = addr;
 }
 
+DR_API
+void
+dr_register_add_to_list_func(void *func){
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    dcontext->add_to_list = func;
+}
+
+DR_API
+void
+dr_add_to_list(void *addr){
+    dcontext_t *dcontext = get_thread_private_dcontext();
+    if(dcontext->add_to_list)
+        dcontext->add_to_list(addr);
+}
+
 #define KERNEL_ADDRESS_OFFSET		0xffff000000000000
 #define USER_SPACE_LIMIT 0x00007fffffffffff
 
@@ -5223,6 +5238,7 @@ reg_t dr_get_gp_xflag(void *dcontext){
     return ((dcontext_t*)dcontext)->gp_xflags;
 }
 
+
 DR_API
 void
 dr_get_mcontext_snapshot(void *addr) {
@@ -5237,12 +5253,14 @@ dr_get_mcontext_snapshot(void *addr) {
         spill_slot = kernel_thread_private_slot_init(SPILL_SLOT_1);
         spill_slot->section_count = 1;
         spill_slot->is_running_module = 1;
+        spill_slot->tsk = kernel_get_current();
+        dr_add_to_list((void*)spill_slot);
     }
 
-    spill_slot->current_stack = current_stack_pointer;
-    if(spill_slot->stack)
-        spill_slot->stack = kernel_memcpy(spill_slot->stack, page_address, 4*PAGE_SIZE);
-
+   // spill_slot->current_stack = current_stack_pointer;
+  /*  if(spill_slot->stack)
+        spill_slot->stack = kernel_memcpy(spill_slot->stack, page_address, THREAD_SIZE);
+*/
 }
 
 

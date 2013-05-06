@@ -125,26 +125,26 @@ typedef enum {
 } dr_spill_slot_t;
 
 
-/** 
+/**
  * Inserts into \p ilist prior to \p where meta-instruction(s) to save the
  * register \p reg in the spill slot \p slot.  See dr_restore_reg(). Use
  * dr_read_saved_reg() and dr_write_saved_reg() to access spill slots from clean
  * calls and restore_state_events (see dr_register_restore_state_event()).
  * \note The stored value remains available only until the next non-meta (i.e.
- * application) instruction. Use dr_insert_write_tls_field() and 
+ * application) instruction. Use dr_insert_write_tls_field() and
  * dr_insert_read_tls_field() for a persistent (but more costly to access)
  * thread-local-storage location.  See also dr_raw_tls_calloc().
  */
-void 
+void
 dr_save_reg(void *drcontext, instrlist_t *ilist, instr_t *where, reg_id_t reg,
             dr_spill_slot_t slot);
 
-/** 
- * Inserts into \p ilist prior to \p where meta-instruction(s) to restore the 
+/**
+ * Inserts into \p ilist prior to \p where meta-instruction(s) to restore the
  * register \p reg from the spill slot \p slot.  See dr_save_reg() for notes on
  * lifetime and alternative access to spill slots.
  */
-void 
+void
 dr_restore_reg(void *drcontext, instrlist_t *ilist, instr_t *where, reg_id_t reg,
                dr_spill_slot_t slot);
 
@@ -172,10 +172,10 @@ reg_t
 dr_read_saved_reg(void *drcontext, dr_spill_slot_t slot);
 
 /**
- * Can be used from a clean call to modify the value saved in the spill slot 
+ * Can be used from a clean call to modify the value saved in the spill slot
  * \p slot by dr_save_reg() such that a later dr_restore_reg() will see the
  * new value.
- * 
+ *
  * \note This routine should only be used during a clean call out of the
  * cache.  Use at any other time could corrupt application or \DynamoRIO
  * state.
@@ -183,7 +183,7 @@ dr_read_saved_reg(void *drcontext, dr_spill_slot_t slot);
 void
 dr_write_saved_reg(void *drcontext, dr_spill_slot_t slot, reg_t value);
 
-/** 
+/**
  * Inserts into \p ilist prior to \p where meta-instruction(s) to save the 6
  * arithmetic flags into xax after first saving xax to the spill slot \p slot.
  * This is equivalent to dr_save_reg() of xax to \p slot followed by lahf and
@@ -194,20 +194,20 @@ dr_write_saved_reg(void *drcontext, dr_spill_slot_t slot, reg_t value);
  * routine unless it is first saved (and later restored prior to
  * using dr_restore_arith_flags()).
  */
-void 
+void
 dr_save_arith_flags(void *drcontext, instrlist_t *ilist, instr_t *where,
                     dr_spill_slot_t slot);
 
-/** 
+/**
  * Inserts into \p ilist prior to \p where meta-instruction(s) to restore the 6
  * arithmetic flags, assuming they were saved using dr_save_arith_flags() with
  * slot \p slot and that xax holds the same value it did after the save.
  */
-void 
+void
 dr_restore_arith_flags(void *drcontext, instrlist_t *ilist, instr_t *where,
                        dr_spill_slot_t slot);
 
-/** Emulates the effects of 
+/** Emulates the effects of
  *  add 7f, al
  *  sahf
  * on eflags to restore eflags from xax. Does not modify xax.
@@ -234,7 +234,7 @@ dr_insert_write_tls_field(void *drcontext, instrlist_t *ilist, instr_t *where,
                           reg_id_t reg);
 
 /** Inserts \p instr as a non-application instruction into \p ilist prior to \p where. */
-void 
+void
 instrlist_meta_preinsert(instrlist_t *ilist, instr_t *where, instr_t *instr);
 
 /** Inserts \p instr as a non-application instruction into \p ilist after \p where. */
@@ -247,21 +247,21 @@ instrlist_meta_append(instrlist_t *ilist, instr_t *instr);
 
 /**
  * Inserts \p instr as a non-application instruction that can fault (see
- * instr_set_meta_may_fault()) into \p ilist prior to \p where. 
+ * instr_set_meta_may_fault()) into \p ilist prior to \p where.
  */
-void 
+void
 instrlist_meta_fault_preinsert(instrlist_t *ilist, instr_t *where, instr_t *instr);
 
 /**
  * Inserts \p instr as a non-application instruction that can fault (see
- * instr_set_meta_may_fault()) into \p ilist after \p where. 
+ * instr_set_meta_may_fault()) into \p ilist after \p where.
  */
 void
 instrlist_meta_fault_postinsert(instrlist_t *ilist, instr_t *where, instr_t *instr);
 
 /**
  * Inserts \p instr as a non-application instruction that can fault (see
- * instr_set_meta_may_fault()) onto the end of \p ilist. 
+ * instr_set_meta_may_fault()) onto the end of \p ilist.
  */
 void
 instrlist_meta_fault_append(instrlist_t *ilist, instr_t *instr);
@@ -316,7 +316,7 @@ instrlist_meta_fault_append(instrlist_t *ilist, instr_t *instr);
  * \note Arguments that reference sub-register portions of REG_XSP are
  * not supported (full REG_XSP is supported).
  */
-void 
+void
 dr_insert_clean_call(void *drcontext, instrlist_t *ilist, instr_t *where,
                      void *callee, bool save_fpstate, uint num_args, ...);
 
@@ -366,7 +366,7 @@ dr_insert_clean_call(void *drcontext, instrlist_t *ilist, instr_t *where,
  *
  * \note Arguments that reference REG_XSP are not supported in 64-bit mode.
  */
-void 
+void
 dr_insert_call(void *drcontext, instrlist_t *ilist, instr_t *where,
                void *callee, uint num_args, ...);
 
@@ -394,11 +394,11 @@ dr_insert_call(void *drcontext, instrlist_t *ilist, instr_t *where,
 uint
 dr_prepare_for_call(void *drcontext, instrlist_t *ilist, instr_t *instr);
 
-/** 
+/**
  * Inserts into \p ilist prior to \p where meta-instruction(s) to restore state
  * after a call.
  */
-void 
+void
 dr_cleanup_after_call(void *drcontext, instrlist_t *ilist, instr_t *where,
                       uint sizeof_param_area);
 
@@ -427,7 +427,7 @@ dr_restore_app_stack(void *drcontext, instrlist_t *ilist, instr_t *where);
  * -# address of call instruction (caller)
  * -# target address of call (callee)
  */
-void 
+void
 dr_insert_call_instrumentation(void *drcontext, instrlist_t *ilist,
                                instr_t *instr, void *callee);
 
@@ -441,7 +441,7 @@ dr_insert_call_instrumentation(void *drcontext, instrlist_t *ilist,
  * \note \p scratch_slot must be <= dr_max_opnd_accessible_spill_slot(). \p scratch_slot
  * is used internally to this routine and will be clobbered.
  */
-void 
+void
 dr_insert_mbr_instrumentation(void *drcontext, instrlist_t *ilist,
                               instr_t *instr, void *callee, dr_spill_slot_t scratch_slot);
 
@@ -453,7 +453,7 @@ dr_insert_mbr_instrumentation(void *drcontext, instrlist_t *ilist,
  * -# target address of branch
  * -# 0 if the branch is not taken, 1 if it is taken
  */
-void 
+void
 dr_insert_cbr_instrumentation(void *drcontext, instrlist_t *ilist,
                               instr_t *instr, void *callee);
 
@@ -467,7 +467,7 @@ dr_insert_cbr_instrumentation(void *drcontext, instrlist_t *ilist,
  * \warning Basic block eliding is controlled by -max_elide_jmp.  If that
  * option is set to non-zero, ubrs may never be seen.
  */
-void 
+void
 dr_insert_ubr_instrumentation(void *drcontext, instrlist_t *ilist,
                               instr_t *instr, void *callee);
 
@@ -483,9 +483,9 @@ dr_mcontext_xmm_fields_valid(void);
 /**
  * Copies the current application machine context to \p context.
  * This routine may only be called from:
- * - A clean call invoked by dr_insert_clean_call() or dr_prepare_for_call() 
- * - A pre- or post-syscall event (dr_register_pre_syscall_event(), 
- *   dr_register_post_syscall_event()) 
+ * - A clean call invoked by dr_insert_clean_call() or dr_prepare_for_call()
+ * - A pre- or post-syscall event (dr_register_pre_syscall_event(),
+ *   dr_register_post_syscall_event())
  * - Basic block or trace creation events (dr_register_bb_event(),
  *   dr_register_trace_event()), but for basic block creation only when the
  *   basic block callback parameters \p for_trace and \p translating are
@@ -519,9 +519,9 @@ dr_get_mcontext(void *drcontext, dr_mcontext_t *context, int *app_errno);
 /**
  * Sets the application machine context to \p context.
  * This routine may only be called from:
- * - A clean call invoked by dr_insert_clean_call() or dr_prepare_for_call() 
- * - A pre- or post-syscall event (dr_register_pre_syscall_event(), 
- *   dr_register_post_syscall_event()) 
+ * - A clean call invoked by dr_insert_clean_call() or dr_prepare_for_call()
+ * - A pre- or post-syscall event (dr_register_pre_syscall_event(),
+ *   dr_register_post_syscall_event())
  *   dr_register_thread_exit_event())
  * - Basic block or trace creation events (dr_register_bb_event(),
  *   dr_register_trace_event()), but for basic block creation only when the

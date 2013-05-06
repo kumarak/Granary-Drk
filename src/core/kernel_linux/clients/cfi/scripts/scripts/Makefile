@@ -88,6 +88,8 @@ GR_COMMON_KERNEL_FLAGS += -fno-asynchronous-unwind-tables -fno-common
 GR_INPUT_TYPES = types.h
 GR_OUTPUT_TYPES = kernel_types.h
 GR_OUTPUT_WRAPPERS = kernel_wrappers.h
+GR_OUTPUT_SCANNERS = kernel_scanners.h
+GR_OUTPUT_DYNAMIC_WRAPPERS = dynamic_wrappers.h
 
 GR_MAKE = make -C $(KERNEL_DIR) M=$(PWD) modules
 GR_CLEAN = make -C $(KERNEL_DIR) M=$(PWD) clean
@@ -115,6 +117,12 @@ types:
 # auto-generate wrappers
 wrappers: types
 	$(GR_PYTHON) generate_wrappers.py $(GR_OUTPUT_TYPES) > $(GR_OUTPUT_WRAPPERS)
+
+dynamic_wrappers: types
+	$(GR_PYTHON) generate_dynamic_wrappers.py $(GR_OUTPUT_TYPES) > $(GR_OUTPUT_DYNAMIC_WRAPPERS)
+
+scanners: types
+	$(GR_PYTHON) generate_scanner.py $(GR_OUTPUT_TYPES) > $(GR_OUTPUT_SCANNERS)
 
 detach: types
 	@$(GR_PYTHON) generate_detach_table.py $(GR_OUTPUT_TYPES) detach.inc 

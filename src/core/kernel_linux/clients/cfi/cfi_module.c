@@ -30,6 +30,7 @@ struct cfi_list_head module_alloc_list[3] =     {{.head = NULL, .count = 0 },
                                                  {.head = NULL, .count = 0}};
 
 
+struct hashtable_t  *module_alloc_hash[3];
 DEFINE_HASHTABLE(*alloc_pointer_hash);
 
 DEFINE_HASHTABLE(*kernel_pointer_hash);
@@ -39,9 +40,10 @@ DEFINE_HASHTABLE(*kernel_variable_hash);
 
 CFI_LIST_DECLARE(module_global_list);
 CFI_LIST_DECLARE(atomic_sweep_list);
-CFI_LIST_DECLARE(module_gc_free_list);
+CFI_LIST_DECLARE(watchpoint_scan_list);
 CFI_LIST_DECLARE(list_collected_watchpoint);
-CFI_LIST_DECLARE(return_collected_watchpoint);
+CFI_LIST_DECLARE(list_collected_watchpoint_kernel);
+CFI_LIST_DECLARE(kernel_leaked_watchpoints);
 
 CFI_LIST_DECLARE(list_loaded_module);
 
@@ -147,18 +149,23 @@ cfi_module_init(void) {
    	cfi_list_init(&module_alloc_list[CFI_ALLOC_WHITE_LIST]);
    	cfi_list_init(&module_alloc_list[CFI_ALLOC_GREY_LIST]);
    	cfi_list_init(&module_alloc_list[CFI_LOST_REFERENCE]);
+   	cfi_list_init(&module_alloc_list[CFI_COLLECT_LIST]);
 
     cfi_list_init(&module_global_list);
    	cfi_list_init(&atomic_sweep_list);
-   	cfi_list_init(&module_gc_free_list);
+   	cfi_list_init(&watchpoint_scan_list);
    	cfi_list_init(&list_collected_watchpoint);
-   	cfi_list_init(&return_collected_watchpoint);
+   	cfi_list_init(&kernel_leaked_watchpoints);
    	cfi_list_init(&list_loaded_module);
+   	cfi_list_init(&list_collected_watchpoint_kernel);
 
    //	hashmap_init(128, &alloc_pointer_hash);
    	hashmap_init(128, &kernel_pointer_hash);
    	hashmap_init(1024, &module_watchpoint_map);
    	hashmap_init(1024, &local_symbol_table);
+   // hashmap_init(1024, &module_alloc_hash[CFI_ALLOC_WHITE_LIST]);
+   // hashmap_init(1024, &module_alloc_hash[CFI_ALLOC_GREY_LIST]);
+   // hashmap_init(1024, &module_alloc_hash[CFI_LOST_REFERENCE]);
    	init_wrapper();
   // 	flag_memory_snapshot = kmalloc(sizeof(unsigned int), GFP_ATOMIC);
 

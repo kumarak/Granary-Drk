@@ -155,8 +155,8 @@ typedef struct _module_names_t {
 
 /**
  * Creates a DR context that can be used in a standalone program.
- * \warning This context cannot be used as the drcontext for a thread 
- * running under DR control!  It is only for standalone programs that 
+ * \warning This context cannot be used as the drcontext for a thread
+ * running under DR control!  It is only for standalone programs that
  * wish to use DR as a library of disassembly, etc. routines.
  */
 void *
@@ -170,7 +170,7 @@ dr_standalone_init(void);
 /**
  * If \p x is false, displays a message about an assertion failure
  * (appending \p msg to the message) and then calls dr_abort()
- */ 
+ */
 # define DR_ASSERT_MSG(x, msg) \
     ((void)((!(x)) ? \
         (dr_messagebox("ASSERT FAILURE: %s:%d: %s (%s)", __FILE__,  __LINE__, #x, msg),\
@@ -186,7 +186,7 @@ dr_standalone_init(void);
 /**
  * If \p x is false, displays a message about an assertion failure and
  * then calls dr_abort()
- */ 
+ */
 #define DR_ASSERT(x) DR_ASSERT_MSG(x, "")
 
 
@@ -204,7 +204,7 @@ dr_using_all_private_caches(void);
 void
 dr_request_synchronized_exit(void);
 
-/** 
+/**
  * Returns the client-specific option string specified at client
  * registration.  \p client_id is the client ID passed to dr_init().
  */
@@ -229,13 +229,13 @@ process_id_t
 dr_get_process_id(void);
 
 /**
- * Returns the process id of the parent of the current process. 
+ * Returns the process id of the parent of the current process.
  * \note Linux only.
  */
 process_id_t
 dr_get_parent_id(void);
 
-/** 
+/**
  * Returns true if this process is a 32-bit process operating on a
  * 64-bit Windows kernel, known as Windows-On-Windows-64, or WOW64.
  * Returns false otherwise.
@@ -243,7 +243,7 @@ dr_get_parent_id(void);
 bool
 dr_is_wow64(void);
 
-/** 
+/**
  * Returns a pointer to the application's Process Environment Block
  * (PEB).  DR swaps to a private PEB when running client code, in
  * order to isolate the client and its dependent libraries from the
@@ -273,7 +273,7 @@ dr_get_milliseconds(void);
 uint
 dr_get_random_value(uint max);
 
-/** 
+/**
  * Sets the seed used for dr_get_random_value().  Generally this would
  * only be called during client initialization.
  */
@@ -336,7 +336,7 @@ dr_nonheap_alloc(size_t size, uint prot);
 void
 dr_nonheap_free(void *mem, size_t size);
 
-/** 
+/**
  * Allocates memory from DR's global memory pool, but mimics the
  * behavior of malloc.  Memory must be freed with __wrap_free().  The
  * __wrap routines are intended to be used with ld's -wrap option to
@@ -349,7 +349,7 @@ dr_nonheap_free(void *mem, size_t size);
 void *
 __wrap_malloc(size_t size);
 
-/** 
+/**
  * Reallocates memory from DR's global memory pool, but mimics the
  * behavior of realloc.  Memory must be freed with __wrap_free().  The
  * __wrap routines are intended to be used with ld's -wrap option; see
@@ -414,7 +414,7 @@ dr_query_memory(const byte *pc, byte **base_pc, size_t *size, uint *prot);
  */
 bool
 dr_query_memory_ex(const byte *pc, OUT dr_mem_info_t *info);
-#ifdef WINDOWS 
+#ifdef WINDOWS
 
 
 /**
@@ -431,7 +431,7 @@ dr_virtual_query(const byte *pc, MEMORY_BASIC_INFORMATION *mbi, size_t mbi_size)
  * Safely reads \p size bytes from address \p base into buffer \p
  * out_buf.  Reading is done without the possibility of an exception
  * occurring.  Optionally returns the actual number of bytes copied
- * into \p bytes_read.  Returns true if successful.  
+ * into \p bytes_read.  Returns true if successful.
  */
 bool
 dr_safe_read(const void *base, size_t size, void *out_buf, size_t *bytes_read);
@@ -484,8 +484,8 @@ dr_barrier_wait(void *barrier);
 void
 dr_barrier_destroy(void *barrier);
 
-/** 
- * Initializes a mutex. 
+/**
+ * Initializes a mutex.
  *
  * Warning: there are restrictions on when DR-provided mutexes, and
  * locks in general, can be held by a client: no lock should be held
@@ -714,7 +714,7 @@ dr_get_proc_address_ex(module_handle_t lib, const char *name,
 
 
 /**
- * Usable only from a pre-syscall (dr_register_pre_syscall_event()) 
+ * Usable only from a pre-syscall (dr_register_pre_syscall_event())
  * event.  Returns the value of system call parameter number \p param_num.
  */
 reg_t
@@ -849,7 +849,7 @@ void
 dr_flush_file(file_t f);
 
 /**
- * Writes \p count bytes from \p buf to file \p f.  
+ * Writes \p count bytes from \p buf to file \p f.
  * Returns the actual number written.
  */
 ssize_t
@@ -906,31 +906,31 @@ void
 dr_log(void *drcontext, uint mask, uint level, const char *fmt, ...);
 
 /* The log mask constants */
-#define LOG_NONE           0x00000000  /**< Log no data. */                              
-#define LOG_STATS          0x00000001  /**< Log per-thread and global statistics. */     
-#define LOG_TOP            0x00000002  /**< Log top-level information. */                
-#define LOG_THREADS        0x00000004  /**< Log data related to threads. */              
-#define LOG_SYSCALLS       0x00000008  /**< Log data related to system calls. */         
+#define LOG_NONE           0x00000000  /**< Log no data. */
+#define LOG_STATS          0x00000001  /**< Log per-thread and global statistics. */
+#define LOG_TOP            0x00000002  /**< Log top-level information. */
+#define LOG_THREADS        0x00000004  /**< Log data related to threads. */
+#define LOG_SYSCALLS       0x00000008  /**< Log data related to system calls. */
 #define LOG_ASYNCH         0x00000010  /**< Log data related to signals/callbacks/etc. */
-#define LOG_INTERP         0x00000020  /**< Log data related to app interpretation. */   
-#define LOG_EMIT           0x00000040  /**< Log data related to emitting code. */        
-#define LOG_LINKS          0x00000080  /**< Log data related to linking code. */         
+#define LOG_INTERP         0x00000020  /**< Log data related to app interpretation. */
+#define LOG_EMIT           0x00000040  /**< Log data related to emitting code. */
+#define LOG_LINKS          0x00000080  /**< Log data related to linking code. */
 #define LOG_CACHE          0x00000100  /**< Log data related to code cache management. */
-#define LOG_FRAGMENT       0x00000200  /**< Log data related to app code fragments. */   
+#define LOG_FRAGMENT       0x00000200  /**< Log data related to app code fragments. */
 #define LOG_DISPATCH       0x00000400  /**< Log data on every context switch dispatch. */
-#define LOG_MONITOR        0x00000800  /**< Log data related to trace building. */       
-#define LOG_HEAP           0x00001000  /**< Log data related to memory management. */     
+#define LOG_MONITOR        0x00000800  /**< Log data related to trace building. */
+#define LOG_HEAP           0x00001000  /**< Log data related to memory management. */
 #define LOG_VMAREAS        0x00002000  /**< Log data related to address space regions. */
-#define LOG_SYNCH          0x00004000  /**< Log data related to synchronization. */      
-#define LOG_MEMSTATS       0x00008000  /**< Log data related to memory statistics. */    
-#define LOG_OPTS           0x00010000  /**< Log data related to optimizations. */        
-#define LOG_SIDELINE       0x00020000  /**< Log data related to sideline threads. */ 
-#define LOG_SYMBOLS        0x00040000  /**< Log data related to app symbols. */ 
-#define LOG_RCT            0x00080000  /**< Log data related to indirect transfers. */ 
-#define LOG_NT             0x00100000  /**< Log data related to Windows Native API. */ 
-#define LOG_HOT_PATCHING   0x00200000  /**< Log data related to hot patching. */ 
-#define LOG_HTABLE         0x00400000  /**< Log data related to hash tables. */ 
-#define LOG_MODULEDB       0x00800000  /**< Log data related to the module database. */ 
+#define LOG_SYNCH          0x00004000  /**< Log data related to synchronization. */
+#define LOG_MEMSTATS       0x00008000  /**< Log data related to memory statistics. */
+#define LOG_OPTS           0x00010000  /**< Log data related to optimizations. */
+#define LOG_SIDELINE       0x00020000  /**< Log data related to sideline threads. */
+#define LOG_SYMBOLS        0x00040000  /**< Log data related to app symbols. */
+#define LOG_RCT            0x00080000  /**< Log data related to indirect transfers. */
+#define LOG_NT             0x00100000  /**< Log data related to Windows Native API. */
+#define LOG_HOT_PATCHING   0x00200000  /**< Log data related to hot patching. */
+#define LOG_HTABLE         0x00400000  /**< Log data related to hash tables. */
+#define LOG_MODULEDB       0x00800000  /**< Log data related to the module database. */
 #define LOG_ALL            0x00ffffff  /**< Log all data. */
 
 
@@ -949,7 +949,7 @@ bool
 dr_is_notify_on(void);
 
 /** Returns a handle to stdout. */
-file_t 
+file_t
 dr_get_stdout_file(void);
 
 /** Returns a handle to stderr. */
@@ -959,10 +959,10 @@ dr_get_stderr_file(void);
 /** Returns a handle to stdin. */
 file_t
 dr_get_stdin_file(void);
-#ifdef WINDOWS 
+#ifdef WINDOWS
 
 
-/** 
+/**
  * Displays a message in a pop-up window. \note Windows only. \note On Windows Vista
  * most Windows services are unable to display message boxes.
  */
@@ -982,7 +982,7 @@ dr_messagebox(const char *fmt, ...);
  * \note If the data to be printed is large it will be truncated to
  * an internal buffer size.
  */
-void 
+void
 dr_printf(const char *fmt, ...);
 
 /**
@@ -1021,11 +1021,11 @@ int
 dr_snprintf(char *buf, size_t max, const char *fmt, ...);
 
 /** Prints \p msg followed by the instruction \p instr to file \p f. */
-void 
+void
 dr_print_instr(void *drcontext, file_t f, instr_t *instr, const char *msg);
 
 /** Prints \p msg followed by the operand \p opnd to file \p f. */
-void 
+void
 dr_print_opnd(void *drcontext, file_t f, opnd_t opnd, const char *msg);
 
 /**************************************************
@@ -1034,13 +1034,13 @@ dr_print_opnd(void *drcontext, file_t f, opnd_t opnd, const char *msg);
 
 
 /**
- * Returns the DR context of the current thread. 
+ * Returns the DR context of the current thread.
  */
 void *
 dr_get_current_drcontext(void);
 
 /** Returns the thread id of the thread with drcontext \p drcontext. */
-thread_id_t 
+thread_id_t
 dr_get_thread_id(void *drcontext);
 
 /**
@@ -1051,12 +1051,12 @@ dr_get_thread_id(void *drcontext);
 void *
 dr_get_tls_field(void *drcontext);
 
-/** 
+/**
  * Sets the user-controlled thread-local-storage field.  To
  * generate an instruction sequence that reads the drcontext field
  * inline in the code cache, use dr_insert_write_tls_field().
  */
-void 
+void
 dr_set_tls_field(void *drcontext, void *value);
 
 /**
@@ -1273,10 +1273,10 @@ dr_delete_fragment(void *drcontext, void *tag);
  * \note This routine may not be called while any locks are held that could block a thread
  * processing a registered event callback or cache callout.
  * \note dr_delay_flush_region() has fewer restrictions on use, but is less synchronous.
- * \note Use \p size == 1 to flush fragments containing the instruction at address 
+ * \note Use \p size == 1 to flush fragments containing the instruction at address
  * \p start. A flush of \p size == 0 is not allowed.
  * \note As currently implemented, dr_delay_flush_region() with no completion callback
- * routine specified can be substantially more performant. 
+ * routine specified can be substantially more performant.
  */
 bool
 dr_flush_region(app_pc start, size_t size);
@@ -1297,7 +1297,7 @@ dr_flush_region(app_pc start, size_t size);
  * \note This routine may not be called while any locks are held that could block a thread
  * processing a registered event callback or cache callout.
  * \note dr_delay_flush_region() has fewer restrictions on use, but is less synchronous.
- * \note Use \p size == 1 to flush fragments containing the instruction at address 
+ * \note Use \p size == 1 to flush fragments containing the instruction at address
  * \p start. A flush of \p size == 0 is not allowed.
  * \note This routine is only available with either the -thread_private
  * or -enable_full_api options.  It is not available when -opt_memory is specified.
@@ -1306,20 +1306,20 @@ bool
 dr_unlink_flush_region(app_pc start, size_t size);
 
 /**
- * Request a flush of all fragments containing code from the region 
- * [\p start, \p start + \p size).  The flush will be performed at the next safe 
- * point in time (usually before any new code is added to the cache after this 
- * routine is called). If \p flush_completion_callback is non-NULL, it will be 
- * called with the \p flush_id provided to this routine when the flush completes, 
- * after which no execution will occur out of the fragments flushed. Returns true 
+ * Request a flush of all fragments containing code from the region
+ * [\p start, \p start + \p size).  The flush will be performed at the next safe
+ * point in time (usually before any new code is added to the cache after this
+ * routine is called). If \p flush_completion_callback is non-NULL, it will be
+ * called with the \p flush_id provided to this routine when the flush completes,
+ * after which no execution will occur out of the fragments flushed. Returns true
  * if the flush was successfully queued.
  *
  * \note dr_flush_region() and dr_unlink_flush_region() can give stronger guarantees on
  * when the flush will occur, but have more restrictions on use.
- * \note Use \p size == 1 to flush fragments containing the instruction at address 
+ * \note Use \p size == 1 to flush fragments containing the instruction at address
  * \p start.  A flush of \p size == 0 is not allowed.
  * \note As currently implemented there may be a performance penalty for requesting a
- * \p flush_completion_callback; for most performant usage set 
+ * \p flush_completion_callback; for most performant usage set
  * \p flush_completion_callback to NULL.
  */
 bool
@@ -1399,11 +1399,11 @@ dr_fragment_start_pc(byte *cache_pc);
  * to end the trace.  (The callback will be called both for
  * standard DR traces and for client-defined traces.)
  *
- * \note Some fragments are unsuitable for trace heads. DR will 
+ * \note Some fragments are unsuitable for trace heads. DR will
  * ignore attempts to mark such fragments as trace heads and will return
  * false. If the client marks a fragment that doesn't exist yet as a trace
  * head and DR later determines that the fragment is unsuitable for
- * a trace head it will unmark the fragment as a trace head without 
+ * a trace head it will unmark the fragment as a trace head without
  * notifying the client.
  *
  * \note Some fragments' notion of trace heads is dependent on

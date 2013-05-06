@@ -37,6 +37,9 @@ kernel_get_thread_private_slot_from_rsp(void* rsp_ptr, size_t slot);
 void*
 kernel_memcpy(void *dest, void *src, size_t size);
 
+void*
+kernel_get_current(void);
+
 
 int kernel_get_online_processor_count(void);
 int kernel_get_present_processor_count(void);

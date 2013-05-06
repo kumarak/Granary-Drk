@@ -29,6 +29,20 @@ struct dynamorio_page {
     char data[4096];
 } __attribute__((packed));
 
+typedef uint64 reg_t;
+
+struct thread_private_info {
+    void *stack;
+    void *stack_start_address;
+    void *current_stack;
+    struct task_struct *tsk;
+    unsigned int is_running_module;
+    unsigned long section_count;
+    unsigned long gen_num;
+    unsigned long copy_stack;
+    reg_t regs[16];
+};
+
 ASSERT_TYPE_SIZE(4096, struct dynamorio_page);
 DEFINE_PER_CPU_ALIGNED(struct dynamorio_page, dynamorio_page);
 
@@ -94,7 +108,7 @@ find_kernel_sybmol_callback(void *data, const char *name, struct module *module,
     return 0;
 }
 
-static bool 
+static bool
 find_kernel_symbol(kernel_symbol_t *symbol)
 {
     if (kallsyms_on_each_symbol(find_kernel_sybmol_callback, symbol)) {
@@ -374,7 +388,8 @@ kernel_get_thread_private_slot(size_t slot)
 void *
 kernel_thread_private_slot_init(size_t slot)
 {
-    void *thread_spill_slot = kmalloc(4*PAGE_SIZE, GFP_ATOMIC);
+    struct thread_private_info *thread_spill_slot = kmalloc(sizeof(struct thread_private_info), GFP_ATOMIC);
+    thread_spill_slot->stack = kmalloc(THREAD_SIZE, GFP_ATOMIC);
     struct thread_info *thread = current_thread_info();
    // printk("compare thread at one: %lx\n", thread);
 
@@ -419,6 +434,10 @@ kernel_memcpy(void *dest, void *src, size_t size)
     return memcpy(dest, src, size);
 }
 
+void*
+kernel_get_current(void){
+    return get_current();
+}
 int
 kernel_get_online_processor_count()
 {
@@ -513,7 +532,7 @@ bool
 kernel_native_swapgs(void* pc)
 {
     /* This is a shameful hack. We want to allow the swapgs instructions inside
-     * of native_load_gs_index. 
+     * of native_load_gs_index.
      *
      * TODO(peter): We might also need to allow some of the swapgs instructions
      * in the fixup routines (e.g., bad_gs in entry_64.S). I'm not sure yet

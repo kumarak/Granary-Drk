@@ -16,6 +16,8 @@
 #include <asm/thread_info.h>
 #include <linux/param.h>
 #include <linux/sched.h>
+#include <linux/stop_machine.h>
+#include "cfi_notifier.h"
 
 extern struct hashtable_t *module_watchpoint_map;
 extern struct hashtable_t *kernel_variable_hash;
@@ -43,30 +45,39 @@ struct alias_meta {
 
     uint64_t base_address;
     uint64_t limit;
+    uint64_t bitflags;
 
 } __attribute__((packed));
 
 
 extern void *get_watchpoint_meta(void *addr);
+extern void wrapper_collect_watchpoint(void *addr);
+
 
 
 
 extern struct hashtable_t *kernel_pointer_hash;
 extern struct cfi_list_head module_alloc_list[2];
 extern struct cfi_list_head module_global_list;
-extern struct cfi_list_head module_gc_free_list;
+extern struct cfi_list_head watchpoint_scan_list;
 extern struct cfi_list_head list_collected_watchpoint;
-extern struct cfi_list_head return_collected_watchpoint;
+extern struct cfi_list_head list_collected_watchpoint_kernel;
+extern struct cfi_list_head kernel_leaked_watchpoints;
+
+extern struct kernel_module *list_loaded_modules;
 
 typedef unsigned int (*scan_callback)(void *addr);
 
 extern struct cfi_list_head atomic_sweep_list;
 extern uint64_t flag_memory_snapshot;
 
-void look_stack(uint64_t addr) {
 
+void cfi_dump_stack(){
+    struct thread_info *thread = current_thread_info();
+    printk("return address : %lx\n", thread->client_data.return_address_stack[thread->client_data.return_stack_size -1]);
+
+    //dump_stack();
 }
-
 
 static __inline__ void cfi_list_update_base(struct cfi_list_head *list_head)
 {
@@ -96,19 +107,39 @@ cfi_item_update_base(void *ptr){
     uint64_t displacement_part;
     uint64_t value;
     meta_info = (struct alias_meta *)get_watchpoint_meta((void*)ptr);
-    if(meta_info != NULL) {
+    if((meta_info != NULL) && (meta_info >= MODULE_SHADOW_END ) && (meta_info < MODULE_SHADOW_END_EXTENDED)) {
         value = meta_info->base_address;
         displacement_part = (ALIAS_ADDRESS_DISPLACEMENT_MASK & ((uint64_t) value));
         index_part = (ALIAS_ADDRESS_INDEX_MASK & ((uint64_t)ptr));
         return (uint64_t)((index_part | displacement_part) & ALIAS_ADDRESS_ENABLED);
     }else {
         printk("%s : %lx, %lx\n", __FUNCTION__, ptr, meta_info);
-        return ptr;
+        return NULL;
     }
 }
 
 bool func_module_alloclist(void *addr, void *data){
     printk("%lx\t", addr);
+    return 0;
+}
+
+bool func_module_collectlist(void *addr, void *data){
+    printk("%lx\t", addr);
+    if(!cfi_list_item_exist(&module_alloc_list[CFI_ALLOC_GREY_LIST], addr)){
+        wrapper_collect_watchpoint(addr);
+    }
+    return 0;
+}
+
+bool func_module_print_greylist(void *addr, void *data){
+    if(cfi_list_item_exist(&module_alloc_list[CFI_LOST_REFERENCE], addr)){
+        printk("%lx(this is lost watchpoint)\t", addr);
+    } else if(!cfi_list_item_exist(&module_alloc_list[CFI_ALLOC_WHITE_LIST], addr)) {
+        printk("%lx(not in alloclist)\t", addr);
+    } else {
+        printk("%lx \t", addr);
+    }
+   // wrapper_collect_watchpoint(addr);
     return 0;
 }
 
@@ -124,24 +155,17 @@ bool is_watchpoint(uint64_t value){
     return false;
 }
 
-static inline bool move_object_to_graylist(void *value){
-   /* if(cfi_list_item_exist(&module_alloc_list[CFI_ALLOC_WHITE_LIST], value)){
-        cfi_list_item_delete(&module_alloc_list[CFI_ALLOC_WHITE_LIST], value);
-    }
-*/
- /*   if(!cfi_list_item_exist(&module_alloc_list[CFI_ALLOC_GRAY_LIST], value)){
-        cfi_list_append(&module_alloc_list[CFI_ALLOC_GRAY_LIST], value);
-    }
-*/
-    return true;
-}
-
-static inline void
-cfi_update_item_list(void){
-    dr_printf("white list : ");
-    cfi_list_item_print(&module_alloc_list[CFI_ALLOC_WHITE_LIST]);
-    dr_printf("gray list : ");
-    cfi_list_item_print(&module_alloc_list[CFI_ALLOC_GREY_LIST]);
+void
+cfi_collect_watcpoint(const void *src, const void *ptr){
+    void* base_ptr = NULL;
+    if(is_watchpoint((uint64_t)ptr)){
+        base_ptr = cfi_item_update_base(ptr);
+        if (NULL != base_ptr) {
+            printk("src (%lx) \t dest(%lx)\n", src, base_ptr);
+            cfi_list_append(&kernel_leaked_watchpoints, base_ptr);
+            cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
+        }
+     }
 }
 
 void
@@ -155,68 +179,154 @@ cfi_scan_rootsets(void){
     struct list_item *return_list;
     struct list_item *alloc_scan_list;
     struct alias_meta *meta_info;
+    struct kernel_module *module_ptr;
 
-    uint64_t *stack_bottom;
-    uint64_t *ptr;
+    uint64_t stack_bottom;
+    uint64_t *ptr = NULL;
     uint64_t *stack_ptr;
     uint64_t value;
+
+    printk("scanning globals\n");
+    module_ptr = list_loaded_modules;
+
+    while(module_ptr != NULL){
+        uint64_t *scan_ptr;
+        printk("scanning data section\n");
+        scan_ptr = module_ptr->data_begin;
+        while(scan_ptr <= module_ptr->data_end){
+            value = (uint64_t)(*scan_ptr);
+            if(is_watchpoint(value)){
+                void *base_ptr = cfi_item_update_base(value);
+                if(NULL != base_ptr) {
+                    printk("scanning data section src(%lx) : dest(%lx)\n", scan_ptr, base_ptr);
+                    cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
+                }
+            }
+            scan_ptr++;
+        }
+
+        printk("scanning bss section\n");
+        scan_ptr = module_ptr->bss_begin;
+        while(scan_ptr <= module_ptr->bss_end){
+            value = (uint64_t)(*scan_ptr);
+            if(is_watchpoint(value)){
+                void *base_ptr = cfi_item_update_base(value);
+                if(NULL != base_ptr) {
+                    printk("scanning bss section src(%lx) : dest(%lx)\n", scan_ptr, base_ptr);
+                    cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
+                };
+            }
+            scan_ptr++;
+        }
+
+        module_ptr = module_ptr->next;
+    }
 
     global_list = module_global_list.head;
     spin_lock(&(module_global_list.list_lock));
     while(global_list != NULL){
         value = (uint64_t)(*(uint64_t*)(global_list->node));
         if(is_watchpoint(value)){
-            cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], (void*)cfi_item_update_base(value));
+            void *base_ptr = cfi_item_update_base(value);
+            if(NULL != base_ptr) {
+                printk("scanning global objects : %lx\n", base_ptr);
+                cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
+            }
         }
         global_list = global_list->next;
     }
     spin_unlock(&(module_global_list.list_lock));
-
-
-    return_list = return_collected_watchpoint.head;
-    spin_lock(&(return_collected_watchpoint.list_lock));
-    while(return_list != NULL){
-        value = (uint64_t)((uint64_t*)(return_list->node));
-        if(is_watchpoint(value)){
-            cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], (void*)cfi_item_update_base(value));
-        }
-        return_list = return_list->next;
-    }
-    spin_unlock(&(return_collected_watchpoint.list_lock));
 
     sweep_list = atomic_sweep_list.head;
     spin_lock(&(atomic_sweep_list.list_lock));
     while(sweep_list != NULL){
         struct thread_private_info *thread_private_slot = (struct thread_private_info*)(sweep_list->node);
         thread_private_slot->stack_start_address = (void*)((uint64_t)thread_private_slot->current_stack & 0xffffffffffffc000);
-        stack_bottom = thread_private_slot->stack_start_address + 4*PAGE_SIZE-1;
+        stack_bottom = (uint64_t)(thread_private_slot->stack_start_address + THREAD_SIZE-1);
         ptr = thread_private_slot->current_stack;
 
         if(thread_private_slot != NULL){
 
-            while((ptr <= stack_bottom)) {
-                value = (uint64_t)(*ptr);
-                if(is_watchpoint(value)){
-                    cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], (void*)cfi_item_update_base(value));
+            if(ptr) {
+                printk("current stack pointer : %lx\n", ptr);
+                while(((uint64_t)ptr <= stack_bottom)) {
+                    value = (uint64_t)(*ptr);
+                    if(is_watchpoint(value)){
+                        void *base_ptr = cfi_item_update_base(value);
+                        if(NULL != base_ptr) {
+                            printk("stack : src (%lx) \t dest(%lx)\n", ptr, base_ptr);
+                            cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
+                        }
+                     }
+                    ptr++;
                 }
-                ptr++;
             }
-
+#if 0
             for(idx = 0; idx < 16; idx++){
                 value = thread_private_slot->regs[idx];
                 if(is_watchpoint(value)){
-                    cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], (void*)cfi_item_update_base(value));
+                    void *base_ptr = cfi_item_update_base(value);
+                    if(NULL != base_ptr) {
+                        printk("stack : reg (%lu) \t dest(%lx)\n", idx, base_ptr);
+                        cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
+                    }
+
+                    //cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], (void*)cfi_item_update_base(value));
+                    //cfi_list_append(&list_collected_watchpoint, (void*)cfi_item_update_base(value));
                 }
             }
+#endif
         }
         sweep_list = sweep_list->next;
     }
     spin_unlock(&(atomic_sweep_list.list_lock));
 
+    /* objects leaking to the kernel*/
+    return_list = kernel_leaked_watchpoints.head;
+    spin_lock(&(kernel_leaked_watchpoints.list_lock));
 
-
-    alloc_scan_list = module_alloc_list[CFI_ALLOC_WHITE_LIST].head;
-    spin_lock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
+    while(return_list != NULL){
+        value = (uint64_t)((uint64_t*)(return_list->node));
+        if(is_watchpoint(value)){
+            void *base_ptr = cfi_item_update_base(value);
+            if(NULL != base_ptr){
+                printk("object passed to the kernel : dest(%lx)\n", base_ptr);
+                cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
+            }
+        }
+        return_list = return_list->next;
+    }
+    spin_unlock(&(kernel_leaked_watchpoints.list_lock));
+#if 1
+    alloc_scan_list = module_alloc_list[CFI_ALLOC_GREY_LIST].head;
+    while(alloc_scan_list != NULL){
+        struct alias_meta *temp_meta;
+        meta_info = (struct alias_meta *)get_watchpoint_meta((void*)alloc_scan_list->node);
+        if(meta_info != NULL){
+            ptr = (uint64_t*)meta_info->base_address;
+	    if(ptr != NULL) {
+            	while(ptr <= meta_info->limit ){
+                	value = (uint64_t)(*(ptr));
+                	if(is_watchpoint(value)){
+                    	void *base_ptr = cfi_item_update_base(value);
+                    	if(NULL != base_ptr) {
+                        	if(base_ptr != alloc_scan_list->node) {
+                            	printk("scanning greylist object : src( %lx) \t dest( %lx)\n", (void*)alloc_scan_list->node, base_ptr);
+                            	cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
+                        	}
+                    	}
+                 	}
+                ptr++;
+            	}
+	   }else {
+		printk("CHECK WATCHPOINT!!!!!!!!!!!!!!  : %lx", meta_info);
+	   }
+        }
+        alloc_scan_list = alloc_scan_list->next;
+    }
+#endif
+#if 0
+    alloc_scan_list = watchpoint_scan_list.head;
     while(alloc_scan_list != NULL){
         struct alias_meta *temp_meta;
         meta_info = (struct alias_meta *)get_watchpoint_meta((void*)alloc_scan_list->node);
@@ -225,22 +335,41 @@ cfi_scan_rootsets(void){
             while(ptr <= meta_info->limit ){
                 value = (uint64_t)(*(ptr));
                 if(is_watchpoint(value)){
-                    cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], (void*)cfi_item_update_base(value));
+                    if(alloc_scan_list->node != (void*)cfi_item_update_base(value)) {
+                        printk("objects passed to the kernel: src( %lx) \t dest( %lx)\n", (void*)alloc_scan_list->node, (void*)cfi_item_update_base(value));
+                        cfi_list_append(&list_collected_watchpoint_kernel, (void*)cfi_item_update_base(value));
+                    }
+                //    cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], (void*)cfi_item_update_base(value));
                 }
                 ptr++;
             }
         }
         alloc_scan_list = alloc_scan_list->next;
     }
-    spin_unlock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
+    //spin_unlock(&(module_alloc_list[CFI_ALLOC_WHITE_LIST].list_lock));
+
+#endif
 }
 
 int htable_callback(void *data, const char *key, void *value){
     scan_callback fn= (scan_callback)value;
-    //printk("key : %lx, value : %lx\n", key, value);
+    printk("hash item : key(%lx) value(%lx)\n ", key, value);
     if(fn != NULL)
     	fn(key);
     return 0;
+}
+
+bool module_tasklist(void *addr, void *data){
+    struct thread_private_info *info = (struct thread_private_info*)addr;
+    struct task_struct *tsk = (struct thread_struct*)info->tsk;
+    memcpy(info->stack, info->tsk->stack, THREAD_SIZE);
+    info->current_stack = info->tsk->thread.sp;
+    info->stack_start_address = info->tsk->stack;
+    return 0;
+}
+
+void copy_stack_callback(void){
+    cfi_for_each_item(&atomic_sweep_list, &module_tasklist, NULL);
 }
 
 unsigned int
@@ -249,25 +378,50 @@ sweep_thread_init(void *arg)
     int ret;
     unsigned long flags;
     unsigned long local_flag;
+    uint64_t i = 0;
+    uint64_t max_index = 0;
+
     while (!kthread_should_stop()){
         dr_printf("*******************************************************inside sweep_thread_init\n");
+        stop_machine(copy_stack_callback, 0, 0);
         preempt_disable();
         raw_local_irq_save(flags);
         do {
             local_flag = flag_memory_snapshot;
         }while(!__sync_bool_compare_and_swap(&flag_memory_snapshot, local_flag, 0x0));
 
-        printk("white list count : %lx\n", cfi_get_list_count(&module_alloc_list[CFI_ALLOC_WHITE_LIST]));
-        cfi_for_each_item(&module_alloc_list[CFI_ALLOC_WHITE_LIST], &func_module_alloclist, NULL);
-        printk("\n");
-
+        printk("\nkernel objects hashtable count : %lu\n", hashmap_get_item_count(kernel_pointer_hash));
+        hashmap_iter(kernel_pointer_hash, htable_callback, NULL);
         cfi_scan_rootsets();
 
-        printk("grey list count : %lx\n", cfi_get_list_count(&module_alloc_list[CFI_ALLOC_GREY_LIST]));
-        cfi_for_each_item(&module_alloc_list[CFI_ALLOC_GREY_LIST], &func_module_alloclist, NULL);
+     //   wrapper_print_alloclist();
+
+#if 0
+        printk("white list count : %lu\n", cfi_get_list_count(&module_alloc_list[CFI_ALLOC_WHITE_LIST]));
+        cfi_for_each_item(&module_alloc_list[CFI_ALLOC_WHITE_LIST], &func_module_alloclist, NULL);
+#endif
+        printk("\n");
+
+        printk("grey list count : %lu\n", cfi_get_list_count(&module_alloc_list[CFI_ALLOC_GREY_LIST]));
+        cfi_for_each_item(&module_alloc_list[CFI_ALLOC_GREY_LIST], &func_module_print_greylist, NULL);
         printk("\n");
         cfi_list_delete_all(&module_alloc_list[CFI_ALLOC_GREY_LIST]);
-        printk("\nkernel objects hashtable count : %lx\n", hashmap_get_item_count(kernel_pointer_hash));
+
+        printk("lost watchpoints: %lu\n", cfi_get_list_count(&module_alloc_list[CFI_LOST_REFERENCE]));
+        cfi_for_each_item(&module_alloc_list[CFI_LOST_REFERENCE], &func_module_alloclist, NULL);
+        printk("\n");
+        printk("watchpoints passed to kernel : %lu\n", cfi_get_list_count(&kernel_leaked_watchpoints));
+        cfi_for_each_item(&kernel_leaked_watchpoints, &func_module_alloclist, NULL);
+        printk("\n");
+
+        printk("collect watchpoints: %lu\n", cfi_get_list_count(&module_alloc_list[CFI_COLLECT_LIST]));
+        cfi_for_each_item(&module_alloc_list[CFI_COLLECT_LIST], &func_module_collectlist, NULL);
+        printk("\n");
+
+      //  cfi_list_delete_all(&list_collected_watchpoint);
+        cfi_list_delete_all(&kernel_leaked_watchpoints);
+        cfi_list_delete_all(&module_alloc_list[CFI_COLLECT_LIST]);
+
         do {
             local_flag = flag_memory_snapshot;
         }while(!__sync_bool_compare_and_swap(&flag_memory_snapshot, local_flag, 0x1));
@@ -275,7 +429,7 @@ sweep_thread_init(void *arg)
         preempt_enable();
 
         set_current_state(TASK_INTERRUPTIBLE);
-        schedule_timeout(100*HZ/*00*/);
+        schedule_timeout(10*HZ/*00*/);
     }
     set_current_state(TASK_RUNNING);
 
@@ -289,8 +443,12 @@ void cfi_return_to_kernel(void *ptr){
     if((!((uint64_t)value & ALIAS_ADDRESS_NOT_ENABLED)) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
         uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
         if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
-            cfi_list_append(&return_collected_watchpoint, (void*)cfi_item_update_base(value));
+            cfi_list_append(&kernel_leaked_watchpoints, (void*)cfi_item_update_base(value));
         }
     }
+}
+
+void *cfi_get_free_pages(unsigned long count){
+    return __get_free_pages(GFP_KERNEL | __GFP_ZERO, count);
 }
 

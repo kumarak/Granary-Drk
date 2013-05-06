@@ -47,6 +47,8 @@
 /* page size is 4K on all DR-supported platforms */
 #ifndef PAGE_SIZE
 # define PAGE_SIZE (4*1024) /**< Size of a page of memory. */
+# define THREAD_SIZE_ORDER       2
+# define THREAD_SIZE  (PAGE_SIZE << THREAD_SIZE_ORDER)
 #else
 # if PAGE_SIZE != 4096
 #  error bag page size
@@ -67,7 +69,7 @@ enum {
 /* Family and Model
  *   Intel 486                 Family 4
  *   Intel Pentium             Family 5
- *   Intel Pentium Pro         Family 6, Model 0 and 1 
+ *   Intel Pentium Pro         Family 6, Model 0 and 1
  *   Intel Pentium 2           Family 6, Model 3, 5, and 6
  *   Intel Celeron             Family 6, Model 5 and 6
  *   Intel Pentium 3           Family 6, Model 7, 8, 10, 11
@@ -164,7 +166,7 @@ typedef enum {
     FEATURE_EST =       7 + 32,         /**< Enhanced Speedstep Technology */
     FEATURE_TM2 =       8 + 32,         /**< Thermal Monitor 2 */
     FEATURE_SSSE3 =     9 + 32,         /**< SSSE3 Extensions supported */
-    FEATURE_CID =       10 + 32,        /**< Context ID */ 
+    FEATURE_CID =       10 + 32,        /**< Context ID */
     FEATURE_CX16 =      13 + 32,        /**< CMPXCHG16B instruction supported */
     FEATURE_xPTR =      14 + 32,        /**< Send Task Priority Messages */
     /* extended features returned in edx */
@@ -200,7 +202,7 @@ size_t
 proc_get_cache_line_size(void);
 
 /** Returns true only if \p addr is cache-line-aligned. */
-bool 
+bool
 proc_is_cache_aligned(void *addr);
 
 /** Returns n >= \p sz such that n is a multiple of the cache line size. */
@@ -215,7 +217,7 @@ proc_get_containing_page(void *addr);
 uint
 proc_get_vendor(void);
 
-/** 
+/**
  * Returns the processor family as given by the cpuid instruction,
  * adjusted by the extended family as described in the Intel documentation.
  * The FAMILY_ constants identify important family values.
@@ -227,7 +229,7 @@ proc_get_family(void);
 uint
 proc_get_type(void);
 
-/** 
+/**
  * Returns the processor model as given by the cpuid instruction,
  * adjusted by the extended model as described in the Intel documentation.
  * The MODEL_ constants identify important model values.
@@ -282,10 +284,10 @@ proc_fpstate_save_size(void);
  * 108 bytes for those without (where this routine does not support
  * 16-bit operand sizing).  \note proc_fpstate_save_size() can be used
  * to determine the particular size needed.
- * 
+ *
  * DR does NOT save the application's floating-point, MMX, or SSE state
- * on context switches!  Thus if a client performs any floating-point 
- * operations in its main routines called by DR, the client must save 
+ * on context switches!  Thus if a client performs any floating-point
+ * operations in its main routines called by DR, the client must save
  * and restore the floating-point/MMX/SSE state.
  * If the client needs to do so inside the code cache the client should implement
  * that itself.
@@ -301,7 +303,7 @@ proc_save_fpstate(byte *buf);
  * support 16-bit operand sizing).  \note proc_fpstate_save_size() can
  * be used to determine the particular size needed.
  */
-void 
+void
 proc_restore_fpstate(byte *buf);
 
 
@@ -384,6 +386,9 @@ dr_get_stack_pointer_value(void *drcontex);
 
 void
 dr_set_stack_pointer_value(void *dcontext, void *addr);
+
+void
+dr_register_add_to_list_func(void *func);
 
 void
 dr_fix_mcontext(void *drcontext);

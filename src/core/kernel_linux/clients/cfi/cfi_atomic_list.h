@@ -68,6 +68,10 @@ cfi_list_append(struct cfi_list_head *list_head, void *node){
         ptr = ptr->next;
     }
 
+    if(ptr->node == node){
+        exist = 1;
+    }
+
     if(!exist) {
         temp = ptr->next;
         ptr->next = list;

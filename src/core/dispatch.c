@@ -873,12 +873,12 @@ dispatch_exit_module(dcontext_t *dcontext) {
 
         thread_private_slot->is_running_module = 0;
         thread_private_slot->copy_stack = 1;
-        thread_private_slot->current_stack = (void*)get_mcontext(dcontext)->rsp;
-        thread_private_slot->stack_start_address = get_stack_init_address();
-        if(thread_private_slot->stack != NULL){
+       // thread_private_slot->current_stack = (void*)get_mcontext(dcontext)->rsp;
+       // thread_private_slot->stack_start_address = get_stack_init_address();
+      /*  if(thread_private_slot->stack != NULL){
             thread_private_slot->stack = kernel_memcpy(thread_private_slot->stack,
         					    thread_private_slot->stack_start_address, 4*PAGE_SIZE);
-        }
+        }*/
 
         thread_private_slot->regs[0] = get_mcontext(dcontext)->rax;
         thread_private_slot->regs[1] = get_mcontext(dcontext)->rbx;

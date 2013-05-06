@@ -13,6 +13,7 @@
 #include "cfi_utils.h"
 #include "cfi_atomic_list.h"
 #include "cfi_hashtable.h"
+#include "cfi_notifier.h"
 //#include "cfi_kernel_addresses.h"
 
 #define MODULE_NAME "cfi"
@@ -35,6 +36,8 @@ extern struct cfi_list_head module_global_list;
 extern struct cfi_list_head list_loaded_module;
 
 typedef int (*mod_init_func_ptr)(void);
+
+struct kernel_module *list_loaded_modules = NULL;
 
 #if 0
 void set_page_attributes(void *start, void *end/*, int (*set)(unsigned long start, int num_pages)*/)
@@ -86,8 +89,54 @@ static void set_page_attributes(
     }
 }
 
-void
-on_module_load(struct module *vmod){
+struct module_sect_attr
+{
+         struct module_attribute mattr;
+         char *name;
+         unsigned long address;
+};
+
+struct module_sect_attrs
+{
+         struct attribute_group grp;
+         unsigned int nsections;
+         struct module_sect_attr attrs[0];
+};
+
+
+static void
+on_target_module_load(struct module *vmod){
+
+    struct kernel_module *module = kmalloc(sizeof(struct kernel_module), GFP_ATOMIC);
+    unsigned long l = 0;
+    module->mod = vmod;
+    module->next = NULL;
+    module->text_begin = vmod->module_core;
+    module->text_end = vmod->module_core + vmod->core_text_size;
+
+    module->rodata_begin = module->text_end;
+    module->rodata_end = module->text_end + (vmod->core_ro_size - vmod->core_text_size);
+
+    printk("core size : %lx\t core_text_size : %lx\t core_ro_size %lx\n", vmod->core_size, vmod->core_text_size, vmod->core_ro_size);
+
+    struct module_sect_attrs *attrs = (struct module_sect_attrs*)vmod->sect_attrs;
+    while(l < attrs->nsections) {
+        if(!strcmp(attrs->attrs[l].name, ".data")) {
+            module->data_begin =  attrs->attrs[l].address;
+            module->data_end =  attrs->attrs[l+1].address;
+            printk("name : %s \t address : %lx", attrs->attrs[l].name, attrs->attrs[l].address);
+        } else if(!strcmp(attrs->attrs[l].name, ".bss")){
+            module->bss_begin =  attrs->attrs[l].address;
+            module->bss_end =  attrs->attrs[l+1].address;
+            printk("name : %s \t address : %lx", attrs->attrs[l].name, attrs->attrs[l].address);
+        }
+        l++;
+    }
+
+
+    module->next = list_loaded_modules;
+    list_loaded_modules = module;
+
     set_page_attributes(
             set_memory_nx,
             vmod->module_core,
@@ -168,7 +217,7 @@ int module_load_notifier(
 
         if(strcmp(module_name(mod), MODULE_NAME)) {
         	printk("\nmodule name : %s\n", module_name(mod));
-        	on_module_load(mod);
+        	on_target_module_load(mod);
         }
         printk("module is loaded now\n");
         break;
@@ -187,6 +236,10 @@ on_granary_target_unload(struct module *mod)
 
 }
 
+void
+cfi_add_to_list(void *spill_slot){
+    cfi_list_prepend(&atomic_sweep_list, spill_slot);
+}
 
 void cfi_thread_slot_module_enrty(void)
 {
@@ -200,19 +253,21 @@ void cfi_thread_slot_module_enrty(void)
         thread_spill_slot->stack = NULL;
         thread_spill_slot->is_running_module = 1;
         thread_spill_slot->section_count = 1;
-        thread_spill_slot->stack = kmalloc(4*PAGE_SIZE, GFP_ATOMIC);
-        thread_spill_slot->stack_start_address = thread;
+        thread_spill_slot->stack = kmalloc(THREAD_SIZE, GFP_ATOMIC);
+        //thread_spill_slot->stack_start_address = thread;
         thread_spill_slot->copy_stack = 0;
-        thread_spill_slot->current_stack = (void*)current_stack_pointer;
+        //thread_spill_slot->current_stack = (void*)current_stack_pointer;
+        thread_spill_slot->tsk = get_current();
         thread->spill_slot[0] = (unsigned long)thread_spill_slot;
 
         cfi_list_prepend(&atomic_sweep_list, thread_spill_slot);
     } else {
         thread_spill_slot = (struct thread_private_info*)thread->spill_slot[0];
+        thread_spill_slot->tsk = get_current();
         thread_spill_slot->is_running_module = 1;
         thread_spill_slot->section_count++;
         thread_spill_slot->copy_stack = 0;
-        thread_spill_slot->current_stack = (void*)current_stack_pointer;
+        //thread_spill_slot->current_stack = (void*)current_stack_pointer;
     }
 
 }

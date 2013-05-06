@@ -13,7 +13,7 @@
 #define ABORT_IF_FUNCTION_IS_WRAPPED(x)
 #define NO_PRE
 #define NO_POST no_post
-#define NO_RETURN
+#define NO_RETURN no_return
 
 #define WRAP_FUNCTION WRAP_FUNC
 #define PRE_OUT_WRAP(x) WRAP_RECURSIVE(x)
@@ -48,17 +48,27 @@ extern struct posix_acl *posix_acl_from_xattr(struct user_namespace *user_ns,
 extern int posix_acl_to_xattr(struct user_namespace *user_ns,
                        const struct posix_acl *acl, void *buffer, size_t size);
 
+#define SCAN_OBJECT(x)    \
+        unsigned long size = type_class<ArgT__>::get_size();    \
+        unsigned long i = 0;    \
+        uint64_t *ptr = (uint64_t*)(&x);  \
+        if(NULL != ptr) {   \
+            while(i < size){    \
+                uint64_t value = (uint64_t)(*ptr);  \
+                if(is_alias_address(value)) {   \
+                    cfi_collect_watcpoint(ptr, (void*)value);   \
+                }   \
+                ptr++;  \
+                i = i + sizeof(void*);  \
+            }   \
+        }
+
+
+#include "kernel_scanners.h"
 #include "wrapper_filesystem.h"
 #include "wrapper_allocators.h"
 #include "kernel_wrappers.h"
 #include "dynamic_wrappers.h"
-
-extern "C" {
-    void init_wrapper(void) {
-        //WRAPPER_INIT();
-    }
-}
-
 
 
 #endif /* WRAPPERS_H_ */

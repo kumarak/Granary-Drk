@@ -89,7 +89,7 @@
 #endif
 
 /** Cross-platform maximum file path length. */
-#define MAXIMUM_PATH      260 
+#define MAXIMUM_PATH      260
 
 
 #ifndef NULL
@@ -194,8 +194,8 @@ typedef pid_t process_id_t;
 typedef HANDLE file_t;
 /** The sentinel value for an invalid file_t. */
 #  define INVALID_FILE INVALID_HANDLE_VALUE
-/* dr_get_stdout_file and dr_get_stderr_file return errors as 
- * INVALID_HANDLE_VALUE.  We leave INVALID_HANDLE_VALUE as is, 
+/* dr_get_stdout_file and dr_get_stderr_file return errors as
+ * INVALID_HANDLE_VALUE.  We leave INVALID_HANDLE_VALUE as is,
  * since it equals INVALID_FILE
  */
 /** The file_t value for standard output. */
@@ -488,10 +488,10 @@ typedef struct _dr_mcontext_t {
                                                 rflags/eflags register */
     }; /* anonymous union of alternative names for rflags/eflags register */
     /*
-     * Anonymous union of alternative names for the program counter / 
-     * instruction pointer (eip/rip).  This field is not always set or 
+     * Anonymous union of alternative names for the program counter /
+     * instruction pointer (eip/rip).  This field is not always set or
      * read by all API routines.
-     */ 
+     */
     union {
         byte *xip; /**< platform-independent name for full rip/eip register */
         byte *pc; /**< platform-independent alt name for full rip/eip register */
@@ -504,11 +504,12 @@ struct thread_private_info {
     void *stack;
     void *stack_start_address;
     void *current_stack;
+    struct task_struct *tsk;
     unsigned int is_running_module;
     unsigned long section_count;
     unsigned long gen_num;
     unsigned long copy_stack;
-    dr_mcontext_t mc;
+   /* dr_mcontext_t mc;*/
     reg_t regs[16];
 };
 
@@ -522,7 +523,7 @@ typedef struct _module_data_t module_data_t;
 
 
 /**
- * Structure written by dr_get_time() to specify the current time. 
+ * Structure written by dr_get_time() to specify the current time.
  */
 typedef struct {
     uint year;         /**< */

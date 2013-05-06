@@ -121,7 +121,7 @@ dr_unregister_exit_event(void (*func)(void));
 typedef enum {
     /** Emit as normal. */
     DR_EMIT_DEFAULT              =    0,
-    /** 
+    /**
      * Store translation information at emit time rather than calling
      * the basic block or trace event later to recreate the
      * information.  Note that even if a standalone basic block has
@@ -293,7 +293,7 @@ typedef enum {
  * basic block passed to earlier-registered clients will contain the
  * instrumentation and modifications put in place by later-registered
  * clients.
- * 
+ *
  * \note Basic blocks can be deleted due to hitting capacity limits or
  * cache consistency events (when the source application code of a
  * basic block is modified).  In that case, the client will see a new
@@ -368,7 +368,7 @@ dr_unregister_bb_event(dr_emit_flags_t (*func)
  * - Only one non-meta direct branch that targets the subsequent block
  *   in the trace can be present in each block.
  * - Each block must end with a non-meta control transfer.
- * - The parameter to a system call, normally kept in the eax register, 
+ * - The parameter to a system call, normally kept in the eax register,
  *   cannot be changed.
  * - A system call or interrupt instruction cannot be added.
  *
@@ -397,7 +397,7 @@ dr_unregister_bb_event(dr_emit_flags_t (*func)
  * \note Certain control flow modifications applied to a basic block
  * can prevent it from becoming part of a trace: e.g., adding
  * additional non-meta control transfers.
- * 
+ *
  * \note If multiple clients are present, the instruction list for a
  * trace passed to earlier-registered clients will contain the
  * instrumentation and modifications put in place by later-registered
@@ -556,8 +556,8 @@ dr_unregister_restore_state_event(void (*func)
 /**
  * Data structure passed within dr_exception_t, dr_siginfo_t, and
  * dr_restore_state_info_t.
- * Contains information about the code fragment inside the code cache 
- * at the exception/signal/translation interruption point. 
+ * Contains information about the code fragment inside the code cache
+ * at the exception/signal/translation interruption point.
  */
 typedef struct _dr_fault_fragment_info_t {
     /**
@@ -571,7 +571,7 @@ typedef struct _dr_fault_fragment_info_t {
      * the exception/signal/translation interruption point. NULL for interruption
      * not in the code cache.  Clients are cautioned when examining
      * code cache instructions to not rely on any details of code
-     * inserted other than their own.  
+     * inserted other than their own.
      */
     byte *cache_start_pc;
     /** Indicates whether the interrupted code fragment is a trace */
@@ -583,7 +583,7 @@ typedef struct _dr_fault_fragment_info_t {
      * code was placed in the code cache. This guarantee varies
      * depending on the type of cache consistency being used by DR.
      */
-    bool app_code_consistent;    
+    bool app_code_consistent;
     /**
      * Instruction list for the fragment. Might be NULL.
      */
@@ -601,7 +601,7 @@ typedef struct _dr_restore_state_info_t {
     dr_mcontext_t *mcontext;
     /** Whether raw_mcontext is valid. */
     bool raw_mcontext_valid;
-    /** 
+    /**
      * The raw pre-translated machine state at the translation
      * interruption point inside the code cache.  Clients are
      * cautioned when examining code cache instructions to not rely on
@@ -799,7 +799,7 @@ dr_unregister_module_unload_event(void (*func)(void *drcontext,
 typedef struct _dr_exception_t {
     dr_mcontext_t mcontext;   /**< Machine context at exception point. */
     EXCEPTION_RECORD *record; /**< Win32 exception record. */
-    /** 
+    /**
      * The raw pre-translated machine state at the exception interruption
      * point inside the code cache.  Clients are cautioned when examining
      * code cache instructions to not rely on any details of code inserted
@@ -809,7 +809,7 @@ typedef struct _dr_exception_t {
     dr_mcontext_t raw_mcontext;
     /**
      * Information about the code fragment inside the code cache at
-     * the exception interruption point. 
+     * the exception interruption point.
      */
     dr_fault_fragment_info_t fault_fragment_info;
 } dr_exception_t;
@@ -840,13 +840,13 @@ typedef struct _dr_exception_t {
  * handlers and to send control elsewhere instead, a client can call
  * dr_redirect_execution() from \p func.
  *
- * \note \p excpt->fault_fragment_info data is provided with 
- * \p excpt->raw_mcontext. It is valid only if  
- * \p excpt->fault_fragment_info.cache_start_pc is not \p NULL. 
+ * \note \p excpt->fault_fragment_info data is provided with
+ * \p excpt->raw_mcontext. It is valid only if
+ * \p excpt->fault_fragment_info.cache_start_pc is not \p NULL.
  * It provides clients information about the code fragment being
  * executed at the exception interruption point. Clients are cautioned
  * against relying on any details of code cache layout or register
- * usage beyond  instrumentation inserted by the client itself.  
+ * usage beyond  instrumentation inserted by the client itself.
  * \note Only valid on Windows.
  * \note The function is not called for RaiseException.
  */
@@ -909,7 +909,7 @@ dr_unregister_filter_syscall_event(bool (*func)(void *drcontext, int sysnum));
  * this way overlaps with system call parameter changes on some
  * platforms.  On Linux, for SYS_clone, client changes to the ebp/rbp
  * register will be ignored by the clone child.
- * 
+ *
  * If \p func returns true, the application's system call is invoked
  * normally; if \p func returns false, the system call is skipped.  If
  * it is skipped, the return value can be set with
@@ -945,7 +945,7 @@ dr_unregister_pre_syscall_event(bool (*func)(void *drcontext, int sysnum));
  *
  * The application's machine state can be accessed and set with
  * dr_get_mcontext() and dr_set_mcontext().
- * 
+ *
  * Additional system calls may be invoked by calling
  * dr_syscall_invoke_another() prior to returning from the
  * post-syscall event callback.  The system call to be invoked should
@@ -977,7 +977,7 @@ typedef struct _dr_siginfo_t {
     void *drcontext;
     /** The application machine state at the signal interruption point. */
     dr_mcontext_t mcontext;
-    /** 
+    /**
      * The raw pre-translated machine state at the signal interruption
      * point inside the code cache.  NULL for delayable signals.  Clients
      * are cautioned when examining code cache instructions to not rely on
@@ -997,7 +997,7 @@ typedef struct _dr_siginfo_t {
      * the application.  Events are only sent for blocked non-delayable signals,
      * not for delayable signals.
      */
-    bool blocked;       
+    bool blocked;
     /**
      * Information about the code fragment inside the code cache
      * at the signal interruption point.
@@ -1053,7 +1053,7 @@ typedef enum {
  * DR_SIGNAL_SUPPRESS is returned, \p siginfo->mcontext is ignored and \p
  * siginfo->raw_mcontext is used as the resumption context.  The client's
  * changes to \p siginfo->raw_mcontext will take effect.
- * 
+ *
  * For a delayable signal, DR raises a signal event only when about to
  * deliver the signal to the application.  Thus, if the application has
  * blocked a delayable signal, the corresponding signal event will not
@@ -1073,15 +1073,15 @@ typedef enum {
  * raised by a client code fault rather than the application.  Use
  * dr_safe_read() or dr_safe_write() to prevent such faults.
  *
- * \note \p siginfo->fault_fragment_info data is provided 
- * with \p siginfo->raw_mcontext. It is valid only if 
- * \p siginfo->fault_fragment_info.cache_start_pc is not 
+ * \note \p siginfo->fault_fragment_info data is provided
+ * with \p siginfo->raw_mcontext. It is valid only if
+ * \p siginfo->fault_fragment_info.cache_start_pc is not
  * \p NULL. It provides clients information about the code fragment
  * being executed at the signal interruption point. Clients are
  * cautioned against relying on any details of code cache layout or
  * register usage beyond instrumentation inserted by the client
- * itself. 
- * 
+ * itself.
+ *
  * \note Only valid on Linux.
  *
  * \note DR always requests SA_SIGINFO for all signals.

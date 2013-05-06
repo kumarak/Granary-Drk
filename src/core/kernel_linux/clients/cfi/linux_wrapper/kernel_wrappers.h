@@ -1,7 +1,7 @@
 /* Auto-generated wrappers. */
 #define D(...) __VA_ARGS__
 
-#define WRAPPER_FOR_struct_callback_head
+
 #ifndef WRAPPER_FOR_struct_callback_head
 #define WRAPPER_FOR_struct_callback_head
 TYPE_WRAPPER(struct callback_head, {
@@ -10,12 +10,13 @@ TYPE_WRAPPER(struct callback_head, {
         WRAP_RECURSIVE(arg.next);
         WRAP_FUNCTION(arg.func);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
 
 
-#define WRAPPER_FOR_struct_kset_uevent_ops
+
 #ifndef WRAPPER_FOR_struct_kset_uevent_ops
 #define WRAPPER_FOR_struct_kset_uevent_ops
 TYPE_WRAPPER(struct kset_uevent_ops, {
@@ -26,11 +27,12 @@ TYPE_WRAPPER(struct kset_uevent_ops, {
 #endif
 
 
-#define WRAPPER_FOR_struct_kset
+
 #ifndef WRAPPER_FOR_struct_kset
 #define WRAPPER_FOR_struct_kset
 TYPE_WRAPPER(struct kset, {
     PRE_WRAP {
+        ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct kset));
         WRAP_RECURSIVE(arg.kobj);
     }
     NO_POST
@@ -39,32 +41,35 @@ TYPE_WRAPPER(struct kset, {
 #endif
 
 
-#define WRAPPER_FOR_struct_sysfs_ops
+//#define WRAPPER_FOR_struct_sysfs_ops
 #ifndef WRAPPER_FOR_struct_sysfs_ops
 #define WRAPPER_FOR_struct_sysfs_ops
 TYPE_WRAPPER(struct sysfs_ops, {
     PRE_WRAP {
         ABORT_IF_FUNCTION_IS_WRAPPED(arg.show);
+        ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct sysfs_ops));
         WRAP_FUNCTION(arg.show);
         WRAP_FUNCTION(arg.store);
         WRAP_FUNCTION(arg.namespace_);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
 
 
-#define WRAPPER_FOR_struct_kobj_ns_type_operations
+
 #ifndef WRAPPER_FOR_struct_kobj_ns_type_operations
 #define WRAPPER_FOR_struct_kobj_ns_type_operations
 TYPE_WRAPPER(struct kobj_ns_type_operations, {
     PRE_WRAP {
-        ABORT_IF_FUNCTION_IS_WRAPPED(arg.grab_current_ns);
+        ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct kobj_ns_type_operations));
         WRAP_FUNCTION(arg.grab_current_ns);
         WRAP_FUNCTION(arg.netlink_ns);
         WRAP_FUNCTION(arg.initial_ns);
         WRAP_FUNCTION(arg.drop_ns);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
@@ -281,11 +286,12 @@ TYPE_WRAPPER(struct work_struct, {
 #endif
 
 
-//#define WRAPPER_FOR_struct_timer_list
+
 #ifndef WRAPPER_FOR_struct_timer_list
 #define WRAPPER_FOR_struct_timer_list
 TYPE_WRAPPER(struct timer_list, {
     PRE_WRAP {
+        ADD_TO_HASH(&arg, SCAN_HEAD_FUNC(struct timer_list));
         WRAP_FUNCTION(arg.function);
     }
     NO_POST
@@ -426,27 +432,27 @@ TYPE_WRAPPER(struct file_lock, {
 #endif
 
 
-#define WRAPPER_FOR_struct_seq_operations
 #ifndef WRAPPER_FOR_struct_seq_operations
 #define WRAPPER_FOR_struct_seq_operations
 TYPE_WRAPPER(struct seq_operations, {
     PRE_WRAP {
-        ABORT_IF_FUNCTION_IS_WRAPPED(arg.start);
+        ADD_TO_HASH(&arg, SCAN_HEAD_FUNC(struct seq_operations));
         WRAP_FUNCTION(arg.start);
         WRAP_FUNCTION(arg.stop);
         WRAP_FUNCTION(arg.next);
         WRAP_FUNCTION(arg.show);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
 
 
-#define WRAPPER_FOR_struct_seq_file
 #ifndef WRAPPER_FOR_struct_seq_file
 #define WRAPPER_FOR_struct_seq_file
 TYPE_WRAPPER(struct seq_file, {
     PRE_WRAP {
+        ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct seq_file));
         WRAP_RECURSIVE(arg.lock);
     }
     NO_POST
@@ -460,7 +466,7 @@ TYPE_WRAPPER(struct seq_file, {
 #define WRAPPER_FOR_struct_file_operations
 TYPE_WRAPPER(struct file_operations, {
     PRE_WRAP {
-        ABORT_IF_FUNCTION_IS_WRAPPED(arg.llseek);
+        ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct file_operations));
         WRAP_RECURSIVE(arg.owner);
         WRAP_FUNCTION(arg.llseek);
         WRAP_FUNCTION(arg.read);
@@ -625,12 +631,12 @@ TYPE_WRAPPER(struct device_attribute, {
 #endif
 
 
-#define WRAPPER_FOR_struct_device_driver
+
 #ifndef WRAPPER_FOR_struct_device_driver
 #define WRAPPER_FOR_struct_device_driver
 TYPE_WRAPPER(struct device_driver, {
     PRE_WRAP {
-        ABORT_IF_FUNCTION_IS_WRAPPED(arg.probe);
+        ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct device_driver));;
         WRAP_RECURSIVE(arg.bus);
         WRAP_RECURSIVE(arg.owner);
         WRAP_FUNCTION(arg.probe);
@@ -1985,6 +1991,7 @@ TYPE_WRAPPER(struct shrinker, {
 #define WRAPPER_FOR_struct_super_block
 TYPE_WRAPPER(struct super_block, {
     PRE_WRAP {
+        ADD_TO_HASH(&arg, SCAN_HEAD_FUNC(struct super_block));
         WRAP_RECURSIVE(arg.s_type);
         WRAP_RECURSIVE(arg.s_root);
         WRAP_RECURSIVE(arg.s_bdev);
@@ -2004,6 +2011,7 @@ TYPE_WRAPPER(struct super_block, {
 #define WRAPPER_FOR_struct_inode
 TYPE_WRAPPER(struct inode, {
     PRE_WRAP {
+        ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct inode));
         WRAP_RECURSIVE(arg.i_sb);
         WRAP_RECURSIVE(arg.i_mapping);
         WRAP_RECURSIVE(arg.i_mutex);
@@ -4355,11 +4363,13 @@ TYPE_WRAPPER(struct jbd2_buffer_trigger_type, {
 #endif
 
 
-//#define WRAPPER_FOR_struct_journal_head
+
 #ifndef WRAPPER_FOR_struct_journal_head
 #define WRAPPER_FOR_struct_journal_head
 TYPE_WRAPPER(struct journal_head, {
     PRE_WRAP {
+        kern_printk("journal_head!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct journal_head));
         WRAP_RECURSIVE(arg.b_bh);
         WRAP_RECURSIVE(arg.b_transaction);
         WRAP_RECURSIVE(arg.b_next_transaction);
@@ -4412,11 +4422,13 @@ TYPE_WRAPPER(struct crypto_shash, {
 #endif
 
 
-//#define WRAPPER_FOR_struct_journal_s
+
 #ifndef WRAPPER_FOR_struct_journal_s
 #define WRAPPER_FOR_struct_journal_s
 TYPE_WRAPPER(struct journal_s, {
     PRE_WRAP {
+        kern_printk("journal_s!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct journal_s));
         ABORT_IF_FUNCTION_IS_WRAPPED(arg.j_commit_callback);
         WRAP_RECURSIVE(arg.j_sb_buffer);
         WRAP_RECURSIVE(arg.j_barrier);
@@ -4867,7 +4879,7 @@ TYPE_WRAPPER(struct clock_event_device, {
 #endif
 
 
-#define WRAPPER_FOR_struct_jbd2_journal_handle
+
 #ifndef WRAPPER_FOR_struct_jbd2_journal_handle
 #define WRAPPER_FOR_struct_jbd2_journal_handle
 TYPE_WRAPPER(struct jbd2_journal_handle, {

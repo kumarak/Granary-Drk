@@ -44,8 +44,6 @@ struct alias_meta {
 
 struct hlist_head per_thread_metainfo[GC_TABLE_SIZE];
 
-//struct cfi_mcontext_t thread_mcontext;
-
 /**
  * Initialize the CFI extension structure to the dcontext.
  */
@@ -62,21 +60,10 @@ extern void *cfi_get_untracked_address(void *);
 extern void cfi_return_to_module_from_kernel(void);
 extern void cfi_exit_return_to_kernel(void);
 extern int cfi_is_granary_code(void *);
+extern void cfi_add_to_list(void*);
 
 void cfi_hotpatch_kernel(void *drcontext);
 
-
-extern uint64_t cfi_watch_write8(void *, uint8_t);
-//extern uint64_t cfi_watch_write16(void *, uint16_t);
-//extern uint64_t cfi_watch_write32(void *, uint32_t);
-//extern uint64_t cfi_watch_write64(void *, uint64_t);
-
-//extern uint64_t cfi_watch_read(void *);
-//extern uint64_t cfi_watch_read16(void *);
-//extern uint64_t cfi_watch_read32(void *);
-//extern uint64_t cfi_watch_read64(void *);
-
-//extern uint64_t cfi_unalias_addr(void *);
 
 void drinit_dcontext(unsigned int thread_id) {
     dr_init_client_extension(cfi_init_dcontext, DR_EXTENSION(cfi));
@@ -89,6 +76,7 @@ void drinit_dcontext(unsigned int thread_id) {
     dr_register_get_symbol_name(cfi_print_symbol_name);
     dr_register_hotpatch_callback(cfi_hotpatch_kernel);
     //dr_register_exit_module_context(cfi_seq_release_module);
+    dr_register_add_to_list_func(cfi_add_to_list);
 }
 #if 0
 /* ----------------------------------------------------------------------------
@@ -830,13 +818,9 @@ static void add_watchpoint_light(
 
 
 void cfi_watch_write(void *addr) {
-    //print_file(STDERR,"%s : %lx\n",__FUNCTION__, addr);
-    //printk("%s : %lx\n",__FUNCTION__, addr);
 }
 
 void cfi_watch_read(void *addr) {
-    //printk("%s : %lx\n",__FUNCTION__, addr);
-    //	alias_meta *meta(WATCHPOINT_META(addr));
 }
 
 
@@ -856,67 +840,6 @@ typedef struct _mem_ref_t{
 #define REG_SPILL_STOP DR_REG_R15
 
 #define NUM_SPILL_REGS  (REG_SPILL_STOP - REG_SPILL_START + 1)
-
-typedef struct _reg_status_t {
-    reg_id_t reg;    	/* register id */
-    bool used;       	/* if used for mem addresing */
-    bool dead;       	/* if a dead reg in app  */
-    bool steal;      	/* if steal by umbra      */
-    bool restore_now;	/* if need instrument for restore value */
-    bool save_now;   	/* if need instrument for save    value */
-    int  count;      	/* usage count in a bb */
-} reg_status_t;
-
-
-
-
-/* thread private log file and counter */
-typedef struct {
-    char   *buf_ptr;
-    char   *buf_base;	/* buf_end holds the negative value of real address of buffer end. */
-    ptr_int_t buf_end;
-    void   *cache;
-    file_t  log;
-    uint64  num_refs;
-} per_thread_t;
-
-typedef struct _basic_block_t {
-    int    			id;
-    app_pc 			tag;
-    unsigned int   	flags;
-    int    			length;
-    void  			*bytes;
-    int    			edge_in;
-    int    			edge_out;
-    int    			count;
-    int    			num_refs;
-    int    			num_app_instrs;
-}basic_block_t;
-
-/* ilist info */
-typedef struct _ilist_info_t {
-    basic_block_t 	*bb;
-    int  			num_mems;
-    int  			num_instrs;
-    int  			num_steals;
-    bool 			translate; 	/* if insert translation code */
-    reg_id_t 		reg_addr;
-    reg_status_t 	aflags;
-    reg_status_t 	eax;
-    reg_status_t 	regs[NUM_SPILL_REGS];
-} ilist_info_t;
-
-
-//static client_id_t client_id;
-
-
-
-static inline void handle_mem_write(void)
-{
-
-}
-
-
 
 noinline int break_at_add(void *addr, instr_t* instr) {
     int dsts = instr_num_dsts(instr);
@@ -956,15 +879,6 @@ static inline void break_on_multiple_dests(int num_dests, int num_sources, void 
 }
 
 
-#define LOG_FILE "address_log.txt"
-static inline void
-clean_call(void *arg1, void *arg2)
-{
-    //FILE *fp = fopen(LOG_FILE, "w");
-    //printk("%lx\t%lx\n", arg1, arg2);
-    //fclose(fp);
-}
-
 void break_on_src_opnd(app_pc arg)
 {
     (void)arg;
@@ -994,92 +908,6 @@ void break_on_dsts_test(app_pc *pc, instr_t *instr) {
     (void)src;
 }
 
-//#define USE_NON_CANNONICAL_ADDR
-
-/* check if instr update the whol register */
-static bool
-instr_writes_to_whole_reg(instr_t *instr, reg_id_t reg)
-{
-    if (instr_writes_to_exact_reg(instr, reg))
-        return true;
-
-    reg = reg_64_to_32(reg);
-    if (instr_writes_to_exact_reg(instr, reg))
-        return true;
-
-    return false;
-}
-
-/* check if this instr set an register to immed value */
-static bool
-reg_set_immed(instr_t *instr, reg_id_t reg)
-{
-    int opcode = instr_get_opcode(instr);
-
-    // for case of r1 = r1 - r1, or r1 = r1 xor r1
-    if((opcode == OP_sub || opcode == OP_xor) &&
-            (opnd_same(instr_get_src(instr, 0),
-                    instr_get_src(instr, 1))))
-        return true;
-
-    if(opcode == OP_mov_ld          &&
-            opnd_is_immed(instr_get_src(instr, 0)))
-        return true;
-    if (opcode == OP_mov_imm)
-        return true;
-
-    return false;
-}
-
-/* check if register is dead before this instr */
-bool
-register_is_dead(instr_t *instr, reg_id_t reg)
-{
-    int  opcode;
-
-    // when at interupt, register never die
-    if(instr_is_syscall(instr) || instr_is_interrupt(instr))
-        return false;
-
-    opcode = instr_get_opcode(instr);
-    // dead reg must be exact dst being written
-    if (!instr_writes_to_whole_reg(instr, reg))
-        return false;
-
-    // reg is set to be immed
-    // r1 = r1 - r1 || r1 = r1 xor r1 || r1 = immed
-    if(reg_set_immed(instr, reg))
-        return true;
-
-    // dead reg cannot be used
-    if(instr_reg_in_src(instr, reg))
-        return false;
-
-    // must be a dead reg now
-    return true;
-}
-
-
-static inline reg_id_t
-get_dead_registers (instrlist_t *bb, instr_t *instr) {
-    reg_id_t reg;
-    reg_id_t dead_reg = DR_REG_NULL;
-    for (reg = REG_SPILL_START; reg <= REG_SPILL_STOP; reg++)
-    {
-        if (register_is_dead(instr, reg)) {
-            for (;;) {
-                instr_t *prev = instr_get_prev(instr);
-                if (prev == NULL || instr_reads_from_reg(prev, reg)) {
-                    dead_reg = reg;
-                    break;
-                }
-                instr = prev;
-            }
-        }
-    }
-
-    return dead_reg;
-}
 
 
 #define TEST_VALUE  0x1
@@ -1542,164 +1370,6 @@ instrlist_meta_postinsert(
 
 }
 
-static instr_t*
-instrument_read_mem_1src(void *drcontext, instrlist_t *ilist, instr_t *instr)
-{
-    unsigned long used_registers = 0;
-    unsigned int i;
-    reg_id_t reg;
-    reg_id_t dead_reg = DR_REG_R10;
-
-    instr_t* next;
-
-    instr_t *execute_native_instr = INSTR_CREATE_label(drcontext);
-    instr_t *done_emulation = INSTR_CREATE_label(drcontext);
-    instr_t *next_nop = INSTR_CREATE_label(drcontext);
-    instr_t* instr_cloned;
-
-    if(instr_reads_from_reg(instr, DR_REG_RSP)
-            || instr_reads_from_reg(instr, DR_REG_RBP)
-            || instr_reads_from_aflags(instr)
-            || instr_is_sse_or_sse2(instr)){
-        return instr;
-    }
-
-    collect_regs(&used_registers, instr, instr_num_srcs, instr_get_src );
-    collect_regs(&used_registers, instr, instr_num_dsts, instr_get_dst );
-
-    if(instr_get_opcode(instr) == OP_add) {
-        //	break_at_add(instr_get_app_pc(instr), instr);
-    }
-
-    reg_id_t reg_mem_addr = get_next_free_reg(&used_registers);
-    opnd_t opnd_mem_addr = opnd_create_reg(reg_mem_addr);
-
-    reg_id_t reg_kernel_hole = get_next_free_reg(&used_registers);
-    opnd_t opnd_kernel_hole = opnd_create_reg(reg_kernel_hole);
-
-    opnd_t opnd_src0 = instr_get_src(instr, 0);
-
-
-    if((instr_num_srcs(instr) == 1))
-    {
-
-        if (opnd_is_rel_addr(opnd_src0) || opnd_is_abs_addr(opnd_src0)) {
-
-        }else if (opnd_is_base_disp(opnd_src0)) {
-            reg_id_t src_reg = opnd_get_base(opnd_src0);
-
-            switch (src_reg) {
-            case DR_REG_RSP:
-            case DR_REG_ESP:
-            case DR_REG_SP:
-            case DR_REG_RBP:
-            case DR_REG_EBP:
-            case DR_REG_BP:
-                return instr;
-            default:
-                break;
-            }
-
-            instrlist_meta_preinsert(ilist, instr,	INSTR_CREATE_push(drcontext, opnd_mem_addr));
-            instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_push(drcontext, opnd_kernel_hole));
-
-            /*	instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_push(drcontext, opnd_create_reg(DR_REG_RAX)));
-			instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_mov_ld(drcontext, opnd_create_reg(DR_REG_RAX), opnd_create_reg(DR_REG_RSP)));
-			instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_kernel_hole, OPND_CREATE_INT64(0xffffffffffffc000)));
-			instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_and(drcontext, opnd_create_reg(DR_REG_RAX), opnd_kernel_hole));
-
-			instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_mov_st(drcontext, opnd_create_base_disp(DR_REG_RAX, DR_REG_NULL, 0, 0, OPSZ_PTR), opnd_mem_addr));
-			instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_create_reg(DR_REG_RAX)));
-			//instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_push(drcontext, opnd_kernel_hole));
-             */		//instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_kernel_hole, OPND_CREATE_INT64(KERNEL_MEMORY_START)));
-
-            instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_pushf(drcontext));
-
-            instrlist_meta_preinsert(
-                    ilist,
-                    instr,
-                    INSTR_CREATE_lea(drcontext,
-                            opnd_mem_addr,
-                            opnd_create_base_disp(src_reg, opnd_get_index(opnd_src0), opnd_get_scale(opnd_src0), opnd_get_disp(opnd_src0), OPSZ_lea)));
-
-            instrlist_meta_preinsert(
-                    ilist,
-                    instr,
-                    INSTR_CREATE_test(drcontext, opnd_mem_addr, opnd_mem_addr));
-
-            instrlist_meta_preinsert(
-                    ilist,
-                    instr,
-                    INSTR_CREATE_jcc(drcontext, OP_jle, opnd_create_instr(execute_native_instr)));
-
-            CC(dr_insert_clean_call(drcontext, ilist, instr, (void *)cfi_watch_read, false, 1, opnd_mem_addr);)
-
-            instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_kernel_hole, OPND_CREATE_INT64(KERNEL_ADDRESS_OFFSET)));
-            instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_or(drcontext, opnd_mem_addr, opnd_kernel_hole));
-
-            instr_t* clone_instr = instr_clone(drcontext, instr);
-            instr_set_app_pc(clone_instr, NULL);
-            opnd_t opnd_src1 = instr_get_src(clone_instr, 0);
-            opnd_set_disp(&opnd_src1, 0);
-            opnd_set_base(&opnd_src1, opnd_get_reg(opnd_mem_addr));
-            opnd_set_index(&opnd_src1, DR_REG_NULL);
-            opnd_set_scale(&opnd_src1, 0);
-            instr_set_src(clone_instr, 0, opnd_src1);
-
-
-            instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_popf(drcontext));
-            instrlist_meta_preinsert(ilist, instr, clone_instr);
-            instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_kernel_hole));
-            instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_mem_addr));
-            instrlist_meta_preinsert(
-                    ilist,
-                    instr,
-                    INSTR_CREATE_jmp(drcontext, opnd_create_instr(done_emulation)));
-
-
-            instrlist_meta_preinsert(ilist, instr, execute_native_instr);
-            instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_popf(drcontext));
-            instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_kernel_hole));
-            instrlist_meta_preinsert(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_mem_addr));
-
-            instrlist_meta_postinsert(ilist, instr, next_nop);
-            instr_t *dummy_op = INSTR_CREATE_nop(drcontext);
-            instr_set_app_pc(dummy_op, instr_get_app_pc(instr));
-            instrlist_meta_postinsert(ilist, instr, dummy_op);
-
-            instrlist_meta_postinsert(ilist, instr, done_emulation);
-
-            instrlist_meta_postinsert(
-                    ilist,
-                    instr,
-                    INSTR_CREATE_jmp(drcontext, opnd_create_instr(next_nop)));
-
-
-            /*		instrlist_meta_postinsert(ilist, instr, INSTR_CREATE_push(drcontext, opnd_kernel_hole));
-			instr = instr_get_next(instr);
-			instrlist_meta_postinsert(ilist, instr, INSTR_CREATE_push(drcontext, opnd_create_reg(DR_REG_RAX)));
-			instr = instr_get_next(instr);
-			instrlist_meta_postinsert(ilist, instr, INSTR_CREATE_mov_ld(drcontext, opnd_create_reg(DR_REG_RAX), opnd_create_reg(DR_REG_RSP)));
-			instr = instr_get_next(instr);
-			instrlist_meta_postinsert(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_kernel_hole, OPND_CREATE_INT64(0xffffffffffffc000)));
-			instr = instr_get_next(instr);
-			instrlist_meta_postinsert(ilist, instr, INSTR_CREATE_and(drcontext, opnd_create_reg(DR_REG_RAX), opnd_kernel_hole));
-			instr = instr_get_next(instr);
-			instrlist_meta_postinsert(ilist, instr, INSTR_CREATE_mov_ld(drcontext, opnd_mem_addr, opnd_create_base_disp(DR_REG_RAX, DR_REG_NULL, 0, 0, OPSZ_PTR)));
-			instr = instr_get_next(instr);
-			instrlist_meta_postinsert(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_create_reg(DR_REG_RAX)));
-			instr = instr_get_next(instr);
-			instrlist_meta_postinsert(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_kernel_hole));
-			instr = instr_get_next(instr);
-
-             */
-        } else {
-
-        }
-    }
-}
-
-
 
 
 
@@ -1861,11 +1531,6 @@ instrument_write_mem_2dsts(void *drcontext, instrlist_t *ilist, instr_t *instr)
 
     collect_regs(&used_registers, instr, instr_num_srcs, instr_get_src );
     collect_regs(&used_registers, instr, instr_num_dsts, instr_get_dst );
-
-    if(instr_get_opcode(instr) == OP_add) {
-        //break_at_add(instr_get_app_pc(instr), instr);
-    }
-
 
     reg_id_t reg_mem_addr[2];
     opnd_t opnd_mem_addr[2];
@@ -2773,7 +2438,7 @@ void cfi_hotpatch_kernel(void *drcontext){
     client->cache_start = dr_thread_alloc(drcontext, CLIENT_CACHE_SIZE);
     client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_start, (void*)(kfree));
     //client->cache_ptr = hijack_kernel_function(drcontext, client, client->cache_start, (void*)__ticket_spin_is_locked, (void*)cfi__ticket_spin_is_locked);
-   // client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)vfree);
+    client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)vfree);
    // client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)kmem_cache_free);
 
 }

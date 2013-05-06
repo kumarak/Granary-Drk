@@ -35,16 +35,16 @@ void cfi_kfree(void *addr){
 
 void cfi_vfree(void *addr){
     void *value;
-    if(hashmap_get(kernel_pointer_hash, (void*)addr, &value)){
-        break_kernel_object(addr);
-    }
+   // if(hashmap_get(kernel_pointer_hash, (void*)addr, &value)){
+     //   break_kernel_object(addr);
+   // }
 }
 
 void cfi_kmem_cache_free(struct kmem_cache *s, void *ptr){
     void *value;
-    if(hashmap_get(kernel_pointer_hash, (void*)ptr, &value)){
-        break_kernel_object(ptr);
-    }
+    //if(hashmap_get(kernel_pointer_hash, (void*)ptr, &value)){
+      //  break_kernel_object(ptr);
+    //}
 }
 
 //void cfi_hotpatch_kernel(void *data){

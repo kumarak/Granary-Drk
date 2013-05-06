@@ -25,7 +25,8 @@ enum {
 enum {
     CFI_ALLOC_WHITE_LIST,
     CFI_ALLOC_GREY_LIST,
-    CFI_LOST_REFERENCE
+    CFI_LOST_REFERENCE,
+    CFI_COLLECT_LIST
 };
 
 #define DISPLAY_STRING(msg) dr_printf("%s\n", msg);
