@@ -2025,7 +2025,9 @@ handler_general_protection_fault(dcontext_t* drcontext, interrupt_stack_frame_t*
 noinline int
 break_on_pagefault(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext)
 {
-
+    (void)frame;
+    (void)mcontext;
+    return 0;
 }
 
 static int
@@ -2051,10 +2053,6 @@ handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
 
     dcontext = get_thread_private_dcontext();
 
-    if(vector == VECTOR_PAGE_FAULT) {
-        break_on_address(frame->xip);
-       // handle_pagefault_interrupt(dcontext, frame, mcontext);
-     }
 
     ASSERT(dcontext != NULL);
     ostd = (os_thread_data_t *) dcontext->os_field;
@@ -2065,6 +2063,13 @@ handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
     local = local_heap_protected(dcontext);
     if (local)
         SELF_PROTECT_LOCAL(dcontext, WRITABLE);
+
+
+    if(vector == VECTOR_PAGE_FAULT) {
+        break_on_pagefault(frame, mcontext);
+       // handle_pagefault_interrupt(dcontext, frame, mcontext);
+        return ret;
+     }
 
 
 #ifdef DEBUG

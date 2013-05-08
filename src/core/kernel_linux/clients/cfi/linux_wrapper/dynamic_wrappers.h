@@ -1,5 +1,5 @@
 /* Auto-generated scanning functions. */
-#define DW(...) __VA_ARGS__
+#define DW(...) /*__VA_ARGS__*/
 
 #define PRE pre
 #define POST post

@@ -35,7 +35,7 @@ FUNCTION_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
 #endif
 
 FUNC_WRAPPER_VOID(kfree, ( void* addr), {
-    P(kern_printk("kfree wrapper : %lx\n", addr);)
+    kern_printk("kfree wrapper : %lx\n", addr);
     /*check if this is watchpoint*/
     cfi_handler_free(target_module, addr, NULL);
 
@@ -46,7 +46,7 @@ FUNC_WRAPPER_VOID(kfree, ( void* addr), {
         uint64_t oldval = 0x0ULL;
         do {
             oldval = meta_info->state;
-            newval = (meta_info->state | WP_MEMORY_FREED);
+            newval = (meta_info->state & (~WP_MEMORY_ALLOCATED)/*| WP_MEMORY_FREED*/);
         }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
         //meta_info->state &= ~WP_MEMORY_ALLOCATED;
         //meta_info->state |= WP_MEMORY_FREED;
@@ -147,7 +147,7 @@ FUNC_WRAPPER(kmem_cache_alloc_node, (struct kmem_cache *cachep, gfp_t flags, int
 
 //void kmem_cache_free(struct kmem_cache *, void *);
 FUNC_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
-    P(kern_printk("kmem_cache_free wrapper : %lx\n", ptr);)
+    kern_printk("kmem_cache_free wrapper : %lx\n", ptr);
 
     watchpoint_descriptor *meta_info = NULL;
     meta_info = WATCHPOINT_META(ptr);
@@ -156,7 +156,7 @@ FUNC_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
         uint64_t oldval = 0x0ULL;
         do {
             oldval = meta_info->state;
-            newval = (meta_info->state | WP_MEMORY_FREED);
+            newval = (meta_info->state & (~WP_MEMORY_ALLOCATED)/*| WP_MEMORY_FREED*/);
         }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
         //meta_info->state &= ~WP_MEMORY_ALLOCATED;
        // meta_info->state |= WP_MEMORY_FREED;

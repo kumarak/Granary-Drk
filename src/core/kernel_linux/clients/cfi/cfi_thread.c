@@ -26,7 +26,7 @@ extern struct hashtable_t *kernel_variable_hash;
 #define USER_ADDRESS_OFFSET         0x00007fffffffffff
 
 #define KERNEL_ADDRESS_OFFSET       0xffff000000000000
-#define WATCHPOINT_ADDRESS_MASK     0x8000c00000000000
+#define WATCHPOINT_ADDRESS_MASK     0x8000800000000000
 #define WATCHPOINT               0x800000000000
 
 enum {
@@ -133,8 +133,16 @@ cfi_update_descriptor_state(void *ptr, uint64_t state){
     if((meta_info != NULL)
             && (meta_info >= MODULE_SHADOW_END )
             && (meta_info < MODULE_SHADOW_END_EXTENDED)
-            && !(meta_info->state & WP_MEMORY_FREED)) {
-        meta_info->state = meta_info->state | state;
+            && (meta_info->state & WP_MEMORY_ALLOCATED)) {
+
+        uint64_t newval = 0x0ULL;
+        uint64_t oldval = 0x0ULL;
+        do {
+            oldval = meta_info->state;
+            newval = (meta_info->state | state/*| WP_MEMORY_FREED*/);
+        }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
+        //meta_info->state = meta_info->state | state;
+
         value = meta_info->base_address;
         displacement_part = (ALIAS_ADDRESS_DISPLACEMENT_MASK & ((uint64_t) value));
         index_part = (ALIAS_ADDRESS_INDEX_MASK & ((uint64_t)ptr));
@@ -179,6 +187,12 @@ bool func_module_print_greylist(void *addr, void *data){
 
 static inline
 bool is_watchpoint(uint64_t value){
+#if 0
+    if((value & WATCHPOINT_ADDRESS_MASK) == WATCHPOINT){
+        return true;
+    }
+#endif
+#if 1
     if(!(value & ALIAS_ADDRESS_NOT_ENABLED) &&
             ((uint64_t)value > USER_ADDRESS_OFFSET)){
         uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
@@ -186,6 +200,7 @@ bool is_watchpoint(uint64_t value){
             return true;
         }
     }
+#endif
     return false;
 }
 
@@ -386,7 +401,8 @@ cfi_scan_rootsets(void){
                         }
 #if 0
                     	void *base_ptr = cfi_item_update_base(value);
-                    	if(NULL != base_ptr) {
+                    	if(NULL != base_pt            && !(meta_info->state & WP_MEMORY_ALLOCATED)) {
+r) {
                         	if(base_ptr != alloc_scan_list->node) {
                             	printk("scanning greylist object : src( %lx) \t dest( %lx)\n", (void*)alloc_scan_list->node, base_ptr);
                             	cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
@@ -482,24 +498,33 @@ sweep_thread_init(void *arg)
             descriptor = get_descriptor_at_index(i);
             if(NULL != descriptor){
 #ifdef DEBUG
-                if((descriptor->state & WP_MEMORY_ALLOCATED) && !(descriptor->state & WP_MEMORY_FREED)){
+                if((descriptor->state & WP_MEMORY_ALLOCATED) /*&& !(descriptor->state & WP_MEMORY_FREED)*/){
                     printk("%llx(%lx)\t", descriptor->base_address, i);
                     //cfi_list_append(&module_alloc_list[CFI_ALLOC_WHITE_LIST], descriptor->base_address);
                 }
 #endif
                 if((descriptor->state & WP_MEMORY_ALLOCATED)
-                        && !(descriptor->state & WP_MEMORY_FREED)
+                        /*&& !(descriptor->state & WP_MEMORY_FREED)*/
                         && !(descriptor->state & WP_MEMORY_REACHABLE)){
                       cfi_list_append(&module_alloc_list[CFI_LOST_REFERENCE], descriptor->base_address);
                   }
 
-                if((descriptor->state & WP_MEMORY_FREED) && !(descriptor->state & WP_MEMORY_REACHABLE)){
-                    //wrapper_collect_descriptor(i);
+                if(!(descriptor->state & WP_MEMORY_ALLOCATED) && !(descriptor->state & WP_MEMORY_REACHABLE)){
+                    wrapper_collect_descriptor(i);
 #ifdef DEBUG
                     //cfi_list_append(&module_alloc_list[CFI_COLLECT_LIST], i);
 #endif
                 }
-                descriptor->state &= ~WP_MEMORY_REACHABLE;
+
+                uint64_t newval = 0x0ULL;
+                uint64_t oldval = 0x0ULL;
+                do {
+                    oldval = descriptor->state;
+                    newval = (descriptor->state & (~WP_MEMORY_REACHABLE));
+                }while(!__sync_bool_compare_and_swap(&(descriptor->state), oldval, newval));
+                //meta_info->state = meta_info->state | state;
+
+                //descriptor->state &= ~WP_MEMORY_REACHABLE;
             }
         }
 

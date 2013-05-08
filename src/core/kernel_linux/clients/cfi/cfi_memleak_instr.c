@@ -146,7 +146,8 @@ instrument_memory_write(void *drcontext, instrlist_t *ilist,
     reg_id_t reg_unwatched_addr;
     struct spill_reg_t watched_addr;
     struct spill_reg_t unwatched_addr;
-    struct spill_reg_t spill_reg[16];
+    reg_id_t spill_reg[16];
+    opnd_t spill_reg_opnd[16];
 
     instr_t *addr_is_a_watchpoint = INSTR_CREATE_label(drcontext);
     instr_t *addr_is_not_a_watchpoint = INSTR_CREATE_label(drcontext);
@@ -180,13 +181,29 @@ instrument_memory_write(void *drcontext, instrlist_t *ilist,
     PRE(ilist, instr, INSTR_CREATE_lea(drcontext, opnd_watched_addr, opnd_create_base_disp(opnd_get_base(ops->found_operand),
                                                 opnd_get_index(ops->found_operand), opnd_get_scale(ops->found_operand),
                                                 opnd_get_disp(ops->found_operand), OPSZ_lea)));
-
+#if 0
     PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr,
                                             OPND_CREATE_INT64(WATCHPOINT_BASE)));
-
     PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_watched_addr, opnd_unwatched_addr));
-
     PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_jle, opnd_create_instr(addr_is_not_a_watchpoint)));
+
+#else
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr,
+                                            OPND_CREATE_INT64(WATCHPOINT_ADDRESS_MASK)));
+    PRE(ilist, instr, INSTR_CREATE_and(drcontext, opnd_unwatched_addr, opnd_watched_addr));
+
+    spill_reg[0] = get_next_free_reg(&used_registers);
+    spill_reg_opnd[0] = opnd_create_reg(spill_reg[0]);
+    PRE(ilist, instr, INSTR_CREATE_push(drcontext, spill_reg_opnd[0]));
+
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, spill_reg_opnd[0],
+            OPND_CREATE_INT64(WATCHPOINT)));
+
+    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_unwatched_addr, spill_reg_opnd[0]));
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, spill_reg_opnd[0]));
+    PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_jne, opnd_create_instr(addr_is_not_a_watchpoint)));
+#endif
+
 
     PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr,
                                         OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
@@ -241,7 +258,8 @@ instrument_memory_read(void *drcontext, instrlist_t *ilist,
     reg_id_t reg_unwatched_addr;
     struct spill_reg_t watched_addr;
     struct spill_reg_t unwatched_addr;
-    struct spill_reg_t spill_reg[16];
+    reg_id_t spill_reg[16];
+    opnd_t spill_reg_opnd[16];
 
     instr_t *addr_is_a_watchpoint = INSTR_CREATE_label(drcontext);
     instr_t *addr_is_not_a_watchpoint = INSTR_CREATE_label(drcontext);
@@ -277,6 +295,29 @@ instrument_memory_read(void *drcontext, instrlist_t *ilist,
     PRE(ilist, instr, INSTR_CREATE_lea(drcontext, opnd_watched_addr, opnd_create_base_disp(opnd_get_base(ops->found_operand),
                                                 opnd_get_index(ops->found_operand), opnd_get_scale(ops->found_operand),
                                                 opnd_get_disp(ops->found_operand), OPSZ_lea)));
+
+#if 0
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr,
+                                            OPND_CREATE_INT64(WATCHPOINT_BASE)));
+    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_watched_addr, opnd_unwatched_addr));
+    PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_jle, opnd_create_instr(addr_is_not_a_watchpoint)));
+
+#else
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr,
+                                            OPND_CREATE_INT64(WATCHPOINT_ADDRESS_MASK)));
+    PRE(ilist, instr, INSTR_CREATE_and(drcontext, opnd_unwatched_addr, opnd_watched_addr));
+
+    spill_reg[0] = get_next_free_reg(&used_registers);
+    spill_reg_opnd[0] = opnd_create_reg(spill_reg[0]);
+    PRE(ilist, instr, INSTR_CREATE_push(drcontext, spill_reg_opnd[0]));
+
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, spill_reg_opnd[0],
+            OPND_CREATE_INT64(WATCHPOINT)));
+
+    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_unwatched_addr, spill_reg_opnd[0]));
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, spill_reg_opnd[0]));
+    PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_jne, opnd_create_instr(addr_is_not_a_watchpoint)));
+#endif
 
     PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_unwatched_addr, OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
     PRE(ilist, instr, INSTR_CREATE_or(drcontext, opnd_unwatched_addr, opnd_watched_addr));

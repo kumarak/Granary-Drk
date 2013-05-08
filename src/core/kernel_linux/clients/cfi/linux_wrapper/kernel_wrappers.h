@@ -525,7 +525,7 @@ TYPE_WRAPPER(struct cred, {
 #endif
 
 
-#define WRAPPER_FOR_struct_file
+
 #ifndef WRAPPER_FOR_struct_file
 #define WRAPPER_FOR_struct_file
 TYPE_WRAPPER(struct file, {
@@ -540,13 +540,14 @@ TYPE_WRAPPER(struct file, {
 #endif
 
 
-#define WRAPPER_FOR_struct_attribute_group
+
 #ifndef WRAPPER_FOR_struct_attribute_group
 #define WRAPPER_FOR_struct_attribute_group
 TYPE_WRAPPER(struct attribute_group, {
     PRE_WRAP {
         WRAP_FUNCTION(arg.is_visible);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
@@ -617,7 +618,7 @@ TYPE_WRAPPER(struct bus_attribute, {
 #endif
 
 
-#define WRAPPER_FOR_struct_device_attribute
+
 #ifndef WRAPPER_FOR_struct_device_attribute
 #define WRAPPER_FOR_struct_device_attribute
 TYPE_WRAPPER(struct device_attribute, {
@@ -626,6 +627,7 @@ TYPE_WRAPPER(struct device_attribute, {
         WRAP_FUNCTION(arg.show);
         WRAP_FUNCTION(arg.store);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
@@ -886,7 +888,7 @@ TYPE_WRAPPER(struct class_, {
 #endif
 
 
-#define WRAPPER_FOR_struct_device
+
 #ifndef WRAPPER_FOR_struct_device
 #define WRAPPER_FOR_struct_device
 TYPE_WRAPPER(struct device, {
@@ -909,7 +911,7 @@ TYPE_WRAPPER(struct device, {
 #endif
 
 
-#define WRAPPER_FOR_struct_hd_struct
+
 #ifndef WRAPPER_FOR_struct_hd_struct
 #define WRAPPER_FOR_struct_hd_struct
 TYPE_WRAPPER(struct hd_struct, {
@@ -918,6 +920,7 @@ TYPE_WRAPPER(struct hd_struct, {
         WRAP_RECURSIVE(arg.holder_dir);
         WRAP_RECURSIVE(arg.callback_head);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
