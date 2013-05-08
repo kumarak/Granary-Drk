@@ -129,11 +129,14 @@ alias_meta_thread *alias_meta_thread::FREE_LIST = 0;
 /// pointer. However, sources maintain the thread generation
 /// numbers needed to determine whether a read/write on an alias
 /// is valid.
-struct alias_meta {
-
-    uint64_t base_address;
+struct watchpoint_descriptor {
+    union {
+        uint64_t base_address;
+        uint64_t index;
+    };
     uint64_t limit;
-    uint64_t bitflags;
+    uint64_t state;
+    volatile struct watchpoint_descriptor *next;
 
 } __attribute__((packed));
 

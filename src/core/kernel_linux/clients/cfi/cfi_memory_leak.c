@@ -319,7 +319,7 @@ cfi_handler_free(struct module *mod, const void *addr,
         if(NULL != addr){
           cfi_list_del_item(&module_alloc_list[CFI_ALLOC_WHITE_LIST], addr);
           cfi_list_del_item(&kernel_leaked_watchpoints, addr);
-          cfi_list_append(&module_alloc_list[CFI_COLLECT_LIST], addr);
+        //  cfi_list_append(&module_alloc_list[CFI_COLLECT_LIST], addr);
         }
 
         //hashmap_delete(module_alloc_hash[CFI_ALLOC_WHITE_LIST], addr);
