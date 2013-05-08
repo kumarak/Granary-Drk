@@ -1,0 +1,7 @@
+Agenda 
+1) Collection of watchpoints on sweep thread if it is freed and unreachable
+2) Implementation of Counter index and partial index to overcome the limit of watchpoints
+
+
+Issues
+1) Collection mechanism is collecting an extra descriptor sometime with ext3; check that
