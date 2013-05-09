@@ -856,6 +856,18 @@ noinline void call_to_radix_tree_tag_set(dcontext){
     (void)dcontext;
 }
 
+extern void dr_add_to_list(void *);
+
+static inline
+void initialize_spill_slot(void){
+    struct thread_private_info *spill_slot;
+    dr_printf("spill_slot was NULL!!!!!!!!!!!!!!!\n");
+    spill_slot = kernel_thread_private_slot_init(SPILL_SLOT_1);
+    spill_slot->section_count = 1;
+    spill_slot->is_running_module = 1;
+    spill_slot->tsk = kernel_get_current();
+    dr_add_to_list((void*)spill_slot);
+}
 /**
  * Exit instrumentation and jump to the kernel. If this is a call then we go
  * through the kernel wrappers first; otherwise we go check call/return
@@ -868,6 +880,13 @@ dispatch_exit_module(dcontext_t *dcontext) {
     struct thread_private_info *thread_private_slot;
 
     thread_private_slot = kernel_get_thread_private_slot_from_rsp((void*)get_mcontext(dcontext)->rsp, 0);
+
+    if(!thread_private_slot){
+        initialize_spill_slot();
+    }
+
+    /*part of code is redundent with the latest changes in the sweeper thread*/
+#if 0
 
     if(thread_private_slot != NULL){
 
@@ -897,7 +916,7 @@ dispatch_exit_module(dcontext_t *dcontext) {
         thread_private_slot->regs[14] = get_mcontext(dcontext)->r14;
         thread_private_slot->regs[15] = get_mcontext(dcontext)->r15;
     }
-
+#endif
     /* call any client callbacks to handling module exits; these might
      * change the dcontext->next_tag. */
     if(dcontext->last_exit->flags & LINK_RETURN) {

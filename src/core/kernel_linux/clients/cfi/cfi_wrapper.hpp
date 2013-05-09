@@ -830,27 +830,70 @@ R (*to_shadow_address(R (*func_ptr)(Args...)))(Args...) {
 
     // convert module address to shadow address
     } else if(MODULE_START_ADDR <= addr && addr < MODULE_END_ADDR) {
+        volatile uint64_t oldval = 0x0ULL;
+        volatile uint64_t newval = 0x0ULL;
+        volatile uint64_t hotpatch_instr = 0x0ULL;
+
         addr += MODULE_SHADOW_OFFSET;
         uint64_t wrapper_addr = (uint64_t) cfi_dynamic_wrapper_ret_impl<R, Args...>::wrapper;
      //   uint64_t wrapper_addr = (uint64_t) cfi_enter_module_from_shadow;
         // initialize the 'call' instruction in the shadow if not present
         char *shadow_code((char *) addr);
+        volatile uint64_t *shadow_address((uint64_t*)addr);
 
-        int64_t shadow_ptr = (int64_t)shadow_code;
+
+        int64_t shadow_ptr = (int64_t)shadow_address;
         int64_t offset_val = (wrapper_addr - (shadow_ptr + 5));
-
+#if 0
         unsigned char shadow_instruction[] = {
 			0xe8, 0x00, 0x00, 0x00, 0x00,
 
 	/*		0x68, 0x00, 0x00, 0x00, 0x00, */
 			0xc3 // ret
         };
+
         shadow_instruction[1] = ((offset_val >> 0)     & 0xff);
         shadow_instruction[2] = ((offset_val >> 8)     & 0xff);
         shadow_instruction[3] = ((offset_val >> 16)    & 0xff);
         shadow_instruction[4] = ((offset_val >> 24)    & 0xff);
 
         memcpy(shadow_code, shadow_instruction, 6);
+#endif
+        unsigned long hotpatch_instruction[] = {
+            0xe8, 0x00, 0x00, 0x00, 0x00,
+
+    /*      0x68, 0x00, 0x00, 0x00, 0x00, */
+            0xc3 // ret
+        };
+
+        hotpatch_instruction[1] = ((offset_val >> 0)     & 0xff);
+        hotpatch_instruction[2] = ((offset_val >> 8)     & 0xff);
+        hotpatch_instruction[3] = ((offset_val >> 16)    & 0xff);
+        hotpatch_instruction[4] = ((offset_val >> 24)    & 0xff);
+
+        {
+
+
+            hotpatch_instr = (volatile uint64_t){(hotpatch_instruction[0])
+                                        + (hotpatch_instruction[1] << 8)
+                                        + (hotpatch_instruction[2] << 16)
+                                        + (hotpatch_instruction[3] << 24)
+                                        + (hotpatch_instruction[4] << 32)
+                                        + (hotpatch_instruction[5] << 40)};
+
+            /*this condition is not required but shadow_address is sometime taking garbage value
+             * TODO: a more appropriate fix is required for this; don't know what is the reason*/
+            if(shadow_address > (uint64_t*)4095){
+                oldval = *(shadow_address);
+                newval = hotpatch_instr;
+                __sync_bool_compare_and_swap(shadow_address, oldval, newval);
+/*
+                do {
+                    newval = hotpatch_instr;
+                }while(!__sync_bool_compare_and_swap(shadow_address, oldval, newval));*/
+            }
+        }
+
 
         D( kern_printk("initializing shadow module entrypoint %lx\n", addr); )
 
