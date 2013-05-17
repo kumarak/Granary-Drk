@@ -65,7 +65,7 @@ def pre_wrap_fields(ctype, O):
     if will_pre_wrap_type(field_ctype):
       pre_wrap_var(
           field_ctype, 
-          field_name and ("arg.%s" % field_name) or None,
+          field_name and ("TO_UNWATCHED_ADDRESS(arg)->%s" % field_name) or None,
           O)
 
 
@@ -74,9 +74,9 @@ def post_wrap_fields(ctype, O):
   for field_ctype, field_name in ctype.fields():
     if will_post_wrap_type(field_ctype):
       if is_function_pointer(field_ctype):
-        O("        WRAP_FUNCTION(arg.", field_name, ");")
+        O("        WRAP_FUNCTION(arg->", field_name, ");")
       else:
-        O("        WRAP_RECURSIVE(arg.", field_name, ");")
+        O("        WRAP_RECURSIVE(arg->", field_name, ");")
 
 
 def scoped_name(ctype):
@@ -117,27 +117,35 @@ def wrap_struct(ctype):
   name = scoped_name(ctype)
 
   O = ctype.has_name and OUT or NULL
-  O("#define WRAPPER_FOR_", ifdef_name(name))
+  #O("#define WRAPPER_FOR_", ifdef_name(name))
   O("#ifndef WRAPPER_FOR_", ifdef_name(name))
   O("#define WRAPPER_FOR_", ifdef_name(name))
-  O("TYPE_WRAPPER(", name, ", ", "{")
+  O("TYPE_WRAPPER(", name, "*, ", "{")
+  O("    PRE{")
+  O("        if(!is_alias_address((uint64_t)arg)){")
+  O("           D(kern_printk( \"added to hash table ",name, "\\n\");)")
+  O("           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(", name, "));")
+  O("        }")
+  pre_wrap_fields(ctype, O)
+  O("    }")
+  O("    NO_POST")
   
-  if will_pre:
+#  if will_pre:
 #    O("    NO_PRE_IN")
-    O("    PRE_WRAP {")
-    pre_wrap_fields(ctype, O)
-    O("    }")
-  else:
-    O("    NO_PRE")
-
-  if will_post:
+#    O("    PRE_WRAP {")
+#    pre_wrap_fields(ctype, O)
+#    O("    }")
+#  else:
+#    O("    NO_PRE")
+#
+#  if will_post:
 #	pass
  #   O("    NO_POST_IN")
  #   O("    POST_WRAP {")
  #   post_wrap_fields(ctype, O)
  #   O("    }")
  # else:
-    O("    NO_POST")
+#    O("    NO_POST")
   O("    NO_RETURN")
   O("})")
   O("#endif")
@@ -403,6 +411,5 @@ if "__main__" == __name__:
       if not should_ignore(var) and var.startswith("v"):
         visit_possible_variadic_def(var, ctype.base_type(), va_list)
 
-    for var, ctype in parser.vars():
-      if not should_ignore(var):
-        visit_var_def(var, ctype)
+    for type, ctype in parser.types():
+      	visit_var_def(type, ctype)

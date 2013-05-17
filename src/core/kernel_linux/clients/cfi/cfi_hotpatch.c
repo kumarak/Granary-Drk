@@ -47,6 +47,10 @@ void cfi_kmem_cache_free(struct kmem_cache *s, void *ptr){
     //}
 }
 
+void cfi_delayed_work_timer_fn(unsigned long __data){
+    return;
+}
+
 //void cfi_hotpatch_kernel(void *data){
  //   printk("%s\n", __FUNCTION__);
 //}
@@ -106,7 +110,10 @@ emit_hotpatch_code(void *drcontext, client_cache_info_t *client, byte *pc, app_p
         dr_insert_clean_call(drcontext, ilist_hpdsts, instr, (void *)cfi_vfree, false, 1, opnd_create_reg(DR_REG_RDI));
     } else if(addr == (void*)kmem_cache_free){
         dr_insert_clean_call(drcontext, ilist_hpdsts, instr, (void *)cfi_kmem_cache_free, false, 2, opnd_create_reg(DR_REG_RDI), opnd_create_reg(DR_REG_RSI));
+    } else if(addr == (void*)delayed_work_timer_fn){
+        dr_insert_clean_call(drcontext, ilist_hpdsts, instr, (void *)cfi_delayed_work_timer_fn, false, 2, opnd_create_reg(DR_REG_RDI), opnd_create_reg(DR_REG_RSI));
     }
+
 
     pc_end = instrlist_encode(drcontext, ilist_hpdsts, pc, true);
 

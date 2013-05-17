@@ -19,8 +19,6 @@
 #include <linux/stop_machine.h>
 #include "cfi_notifier.h"
 
-extern struct hashtable_t *module_watchpoint_map;
-extern struct hashtable_t *kernel_variable_hash;
 
 #define KERNEL_ADDRESS_OFFSET       0xffff000000000000
 #define USER_ADDRESS_OFFSET         0x00007fffffffffff
@@ -78,7 +76,7 @@ extern uint64_t flag_memory_snapshot;
 
 void cfi_dump_stack(){
     struct thread_info *thread = current_thread_info();
-    printk("return address : %lx\n", thread->client_data.return_address_stack[thread->client_data.return_stack_size -1]);
+    //printk("return address : %lx\n", thread->client_data.return_address_stack[thread->client_data.return_stack_size -1]);
 
     //dump_stack();
 }
@@ -242,14 +240,15 @@ cfi_scan_rootsets(void){
         uint64_t *scan_ptr;
         printk("scanning data section\n");
         scan_ptr = module_ptr->data_begin;
-        while(scan_ptr <= module_ptr->data_end){
-            value = (uint64_t)(*scan_ptr);
-            if(is_watchpoint(value)){
-                void *base = cfi_update_descriptor_state(value, WP_MEMORY_REACHABLE);
-                if(NULL != base){
-                    printk("scanning data section src(%lx) : dest(%lx)\n", scan_ptr, base);
-                    cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base);
-                }
+        if(scan_ptr) {
+            while(scan_ptr <= module_ptr->data_end){
+                value = (uint64_t)(*scan_ptr);
+                if(is_watchpoint(value)){
+                    void *base = cfi_update_descriptor_state(value, WP_MEMORY_REACHABLE);
+                    if(NULL != base){
+                        printk("scanning data section src(%lx) : dest(%lx)\n", scan_ptr, base);
+                        cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base);
+                    }
 #if 0
                 void *base_ptr = cfi_item_update_base(value);
                 if(NULL != base_ptr) {
@@ -257,20 +256,22 @@ cfi_scan_rootsets(void){
                     cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
                 }
 #endif
+                }
+                scan_ptr++;
             }
-            scan_ptr++;
         }
 
         printk("scanning bss section\n");
         scan_ptr = module_ptr->bss_begin;
-        while(scan_ptr <= module_ptr->bss_end){
-            value = (uint64_t)(*scan_ptr);
-            if(is_watchpoint(value)){
-                void *base = cfi_update_descriptor_state(value, WP_MEMORY_REACHABLE);
-                if(NULL != base){
-                    printk("scanning bss section src(%lx) : dest(%lx)\n", scan_ptr, base);
-                    cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base);
-                }
+        if(scan_ptr){
+            while(scan_ptr <= module_ptr->bss_end){
+                value = (uint64_t)(*scan_ptr);
+                if(is_watchpoint(value)){
+                    void *base = cfi_update_descriptor_state(value, WP_MEMORY_REACHABLE);
+                    if(NULL != base){
+                        printk("scanning bss section src(%lx) : dest(%lx)\n", scan_ptr, base);
+                        cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base);
+                    }
 #if 0
                 void *base_ptr = cfi_item_update_base(value);
                 if(NULL != base_ptr) {
@@ -278,8 +279,9 @@ cfi_scan_rootsets(void){
                     cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
                 };
 #endif
+                }
+                scan_ptr++;
             }
-            scan_ptr++;
         }
 
         module_ptr = module_ptr->next;
@@ -481,7 +483,9 @@ sweep_thread_init(void *arg)
 
     while (!kthread_should_stop()){
         dr_printf("*******************************************************inside sweep_thread_init\n");
+#if 1
         stop_machine(copy_stack_callback, 0, 0);
+
         preempt_disable();
         raw_local_irq_save(flags);
         do {
@@ -560,7 +564,7 @@ sweep_thread_init(void *arg)
         }while(!__sync_bool_compare_and_swap(&flag_memory_snapshot, local_flag, 0x1));
         raw_local_irq_restore(flags);
         preempt_enable();
-
+#endif
         set_current_state(TASK_INTERRUPTIBLE);
         schedule_timeout(100*HZ/*00*/);
     }

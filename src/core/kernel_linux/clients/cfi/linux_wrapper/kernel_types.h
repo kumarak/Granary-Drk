@@ -5393,7 +5393,7 @@ unsigned long __round_jiffies_up_relative ( unsigned long j , int cpu ) ;
 unsigned long round_jiffies_up ( unsigned long j ) ;
 unsigned long round_jiffies_up_relative ( unsigned long j ) ;
 void delayed_work_timer_fn ( unsigned long __data ) ;
-extern struct workqueue_struct * __alloc_workqueue_key ( const char * fmt , unsigned int flags , int max_active , struct lock_class_key * key , const char * lock_name , ... ) __attribute__ ( ( format ( printf , 1 , 6 ) ) ) ;
+extern struct workqueue_struct * __alloc_workqueue_key ( const char * fmt , unsigned int flags , int max_active , struct lock_class_key * key , const char * lock_name);
 extern void destroy_workqueue ( struct workqueue_struct * wq ) ;
 extern bool queue_work_on ( int cpu , struct workqueue_struct * wq , struct work_struct * work ) ;
 extern bool queue_work ( struct workqueue_struct * wq , struct work_struct * work ) ;

@@ -25,18 +25,22 @@
 
 /*Memleak declaration*/
 
+#define DEFAULT_HASHTABLE_SIZE 0
+
 struct cfi_list_head module_alloc_list[3] =     {{.head = NULL, .count = 0 },
                                                  {.head = NULL, .count = 0 },
                                                  {.head = NULL, .count = 0}};
 
 
 struct hashtable_t  *module_alloc_hash[3];
-DEFINE_HASHTABLE(*alloc_pointer_hash);
 
-DEFINE_HASHTABLE(*kernel_pointer_hash);
-DEFINE_HASHTABLE(*module_watchpoint_map);
-DEFINE_HASHTABLE(*local_symbol_table);
-DEFINE_HASHTABLE(*kernel_variable_hash);
+DEFINE_HASHTABLE(alloc_pointer_hash);
+
+DEFINE_HASHTABLE(kernel_pointer_hash);
+DEFINE_HASHTABLE(local_symbol_table);
+DEFINE_HASHTABLE(kernel_variable_hash);
+
+DEFINE_HASHTABLE(dynamic_wrapper_table);
 
 CFI_LIST_DECLARE(module_global_list);
 CFI_LIST_DECLARE(atomic_sweep_list);
@@ -123,12 +127,20 @@ void *shadow_page_alloc(unsigned long size, unsigned long va_start, unsigned lon
 #endif
 }
 
+typedef void* (vmodule_alloc)(unsigned long);
 
+void *module_page_alloc(unsigned long size) {
+    vmodule_alloc *module_alloc = (vmodule_alloc *) MODULE_ALLOC;
+    size = PAGE_ALIGN(size);
+
+    return module_alloc(size);
+}
 
 
 
 static int __init
 cfi_module_init(void) {
+    unsigned int ret;
     unsigned long drk_interface_addr = (unsigned long) cfi_enter_module_from_shadow;
 
     shadow_pointer_init = shadow_page_alloc(MODULE_SHADOW_END_EXTENDED - MODULE_SHADOW_START - 4096, MODULE_SHADOW_START, MODULE_SHADOW_END_EXTENDED);
@@ -136,13 +148,24 @@ cfi_module_init(void) {
 	if(shadow_pointer_init == NULL) {
 	    printk("shadow alloc failed\n");
     }
-
+#if 0
     SHADOW_CALL[6] = ((drk_interface_addr >> 0)     & 0xff);
     SHADOW_CALL[7] = ((drk_interface_addr >> 8)     & 0xff);
     SHADOW_CALL[8] = ((drk_interface_addr >> 16)    & 0xff);
     SHADOW_CALL[9] = ((drk_interface_addr >> 24)    & 0xff);
-
+#endif
    	register_module_notifier(&module_load_nb);
+
+   	ret = hashmap_init(DEFAULT_HASHTABLE_SIZE, &dynamic_wrapper_table);
+   	if(ret != 0) {
+   	    printk("dynamic wrapper is not initialized\n");
+   	    return -1;
+   	}
+
+   	ret = hashmap_init(DEFAULT_HASHTABLE_SIZE, &kernel_pointer_hash);
+   	if(ret != 0) {
+        printk("kernel objects hash is not initialized\n");
+   	}
 
 
    	/* list of allocated pointers by the module*/
@@ -159,25 +182,17 @@ cfi_module_init(void) {
    	cfi_list_init(&list_loaded_module);
    	cfi_list_init(&list_collected_watchpoint_kernel);
 
-   //	hashmap_init(128, &alloc_pointer_hash);
-   	hashmap_init(128, &kernel_pointer_hash);
-   	hashmap_init(1024, &module_watchpoint_map);
    	hashmap_init(1024, &local_symbol_table);
-   // hashmap_init(1024, &module_alloc_hash[CFI_ALLOC_WHITE_LIST]);
-   // hashmap_init(1024, &module_alloc_hash[CFI_ALLOC_GREY_LIST]);
-   // hashmap_init(1024, &module_alloc_hash[CFI_LOST_REFERENCE]);
    	init_wrapper();
-  // 	flag_memory_snapshot = kmalloc(sizeof(unsigned int), GFP_ATOMIC);
 
-   	//*flag_memory_snapshot = 0x1;
-
+#if 1
    	/*sweep thread : it scans the rootset and finds the leaked memory*/
    	sweep_task = kthread_create(sweep_thread_init, NULL, "sweep-thread");
     if (!IS_ERR(sweep_task))
         wake_up_process(sweep_task);
     else
         WARN_ON(1);
-
+#endif
     return 0;
 }
 

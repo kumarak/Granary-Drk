@@ -75,6 +75,7 @@ EXTRA_AFLAGS=$(DR_INCLUDE_FLAGS)\
 ../../x86/x86_code.o\
 ../../x86/asm_defines.o\
 ../../x86/x86.o\
+../../x86/watchpoints.o\
 ../../kernel_linux/os.o\
 ../../kernel_linux/hypercall_guest.o\
 ../../kernel_linux/page_table.o\

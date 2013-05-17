@@ -4,4 +4,5 @@ Agenda
 
 
 Issues
-1) Collection mechanism is collecting an extra descriptor sometime with ext3; check that
+1) Collection mechanism is collecting an extra descriptor sometime with ext3; check that (resolved)
+2) With xfs the delayed_queue timer data is getting corrupted look for that.

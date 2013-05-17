@@ -51,7 +51,7 @@ static void cfi_init_dcontext(void *extension) {
     struct cfi_client_extension *cfi = (struct cfi_client_extension *) extension;
 
     memset(cfi, 0, sizeof *cfi);
-    cfi->iret_handler = dr_app_start_after_iret;
+    cfi->iret_handler = dr_app_start_on_return/*dr_app_start_after_iret*/;
 }
 
 struct dcontext;
@@ -2435,10 +2435,11 @@ void cfi_hotpatch_kernel(void *drcontext){
     client_cache_info_t * client = (client_cache_info_t*) dr_thread_alloc(drcontext, sizeof(client_cache_info_t));
     cpu_client_cache = client;
     printk("%s\n", __FUNCTION__);
-    client->cache_start = dr_thread_alloc(drcontext, CLIENT_CACHE_SIZE);
-    client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_start, (void*)(kfree));
+   // client->cache_start = dr_thread_alloc(drcontext, CLIENT_CACHE_SIZE);
+    //client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_start, (void*)(kfree));
     //client->cache_ptr = hijack_kernel_function(drcontext, client, client->cache_start, (void*)__ticket_spin_is_locked, (void*)cfi__ticket_spin_is_locked);
-    client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)vfree);
+    //client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)vfree);
+    //client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)delayed_work_timer_fn);
    // client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)kmem_cache_free);
 
 }

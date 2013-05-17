@@ -30,6 +30,7 @@ extern struct cfi_list_head atomic_sweep_list;
 extern struct hashtable_t *module_watchpoint_map;
 
 extern struct hashtable_t *kernel_variable_hash;
+extern struct hashtable_t *dynamic_wrapper_table;
 
 extern int hashmap_init(int initial_size, struct hashtable_t **htable);
 

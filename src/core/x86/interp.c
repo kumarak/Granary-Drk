@@ -7171,7 +7171,7 @@ dr_get_basic_block(dcontext_t *dcontext, app_pc start_pc){
     f = fragment_lookup(dcontext, start_pc);
 
     if(f == NULL) {
-        f = build_basic_block(dcontext, start_pc, 0, false, true, 0, 0);
+        f = build_basic_block(dcontext, start_pc, 0, false, false, 0, 0);
     }
     return f->start_pc;
 }

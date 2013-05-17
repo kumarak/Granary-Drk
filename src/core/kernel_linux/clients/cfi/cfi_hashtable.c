@@ -132,8 +132,6 @@ hashmap_get(struct hashtable_t *htable, void *key, void **value) {
     hashtable_entry_t *hentry;
     unsigned long hash_index;
 
-    spin_lock(&(htable->hash_lock));
-
 #if 1
     hash_index = hash_ptr(key, LC_HASH_BITS);
     index = hash_index % htable->table_size;
@@ -142,6 +140,9 @@ hashmap_get(struct hashtable_t *htable, void *key, void **value) {
     MurmurHash3_x86_32(key, sizeof(uint64_t), 0xDEADBEEF, &out);
     index = out % htable->table_size;
 #endif
+
+    spin_lock(&(htable->hash_lock));
+
     hentry = htable->table+index;
 
     //scan the table

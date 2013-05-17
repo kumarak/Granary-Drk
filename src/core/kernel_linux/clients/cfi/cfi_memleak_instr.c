@@ -495,6 +495,85 @@ instrument_write_rep_movs(void *drcontext, instrlist_t *ilist, instr_t *instr,
 
 
 static void
+instrument_write_rep_cmps(void *drcontext, instrlist_t *ilist, instr_t *instr,
+        app_pc pc, struct memory_operand_modifier *ops, bool is_write)
+{
+    unsigned long used_registers = 0;
+    reg_id_t instr_reg;
+    opnd_t instr_opnd_src0;
+    opnd_t instr_opnd_src1;
+    opnd_t opnd_instr_reg;
+    instr_t *emulated;
+
+    instr_t *begin_instrumenting = INSTR_CREATE_label(drcontext);
+    instr_t *done_instrumenting = INSTR_CREATE_label(drcontext);
+    instr_t *no_dsts_mask = INSTR_CREATE_label(drcontext);
+    instr_t *no_src_mask = INSTR_CREATE_label(drcontext);
+    instr_t *nop = INSTR_CREATE_nop(drcontext);
+
+    collect_regs(&used_registers, instr, instr_num_srcs, instr_get_src );
+    collect_regs(&used_registers, instr, instr_num_dsts, instr_get_dst );
+    collect_reg(&used_registers, DR_REG_RCX);
+
+    reg_id_t reg_mask = get_next_free_reg(&used_registers);
+    opnd_t opnd_reg_mask = opnd_create_reg(reg_mask);
+
+    instr_opnd_src0 = instr_get_src(instr, 0);
+    instr_opnd_src1 = instr_get_src(instr, 1);
+
+    reg_id_t instr_reg_src0 = opnd_get_base(instr_opnd_src0);
+    opnd_t opnd_instr_reg_src0 = opnd_create_reg(instr_reg_src0);
+
+    reg_id_t instr_reg_src1 = opnd_get_base(instr_opnd_src1);
+    opnd_t opnd_instr_reg_src1 = opnd_create_reg(instr_reg_src1);
+
+    PRE(ilist, instr, begin_instrumenting);
+    PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_instr_reg_src0));
+    PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_instr_reg_src1));
+    PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_reg_mask));
+    PRE(ilist, instr, INSTR_CREATE_pushf(drcontext));
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_reg_mask,
+                                            OPND_CREATE_INT64(WATCHPOINT_BASE)));
+
+    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_instr_reg_src0, opnd_reg_mask));
+    PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_jle, opnd_create_instr(no_dsts_mask)));
+
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_reg_mask, OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
+    PRE(ilist, instr, INSTR_CREATE_or(drcontext, opnd_instr_reg_src0, opnd_reg_mask));
+
+    PRE(ilist, instr, no_dsts_mask);
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_reg_mask,
+                                            OPND_CREATE_INT64(WATCHPOINT_BASE)));
+
+    PRE(ilist, instr, INSTR_CREATE_cmp(drcontext, opnd_instr_reg_src1, opnd_reg_mask));
+    PRE(ilist, instr, INSTR_CREATE_jcc(drcontext, OP_jle, opnd_create_instr(no_src_mask)));
+
+    PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_reg_mask, OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
+    PRE(ilist, instr, INSTR_CREATE_or(drcontext, opnd_instr_reg_src1, opnd_reg_mask));
+
+    PRE(ilist, instr, no_src_mask);
+
+    emulated = instr_clone(drcontext, instr);
+    emulated->translation = 0;
+    PRE(ilist, instr, INSTR_CREATE_popf(drcontext));
+    PRE(ilist, instr, emulated);
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_reg_mask));
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_instr_reg_src1));
+    PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_instr_reg_src0));
+    PRE(ilist, instr, INSTR_CREATE_jmp_short(drcontext,
+            opnd_create_instr(done_instrumenting)));
+
+    instr->translation = 0; // hack!
+    instr_being_modified(instr, false);
+    instr_set_ok_to_mangle(instr, false);
+
+    nop->translation = pc + instr->length + done_instrumenting->length;
+    POST(ilist, instr, nop);
+    POST(ilist, instr, done_instrumenting);
+}
+
+
+static void
 instrument_instr_dec(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc pc, struct memory_operand_modifier *ops, bool flag)
 {
     unsigned long used_registers = 0;
@@ -719,6 +798,12 @@ instrument_memory_operations(void *drcontext, void* tag, instrlist_t *ilist, ins
 	     return;
 	 }
 
+	    if(instr->opcode == OP_rep_cmps
+	             || instr->opcode == OP_repne_cmps) {
+	         instrument_write_rep_cmps(drcontext, ilist, instr, pc, &ops, is_write);
+	         return;
+	     }
+
 	 if(opnd_is_far_base_disp(ops.found_operand)){
 	     if (instr->opcode == OP_dec ||
 	             instr->opcode == OP_inc||
@@ -808,7 +893,10 @@ memleak_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bo
     		    instr_set_ok_to_mangle(jmp_instr, false);
     		    PRE(bb, instr, jmp_instr);
     		} else {
-    		    cfi_call_instrumentation_snapahot(drcontext, bb, instr, mecontext_snapshot_native);
+    		    /*TODO : there is no need to have a callback function at the end of each basic block;
+    		     * the only need of this is for initialise the each thread spill slot and that can be
+    		     * elsewhere inside dispatch; removing this gives a performance boost up by 2x */
+    		    //cfi_call_instrumentation_snapahot(drcontext, bb, instr, mecontext_snapshot_native);
     		}
 
     		continue;

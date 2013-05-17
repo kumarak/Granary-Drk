@@ -18,6 +18,7 @@
 0x253b6068	opnd_set_disp_ex	/home/akshayk/GranaryCode/Granary-Drk/src/core/kernel_linux/modules/dynamorio	EXPORT_SYMBOL_GPL
 0xe766debc	proc_get_brand_string	/home/akshayk/GranaryCode/Granary-Drk/src/core/kernel_linux/modules/dynamorio	EXPORT_SYMBOL_GPL
 0x9cfe2201	dr_redirect_execution_native	/home/akshayk/GranaryCode/Granary-Drk/src/core/kernel_linux/modules/dynamorio	EXPORT_SYMBOL_GPL
+0xecce4098	dr_register_add_to_list_func	/home/akshayk/GranaryCode/Granary-Drk/src/core/kernel_linux/modules/dynamorio	EXPORT_SYMBOL_GPL
 0xf0724cb9	reg_set_value	/home/akshayk/GranaryCode/Granary-Drk/src/core/kernel_linux/modules/dynamorio	EXPORT_SYMBOL_GPL
 0xde376d2b	reg_get_value	/home/akshayk/GranaryCode/Granary-Drk/src/core/kernel_linux/modules/dynamorio	EXPORT_SYMBOL_GPL
 0x4cbc9eca	dr_register_signal_event	/home/akshayk/GranaryCode/Granary-Drk/src/core/kernel_linux/modules/dynamorio	EXPORT_SYMBOL_GPL

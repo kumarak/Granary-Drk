@@ -31,6 +31,7 @@ extern "C" {
         (void) index_part;
     }
     extern void *cfi_get_free_pages(unsigned long count);
+    //extern void *module_page_alloc(unsigned long size);
 
 }
 
@@ -164,7 +165,7 @@ public:
         table_info.allocated_head = NULL;
         table_info.free_head = NULL;
         table_info.count = 0;
-        entries.init();
+        entries.init((void *) MODULE_SHADOW_END, (void *) MODULE_SHADOW_END_EXTENDED);
         kern_printk("collected watchpoints : %lx\n", collected_watchpoints);
     }
 #endif
@@ -529,6 +530,7 @@ void REMOVE_TYPELESS_WATCHPOINT(T *&ptr) throw() {
 void WRAPPER_INIT(){
    // byte* alias_entry::collected_watchpoints = NULL;
     alias_entry::init();
+    shadow_allocator::init();
 }
 
 #define WATCH(type) \
@@ -613,6 +615,7 @@ extern "C" {
 extern "C" {
 
     extern void *cfi_get_free_pages(unsigned long count);
+    extern void *module_page_alloc(unsigned long size);
 
     void *get_watchpoint_meta(void *addr){
 

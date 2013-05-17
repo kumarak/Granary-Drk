@@ -5,18 +5,18 @@
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * * Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * * Redistributions in binary form must reproduce the above copyright notice,
  *   this list of conditions and the following disclaimer in the documentation
  *   and/or other materials provided with the distribution.
- * 
+ *
  * * Neither the name of VMware, Inc. nor the names of its contributors may be
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -52,6 +52,7 @@
 #endif
 #include "instrument.h" /* for dr_insert_call */
 
+#include "watchpoints.h"
 #ifdef RCT_IND_BRANCH
 # include "../rct.h" /* rct_add_rip_rel_addr */
 #endif
@@ -145,7 +146,7 @@ convert_to_near_rel_common(dcontext_t *dcontext, instrlist_t *ilist, instr_t *in
         * the taken-branch path made me choose the former solution.
         */
 
-        /* SUMMARY: 
+        /* SUMMARY:
          * expand 'shortjump foo' to:
                           shortjump taken
                           jmp-short nottaken
@@ -389,7 +390,7 @@ insert_pop_all_registers(dcontext_t *dcontext, instrlist_t *ilist, instr_t *inst
          OPND_CREATE_MEM_lea(REG_XSP, REG_NULL, 0, XMM_SLOTS_SIZE)));
 }
 
-/* utility routines for inserting clean calls to an instrumentation routine 
+/* utility routines for inserting clean calls to an instrumentation routine
  * strategy is very similar to fcache_enter/return
  * FIXME: try to share code with fcache_enter/return?
  *
@@ -434,7 +435,7 @@ insert_pop_all_registers(dcontext_t *dcontext, instrlist_t *ilist, instr_t *inst
  */
 
 void
-insert_get_mcontext_base(dcontext_t *dcontext, instrlist_t *ilist, 
+insert_get_mcontext_base(dcontext_t *dcontext, instrlist_t *ilist,
                          instr_t *where, reg_id_t reg)
 {
     PRE(ilist, where, instr_create_restore_from_tls
@@ -444,7 +445,7 @@ insert_get_mcontext_base(dcontext_t *dcontext, instrlist_t *ilist,
     if (TEST(SELFPROT_DCONTEXT, dynamo_options.protect_mask)) {
         ASSERT_NOT_TESTED();
         PRE(ilist, where, INSTR_CREATE_mov_ld
-            (dcontext, opnd_create_reg(reg), 
+            (dcontext, opnd_create_reg(reg),
              OPND_CREATE_MEMPTR(reg, offsetof(dcontext_t, upcontext))));
     }
 }
@@ -480,14 +481,14 @@ clean_call_clear_saved_interrupt_flag(dcontext_t *dcontext, byte *sp)
  * instrumentation routine should call proc_save_fpstate() and then
  * proc_restore_fpstate()
  * (This is because of expense:
- *   fsave takes 118 cycles!  
+ *   fsave takes 118 cycles!
  *   frstor (separated by 6 instrs from fsave) takes 89 cycles
  *   fxsave and fxrstor are not available on HP machine!
  *   supposedly they came out in PII
  *   on balrog: fxsave 91 cycles, fxrstor 173)
  *
  * For x64, changes the stack pointer by a multiple of 16.
- * 
+ *
  * NOTE: The client interface's get/set mcontext functions and the
  * hotpatching gateway rely on the app's context being available
  * on the dstack in a particular format.  Do not corrupt this data
@@ -539,13 +540,13 @@ prepare_for_clean_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr)
 
         /* restore xax before pushing the context on the dstack */
         PRE(ilist, instr, instr_create_restore_from_tls
-            (dcontext, REG_XAX, TLS_XAX_SLOT));  
+            (dcontext, REG_XAX, TLS_XAX_SLOT));
     }
     else {
         PRE(ilist, instr, instr_create_save_to_dcontext(dcontext, REG_XSP, XSP_OFFSET));
         PRE(ilist, instr, instr_create_restore_dynamo_stack(dcontext));
     }
-    
+
     /* Save flags and all registers, in dr_mcontext_t order.
      * Leave a slot for pc, which we do not fill in: it's wasted for now.
      * FIXME PR 218131: we could have a special dstack+XSP_SZ field that we
@@ -597,7 +598,7 @@ prepare_for_clean_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr)
      * to SetLastError for cleanup!
      */
     /* FIXME: no longer necessary, update this and cleanup_after_clean_call.
-     * All cleanup_call users most importantly, pre_system_call and 
+     * All cleanup_call users most importantly, pre_system_call and
      * post_system_call would need not to reserve room for errno:
      * except for our private loader w/ client-dependent libs we do need
      * to handle and isolate (limited) Win32 API usage
@@ -881,7 +882,7 @@ insert_parameter_preparation(dcontext_t *dcontext, instrlist_t *ilist, instr_t *
         for (r = 0; r < opnd_num_regs_used(arg); r++) {
             reg_id_t used = opnd_get_reg_used(arg, r);
             int parm = reg_parameter_num(used);
-            /* See comments in loop above */ 
+            /* See comments in loop above */
             if ((parm == 0 && num_args > 1) || parm > (int)i ||
                  reg_overlap(used, REG_XSP)) {
                 int disp = 0;
@@ -1080,7 +1081,7 @@ insert_meta_call_vargs(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
                        bool clean_call, void *callee, uint num_args, va_list ap)
 {
     instr_t *in = (instr == NULL) ? instrlist_last(ilist) : instr_get_prev(instr);
-    uint stack_for_params = 
+    uint stack_for_params =
         insert_parameter_preparation(dcontext, ilist, instr, clean_call, num_args, ap);
     IF_X64(ASSERT(ALIGNED(stack_for_params, 16)));
     PRE(ilist, instr, INSTR_CREATE_call(dcontext, opnd_create_pc(callee)));
@@ -1122,7 +1123,7 @@ insert_clean_call_with_arg_jmp_if_ret_true(dcontext_t *dcontext,
     /* fill in jcc target once have false path */
     jcc = INSTR_CREATE_jcc(dcontext, OP_jz, opnd_create_pc(NULL));
     PRE(ilist, instr, jcc);
-    
+
     /* if it falls through, then it's true, so restore and jmp to true tag
      * passed in by caller
      */
@@ -1170,18 +1171,18 @@ native_ret_mangle_direct_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t 
     static_retaddr = (app_pc) retaddr;
 
     /* HACKS to deal with places where ret addr is taken inside a real callee:
-         0x40170199   e8 32 fa ff ff       call   $0x4016fbd0 
+         0x40170199   e8 32 fa ff ff       call   $0x4016fbd0
              continuing in callee at 0x4016fbd0
-         0x4016fbd0   8b 1c 24             mov    (%esp) -> %ebx 
-         0x4016fbd3   c3                   ret    %esp (%esp) -> %esp 
+         0x4016fbd0   8b 1c 24             mov    (%esp) -> %ebx
+         0x4016fbd3   c3                   ret    %esp (%esp) -> %esp
      * also this:
-         0x400a9bab   e8 00 00 00 00       call   $0x400a9bb0 
+         0x400a9bab   e8 00 00 00 00       call   $0x400a9bb0
              continuing in callee at 0x400a9bb0
-         0x400a9bb0   8d 04 c0             lea    (%eax,%eax,8) -> %eax 
-         0x400a9bb3   03 04 24             add    (%esp) %eax -> %eax 
-         0x400a9bb6   05 0d 00 00 00       add    $0x0000000d %eax -> %eax 
-         0x400a9bbb   83 c4 04             add    $0x04 %esp -> %esp 
-         0x400a9bbe   ff e0                jmp    %eax 
+         0x400a9bb0   8d 04 c0             lea    (%eax,%eax,8) -> %eax
+         0x400a9bb3   03 04 24             add    (%esp) %eax -> %eax
+         0x400a9bb6   05 0d 00 00 00       add    $0x0000000d %eax -> %eax
+         0x400a9bbb   83 c4 04             add    $0x04 %esp -> %esp
+         0x400a9bbe   ff e0                jmp    %eax
      */
     if (instr_raw_bits_valid(next_instr) &&
         instr_length(dcontext, next_instr) == 3) {
@@ -1302,7 +1303,7 @@ save edx
     */
     uint flags = (FRAG_WRITES_EFLAGS_OF | FRAG_WRITES_EFLAGS_6);
     instr_t *addinstr = NULL;
-    
+
     /* do normal_ret first */
     instr_t *nxt = instr_get_next(instr); /* next_instr is after flag saving! */
 
@@ -1314,7 +1315,7 @@ save edx
     IF_X64(ASSERT_NOT_IMPLEMENTED(false));
 
     /* see if ret has an immed int operand, assumed to be 1st src */
-            
+
     if (instr_num_srcs(instr) > 0 && opnd_is_immed_int(instr_get_src(instr, 0))) {
         /* if has an operand, return removes some stack space,
          * AFTER the return address is popped
@@ -1336,7 +1337,7 @@ save edx
              addinstr = INSTR_CREATE_add(dcontext, opnd_create_reg(REG_ESP), add);
          }
     }
-            
+
     if (instr_raw_bits_valid(instr)) {
         app_pc pc = (app_pc) instr_get_raw_bits(instr);
         LOG(THREAD, LOG_INTERP, 3, "checking ret at address "PFX"\n", pc);
@@ -1408,11 +1409,11 @@ save edx
         /* leave ret instr where it is */
 
         /* HACKS to deal with places where ret addr is taken inside a real callee:
-         0x400864b6   8b 4c 24 00          mov    (%esp) -> %ecx 
-         0x400864ba   89 4a 14             mov    %ecx -> 0x14(%edx) 
-         0x400864bd   89 6a 0c             mov    %ebp -> 0xc(%edx) 
-         0x400864c0   89 42 18             mov    %eax -> 0x18(%edx) 
-         0x400864c3   c3                   ret    %esp (%esp) -> %esp 
+         0x400864b6   8b 4c 24 00          mov    (%esp) -> %ecx
+         0x400864ba   89 4a 14             mov    %ecx -> 0x14(%edx)
+         0x400864bd   89 6a 0c             mov    %ebp -> 0xc(%edx)
+         0x400864c0   89 42 18             mov    %eax -> 0x18(%edx)
+         0x400864c3   c3                   ret    %esp (%esp) -> %esp
          */
         prev = instr_get_prev(instr);
         if (prev != NULL && instr_raw_bits_valid(prev) &&
@@ -1421,14 +1422,14 @@ save edx
             byte *b = instr_get_raw_bits(prev) + len - 1;
             if (len > 13 &&
                        *b==0x18 && *(b-1)==0x42 && *(b-2)==0x89 &&
-                       *(b-3)==0x0c && *(b-4)==0x6a && *(b-5)==0x89 && 
-                       *(b-6)==0x14 && *(b-7)==0x4a && *(b-8)==0x89 && 
+                       *(b-3)==0x0c && *(b-4)==0x6a && *(b-5)==0x89 &&
+                       *(b-6)==0x14 && *(b-7)==0x4a && *(b-8)==0x89 &&
                        *(b-9)==0x00 && *(b-10)==0x24 && *(b-11)==0x4c && *(b-12)==0x8b) {
                 instr_t *raw;
                 LOG(THREAD, LOG_INTERP, 3, "mangling load of return address!\n");
                 instr_set_raw_bits(prev, instr_get_raw_bits(prev), len-13);
                 /* PROBLEM: don't know app retaddr!
-                 * ENORMOUS HACK: assume no calls or threads in between, 
+                 * ENORMOUS HACK: assume no calls or threads in between,
                  * use statically stored one from last call
                  * Also assumes only a single caller
                  */
@@ -1438,7 +1439,7 @@ save edx
                                                          opnd_create_reg(REG_ECX),
                                                          OPND_CREATE_INT32((uint)static_retaddr)));
                 raw = instr_build_bits(dcontext, OP_UNDECODED, 9);
-                instr_set_raw_bytes(raw, b-8, 9);               
+                instr_set_raw_bytes(raw, b-8, 9);
                 instrlist_preinsert(ilist, instr, raw);
             }
         }
@@ -1617,7 +1618,7 @@ mangle_direct_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
          */
 #endif
         return next_instr;
-    } 
+    }
 
     /* For CI builds, use the translation field so we can handle cases
      * where the client has changed the target and invalidated the raw
@@ -1666,7 +1667,7 @@ mangle_direct_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
 
         /* convert a direct call to a push of the return address */
         insert_push_retaddr(dcontext, ilist, instr, retaddr, opnd_get_size(pushop));
-        
+
         /* remove the call */
         instrlist_remove(ilist, instr);
         instr_destroy(dcontext, instr);
@@ -1686,7 +1687,7 @@ mangle_direct_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
 }
 
 
-/* We spill to XCX(private dcontext) slot for private fragments, 
+/* We spill to XCX(private dcontext) slot for private fragments,
  * and to TLS MANGLE_XCX_SPILL_SLOT for shared fragments.
  * (Except for DYNAMO_OPTION(private_ib_in_tls), for which all use tls,
  *  but that has a performance hit because of the extra data cache line)
@@ -1773,12 +1774,12 @@ mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
     }
     insert_push_retaddr(dcontext, ilist, next_instr, retaddr, opnd_get_size(pushop));
 #endif
-    
+
     /* save away xcx so that we can use it */
     /* (it's restored in x86.s (indirect_branch_lookup) */
     PRE(ilist, instr,
         SAVE_TO_DC_OR_TLS(dcontext, flags, REG_XCX, MANGLE_XCX_SPILL_SLOT, XCX_OFFSET));
-    
+
 
 #ifdef STEAL_REGISTER
     /* Steal edi if call uses it, using original call instruction */
@@ -1791,8 +1792,8 @@ mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
      * If it is possible, need to make sure stealing's use of ecx
      * doesn't conflict w/ our use
      */
-#endif    
-    
+#endif
+
     /* change: call /2, Ev -> movl Ev, %xcx */
     target = instr_get_src(instr, 0);
 
@@ -1839,12 +1840,6 @@ mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
                     opnd_get_scale(target), opnd_get_disp(target),
                     addr_size);
         }
-
-        PRE(ilist, instr, INSTR_CREATE_push(dcontext, opnd_create_reg(opnd_get_base(target))));
-        PRE(ilist, instr, INSTR_CREATE_mov_imm(dcontext, opnd_create_reg(reg_target), OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
-        PRE(ilist, instr, INSTR_CREATE_or(dcontext, opnd_create_reg(opnd_get_base(target)), opnd_create_reg(reg_target)));
-        POST(ilist, instr, INSTR_CREATE_pop(dcontext, opnd_create_reg(opnd_get_base(target))));
-
     }
     /* cannot call instr_reset, it will kill prev & next ptrs */
     instr_free(dcontext, instr);
@@ -1857,7 +1852,14 @@ mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
         instr_set_translation(instr, instr_get_raw_bits(instr));
     }
     instr_set_our_mangling(instr, true);
-    
+
+#if 1
+    watchpoint_indirect_call_event(dcontext, ilist, instr, next_instr, mangle_calls, flags);
+    //    PRE(ilist, instr, INSTR_CREATE_push(dcontext, opnd_create_reg(opnd_get_base(target))));
+    //    PRE(ilist, instr, INSTR_CREATE_mov_imm(dcontext, opnd_create_reg(reg_target), OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
+    //    PRE(ilist, instr, INSTR_CREATE_or(dcontext, opnd_create_reg(opnd_get_base(target)), opnd_create_reg(reg_target)));
+    //    POST(ilist, instr, INSTR_CREATE_pop(dcontext, opnd_create_reg(opnd_get_base(target))));
+#endif
 #ifdef RETURN_STACK
     /* NEW CALL HANDLING: RETURN STACK! */
     /* Change call to this:
@@ -1885,7 +1887,7 @@ mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
     /* an exit cti, not a meta instr */
     instrlist_preinsert
         (ilist, next_instr,
-         INSTR_CREATE_jmp(dcontext, opnd_create_pc(retaddr))); 
+         INSTR_CREATE_jmp(dcontext, opnd_create_pc(retaddr)));
     PRE(ilist, next_instr, cleanup);
     PRE(ilist, next_instr,
         instr_create_restore_from_dcontext(dcontext, REG_ESP, XSP_OFFSET));
@@ -1949,7 +1951,7 @@ mangle_return(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
         SAVE_TO_DC_OR_TLS(dcontext, flags, REG_XCX, MANGLE_XCX_SPILL_SLOT, XCX_OFFSET));
 
     /* see if ret has an immed int operand, assumed to be 1st src */
-            
+
     if (instr_num_srcs(instr) > 0 && opnd_is_immed_int(instr_get_src(instr, 0))) {
         /* if has an operand, return removes some stack space,
          * AFTER the return address is popped
@@ -1966,13 +1968,13 @@ mangle_return(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
             INSTR_CREATE_lea(dcontext, opnd_create_reg(REG_XSP),
                              opnd_create_base_disp(REG_XSP, REG_NULL, 0, val, OPSZ_lea)));
     }
-            
+
     /* don't need to steal edi since return cannot use registers */
 
     /* the retaddr operand is always the final source for all OP_ret* instrs */
     retaddr = instr_get_src(instr, instr_num_srcs(instr) - 1);
 
-    if (X64_MODE_DC(dcontext) && 
+    if (X64_MODE_DC(dcontext) &&
         (instr_get_opcode(instr) == OP_iret || instr_get_opcode(instr) == OP_ret_far) &&
         opnd_get_size(retaddr) == OPSZ_4) {
         /* N.B.: For some unfathomable reason iret and ret_far default to operand
@@ -2056,7 +2058,7 @@ mangle_return(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
          * the above and additionally adds pop->RSP pop->ss.  N.B.: like OP_far_ret we
          * ignore the CS and SS segment changes (FIXME: see the comments there for why,
          * can we do better?). */
-        
+
         /* Return address is already popped, next up is CS segment which we ignore so
          * adjust stack pointer. Note we can use an add here since the eflags will
          * be written below. */
@@ -2065,7 +2067,7 @@ mangle_return(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
                              OPND_CREATE_INT8
                              (opnd_size_in_bytes(opnd_get_size(retaddr)))));
 
-        /* Next up is xflags, we use a popf. Popf should be setting the right flags 
+        /* Next up is xflags, we use a popf. Popf should be setting the right flags
          * (it's difficult to tell because in the docs iret lists the flags it does
          * set while popf lists the flags it doesn't set). The docs aren't entirely
          * clear, but any flag that we or a user mode program would care about should
@@ -2273,7 +2275,7 @@ find_syscall_num(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr)
  *
  * N.B.: mangle_clone_code() makes assumptions about this exact code layout
  *
- * CAUTION: don't use a lot of stack in the generated code because 
+ * CAUTION: don't use a lot of stack in the generated code because
  *          get_clone_record() makes assumptions about the usage of stack being
  *          less than a page.
  */
@@ -2451,7 +2453,7 @@ mangle_syscall(dcontext_t *dcontext, instrlist_t *ilist, uint flags,
     /* special handling of system calls is performed in shared_syscall or
      * in do_syscall
      */
-    
+
     /* FIXME: for ignorable syscalls,
      * do we need support for exiting mid-fragment prior to a syscall
      * like we do on Linux, to bound time in cache?
@@ -2468,7 +2470,7 @@ mangle_syscall(dcontext_t *dcontext, instrlist_t *ilist, uint flags,
             if (DYNAMO_OPTION(shared_fragment_shared_syscalls)) {
 # ifdef X64
                 ASSERT(instr_raw_bits_valid(instr));
-                /* PR 244741: no 64-bit store-immed-to-mem 
+                /* PR 244741: no 64-bit store-immed-to-mem
                  * FIXME: would be nice to move this to the stub and
                  * use the dead rbx register!
                  */
@@ -2709,7 +2711,7 @@ mangle_syscall_code(dcontext_t *dcontext, fragment_t *f, byte *pc, bool skip)
         }
     } while (!instr_is_syscall(&instr));
     if (skip_pc != NULL) {
-        /* signal happened after skip jmp: nothing we can do here 
+        /* signal happened after skip jmp: nothing we can do here
          *
          * FIXME PR 213040: we should tell caller difference between
          * "no syscalls" and "too-close syscall" and have it take
@@ -2792,11 +2794,11 @@ mangle_interrupt(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
  */
 #ifdef FOOL_CPUID
 
-/* values returned by cpuid for Mobile Pentium MMX processor (family 5, model 8) 
+/* values returned by cpuid for Mobile Pentium MMX processor (family 5, model 8)
  * minus mmx (==0x00800000 in CPUID_1_EDX)
  * FIXME: change model number to a Pentium w/o MMX!
  */
-#define CPUID_0_EAX 0x00000001 
+#define CPUID_0_EAX 0x00000001
 #define CPUID_0_EBX 0x756e6547
 #define CPUID_0_ECX 0x6c65746e
 #define CPUID_0_EDX 0x49656e69
@@ -2851,7 +2853,7 @@ mangle_cpuid(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
     op = instr_get_dst(prev, 0);
     if (!opnd_is_reg(op) || opnd_get_reg(op) != REG_EAX)
         goto cpuid_give_up;
-    
+
     if (input == 0) {
         out_eax = CPUID_0_EAX;
         out_ebx = CPUID_0_EBX;
@@ -2877,7 +2879,7 @@ mangle_cpuid(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
     PRE(ilist, instr,
         INSTR_CREATE_mov_imm(dcontext, opnd_create_reg(REG_EDX),
                              OPND_CREATE_INT32(out_edx)));
-    
+
     /* destroy the cpuid instruction */
     instrlist_remove(ilist, instr);
     instr_destroy(dcontext, instr);
@@ -2895,7 +2897,7 @@ mangle_exit_cti_prefixes(dcontext_t *dcontext, instr_t *instr)
     if (TESTANY(~(PREFIX_JCC_TAKEN|PREFIX_JCC_NOT_TAKEN), prefixes)) {
         /* Case 8738: while for transparency it would be best to maintain all
          * prefixes, our patching and other routines make assumptions about
-         * the length of exit ctis.  Plus our elision removes the whole 
+         * the length of exit ctis.  Plus our elision removes the whole
          * instr in any case.
          */
         LOG(THREAD, LOG_INTERP, 4,
@@ -2937,7 +2939,7 @@ mangle_rel_addr(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
          * Table 3-59 "64-bit Mode LEA Operation with Address and Operand Size
          * Attributes" */
         /* FIXME PR 253446: optimization: we could leave this as rip-rel if it
-         * still reaches from the code cache. */         
+         * still reaches from the code cache. */
         if (reg_get_size(opnd_get_reg(dst)) == OPSZ_8) {
             /* PR 253327: there is no explicit addr32 marker; we assume
              * that decode or the user already zeroed out the top bits
@@ -3038,7 +3040,7 @@ mangle_rel_addr(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
                     instr_create_restore_from_tls(dcontext, scratch_reg, TLS_XAX_SLOT));
             }
             STATS_INC(rip_rel_unreachable);
-        }        
+        }
     }
 }
 #endif
@@ -3069,7 +3071,7 @@ mangle(dcontext_t *dcontext, instrlist_t *ilist, uint flags,
      * -- convert indirect branches into 'save %xcx; lea EA, %xcx';
      * -- convert indirect calls as a combination of direct call and
      *    indirect branch conversion;
-     * -- ifdef STEAL_REGISTER, steal edi for our own use. 
+     * -- ifdef STEAL_REGISTER, steal edi for our own use.
      */
 
     KSTART(mangling);
@@ -3109,7 +3111,7 @@ mangle(dcontext_t *dcontext, instrlist_t *ilist, uint flags,
                 /* convert short jumps */
                 convert_to_near_rel(dcontext, instr);
             }
-            
+
             if (instr_get_opcode(instr) == OP_jmp_far) {
                 /* FIXME: case 6962: we don't support fully; just convert
                  * to near jmp.
@@ -3139,7 +3141,7 @@ mangle(dcontext_t *dcontext, instrlist_t *ilist, uint flags,
                 mangle_syscall(dcontext, ilist, flags, instr, next_instr);
             continue;
         }
-        else 
+        else
 #endif
         if (instr_is_interrupt(instr)) { /* non-syscall interrupt */
             mangle_interrupt(dcontext, ilist, instr, next_instr);
@@ -3276,7 +3278,7 @@ sandbox_rep_instr(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr, inst
      *   if (xdi-xcx*opndsize < end_pc && xdi+xcx*opndsize > start_pc) => self-write
      * opndsize is 1,2, or 4 => use lea for mul
      *   lea (xdi,xcx,opndsize),xcx
-     * 
+     *
      *   save flags and xax
      *   save xbx
      *   lea (xdi,xcx,opndsize),xbx
@@ -3326,7 +3328,7 @@ sandbox_rep_instr(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr, inst
 
     if (next_app != NULL) {
         /* client may have inserted non-meta instrs, so use translation first
-         * (xref PR 472190) 
+         * (xref PR 472190)
          */
         if (instr_get_app_pc(next_app) != NULL)
             after_write = instr_get_app_pc(next_app);
@@ -3430,7 +3432,7 @@ static void
 sandbox_write(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr, instr_t *next,
               opnd_t op, app_pc start_pc, app_pc end_pc /* end is open */)
 {
-    /* can only test for equality w/o modifying flags, so save them 
+    /* can only test for equality w/o modifying flags, so save them
      * if (addr < end_pc && addr+opndsize > start_pc) => self-write
      *   <write memory>
      *   save flags and xax
@@ -3468,7 +3470,7 @@ sandbox_write(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr, instr_t 
 
     if (next_app != NULL) {
         /* client may have inserted non-meta instrs, so use translation first
-         * (xref PR 472190) 
+         * (xref PR 472190)
          */
         if (instr_get_app_pc(next_app) != NULL)
             after_write = instr_get_app_pc(next_app);
@@ -3483,7 +3485,7 @@ sandbox_write(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr, instr_t 
              * CALL* already means that we're leaving the block and it cannot be a selfmod
              * instruction even though it writes to memory
              */
-            DOLOG(4, LOG_INTERP, { 
+            DOLOG(4, LOG_INTERP, {
                 loginst(dcontext, 4, next_app, "next app instr");
             });
             after_write = opnd_get_pc(instr_get_target(next_app));
@@ -3902,7 +3904,7 @@ insert_selfmod_sandbox(dcontext_t *dcontext, instrlist_t *ilist, uint flags,
                 instrlist_set_our_mangling(ilist, false); /* PR 267260 */
                 return false;
             }
-        
+
             /* don't mangle anything that mangle inserts! */
             next = instr_get_next_expanded(dcontext, ilist, instr);
             if (!instr_ok_to_mangle(instr))
@@ -3928,18 +3930,18 @@ insert_selfmod_sandbox(dcontext_t *dcontext, instrlist_t *ilist, uint flags,
                     if (instr_is_call_indirect(instr)) {
                         ASSERT(next != NULL && !instr_raw_bits_valid(next));
                         /* FIXME case 8165: why do we ever care about the last
-                         * instruction modifying anything? 
+                         * instruction modifying anything?
                          */
                         /* conversion of IAT calls (but not elision)
                          * transforms this into a direct CALL,
                          * in that case 'next' is a direct jmp
                          * fall through, so has no exit flags
                          */
-                        ASSERT(TEST(INSTR_CALL_EXIT, instr_exit_branch_type(next)) || 
-                               (DYNAMO_OPTION(IAT_convert) && 
+                        ASSERT(TEST(INSTR_CALL_EXIT, instr_exit_branch_type(next)) ||
+                               (DYNAMO_OPTION(IAT_convert) &&
                                 TEST(INSTR_IND_CALL_DIRECT, instr->flags)));
 
-                        
+
                         LOG(THREAD, LOG_INTERP, 3, " ignoring CALL* at end of fragment\n");
                         /* This test could be done outside of this loop on
                          * destinations, but since it is rare it is faster

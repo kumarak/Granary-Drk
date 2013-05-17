@@ -1420,88 +1420,6 @@ get_kernel_vector_entry(interrupt_vector_t vector)
 
 }
 
-#if 0
-static void
-handle_interrupt_temp(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
-						interrupt_vector_t vector)
-{
-    dcontext_t *dcontext;
-    os_thread_data_t *ostd;
-    bool local;
-    interrupt_context_t interrupt;
-    STATS_INC(num_interrupts);
-
-#ifdef DEBUG
-    /* Sanity check for interrupt stack frame. */
-    ASSERT(!TEST(EFLAGS_IF, mcontext->xflags));
-    ASSERT(mcontext->pc == 0);
-#endif
-
-    dcontext = get_thread_private_dcontext();
-    ASSERT(dcontext != NULL);
-    ostd = (os_thread_data_t *) dcontext->os_field;
-    ASSERT(ostd != NULL);
-
-    ENTERING_DR();
-    local = local_heap_protected(dcontext);
-    if (local)
-        SELF_PROTECT_LOCAL(dcontext, WRITABLE);
-
-    interrupt.mcontext = mcontext;
-    interrupt.frame = *frame;
-    interrupt.raw_frame = frame;
-    interrupt.vector = vector;
-
-    interrupt.location = get_interrupted_location_temp(dcontext, &interrupt.frame);
-
-    if ((interrupt.location != INTERRUPTED_USER)||(interrupt.location != INTERRUPTED_NATIVE)) {
-
-
-//            handle_kernel_interrupt(dcontext, &interrupt);
-  //          ASSERT_NOT_REACHED();
-    }
-
-    if (local)
-        SELF_PROTECT_LOCAL(dcontext, READONLY);
-    EXITING_DR();
-
-
-}
-/*
-static void
-handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
-                 interrupt_vector_t vector)
-{
-    dcontext_t *dcontext;
-    os_thread_data_t *ostd;
-    bool local;
-    interrupt_context_t interrupt;
-    fcache_enter_func_t go_native;
-
-    dcontext = get_thread_private_dcontext();
-    ASSERT(dcontext != NULL);
-    ostd = (os_thread_data_t *) dcontext->os_field;
-
-    ENTERING_DR();
-    local = local_heap_protected(dcontext);
-    if (local)
-        SELF_PROTECT_LOCAL(dcontext, WRITABLE);
-
-    interrupt.mcontext = mcontext;
-    interrupt.frame = *frame;
-    interrupt.raw_frame = frame;
-    interrupt.vector = vector;
-
-    interrupt.mcontext->pc =
-        ostd->native_state.vector_target[interrupt.vector];
-    dcontext->next_tag = interrupt.mcontext->pc;
-    handler = dcontext->next_tag;
-    if (local)
-        SELF_PROTECT_LOCAL(dcontext, READONLY);
-    EXITING_DR();
-}
-*/
-#endif
 
 void exception_handler()
 {
@@ -1700,36 +1618,29 @@ fault_instr_mov_st(unsigned long count, void *addr){
 
 }
 
-noinline void
-gp_fault_no_mem_op(void *addr){
 
+
+noinline int
+granary_debug_gp_fault(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext, unsigned int vector)
+{
+    dr_printf("exception at address : %lx", frame->xip);
+    (void)frame;
+    (void)mcontext;
+    return 0;
 }
 
-noinline void
-gp_unknown_reg(instr_t *instr){
-
-}
 static
 int
-handler_general_protection_fault(dcontext_t* drcontext, interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext)
+handler_general_protection_fault(dcontext_t* drcontext, interrupt_stack_frame_t* frame,
+                                                                    dr_mcontext_t* mcontext)
 {
     dcontext_t *dcontext;
     int ret = 0;
     bool local;
     app_pc instrumented_xip = NULL;
 
-    if((frame->xip > MODULE_START_ADDR) && (frame->xip <= MODULE_END_ADDR))
-    {
-        general_fault_on_granary_code(frame->xip);
-    }
-
-    if((app_pc)frame->xip == (app_pc)(0xffffffff81075376ULL)){
-        break_on_address(frame->xip);
-    }
-
-    if(((app_pc)frame->xip > (app_pc)0xffffffff81075370ULL) && ((app_pc)frame->xip <= (app_pc)0xffffffff8107539cULL))
-    {
-        general_fault_on_granary_code(frame->xip);
+    if((frame->xip > MODULE_START_ADDR) && (frame->xip <= MODULE_END_ADDR)){
+        granary_debug_gp_fault(frame, mcontext, 0);
     }
 
     dcontext = get_thread_private_dcontext();
@@ -2023,8 +1934,9 @@ handler_general_protection_fault(dcontext_t* drcontext, interrupt_stack_frame_t*
 }
 
 noinline int
-break_on_pagefault(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext)
+granary_debug_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext, unsigned int vector)
 {
+    dr_printf("exception at address : %lx", frame->xip);
     (void)frame;
     (void)mcontext;
     return 0;
@@ -2051,6 +1963,10 @@ handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
         exception_handler();
     }
 
+    if(vector < VECTOR_EXCEPTION_END) {
+        granary_debug_interrupt(frame, mcontext, vector);
+     }
+
     dcontext = get_thread_private_dcontext();
 
 
@@ -2063,13 +1979,6 @@ handle_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext,
     local = local_heap_protected(dcontext);
     if (local)
         SELF_PROTECT_LOCAL(dcontext, WRITABLE);
-
-
-    if(vector == VECTOR_PAGE_FAULT) {
-        break_on_pagefault(frame, mcontext);
-       // handle_pagefault_interrupt(dcontext, frame, mcontext);
-        return ret;
-     }
 
 
 #ifdef DEBUG

@@ -1417,7 +1417,6 @@ TYPE_WRAPPER(struct swap_info_struct, {
 #endif
 
 
-#define WRAPPER_FOR_struct_address_space_operations
 #ifndef WRAPPER_FOR_struct_address_space_operations
 #define WRAPPER_FOR_struct_address_space_operations
 TYPE_WRAPPER(struct address_space_operations, {
@@ -1448,7 +1447,7 @@ TYPE_WRAPPER(struct address_space_operations, {
 #endif
 
 
-#define WRAPPER_FOR_struct_address_space
+
 #ifndef WRAPPER_FOR_struct_address_space
 #define WRAPPER_FOR_struct_address_space
 TYPE_WRAPPER(struct address_space, {
@@ -2027,7 +2026,7 @@ TYPE_WRAPPER(struct inode, {
 #endif
 
 
-#define WRAPPER_FOR_struct_dentry
+
 #ifndef WRAPPER_FOR_struct_dentry
 #define WRAPPER_FOR_struct_dentry
 TYPE_WRAPPER(struct dentry, {

@@ -19,7 +19,7 @@
 typedef struct hashtable_t hashtable_t;
 
 #define DEFINE_HASHTABLE(name)	\
-	struct hashtable_t	name;
+	struct hashtable_t	*name;
 
 typedef int(*hashtable_callback)(void *data, const char *key, void *value);
 
