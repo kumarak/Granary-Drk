@@ -267,7 +267,6 @@ void cfi_thread_slot_module_enrty(void)
         thread_spill_slot->is_running_module = 1;
         thread_spill_slot->section_count++;
         thread_spill_slot->copy_stack = 0;
-        //thread_spill_slot->current_stack = (void*)current_stack_pointer;
     }
 
 }

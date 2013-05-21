@@ -13,6 +13,7 @@ def get_func_symbol_names(host_file_name, client_file_name):
     vmalloc_node_range_addr = "0"
     printk_addr = "0"
     module_alloc_addr = "0"
+    __kernel_text_address = "0"
 	
     try:
         with open(host_file_name, "r") as hf:
@@ -55,13 +56,16 @@ def get_func_symbol_names(host_file_name, client_file_name):
 
                     if "module_alloc" == func_name:
                         module_alloc_addr = m.group(1)
+
+		    if "__kernel_text_address" == func_name:
+			__kernel_text_address = m.group(1)
                     
     except IOError:
         pass
-    return get_symbol_addr, get_symbol_gpl_addr, vmalloc_area_addr, vmalloc_node_range_addr, printk_addr, module_alloc_addr, names
+    return get_symbol_addr, get_symbol_gpl_addr, vmalloc_area_addr, vmalloc_node_range_addr, printk_addr, module_alloc_addr, __kernel_text_address, names
 
 if __name__ == "__main__":
-    addr, gpl_addr, vmalloc_addr, vmalloc_node_range_addr, printk_addr, module_alloc_addr, syms = get_func_symbol_names("host_map.txt", "client_map.txt")
+    addr, gpl_addr, vmalloc_addr, vmalloc_node_range_addr, printk_addr, module_alloc_addr, __kernel_text_address, syms = get_func_symbol_names("host_map.txt", "client_map.txt")
     with open("all_symbols.inc", "w") as f:
         for sym_name in syms:
             f.write("\"%s\",\n" % sym_name)
@@ -74,7 +78,8 @@ enum {
     VMALLOC_AREA_ADDR = 0x%sULL,
     VMALLOC_NODE_RANGE = 0x%sULL,
     PRINTK_ADDR = 0x%sULL,
-    MODULE_ALLOC = 0x%sULL
+    MODULE_ALLOC = 0x%sULL,
+    __KERNEL_TEXT_ADDRESS = 0x%sULL
 };
 
-""" % (addr, gpl_addr, vmalloc_addr, vmalloc_node_range_addr, printk_addr, module_alloc_addr))
+""" % (addr, gpl_addr, vmalloc_addr, vmalloc_node_range_addr, printk_addr, module_alloc_addr, __kernel_text_address))

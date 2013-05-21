@@ -10,6 +10,7 @@
 #include "cfi_atomic_list.h"
 #include "cfi_hashtable.h"
 #include "dr_kernel_utils.h"
+#include "symbols/symbol_get_addr.h"
 
 #include <linux/kthread.h>
 #include <linux/fs.h>
@@ -18,6 +19,9 @@
 #include <linux/sched.h>
 #include <linux/stop_machine.h>
 #include "cfi_notifier.h"
+
+#include <asm/stacktrace.h>
+#include <linux/nmi.h>
 
 
 #define KERNEL_ADDRESS_OFFSET       0xffff000000000000
@@ -35,6 +39,8 @@ enum {
     ALIAS_ADDRESS_INDEX_OFFSET              = (12 * 4),
     ALIAS_ADDRESS_DISPLACEMENT_MASK         = 0x0000ffffffffffffULL
 };
+
+typedef int *(kernel_text_address_type)(unsigned long addr);
 
 #define HEAP_START  0x0000880000000000
 #define HEAP_END    0x0000c0ffffffffff
@@ -73,14 +79,112 @@ typedef unsigned int (*scan_callback)(void *addr);
 extern struct cfi_list_head atomic_sweep_list;
 extern uint64_t flag_memory_snapshot;
 
+unsigned int is_loadable_module(unsigned long addr){
+    if((addr >= MODULE_START_ADDR) && (addr <= MODULE_END_ADDR)){
+        return 1;
+    }
+    return 0;
+}
+
+static int print_trace_stack(void *data, char *name){
+    printk("%s <%s> ", (char *)data, name);
+    return 0;
+}
+
+void printk_address(unsigned long address, int reliable){
+         pr_cont(" [<%p>] %s%pB\n",
+                 (void *)address, reliable ? "" : "? ", (void *)address);
+}
+
+/*
+ * Print one address/symbol entries per line.
+ */
+
+static void print_trace_address(void *data, unsigned long addr, int reliable){
+         touch_nmi_watchdog();
+         printk(data);
+         printk_address(addr, reliable);
+}
+
+static const struct stacktrace_ops print_trace_ops = {
+        .stack                  = print_trace_stack,
+        .address                = print_trace_address,
+        .walk_stack             = print_context_stack,
+};
+
+static inline int valid_stack_ptr(struct thread_info *tinfo,
+        void *p, unsigned int size, void *end)
+{
+    void *t = tinfo;
+    if (end) {
+        if (p < end && p >= (end-THREAD_SIZE))
+            return 1;
+        else
+            return 0;
+    }
+    return p > t && p < t + THREAD_SIZE - size;
+}
+
+/* return true if gets called from module contect*/
+unsigned long
+get_stack_context(struct thread_info *tinfo,
+        unsigned long *stack, unsigned long bp,
+        const struct stacktrace_ops *ops, void *data,
+        unsigned long *end, int *graph)
+{
+    struct stack_frame *frame = (struct stack_frame *)bp;
+    kernel_text_address_type *is_kernel_text_address = (kernel_text_address_type*)__KERNEL_TEXT_ADDRESS;
+    while (valid_stack_ptr(tinfo, stack, sizeof(*stack), end)) {
+        unsigned long addr;
+
+        addr = *stack;
+        if (is_kernel_text_address(addr)) {
+            if ((unsigned long) stack == bp + sizeof(long)) {
+                if(is_loadable_module(addr)){
+                    print_trace_address(data, addr, 1);
+                }
+                frame = frame->next_frame;
+                bp = (unsigned long) frame;
+            } else {
+                if(is_loadable_module(addr)){
+                    print_trace_address(data, addr, 0);
+                }
+            }
+            /*print_ftrace_graph_addr(addr, data, ops, tinfo, graph);*/
+        }
+        stack++;
+    }
+    return bp;
+}
 
 void cfi_dump_stack(){
-    struct thread_info *thread = current_thread_info();
-    //printk("return address : %lx\n", thread->client_data.return_address_stack[thread->client_data.return_stack_size -1]);
-
     unsigned long bp;
     unsigned long stack;
-       // dump_stack();
+    char *log_lvl = "";
+    unsigned cpu;
+    unsigned long section_count = 0;
+    int graph = 0;
+    struct thread_info *tinfo;
+    struct task_struct *task;
+
+    struct thread_info *thread = current_thread_info();
+
+    struct thread_private_info *thread_info = (struct thread_private_info*)thread->spill_slot[0];
+    if(thread_info != NULL){
+        section_count = thread_info->section_count;
+    }
+
+    cpu = get_cpu();
+    get_bp(bp);
+    task = current;
+    tinfo = task_thread_info(task);
+    get_stack_context(tinfo, &stack, bp, &print_trace_ops, (void*)log_lvl, NULL, &graph);
+    //print_trace_ops.walk_stack(tinfo, &stack, bp, &print_trace_ops, (void*)log_lvl, NULL, &graph);
+    put_cpu();
+    //dump_stack();
+  //  bp = stack_frame(current, NULL);
+    //dump_trace(NULL, NULL, &stack, bp, &print_trace_ops, log_lvl);
+    printk("[new trace]  : section count %d\n", section_count);
 }
 
 #if 0
