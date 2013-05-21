@@ -185,7 +185,7 @@ cfi_module_init(void) {
    	hashmap_init(1024, &local_symbol_table);
    	init_wrapper();
 
-#if 1
+#if 0
    	/*sweep thread : it scans the rootset and finds the leaked memory*/
    	sweep_task = kthread_create(sweep_thread_init, NULL, "sweep-thread");
     if (!IS_ERR(sweep_task))

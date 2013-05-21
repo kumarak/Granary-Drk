@@ -78,7 +78,9 @@ void cfi_dump_stack(){
     struct thread_info *thread = current_thread_info();
     //printk("return address : %lx\n", thread->client_data.return_address_stack[thread->client_data.return_stack_size -1]);
 
-    //dump_stack();
+    unsigned long bp;
+    unsigned long stack;
+       // dump_stack();
 }
 
 #if 0

@@ -21,9 +21,6 @@ typedef struct {
 
 
 byte*
-emit_hotpatch_code(void *drcontext, client_cache_info_t *client, byte *pc, app_pc *addr);
-
-byte*
 hijack_kernel_function(void *drcontext, client_cache_info_t *client,
                             byte *pc, app_pc src_addr, app_pc target_addr);
 

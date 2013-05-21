@@ -57,6 +57,8 @@ static void set_page_attributes(
         return;
     }
 
+    printk("begin : %llx, end: %llx\n", begin_pfn, end_pfn);
+
     if(end_pfn > begin_pfn) {
         set_memory_(begin_pfn << PAGE_SHIFT, end_pfn - begin_pfn);
 
@@ -67,6 +69,7 @@ static void set_page_attributes(
 
 void set_kernel_rw(void)
 {
+    printk("inside set_kernel_rw\n");
     set_page_attributes(
              set_memory_rw,
              (void*)kfree,

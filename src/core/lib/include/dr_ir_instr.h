@@ -312,7 +312,7 @@ instr_t *
 instr_build(void *drcontext, int opcode, int num_dsts, int num_srcs);
 
 /**
- * Convenience routine: calls 
+ * Convenience routine: calls
  * - instr_create(dcontext)
  * - instr_set_opcode(instr, opcode)
  * - instr_allocate_raw_bits(dcontext, instr, num_bytes)
@@ -330,7 +330,7 @@ instr_build_bits(void *drcontext, int opcode, uint num_bytes);
  * eflags, or operands.  It could be an uninitialized
  * instruction or the result of decoding an invalid sequence of bytes.
  */
-bool 
+bool
 instr_valid(instr_t *instr);
 
 /** Get the original application PC of \p instr if it exists. */
@@ -342,11 +342,11 @@ void
 instr_set_app_pc(instr_t *instr, app_pc pc);
 
 /** Returns \p instr's opcode (an OP_ constant). */
-int 
+int
 instr_get_opcode(instr_t *instr);
 
 /** Assumes \p opcode is an OP_ constant and sets it to be instr's opcode. */
-void 
+void
 instr_set_opcode(instr_t *instr, int opcode);
 
 /**
@@ -356,13 +356,13 @@ instr_set_opcode(instr_t *instr, int opcode);
  * (i.e., base, index, or segment registers) are not separately listed
  * as source operands.
  */
-int 
+int
 instr_num_srcs(instr_t *instr);
 
 /**
  * Returns the number of destination operands of \p instr.
  */
-int 
+int
 instr_num_dsts(instr_t *instr);
 
 /**
@@ -370,19 +370,19 @@ instr_num_dsts(instr_t *instr);
  * operands yet.  Allocates storage for \p num_srcs source operands
  * and \p num_dsts destination operands.
  */
-void 
+void
 instr_set_num_opnds(void *drcontext, instr_t *instr, int num_dsts, int num_srcs);
 
 /**
  * Returns \p instr's source operand at position \p pos (0-based).
  */
-opnd_t 
+opnd_t
 instr_get_src(instr_t *instr, uint pos);
 
 /**
  * Returns \p instr's destination operand at position \p pos (0-based).
  */
-opnd_t 
+opnd_t
 instr_get_dst(instr_t *instr, uint pos);
 
 /**
@@ -390,7 +390,7 @@ instr_get_dst(instr_t *instr, uint pos);
  * Also calls instr_set_raw_bits_valid(\p instr, false) and
  * instr_set_operands_valid(\p instr, true).
  */
-void 
+void
 instr_set_src(instr_t *instr, uint pos, opnd_t opnd);
 
 /**
@@ -398,7 +398,7 @@ instr_set_src(instr_t *instr, uint pos, opnd_t opnd);
  * Also calls instr_set_raw_bits_valid(\p instr, false) and
  * instr_set_operands_valid(\p instr, true).
  */
-void 
+void
 instr_set_dst(instr_t *instr, uint pos, opnd_t opnd);
 
 void
@@ -408,7 +408,7 @@ instr_being_modified(instr_t *instr, bool raw_bits_valid);
  * Assumes that \p cti_instr is a control transfer instruction
  * Returns the first source operand of \p cti_instr (its target).
  */
-opnd_t 
+opnd_t
 instr_get_target(instr_t *cti_instr);
 
 /**
@@ -417,15 +417,15 @@ instr_get_target(instr_t *cti_instr);
  * Also calls instr_set_raw_bits_valid(\p instr, false) and
  * instr_set_operands_valid(\p instr, true).
  */
-void 
+void
 instr_set_target(instr_t *cti_instr, opnd_t target);
 
 /** Returns true iff \p instr's operands are up to date. */
-bool 
+bool
 instr_operands_valid(instr_t *instr);
 
 /** Sets \p instr's operands to be valid if \p valid is true, invalid otherwise. */
-void 
+void
 instr_set_operands_valid(instr_t *instr, bool valid);
 
 /**
@@ -434,27 +434,27 @@ instr_set_operands_valid(instr_t *instr, bool valid);
  * to be valid.  However, calling instr_get_opcode() will attempt to
  * decode a valid opcode, hence the purpose of this routine.
  */
-bool 
+bool
 instr_opcode_valid(instr_t *instr);
 
 /** Returns \p instr's eflags use as EFLAGS_ constants or'ed together. */
-uint 
+uint
 instr_get_eflags(instr_t *instr);
 
 /** Returns the eflags usage of instructions with opcode \p opcode,
  * as EFLAGS_ constants or'ed together.
  */
-uint 
+uint
 instr_get_opcode_eflags(int opcode);
 
 /**
- * Returns \p instr's arithmetic flags (bottom 6 eflags) use 
+ * Returns \p instr's arithmetic flags (bottom 6 eflags) use
  * as EFLAGS_ constants or'ed together.
  * If \p instr's eflags behavior has not been calculated yet or is
  * invalid, the entire eflags use is calculated and returned (not
  * just the arithmetic flags).
  */
-uint 
+uint
 instr_get_arith_flags(instr_t *instr);
 
 /**
@@ -462,23 +462,23 @@ instr_get_arith_flags(instr_t *instr);
  * Sets \p instr's raw bits to be \p length bytes starting at \p addr.
  * Does not set the operands invalid.
  */
-void 
+void
 instr_set_raw_bits(instr_t *instr, byte * addr, uint length);
 
 /** Sets \p instr's raw bits to be valid if \p valid is true, invalid otherwise. */
-void 
+void
 instr_set_raw_bits_valid(instr_t *instr, bool valid);
 
 /** Returns true iff \p instr's raw bits are a valid encoding of instr. */
-bool 
+bool
 instr_raw_bits_valid(instr_t *instr);
 
 /** Returns true iff \p instr has its own allocated memory for raw bits. */
-bool 
+bool
 instr_has_allocated_bits(instr_t *instr);
 
 /** Returns true iff \p instr's raw bits are not a valid encoding of \p instr. */
-bool 
+bool
 instr_needs_encoding(instr_t *instr);
 
 /**
@@ -512,7 +512,7 @@ instr_set_meta_may_fault(instr_t *instr, bool val);
  * initialized with the bytes pointed to.
  * \p instr is then set to point to the allocated memory.
  */
-void 
+void
 instr_allocate_raw_bits(void *drcontext, instr_t *instr, uint num_bytes);
 
 /**
@@ -526,7 +526,7 @@ instr_allocate_raw_bits(void *drcontext, instr_t *instr, uint num_bytes);
  * Returns the supplied \p instr (for easy chaining).  Use
  * #instr_get_app_pc to see the current value of the translation.
  */
-instr_t * 
+instr_t *
 instr_set_translation(instr_t *instr, app_pc addr);
 
 /**
@@ -558,7 +558,7 @@ instr_free_raw_bits(void *drcontext, instr_t *instr);
  * Assumes that \p instr's raw bits are valid and have > \p pos bytes.
  * Returns a pointer to \p instr's raw byte at position \p pos (beginning with 0).
  */
-byte 
+byte
 instr_get_raw_byte(instr_t *instr, uint pos);
 
 /**
@@ -566,7 +566,7 @@ instr_get_raw_byte(instr_t *instr, uint pos);
  * and have > \p pos bytes.
  * Sets instr's raw byte at position \p pos (beginning with 0) to the value \p byte.
  */
-void 
+void
 instr_set_raw_byte(instr_t *instr, uint pos, byte byte);
 
 /**
@@ -574,7 +574,7 @@ instr_set_raw_byte(instr_t *instr, uint pos, byte byte);
  * and have >= num_bytes bytes.
  * Copies the \p num_bytes beginning at start to \p instr's raw bits.
  */
-void 
+void
 instr_set_raw_bytes(instr_t *instr, byte *start, uint num_bytes);
 
 /**
@@ -582,14 +582,14 @@ instr_set_raw_bytes(instr_t *instr, byte *start, uint num_bytes);
  * and have > pos+3 bytes.
  * Sets the 4 bytes beginning at position \p pos (0-based) to the value word.
  */
-void 
+void
 instr_set_raw_word(instr_t *instr, uint pos, uint word);
 
 /**
  * Assumes that \p instr's raw bits are valid and have > \p pos + 3 bytes.
  * Returns the 4 bytes beginning at position \p pos (0-based).
  */
-uint 
+uint
 instr_get_raw_word(instr_t *instr, uint pos);
 
 /**
@@ -604,10 +604,10 @@ instr_set_prefix_flag(instr_t *instr, uint prefix);
  * Assumes that \p prefix is a PREFIX_ constant.
  * Returns true if \p instr's prefixes contain the flag \p prefix.
  */
-bool 
+bool
 instr_get_prefix_flag(instr_t *instr, uint prefix);
 
-uint 
+uint
 instr_get_prefixes(instr_t *instr);
 #ifdef X64
 
@@ -627,7 +627,7 @@ instr_set_x86_mode(instr_t *instr, bool x86);
  *
  * \note For 64-bit DR builds only.
  */
-bool 
+bool
 instr_get_x86_mode(instr_t *instr);
 #endif
 
@@ -637,7 +637,7 @@ instr_get_x86_mode(instr_t *instr);
  * address sizes, to 16 bits.
  * Does not shrink DR_REG_ESI or DR_REG_EDI used in string instructions.
  */
-void 
+void
 instr_shrink_to_16_bits(instr_t *instr);
 #ifdef X64
 
@@ -648,7 +648,7 @@ instr_shrink_to_16_bits(instr_t *instr);
  *
  * \note For 64-bit DR builds only.
  */
-void 
+void
 instr_shrink_to_32_bits(instr_t *instr);
 #endif
 
@@ -658,14 +658,14 @@ instr_shrink_to_32_bits(instr_t *instr);
  * Returns true iff at least one of \p instr's operands references a
  * register that overlaps \p reg.
  */
-bool 
+bool
 instr_uses_reg(instr_t *instr, reg_id_t reg);
 
 /**
  * Returns true iff at least one of \p instr's operands references a floating
  * point register.
  */
-bool 
+bool
 instr_uses_fp_reg(instr_t *instr);
 
 /**
@@ -675,14 +675,14 @@ instr_uses_fp_reg(instr_t *instr);
  * \note Use instr_reads_from_reg() to also consider addressing
  * registers in destination operands.
  */
-bool 
+bool
 instr_reg_in_src(instr_t *instr, reg_id_t reg);
 
 /**
  * Assumes that \p reg is a DR_REG_ constant.
  * Returns true iff at least one of \p instr's destination operands references \p reg.
  */
-bool 
+bool
 instr_reg_in_dst(instr_t *instr, reg_id_t reg);
 
 /**
@@ -690,7 +690,7 @@ instr_reg_in_dst(instr_t *instr, reg_id_t reg);
  * Returns true iff at least one of \p instr's destination operands is
  * a register operand for a register that overlaps \p reg.
  */
-bool 
+bool
 instr_writes_to_reg(instr_t *instr, reg_id_t reg);
 
 /**
@@ -699,7 +699,7 @@ instr_writes_to_reg(instr_t *instr, reg_id_t reg);
  * from a register that overlaps reg (checks both source operands
  * and addressing registers used in destination operands).
  */
-bool 
+bool
 instr_reads_from_reg(instr_t *instr, reg_id_t reg);
 
 /**
@@ -714,32 +714,32 @@ instr_writes_to_exact_reg(instr_t *instr, reg_id_t reg);
  * Replaces all instances of \p old_opnd in \p instr's source operands with
  * \p new_opnd (uses opnd_same() to detect sameness).
  */
-bool 
+bool
 instr_replace_src_opnd(instr_t *instr, opnd_t old_opnd, opnd_t new_opnd);
 
 /**
  * Returns true iff \p instr1 and \p instr2 have the same opcode, prefixes,
  * and source and destination operands (uses opnd_same() to compare the operands).
  */
-bool 
+bool
 instr_same(instr_t *instr1, instr_t *instr2);
 
 /** Returns true iff any of \p instr's source operands is a memory reference. */
-bool 
+bool
 instr_reads_memory(instr_t *instr);
 
 /** Returns true iff any of \p instr's destination operands is a memory reference. */
-bool 
+bool
 instr_writes_memory(instr_t *instr);
 #ifdef X64
 
 
 /**
- * Returns true iff any of \p instr's operands is a rip-relative memory reference. 
+ * Returns true iff any of \p instr's operands is a rip-relative memory reference.
  *
  * \note For 64-bit DR builds only.
  */
-bool 
+bool
 instr_has_rel_addr_reference(instr_t *instr);
 
 /**
@@ -809,30 +809,30 @@ instr_memory_reference_size(instr_t *instr);
  * Returns true iff \p instr is an IA-32 "mov" instruction: either OP_mov_st,
  * OP_mov_ld, OP_mov_imm, OP_mov_seg, or OP_mov_priv.
  */
-bool 
+bool
 instr_is_mov(instr_t *instr);
 
 /**
  * Returns true iff \p instr's opcode is OP_call, OP_call_far, OP_call_ind,
  * or OP_call_far_ind.
  */
-bool 
+bool
 instr_is_call(instr_t *instr);
 
 /** Returns true iff \p instr's opcode is OP_call or OP_call_far. */
-bool 
+bool
 instr_is_call_direct(instr_t *instr);
 
 /** Returns true iff \p instr's opcode is OP_call_ind or OP_call_far_ind. */
-bool 
+bool
 instr_is_call_indirect(instr_t *instr);
 
 /** Returns true iff \p instr's opcode is OP_ret, OP_ret_far, or OP_iret. */
-bool 
+bool
 instr_is_return(instr_t *instr);
 
 /** Returns true iff \p instr's opcode is OP_iret, OP_sysret, or OP_sysexit. Only meaningful
- * when running in the kernel (see LINUX_KERNEL builds). 
+ * when running in the kernel (see LINUX_KERNEL builds).
  */
 bool
 instr_may_return_to_user(instr_t *instr);
@@ -841,18 +841,18 @@ instr_may_return_to_user(instr_t *instr);
  * Returns true iff \p instr is a control transfer instruction of any kind
  * This includes OP_jcc, OP_jcc_short, OP_loop*, OP_jecxz, OP_call*, and OP_jmp*.
  */
-bool 
+bool
 instr_is_cti(instr_t *instr);
 
 /**
  * Returns true iff \p instr is a control transfer instruction that takes an
  * 8-bit offset: OP_loop*, OP_jecxz, OP_jmp_short, or OP_jcc_short
  */
-bool 
+bool
 instr_is_cti_short(instr_t *instr);
 
 /** Returns true iff \p instr is one of OP_loop* or OP_jecxz. */
-bool 
+bool
 instr_is_cti_loop(instr_t *instr);
 
 /**
@@ -864,14 +864,14 @@ instr_is_cti_loop(instr_t *instr);
  * after \p instr.
  * Otherwise, the encoding is expected to be found in \p instr's allocated bits.
  */
-bool 
+bool
 instr_is_cti_short_rewrite(instr_t *instr, byte *pc);
 
 /**
  * Returns true iff \p instr is a conditional branch: OP_jcc, OP_jcc_short,
  * OP_loop*, or OP_jecxz.
  */
-bool 
+bool
 instr_is_cbr(instr_t *instr);
 
 /**
@@ -879,25 +879,25 @@ instr_is_cbr(instr_t *instr);
  * OP_call_ind, OP_ret, OP_jmp_far_ind, OP_call_far_ind, OP_ret_far, or
  * OP_iret.
  */
-bool 
+bool
 instr_is_mbr(instr_t *instr);
 
 /**
  * Returns true iff \p instr is an unconditional direct branch: OP_jmp,
  * OP_jmp_short, or OP_jmp_far.
  */
-bool 
+bool
 instr_is_ubr(instr_t *instr);
 
 /**
  * Returns true iff \p instr is a far control transfer instruction: OP_jmp_far,
  * OP_call_far, OP_jmp_far_ind, OP_call_far_ind, OP_ret_far, or OP_iret.
  */
-bool 
+bool
 instr_is_far_cti(instr_t *instr);
 
 /** Returns true if \p instr is an absolute call or jmp that is far. */
-bool 
+bool
 instr_is_far_abs_cti(instr_t *instr);
 
 /**
@@ -905,9 +905,9 @@ instr_is_far_abs_cti(instr_t *instr);
  * source operand of 0x80 on linux or 0x2e on windows, or OP_sysenter,
  * or OP_syscall, or #instr_is_wow64_syscall() for WOW64.
  */
-bool 
+bool
 instr_is_syscall(instr_t *instr);
-#ifdef WINDOWS 
+#ifdef WINDOWS
 
 
 /**
@@ -929,7 +929,7 @@ instr_is_wow64_syscall(instr_t *instr);
  * OP_prefetchnt0, OP_prefetchnt1, OP_prefetchnt2, OP_prefetch, or
  * OP_prefetchw.
  */
-bool 
+bool
 instr_is_prefetch(instr_t *instr);
 
 /**
@@ -938,31 +938,31 @@ instr_is_prefetch(instr_t *instr);
  * Returns true and sets \p *value to the constant being moved for the following
  * cases: mov_imm, mov_st, and xor where the source equals the destination.
  */
-bool 
+bool
 instr_is_mov_constant(instr_t *instr, ptr_int_t *value);
 
 /** Returns true iff \p instr is a floating point instruction. */
-bool 
+bool
 instr_is_floating(instr_t *instr);
 
 /** Returns true iff \p instr is part of Intel's MMX instructions. */
-bool 
+bool
 instr_is_mmx(instr_t *instr);
 
 /** Returns true iff \p instr is part of Intel's SSE or SSE2 instructions. */
-bool 
+bool
 instr_is_sse_or_sse2(instr_t *instr);
 
 /** Returns true iff \p instr is a "mov $imm -> (%esp)". */
-bool 
+bool
 instr_is_mov_imm_to_tos(instr_t *instr);
 
 /** Returns true iff \p instr is a label meta-instruction. */
-bool 
+bool
 instr_is_label(instr_t *instr);
 
 /** Returns true iff \p instr is an "undefined" instruction (ud2) */
-bool 
+bool
 instr_is_undefined(instr_t *instr);
 
 bool
@@ -977,7 +977,7 @@ instr_is_stringop(instr_t *instr);
  * Returns the first source operand if \p instr's operands are valid,
  * else if \p instr's raw bits are valid returns the first raw byte.
  */
-int 
+int
 instr_get_interrupt_number(instr_t *instr);
 
 /**
@@ -986,7 +986,7 @@ instr_get_interrupt_number(instr_t *instr);
  * e.g., changes OP_jb to OP_jnb.
  * Works on cti_short_rewrite as well.
  */
-void 
+void
 instr_invert_cbr(instr_t *instr);
 
 /**
@@ -1005,7 +1005,7 @@ instr_t *
 instr_convert_short_meta_jmp_to_long(void *drcontext, instrlist_t *ilist,
                                      instr_t *instr);
 
-/** 
+/**
  * Given \p eflags, returns whether or not the conditional branch, \p
  * instr, would be taken.
  */
@@ -1034,7 +1034,7 @@ instr_cmovcc_triggered(instr_t *instr, reg_t eflags);
  * - mov reg, reg
  * - lea reg, (reg)
  */
-bool 
+bool
 instr_is_nop(instr_t *instr);
 
 /**
@@ -1065,7 +1065,7 @@ instr_create_0dst_2src(void *drcontext, int opcode,
  * on the thread-local heap with opcode \p opcode and three sources
  * (\p src1, \p src2, \p src3).
  */
-instr_t * 
+instr_t *
 instr_create_0dst_3src(void *drcontext, int opcode,
                        opnd_t src1, opnd_t src2, opnd_t src3);
 
@@ -1109,7 +1109,7 @@ instr_create_1dst_3src(void *drcontext, int opcode,
  * thread-local heap with opcode \p opcode, one destination (\p dst),
  * and five sources (\p src1, \p src2, \p src3, \p src4, \p src5).
  */
-instr_t * 
+instr_t *
 instr_create_1dst_5src(void *drcontext, int opcode,
                        opnd_t dst, opnd_t src1, opnd_t src2, opnd_t src3,
                        opnd_t src4, opnd_t src5);
@@ -1173,7 +1173,7 @@ instr_create_3dst_0src(void *drcontext, int opcode,
 /**
  * Convenience routine that returns an initialized instr_t allocated
  * on the thread-local heap with opcode \p opcode, three destinations
- * (\p dst1, \p dst2, \p dst3) and three sources 
+ * (\p dst1, \p dst2, \p dst3) and three sources
  * (\p src1, \p src2, \p src3).
  */
 instr_t *
@@ -1184,7 +1184,7 @@ instr_create_3dst_3src(void *drcontext, int opcode,
 /**
  * Convenience routine that returns an initialized instr_t allocated
  * on the thread-local heap with opcode \p opcode, three destinations
- * (\p dst1, \p dst2, \p dst3) and four sources 
+ * (\p dst1, \p dst2, \p dst3) and four sources
  * (\p src1, \p src2, \p src3, \p src4).
  */
 instr_t *
@@ -1240,35 +1240,35 @@ instr_create_pusha(void *drcontext);
 /* we only care about these 11 flags, and mostly only about the first 6
  * we consider an undefined effect on a flag to be a write
  */
-#define EFLAGS_READ_CF   0x00000001 /**< Reads CF (Carry Flag). */             
-#define EFLAGS_READ_PF   0x00000002 /**< Reads PF (Parity Flag). */            
-#define EFLAGS_READ_AF   0x00000004 /**< Reads AF (Auxiliary Carry Flag). */   
-#define EFLAGS_READ_ZF   0x00000008 /**< Reads ZF (Zero Flag). */              
-#define EFLAGS_READ_SF   0x00000010 /**< Reads SF (Sign Flag). */              
-#define EFLAGS_READ_TF   0x00000020 /**< Reads TF (Trap Flag). */              
-#define EFLAGS_READ_IF   0x00000040 /**< Reads IF (Interrupt Enable Flag). */  
-#define EFLAGS_READ_DF   0x00000080 /**< Reads DF (Direction Flag). */         
-#define EFLAGS_READ_OF   0x00000100 /**< Reads OF (Overflow Flag). */          
-#define EFLAGS_READ_NT   0x00000200 /**< Reads NT (Nested Task). */            
-#define EFLAGS_READ_RF   0x00000400 /**< Reads RF (Resume Flag). */            
-#define EFLAGS_WRITE_CF  0x00000800 /**< Writes CF (Carry Flag). */             
-#define EFLAGS_WRITE_PF  0x00001000 /**< Writes PF (Parity Flag). */            
-#define EFLAGS_WRITE_AF  0x00002000 /**< Writes AF (Auxiliary Carry Flag). */   
-#define EFLAGS_WRITE_ZF  0x00004000 /**< Writes ZF (Zero Flag). */              
-#define EFLAGS_WRITE_SF  0x00008000 /**< Writes SF (Sign Flag). */              
-#define EFLAGS_WRITE_TF  0x00010000 /**< Writes TF (Trap Flag). */              
-#define EFLAGS_WRITE_IF  0x00020000 /**< Writes IF (Interrupt Enable Flag). */  
-#define EFLAGS_WRITE_DF  0x00040000 /**< Writes DF (Direction Flag). */         
-#define EFLAGS_WRITE_OF  0x00080000 /**< Writes OF (Overflow Flag). */          
-#define EFLAGS_WRITE_NT  0x00100000 /**< Writes NT (Nested Task). */            
-#define EFLAGS_WRITE_RF  0x00200000 /**< Writes RF (Resume Flag). */            
+#define EFLAGS_READ_CF   0x00000001 /**< Reads CF (Carry Flag). */
+#define EFLAGS_READ_PF   0x00000002 /**< Reads PF (Parity Flag). */
+#define EFLAGS_READ_AF   0x00000004 /**< Reads AF (Auxiliary Carry Flag). */
+#define EFLAGS_READ_ZF   0x00000008 /**< Reads ZF (Zero Flag). */
+#define EFLAGS_READ_SF   0x00000010 /**< Reads SF (Sign Flag). */
+#define EFLAGS_READ_TF   0x00000020 /**< Reads TF (Trap Flag). */
+#define EFLAGS_READ_IF   0x00000040 /**< Reads IF (Interrupt Enable Flag). */
+#define EFLAGS_READ_DF   0x00000080 /**< Reads DF (Direction Flag). */
+#define EFLAGS_READ_OF   0x00000100 /**< Reads OF (Overflow Flag). */
+#define EFLAGS_READ_NT   0x00000200 /**< Reads NT (Nested Task). */
+#define EFLAGS_READ_RF   0x00000400 /**< Reads RF (Resume Flag). */
+#define EFLAGS_WRITE_CF  0x00000800 /**< Writes CF (Carry Flag). */
+#define EFLAGS_WRITE_PF  0x00001000 /**< Writes PF (Parity Flag). */
+#define EFLAGS_WRITE_AF  0x00002000 /**< Writes AF (Auxiliary Carry Flag). */
+#define EFLAGS_WRITE_ZF  0x00004000 /**< Writes ZF (Zero Flag). */
+#define EFLAGS_WRITE_SF  0x00008000 /**< Writes SF (Sign Flag). */
+#define EFLAGS_WRITE_TF  0x00010000 /**< Writes TF (Trap Flag). */
+#define EFLAGS_WRITE_IF  0x00020000 /**< Writes IF (Interrupt Enable Flag). */
+#define EFLAGS_WRITE_DF  0x00040000 /**< Writes DF (Direction Flag). */
+#define EFLAGS_WRITE_OF  0x00080000 /**< Writes OF (Overflow Flag). */
+#define EFLAGS_WRITE_NT  0x00100000 /**< Writes NT (Nested Task). */
+#define EFLAGS_WRITE_RF  0x00200000 /**< Writes RF (Resume Flag). */
 
-#define EFLAGS_READ_ALL  0x000007ff /**< Reads all flags. */    
-#define EFLAGS_WRITE_ALL 0x003ff800 /**< Writes all flags. */   
+#define EFLAGS_READ_ALL  0x000007ff /**< Reads all flags. */
+#define EFLAGS_WRITE_ALL 0x003ff800 /**< Writes all flags. */
 /* 6 most common flags ("arithmetic flags"): CF, PF, AF, ZF, SF, OF */
-/** Reads all 6 arithmetic flags (CF, PF, AF, ZF, SF, OF). */ 
+/** Reads all 6 arithmetic flags (CF, PF, AF, ZF, SF, OF). */
 #define EFLAGS_READ_6    0x0000011f
-/** Writes all 6 arithmetic flags (CF, PF, AF, ZF, SF, OF). */ 
+/** Writes all 6 arithmetic flags (CF, PF, AF, ZF, SF, OF). */
 #define EFLAGS_WRITE_6   0x0008f800
 
 /** Converts an EFLAGS_WRITE_* value to the corresponding EFLAGS_READ_* value. */

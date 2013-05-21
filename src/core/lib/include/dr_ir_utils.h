@@ -575,7 +575,7 @@ dr_redirect_execution(dr_mcontext_t *mcontext, int app_errno);
  * the instr at \p pc.  If the instruction is a repeating string instruction,
  * considers only one iteration.
  * Returns the pc of the following instruction.
- * If the instruction at \p pc does not reference memory, or is invalid, 
+ * If the instruction at \p pc does not reference memory, or is invalid,
  * returns NULL.
  */
 app_pc

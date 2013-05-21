@@ -56,9 +56,10 @@ emit_fragment_ex(dcontext_t *dcontext, app_pc tag,
                  bool link, bool visible);
 
 fragment_t *
-emit_fragment_kernel(dcontext_t *dcontext, app_pc tag,
-                 instrlist_t *ilist, uint flags, void *vmlist,
-                 bool link, bool visible);
+emit_fragment_ilist(dcontext_t *dcontext, app_pc tag, size_t size,
+                     instrlist_t *ilist, uint flags, bool link_fragment, bool add_to_htable);
+
+
 
 /* Emits code for ilist into the fcache, returns the created fragment.
  * Does not add the fragment to the ftable, leaving it as an "invisible"

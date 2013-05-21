@@ -2426,7 +2426,18 @@ at_return(app_pc instr_addr, app_pc target_addr)
 
 //#include "linux_wrapper/linux_wrapper.h"
 
+#define PTR_UINT_0       ((ptr_uint_t)0U)
+#define PTR_UINT_1       ((ptr_uint_t)1U)
+#define PTR_UINT_MINUS_1 ((ptr_uint_t)-1)
+#define GLOBAL_DCONTEXT  ((void *)PTR_UINT_MINUS_1)
+
 extern client_cache_info_t *cpu_client_cache;
+
+
+extern void cfi_hotpatch_init(void *drcontext);
+
+extern byte*
+emit_hotpatch_code_(void *drcontext, client_cache_info_t *client, byte *pc, app_pc *addr);
 
 uint64_t flag = 0x0;
 static DEFINE_MUTEX(hotpatch_lock);
@@ -2435,10 +2446,15 @@ void cfi_hotpatch_kernel(void *drcontext){
     client_cache_info_t * client = (client_cache_info_t*) dr_thread_alloc(drcontext, sizeof(client_cache_info_t));
     cpu_client_cache = client;
     printk("%s\n", __FUNCTION__);
-   // client->cache_start = dr_thread_alloc(drcontext, CLIENT_CACHE_SIZE);
-    //client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_start, (void*)(kfree));
+    client->cache_start = dr_thread_alloc(drcontext, CLIENT_CACHE_SIZE);
+
+   // client->cache_ptr = emit_hotpatch_code_(drcontext, client, client->cache_start, (void*)kfree);
+
+    cfi_hotpatch_init(GLOBAL_DCONTEXT);
+   //
+    //
     //client->cache_ptr = hijack_kernel_function(drcontext, client, client->cache_start, (void*)__ticket_spin_is_locked, (void*)cfi__ticket_spin_is_locked);
-    //client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)vfree);
+        //client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)vfree);
     //client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)delayed_work_timer_fn);
    // client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)kmem_cache_free);
 
@@ -2460,12 +2476,24 @@ static void event_thread_init(void *drcontext)
 
 
 }
+
+
 static void event_thread_exit(void *drcontext)
 {
     dr_printf("************************************%s***********************************",__FUNCTION__);
 
 }
 
+
+static inline
+void client_watchpoint_init(void){
+
+}
+
+static inline
+void client_memoryleak_init(void){
+
+}
 
 
 /**
@@ -2484,11 +2512,13 @@ drinit(client_id_t id)
 
 #endif
 
+       client_watchpoint_init();
 
 #ifdef GRANARY_MEM_INSTRUMENTATION
       //  dr_register_bb_event(bb_event);
 #ifdef CLIENT_MEMORY_LEAK
     	dr_register_bb_event(memleak_bb_event);
+    	client_memoryleak_init();
 #endif
 #ifdef CLIENT_BUFFER_OVERFLOW
     	dr_register_bb_event(buffer_overflow_policy);

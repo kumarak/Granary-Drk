@@ -130,6 +130,7 @@ TYPE_WRAPPER(struct inode, {
 
 #define LOOP_COUNT 5
 
+#if 0
 TYPE_WRAPPER(struct super_block, {
         pre {
             D(kern_printk("    super_block\n");)
@@ -154,7 +155,7 @@ TYPE_WRAPPER(struct super_block, {
                 no_post
         no_return
 })
-
+#endif
 #if 0
 TYPE_WRAPPER(struct address_space, {
         pre {

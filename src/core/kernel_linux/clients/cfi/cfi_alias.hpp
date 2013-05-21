@@ -33,6 +33,8 @@ extern "C" {
     extern void *cfi_get_free_pages(unsigned long count);
     //extern void *module_page_alloc(unsigned long size);
 
+    extern function_t *wrapped_functions[];
+
 }
 
 #define DWP(w, m, a) debug_watchpoint((w), (m), (a));

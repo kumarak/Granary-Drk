@@ -37,6 +37,16 @@ enum WATCHPOINT_CONTEXT_STATE {
     WP_MEMORY_UNREACHABLE = 0x8ULL,
     WP_DESCRIPTOR_ACTIVE = 0x10ULL
 };
+typedef struct {
+    const char *name;
+    void    *start;
+    unsigned long  size;
+    void    *replace_func;
+    void    *wrapper_func;
+    void    *pre_wrapper;
+    void    *post_wrapper;
+} function_t;
+
 
 #define DISPLAY_STRING(msg) dr_printf("%s\n", msg);
 #define NULL_TERMINATE(buf) buf[(sizeof(buf)/sizeof(buf[0])) - 1] = '\0'
