@@ -412,7 +412,6 @@ emulate_push_mcontext(dr_mcontext_t *mc, reg_t value)
 static reg_t
 emulate_pop_mcontext(dr_mcontext_t *mc)
 {
-    reg_t value = *((reg_t*) mc->xsp);
     mc->xsp += sizeof(reg_t);
     return value;
 }
@@ -464,16 +463,6 @@ is_stopping_point(dcontext_t *dcontext, app_pc pc)
 #endif
         )
     {
-            //dr_get_mcontext(dcontext, &mc, &app_errno);
-            //set_stack_element(&mc, mc.xbp+8, (app_pc)shadow_printk);
-            //asm ( "movl 8(%ebp), %ebx;"
-            //      "movl $shadow_printk, 8(%ebp);"
-            //      );
-        //  emulate_push_mcontext(&mc, (reg_t)mc.pc);
-            //mc.xbp = (app_pc)shadow_printk;
-            //pc_address = (app_pc)printk;
-            //dr_set_mcontext(dcontext, &mc, &app_errno);
-            //dcontext->next_tag = (app_pc)shadow_printk;
         return true;
     }
 
@@ -863,7 +852,7 @@ void initialize_spill_slot(void){
     struct thread_private_info *spill_slot;
     dr_printf("spill_slot was NULL!!!!!!!!!!!!!!!\n");
     spill_slot = kernel_thread_private_slot_init(SPILL_SLOT_1);
-    spill_slot->section_count = 1;
+    spill_slot->section_count = 0;
     spill_slot->is_running_module = 1;
     spill_slot->tsk = kernel_get_current();
     dr_add_to_list((void*)spill_slot);
@@ -920,7 +909,7 @@ dispatch_exit_module(dcontext_t *dcontext) {
     /* call any client callbacks to handling module exits; these might
      * change the dcontext->next_tag. */
     if(dcontext->last_exit->flags & LINK_RETURN) {
-        if(thread_private_slot != NULL){
+        /*if(thread_private_slot != NULL){
             thread_private_slot->section_count--;
             if(thread_private_slot->section_count == 0){
                 int i=0;
@@ -929,9 +918,12 @@ dispatch_exit_module(dcontext_t *dcontext) {
                     i++;
                 }
             }
-        }
+        }*/
     } else if(dcontext->last_exit->flags & LINK_CALL){
         if(dcontext->next_tag != (app_pc)dr_app_stop){
+           /* if(thread_private_slot != NULL){
+                thread_private_slot->section_count++;
+            }*/
             byte *return_addr = dr_get_stack_pointer_value(dcontext);
             if(return_addr != (app_pc)dr_app_start_on_return) {
             	if((return_addr < MODULE_END_ADDR) && (return_addr >= MODULE_START_ADDR)) {

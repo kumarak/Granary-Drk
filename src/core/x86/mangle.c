@@ -1712,6 +1712,15 @@ mangle_direct_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
  */
 
 #define WATCHPOINT_INDEX_MASK  0xffff800000000000
+
+bool
+is_kernel_text(void *pc)
+{
+    unsigned long p = (unsigned long) pc;
+    /* Taken from Documentation/x86/x86_64/mm.txt */
+    return (p >= 0xffffffff80000000 && p < 0xffffffffa0000000);
+}
+
 static void
 mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
                      instr_t *next_instr, bool mangle_calls, uint flags)
@@ -1775,10 +1784,18 @@ mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
     insert_push_retaddr(dcontext, ilist, next_instr, retaddr, opnd_get_size(pushop));
 #endif
 
-    /* save away xcx so that we can use it */
-    /* (it's restored in x86.s (indirect_branch_lookup) */
-    PRE(ilist, instr,
-        SAVE_TO_DC_OR_TLS(dcontext, flags, REG_XCX, MANGLE_XCX_SPILL_SLOT, XCX_OFFSET));
+    if(!is_kernel_text(curaddr)) {
+        /* save away xcx so that we can use it */
+        /* (it's restored in x86.s (indirect_branch_lookup) */
+        PRE(ilist, instr,
+                SAVE_TO_DC_OR_TLS(dcontext, flags, REG_XCX, MANGLE_XCX_SPILL_SLOT, XCX_OFFSET));
+    } else {
+        //instr_t *next_instr = instr_get_next(instr);
+        insert_push_retaddr(dcontext, ilist, instr, retaddr, opnd_get_size(pushop));
+        //PRE(ilist, instr, next_instr);
+        PRE(ilist, instr, INSTR_CREATE_push(dcontext, opnd_create_reg(REG_XCX)));
+        PRE(ilist, instr, INSTR_CREATE_push(dcontext, opnd_create_reg(REG_XCX)));
+    }
 
 
 #ifdef STEAL_REGISTER
@@ -1855,10 +1872,15 @@ mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
 
 #if 1
     watchpoint_indirect_call_event(dcontext, ilist, instr, next_instr, mangle_calls, flags);
-    //    PRE(ilist, instr, INSTR_CREATE_push(dcontext, opnd_create_reg(opnd_get_base(target))));
-    //    PRE(ilist, instr, INSTR_CREATE_mov_imm(dcontext, opnd_create_reg(reg_target), OPND_CREATE_INT64(WATCHPOINT_INDEX_MASK)));
-    //    PRE(ilist, instr, INSTR_CREATE_or(dcontext, opnd_create_reg(opnd_get_base(target)), opnd_create_reg(reg_target)));
-    //    POST(ilist, instr, INSTR_CREATE_pop(dcontext, opnd_create_reg(opnd_get_base(target))));
+   if(is_kernel_text(curaddr)) {
+       instr_t *next_instr = instr_get_next(instr);
+       POST(ilist, next_instr, INSTR_CREATE_ret(dcontext));
+       POST(ilist, next_instr, INSTR_CREATE_pop(dcontext, opnd_create_reg(REG_XCX)));
+       POST(ilist, next_instr, INSTR_CREATE_mov_st(dcontext,  opnd_create_base_disp(REG_XSP,
+                REG_NULL, 0, sizeof(reg_t), OPSZ_8), opnd_create_reg(REG_XCX)));
+
+
+    }
 #endif
 #ifdef RETURN_STACK
     /* NEW CALL HANDLING: RETURN STACK! */

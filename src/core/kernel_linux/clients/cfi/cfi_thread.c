@@ -86,6 +86,8 @@ unsigned int is_loadable_module(unsigned long addr){
     return 0;
 }
 
+extern int is_module_code(void *addr);
+
 static int print_trace_stack(void *data, char *name){
     printk("%s <%s> ", (char *)data, name);
     return 0;
@@ -140,15 +142,43 @@ get_stack_context(struct thread_info *tinfo,
         addr = *stack;
         if (is_kernel_text_address(addr)) {
             if ((unsigned long) stack == bp + sizeof(long)) {
-                if(is_loadable_module(addr)){
-                    print_trace_address(data, addr, 1);
+                if(is_module_code(addr)){
+                    return 1;
                 }
                 frame = frame->next_frame;
                 bp = (unsigned long) frame;
             } else {
-                if(is_loadable_module(addr)){
-                    print_trace_address(data, addr, 0);
+                if(is_module_code(addr)){
+                    return 1;
                 }
+            }
+            /*print_ftrace_graph_addr(addr, data, ops, tinfo, graph);*/
+        }
+        stack++;
+    }
+    return 0;
+}
+
+/* return true if gets called from module contect*/
+unsigned long
+print_stack_context(struct thread_info *tinfo,
+        unsigned long *stack, unsigned long bp,
+        const struct stacktrace_ops *ops, void *data,
+        unsigned long *end, int *graph)
+{
+    struct stack_frame *frame = (struct stack_frame *)bp;
+    kernel_text_address_type *is_kernel_text_address = (kernel_text_address_type*)__KERNEL_TEXT_ADDRESS;
+    while (valid_stack_ptr(tinfo, stack, sizeof(*stack), end)) {
+        unsigned long addr;
+
+        addr = *stack;
+        if (is_kernel_text_address(addr)) {
+            if ((unsigned long) stack == bp + sizeof(long)) {
+                print_trace_address(data, addr, 1);
+                frame = frame->next_frame;
+                bp = (unsigned long) frame;
+            } else {
+                print_trace_address(data, addr, 0);
             }
             /*print_ftrace_graph_addr(addr, data, ops, tinfo, graph);*/
         }
@@ -157,11 +187,12 @@ get_stack_context(struct thread_info *tinfo,
     return bp;
 }
 
-void cfi_dump_stack(){
+unsigned int cfi_dump_stack(){
     unsigned long bp;
     unsigned long stack;
     char *log_lvl = "";
     unsigned cpu;
+    unsigned int retval = 0;
     unsigned long section_count = 0;
     int graph = 0;
     struct thread_info *tinfo;
@@ -178,13 +209,35 @@ void cfi_dump_stack(){
     get_bp(bp);
     task = current;
     tinfo = task_thread_info(task);
-    get_stack_context(tinfo, &stack, bp, &print_trace_ops, (void*)log_lvl, NULL, &graph);
+    if(get_stack_context(tinfo, &stack, bp, &print_trace_ops, (void*)log_lvl, NULL, &graph)){
+        printk("[new trace]  : section count %d\n", section_count);
+        print_stack_context(tinfo, &stack, bp, &print_trace_ops, (void*)log_lvl, NULL, &graph);
+        retval = 1;
+    } else {
+        if(section_count != 0){
+            printk("[new trace]  : section count %d\n", section_count);
+            print_stack_context(tinfo, &stack, bp, &print_trace_ops, (void*)log_lvl, NULL, &graph);
+            retval = 1;
+        }
+    }
     //print_trace_ops.walk_stack(tinfo, &stack, bp, &print_trace_ops, (void*)log_lvl, NULL, &graph);
     put_cpu();
     //dump_stack();
   //  bp = stack_frame(current, NULL);
     //dump_trace(NULL, NULL, &stack, bp, &print_trace_ops, log_lvl);
-    printk("[new trace]  : section count %d\n", section_count);
+    return retval;
+}
+
+unsigned long get_section_state(void){
+    unsigned long section_count = 0;
+    struct thread_info *thread = current_thread_info();
+
+    struct thread_private_info *thread_info = (struct thread_private_info*)thread->spill_slot[0];
+    if(thread_info != NULL){
+        section_count = thread_info->section_count;
+    }
+
+    return section_count;
 }
 
 #if 0

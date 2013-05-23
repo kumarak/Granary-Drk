@@ -20,6 +20,7 @@ typedef void (*cfi_type_erased_func_ptr)(void);
 /// is not exported by the kernel.
 cfi_type_erased_func_ptr cfi_get_kernel_wrapper(cfi_type_erased_func_ptr);
 cfi_type_erased_func_ptr cfi_to_shadow_address(cfi_type_erased_func_ptr);
+cfi_type_erased_func_ptr cfi_get_hotpatch_wrapper(cfi_type_erased_func_ptr);
 
 #ifdef __cplusplus
 }

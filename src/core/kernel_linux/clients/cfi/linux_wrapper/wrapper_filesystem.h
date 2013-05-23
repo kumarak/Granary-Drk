@@ -843,8 +843,9 @@ FUNC_WRAPPER(mpage_readpages, ( struct address_space * mapping , struct list_hea
 })
 
 FUNC_WRAPPER(submit_bh, ( int rw , struct buffer_head * bh ), {
-        if(0 != bh)
-            WRAP_FUNC(bh->b_end_io);
+        if(NULL != bh) {
+            WRAP_FUNC(TO_UNWATCHED_ADDRESS(bh)->b_end_io);
+        }
         return submit_bh(rw, bh);
 })
 
@@ -970,6 +971,44 @@ FUNC_WRAPPER_VOID(unregister_shrinker, (struct shrinker *shr), {
         unregister_shrinker(shr);
 })
 
+void __ticket_spin_unlock(arch_spinlock_t *lock);
+
+FUNC_WRAPPER_VOID(__ticket_spin_unlock, (arch_spinlock_t *lock), {
+        __ticket_spin_unlock(lock);
+})
+
+extern void down(struct semaphore *sem);
+
+FUNC_WRAPPER_VOID(down, (struct semaphore *sem), {
+        down(sem);
+})
+
+/*void __brelse ( struct buffer_head * ) ;
+void __bforget ( struct buffer_head * ) ;
+*/
+
+FUNC_WRAPPER_VOID(__brelse, (struct buffer_head *bh), {
+        if(NULL != bh) {
+            WRAP_FUNC(TO_UNWATCHED_ADDRESS(bh)->b_end_io);
+        }
+        __brelse(bh);
+})
+
+FUNC_WRAPPER_VOID(__bforget, (struct buffer_head *bh), {
+        if(NULL != bh) {
+            WRAP_FUNC(TO_UNWATCHED_ADDRESS(bh)->b_end_io);
+        }
+        __bforget(bh);
+})
+//bh_uptodate_or_lock
+
+FUNC_WRAPPER(bh_uptodate_or_lock, (struct buffer_head *bh), {
+        if(NULL != bh) {
+            WRAP_FUNC(TO_UNWATCHED_ADDRESS(bh)->b_end_io);
+        }
+        return bh_uptodate_or_lock(bh);
+})
+
 /*
 FUNC_WRAPPER(kthread_create_on_node, ( threadfn thread_fun, void *data , int node, const char namefmt[], ... ), {
         struct kthread_create_info *create(0);
@@ -1031,4 +1070,6 @@ FUNC_WRAPPER(kthread_create_on_node, ( threadfn thread_fun, void *data , int nod
                                     unsigned long first_index, unsigned int max_items), {
             return radix_tree_gang_lookup(root, results, first_index, max_items);
     })
+
+
 #endif /* WRAPPER_FILESYSTEM_H_ */

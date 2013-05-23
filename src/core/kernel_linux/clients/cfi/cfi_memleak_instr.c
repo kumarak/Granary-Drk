@@ -862,6 +862,8 @@ instrument_memory_operations(void *drcontext, void* tag, instrlist_t *ilist, ins
 	(void)tag;
 }
 
+#define CALL_INDIRECT_SIZE 3
+
 dr_emit_flags_t
 memleak_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bool translating)
 {
@@ -888,10 +890,15 @@ memleak_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bo
 
     	if(instr_is_cti(instr) && instr_num_srcs(instr)){
     		if(is_kernel_text(pc)){
-    		    app_pc target = instr->translation;
-    		    instr_t *jmp_instr = INSTR_CREATE_jmp(drcontext, opnd_create_pc(target));
-    		    instr_set_ok_to_mangle(jmp_instr, false);
-    		    PRE(bb, instr, jmp_instr);
+    		   if(instr_is_call_indirect(instr)) {
+    		        //app_pc return_target = (app_pc)((uint64_t)instr->translation + CALL_INDIRECT_SIZE);
+
+    		    } else {
+    		        app_pc target = instr->translation;
+    		        instr_t *jmp_instr = INSTR_CREATE_jmp(drcontext, opnd_create_pc(target));
+    		        instr_set_ok_to_mangle(jmp_instr, false);
+    		        PRE(bb, instr, jmp_instr);
+    		    }
     		} else {
     		    /*TODO : there is no need to have a callback function at the end of each basic block;
     		     * the only need of this is for initialise the each thread spill slot and that can be

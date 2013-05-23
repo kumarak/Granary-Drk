@@ -14,6 +14,7 @@
 #include "cfi_atomic_list.h"
 #include "cfi_hashtable.h"
 #include "cfi_notifier.h"
+#include "cfi_defines.h"
 //#include "cfi_kernel_addresses.h"
 
 #define MODULE_NAME "cfi"
@@ -159,6 +160,22 @@ int cfi_is_granary_code(void *addr) {
     return granary_start <= addr && addr < granary_end;
 }
 
+int is_module_code(void *addr) {
+    uint flag = 0;
+    struct kernel_module *module_ptr;
+    module_ptr = list_loaded_modules;
+
+    while(module_ptr != NULL){
+        if(addr >= module_ptr->text_begin && addr <= module_ptr->text_end) {
+            flag = 1;
+            break;
+        }
+        module_ptr = module_ptr->next;
+    }
+
+    return flag;
+}
+
 int module_load_notifier(
     struct notifier_block *nb,
 	unsigned long mod_state,
@@ -241,6 +258,28 @@ cfi_add_to_list(void *spill_slot){
     cfi_list_prepend(&atomic_sweep_list, spill_slot);
 }
 
+void set_section_state(enum section_state state) {
+    struct thread_private_info *thread_spill_slot;
+    struct thread_info *thread = current_thread_info();
+
+    thread_spill_slot = thread->spill_slot[0];
+
+    if(thread_spill_slot != NULL){
+        thread_spill_slot->section_count |= state ;
+    }
+}
+
+void unset_section_state(enum section_state state){
+    struct thread_private_info *thread_spill_slot;
+    struct thread_info *thread = current_thread_info();
+
+    thread_spill_slot = thread->spill_slot[0];
+
+    if(thread_spill_slot != NULL){
+        thread_spill_slot->section_count &= (~state);
+    }
+}
+
 void cfi_thread_slot_module_enrty(void)
 {
     struct thread_private_info *thread_spill_slot;
@@ -252,7 +291,7 @@ void cfi_thread_slot_module_enrty(void)
         thread_spill_slot = (struct thread_private_info*)kmalloc(sizeof(struct thread_private_info), GFP_ATOMIC);
         thread_spill_slot->stack = NULL;
         thread_spill_slot->is_running_module = 1;
-        thread_spill_slot->section_count = 1;
+        thread_spill_slot->section_count = 0;
         thread_spill_slot->stack = kmalloc(THREAD_SIZE, GFP_ATOMIC);
         //thread_spill_slot->stack_start_address = thread;
         thread_spill_slot->copy_stack = 0;
@@ -265,7 +304,7 @@ void cfi_thread_slot_module_enrty(void)
         thread_spill_slot = (struct thread_private_info*)thread->spill_slot[0];
         thread_spill_slot->tsk = get_current();
         thread_spill_slot->is_running_module = 1;
-        thread_spill_slot->section_count++;
+       // thread_spill_slot->section_count++;
         thread_spill_slot->copy_stack = 0;
     }
 

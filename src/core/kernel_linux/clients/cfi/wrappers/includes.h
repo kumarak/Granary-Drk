@@ -72,7 +72,7 @@ cfi_handler_lost(struct module *mod, const void *addr,
 extern void
 cfi_collect_watcpoint(const void *src, const void *wp);
 
-extern void cfi_dump_stack();
+extern unsigned int cfi_dump_stack();
 
  struct file_operations;
  extern int __register_chrdev(unsigned int major, unsigned int baseminor,
@@ -83,5 +83,8 @@ extern void cfi_dump_stack();
 
 extern int
  cfi_print_symbol_name(void *symbol_addr);
+
+extern unsigned long
+    get_section_state(void);
 
 #endif /* DRK_WRAPPER_INCLUDES_H_ */

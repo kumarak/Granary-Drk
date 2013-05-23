@@ -599,13 +599,13 @@ FORCE_INLINE void arg_return_wrapper(int) {
 /// unroll and wrap arguments by type
 template <template<typename> class Wrap, typename Arg, typename... Rest>
 inline void arg_pre_wrapper(const int depth__, uint64_t func_addr, Arg &arg, Rest&... rest) {
-    recursive_wrapper<Wrap, Arg>::pre_wrap(arg, func_addr, depth__);
+    recursive_wrapper<Wrap, Arg>::pre_wrap(/*TO_UNWATCHED_ADDRESS*/(arg), func_addr, depth__);
     arg_pre_wrapper<Wrap, Rest...>(depth__, func_addr, rest...);
 }
 
 template <template<typename> class Wrap, typename Arg, typename... Rest>
 inline void arg_post_wrapper(const int depth__, uint64_t func_addr, Arg &arg, Rest&... rest) {
-    recursive_wrapper<Wrap, Arg>::post_wrap(arg, func_addr, depth__);
+    recursive_wrapper<Wrap, Arg>::post_wrap(/*TO_UNWATCHED_ADDRESS*/(arg), func_addr, depth__);
     arg_post_wrapper<Wrap, Rest...>(depth__, func_addr, rest...);
 }
 
@@ -636,6 +636,13 @@ public:
     };
 };
 
+extern "C" {
+    extern uint64_t get_return_address(void);
+    extern void set_return_address(uint64_t);
+    extern void set_section_state(enum section_state state);
+    extern void unset_section_state(enum section_state state);
+}
+
 /// implementation of the wrapper for function returning a value
 template <const uint64_t addr, typename R, typename... Args>
 class cfi_wrapper_impl {
@@ -648,7 +655,9 @@ public:
             arg_pre_wrapper<wrap_type, Args...>(depth__,addr, args...);
         }
         //native_box<R> ret_val(addr, args...);
+        set_section_state(KERNEL_WRAPPER_SET);
         R ret(((orig_func_type *) addr)(args...));
+        unset_section_state(KERNEL_WRAPPER_SET);
         if(count_wrappers<wrap_type, Args...>::HAS_ANY) {
             arg_post_wrapper<wrap_type, Args...>(depth__,addr, args...);
         }
@@ -669,7 +678,9 @@ public:
         if(count_wrappers<wrap_type, Args...>::HAS_ANY) {
             arg_pre_wrapper<wrap_type, Args...>(depth__,addr, args...);
         }
+        set_section_state(KERNEL_WRAPPER_SET);
         ((orig_func_type *) addr)(args...);
+        unset_section_state(KERNEL_WRAPPER_SET);
         if(count_wrappers<wrap_type, Args...>::HAS_ANY) {
             arg_post_wrapper<wrap_type, Args...>(depth__,addr, args...);
         }
@@ -730,10 +741,7 @@ public:
 #endif
 #endif
 
-extern "C" {
-	extern uint64_t get_return_address(void);
-	extern void set_return_address(uint64_t);
-}
+
 
 /// include shadow aliasing machinery
 #include "cfi_alias.hpp"
@@ -765,6 +773,7 @@ public:
         }
         cfi_print_symbol_name((struct kernsym*)addr);
         cfi_thread_slot_module_enrty();
+        set_section_state(DYNAMIC_WRAPPER_SET);
 #else
         __asm__ volatile(
             "mov %%rbp, %%rsp;"
@@ -787,6 +796,7 @@ public:
             }
         }
 */
+        unset_section_state(KERNEL_WRAPPER_SET);
         if(count_wrappers<module_wrap_type, Args...>::HAS_ANY) {
             arg_post_wrapper<module_wrap_type, Args...>(depth__, addr, args...);
         }
@@ -799,11 +809,6 @@ public:
         return ret;
     }
 };
-
-void break_on_dynamic_module_wrapper()
-{
-
-}
 
 /// implementation of the wrapper for function returning a value
 template <typename... Args>
@@ -828,6 +833,7 @@ public:
             arg_pre_wrapper<module_wrap_type, Args...>(depth__,addr, args...);
         }
         cfi_thread_slot_module_enrty();
+        set_section_state(DYNAMIC_WRAPPER_SET);
 #else
         __asm__ volatile(
             "mov %%rbp, %%rsp;"
@@ -841,7 +847,7 @@ public:
         dr_app_start();
         ((orig_func_type *) addr)(args...);
         /* implicit dr_app_stop(); */
-
+        unset_section_state(DYNAMIC_WRAPPER_SET);
         if(count_wrappers<module_wrap_type, Args...>::HAS_ANY) {
             arg_post_wrapper<module_wrap_type, Args...>(depth__, addr, args...);
         }
@@ -1072,6 +1078,83 @@ constexpr cfi_type_erased_func_ptr cfi_wrapper(R (*)(Args...)) {
     return (cfi_type_erased_func_ptr) cfi_wrapper_impl<addr, R, Args...>::wrapper;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
+
+#define HOTPATCH_WRAPPER(func_name, args, body) \
+    template <typename R, typename... Args> \
+    class cfi_hotpatch_impl<KERN_ADDR_ ## func_name, R, Args...> { \
+    public: \
+        static R wrapper args { \
+            constexpr int WRAP_CHOICE = 0; \
+            typedef R (orig_func_type)(Args...); \
+            orig_func_type *func_name = ((orig_func_type *) KERN_ADDR_ ## func_name); \
+            uint64_t func_addr = (uint64_t)func_name; \
+            (void) func_name; \
+            pre_tag tag__; \
+            const int depth__ = 0; \
+            (void) tag__; \
+            (void) depth__; \
+            (void) WRAP_CHOICE; \
+            body \
+        } \
+    };
+
+#define HOTPATCH_WRAPPER_VOID(func_name, args, body) \
+    template <typename... Args> \
+    class cfi_hotpatch_impl<KERN_ADDR_ ## func_name, void, Args...> { \
+    public: \
+        static void wrapper args { \
+            constexpr int WRAP_CHOICE = 0; \
+            typedef void (orig_func_type)(Args...); \
+            orig_func_type *func_name = ((orig_func_type *) KERN_ADDR_ ## func_name); \
+            uint64_t func_addr = (uint64_t)func_name; \
+            (void) func_name; \
+            pre_tag tag__; \
+            const int depth__ = 0; \
+            (void) tag__; \
+            (void) depth__; \
+            (void) WRAP_CHOICE; \
+            body \
+        } \
+    };
+
+
+/// implementation of the wrapper for function returning a value
+template <const uint64_t addr, typename R, typename... Args>
+class cfi_hotpatch_impl {
+public:
+    static R wrapper(Args... args) {
+        typedef R (orig_func_type)(Args...);
+        D( kern_printk("in wrapper for %lx; wrapping %lu args\n", (uint64_t) addr, sizeof...(Args)); )
+        const int depth__ = 0;
+
+        R ret(((orig_func_type *) addr)(args...));
+
+        return ret;
+    }
+};
+template <const uint64_t addr, typename... Args>
+class cfi_hotpatch_impl<addr, void, Args...> {
+public:
+    typedef void R;
+    static R wrapper(Args... args) {
+        typedef R (orig_func_type)(Args...);
+        D( kern_printk("in wrapper for %lx; wrapping %lu args\n", (uint64_t) addr, sizeof...(Args)); )
+        const int depth__ = 0;
+
+        ((orig_func_type *) addr)(args...);
+
+    }
+};
+
+#include "linux_wrapper/wrapper_hotpatch.h"
+
+template <const uint64_t addr, typename R, typename... Args>
+constexpr cfi_type_erased_func_ptr cfi_hotpatch(R (*)(Args...)) {
+    return (cfi_type_erased_func_ptr) cfi_hotpatch_impl<addr, R, Args...>::wrapper;
+}
 
 #undef D
 #undef pre

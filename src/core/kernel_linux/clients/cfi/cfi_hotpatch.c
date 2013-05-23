@@ -88,7 +88,7 @@ void update_function_bounds(void){
                    wrapped_functions[i]->name);
             return -EINVAL;
         }
-        wrapped_functions[i]->wrapper_func = cfi_get_kernel_wrapper(wrapped_functions[i]->start);
+        wrapped_functions[i]->wrapper_func = cfi_get_hotpatch_wrapper(wrapped_functions[i]->start);
         printk("function name : %s, size : %lx\n", wrapped_functions[i]->name, wrapped_functions[i]->size);
     }
 }

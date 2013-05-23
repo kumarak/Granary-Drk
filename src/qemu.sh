@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SMP=1
+SMP=2
 MEM=2048
 NETWORK=virtio
 GRAPHIC= #-nographic

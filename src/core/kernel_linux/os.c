@@ -549,13 +549,7 @@ redirect_iret_to_fcache_return(dcontext_t *dcontext,
 
 /* TODO(peter): Move this to arch. */
 
-bool
-is_kernel_text(void *pc)
-{
-    unsigned long p = (unsigned long) pc;
-    /* Taken from Documentation/x86/x86_64/mm.txt */
-    return (p >= 0xffffffff80000000 && p < 0xffffffffa0000000);
-}
+
 
 static void
 emulate_interrupt_arrival(dr_mcontext_t *mcontext, interrupt_vector_t vector,
