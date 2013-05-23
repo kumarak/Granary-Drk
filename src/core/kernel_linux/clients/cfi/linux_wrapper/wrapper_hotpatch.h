@@ -301,19 +301,19 @@ HOTPATCH_WRAPPER_VOID(__free_pages, (struct page *page, unsigned int order), {
 
 
 HOTPATCH_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
-    function_t *wrap_func;
-    uint i = 0;
-    wrap_func = wrapped_functions[i];
-    for(i = 0; wrap_func != NULL; wrap_func = wrapped_functions[++i]){
-         if(wrap_func->start == (void*)__alloc_percpu){
-              P(kern_printk("__alloc_percpu : %llx, wrap_start : %llx", __alloc_percpu, wrap_func->start);)
-              __alloc_percpu = (decltype(__alloc_percpu))(wrap_func->replace_func);
-              break;
-          }
-    }
-    void *addr = __alloc_percpu(size, align);
-    cfi_dump_stack();
-    return addr;
+        function_t *wrap_func;
+        uint i = 0;
+        wrap_func = wrapped_functions[i];
+        for(i = 0; wrap_func != NULL; wrap_func = wrapped_functions[++i]){
+            if(wrap_func->start == (void*)__alloc_percpu){
+                P(kern_printk("__alloc_percpu : %llx, wrap_start : %llx", __alloc_percpu, wrap_func->start);)
+                __alloc_percpu = (decltype(__alloc_percpu))(wrap_func->replace_func);
+                break;
+            }
+        }
+        void *addr = __alloc_percpu(size, align);
+        cfi_dump_stack();
+        return addr;
 })
 
 

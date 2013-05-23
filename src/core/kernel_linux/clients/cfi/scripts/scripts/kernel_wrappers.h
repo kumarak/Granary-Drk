@@ -1,5 +1,5 @@
 /* Auto-generated wrappers. */
-#define D(...) __VA_ARGS__ 
+#define D(...) __VA_ARGS__
 
 #ifndef WRAPPER_FOR_struct_callback_head
 #define WRAPPER_FOR_struct_callback_head
@@ -1472,20 +1472,7 @@ TYPE_WRAPPER(struct swap_info_struct*, {
 
 
 
-#ifndef WRAPPER_FOR_struct_page
-#define WRAPPER_FOR_struct_page
-TYPE_WRAPPER(struct page*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           D(kern_printk( "added to hash table struct page\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct page));
-        }
-        WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->mapping);
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
+
 
 
 #ifndef WRAPPER_FOR_struct_vm_fault
@@ -5163,25 +5150,6 @@ TYPE_WRAPPER(struct exec_domain*, {
 #endif
 
 
-#ifndef WRAPPER_FOR_struct_buffer_head
-#define WRAPPER_FOR_struct_buffer_head
-TYPE_WRAPPER(struct buffer_head*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           D(kern_printk( "added to hash table struct buffer_head\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct buffer_head));
-        }
-        ABORT_IF_FUNCTION_IS_WRAPPED(arg.b_end_io);
-        WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_this_page);
-        WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_page);
-        WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_bdev);
-        WRAP_FUNCTION(TO_UNWATCHED_ADDRESS(arg)->b_end_io);
-        WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_assoc_map);
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
 
 
 #ifndef WRAPPER_FOR_struct_crypto_shash
@@ -8885,20 +8853,7 @@ TYPE_WRAPPER(struct firmware*, {
 #endif
 
 
-#ifndef WRAPPER_FOR_struct_blk_plug_cb
-#define WRAPPER_FOR_struct_blk_plug_cb
-TYPE_WRAPPER(struct blk_plug_cb*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           D(kern_printk( "added to hash table struct blk_plug_cb\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct blk_plug_cb));
-        }
-        WRAP_FUNCTION(TO_UNWATCHED_ADDRESS(arg)->callback);
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
+
 
 
 #ifndef WRAPPER_FOR_struct_debug_obj

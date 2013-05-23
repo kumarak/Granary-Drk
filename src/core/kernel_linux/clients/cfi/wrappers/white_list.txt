@@ -63,6 +63,13 @@ dm_bufio_client_destroy
 generic_block_fiemap
 generic_block_bmap
 generic_write_end
+free_buffer_head
+alloc_buffer_head
+set_bh_page
+
+init_buffer
+
+bmap
 
 kstrtoll
 mutex_unlock
@@ -137,7 +144,6 @@ dquot_get_dqinfo
 dquot_quota_sync
 kill_block_super
 trace_event_raw_init
-    { 0x74252861, "ftrace_event_reg" },
 rcu_barrier
 kmem_cache_create
 --journal_force_commit
@@ -165,105 +171,36 @@ percpu_counter_destroy
 bdev_read_only
 generic_check_addressable
 sb_set_blocksize
-    { 0x20000329, "simple_strtoul" },
 bdevname
-    { 0xe8672f3c, "__cleancache_init_fs" },
-    { 0xa1c5a3b3, "cleancache_enabled" },
-    { 0x52b3db31, "journal_clear_err" },
-    { 0x9544a7e5, "journal_errno" },
-    { 0x2172b536, "dquot_mark_dquot_dirty" },
-    { 0x45362ae6, "dquot_commit" },
-    { 0xae0a1a90, "dquot_acquire" },
-    { 0xd92445a4, "dquot_release" },
-    { 0xfaacae78, "dquot_commit_info" },
+
+dquot_release
+dquot_acquire
+dquot_commit
+dquot_commit_info
+dquot_mark_dquot_dirty
+dquot_disable
+dquot_quota_on
 --journal_start
-    { 0x3c3d3896, "blkdev_put" },
-    { 0xf6e6c9c3, "sync_blockdev" },
-    { 0xc0a2adda, "invalidate_bdev" },
-    { 0xa3383f42, "journal_destroy" },
-    { 0x16b0d9f9, "dquot_disable" },
-    { 0xd65afab0, "journal_stop" },
-    { 0x7c1372e8, "panic" },
-    { 0x58d7d9bd, "journal_abort" },
-    { 0x832008d5, "sync_dirty_buffer" },
-    { 0x819cf0af, "journal_init_inode" },
-    { 0x6010669b, "make_bad_inode" },
-    { 0x4e3567f7, "match_int" },
-    { 0x44e9a829, "match_token" },
-    { 0x85df9b6c, "strsep" },
-    { 0x349cba85, "strchr" },
-    { 0xe2d5255a, "strcmp" },
-    { 0xacf4d843, "match_strdup" },
-    { 0x34184afe, "current_kernel_time" },
-    { 0xc7c3b4ea, "dquot_quota_on" },
-    { 0xf0fdf6cb, "__stack_chk_fail" },
-    { 0x941fa9c, "trace_define_field" },
 inode_init_once
-    { 0x274de7cb, "__mutex_init" },
-    { 0x167c5967, "print_hex_dump" },
-    { 0xa75312bc, "call_rcu_sched" },
-    { 0x7e799b1c, "journal_start_commit" },
-    { 0xc6f6a95c, "dquot_writeback_dquots" },
-    { 0x8b618d08, "overflowuid" },
-    { 0x7171121c, "overflowgid" },
 seq_puts
-    { 0x789bdca3, "seq_printf" },
-    { 0x73668838, "try_to_free_buffers" },
 generic_fh_to_dentry
 generic_fh_to_parent
-    { 0x498d293a, "trace_buffer_unlock_commit" },
-    { 0x94fcbd64, "filter_current_check_discard" },
-    { 0x9621849f, "ring_buffer_event_data" },
-    { 0xfef8a166, "trace_current_buffer_lock_reserve" },
-    { 0x78764f4e, "pv_irq_ops" },
-    { 0x2268b557, "perf_tp_event" },
-    { 0x7628f3c7, "this_cpu_off" },
-    { 0xe6602e9f, "perf_trace_buf_prepare" },
-    { 0x1e3a88fb, "trace_seq_printf" },
-    { 0x8354ba9f, "__page_symlink" },
-    { 0x754d539c, "strlen" },
-    { 0x5a921311, "strncmp" },
-    { 0x4f21c2c2, "d_obtain_alias" },
-    { 0xd165565f, "ihold" },
-    { 0xe03c8e08, "inc_nlink" },
 d_instantiate
-    { 0x9d56ee4b, "drop_nlink" },
-    { 0x31e4ef79, "d_splice_alias" },
-    { 0x449ad0a7, "memcmp" },
-    { 0xb0e602eb, "memmove" },
+d_splice_alias
+drop_nlink
 _copy_to_user
-    { 0xb2fd5ceb, "__put_user_4" },
-    { 0x342cf5a, "mnt_drop_write_file" },
+__put_user_4
+mnt_drop_write_file
 _copy_from_user
-    { 0x6729d3df, "__get_user_4" },
-    { 0xf43980a4, "mnt_want_write_file" },
-    { 0xa22b3a79, "inode_owner_or_capable" },
-    { 0xdf59c1a3, "generic_error_remove_page" },
-    { 0x88b732fe, "block_is_partially_uptodate" },
-    { 0xd5b542c6, "buffer_migrate_page" },
-    { 0x597511f3, "filemap_write_and_wait" },
-    { 0x86e98c11, "clear_inode" },
-    { 0x77d4bb8c, "__blockdev_direct_IO" },
-    { 0xa38b9832, "truncate_setsize" },
-    { 0x354d02bb, "inode_dio_wait" },
-    { 0x106a0635, "setattr_copy" },
-    { 0x4101e1a0, "dquot_transfer" },
-    { 0x9fd78ad3, "inode_change_ok" },
-    { 0x3d9ee9f0, "clear_page" },
-    { 0xceea9d6c, "mark_buffer_dirty" },
-    { 0x7b0c54f7, "find_or_create_page" },
-    { 0xb3fcf35d, "page_zero_new_buffers" },
-    { 0xbe7e0d52, "grab_cache_page_write_begin" },
-    { 0x16f6c6b7, "put_page" },
-    { 0xfbb2f07d, "block_write_end" },
-    { 0x89b698bd, "truncate_inode_pages" },
-    { 0xe00c9d58, "__find_get_block" },
-    { 0xdf929370, "fs_overflowgid" },
-    { 0x25820c64, "fs_overflowuid" },
-    { 0x6b2dc060, "dump_stack" },
-    { 0x91001c37, "init_special_inode" },
-    { 0x66add520, "" },
-    { 0x764bc969, "set_nlink" },
+__get_user_4
+__sync_dirty_buffer
+mnt_want_write_file
+inode_owner_or_capable
+generic_error_remove_page
+clear_page
+mark_buffer_dirty
+find_or_create_page
+page_zero_new_buffers
 iget_locked
 --journal_dirty_data
 __block_write_begin
@@ -272,11 +209,11 @@ submit_bh
 end_buffer_read_sync
 __lock_buffer
 unlock_buffer
-    { 0xfb578fc5, "memset" },
-    { 0x8d188117, "create_empty_buffers" },
-    { 0x17f53b4b, "block_write_full_page" },
-    { 0x2626733c, "unlock_page" },
-    { 0x3053feb3, "redirty_page_for_writepage" },
+
+create_empty_buffers
+block_write_full_page
+unlock_page
+redirty_page_for_writepage
 --journal_blocks_per_page
 --journal_extend
 --journal_unlock_updates
@@ -285,91 +222,42 @@ unlock_buffer
 --journal_invalidatepage
 --journal_try_to_free_buffers
 --journal_restart
-
-    { 0x14f1164a, "__set_page_dirty_nobuffers" },
-    { 0x16305289, "warn_slowpath_null" }
-    { 0xcbb02eeb, "is_bad_inode" },
-    { 0x6a07b4fa, "inode_init_owner" },
-    { 0x2e02d816, "unlock_new_inode" },
-    { 0xb4663f20, "clear_nlink" },
-    { 0x8f5d20ea, "dquot_drop" },
-    { 0x22823ddf, "dquot_free_inode" },
-    { 0xfb44ac35, "dquot_alloc_inode" },
-    { 0x8a65b07f, "dquot_initialize" },
-    { 0xf33dccff, "insert_inode_locked" },
-    { 0x405c1144, "get_seconds" },
-    { 0x79aa04a2, "get_random_bytes" },
-    { 0xf3691bf7, "iput" },
-    { 0x1c85d265, "new_inode" },
-    { 0x94fb1ded, "__bread" },
-    { 0x6239095, "blkdev_issue_flush" },
-    { 0x91934422, "journal_trans_will_send_data_barrier" },
-    { 0xbbadb5f2, "log_wait_commit" },
-    { 0x8fc57f29, "log_start_commit" },
-    { 0xf1ccad68, "filemap_write_and_wait_range" },
-    { 0xb63d9add, "generic_file_splice_read" },
-    { 0x58d475fc, "generic_file_splice_write" },
-    { 0xfc6c82fa, "dquot_file_open" },
-    { 0xb23304d9, "do_sync_write" },
-    { 0x60193d39, "do_sync_read" },
-    { 0x35767ba1, "generic_file_mmap" },
-    { 0xb10a5520, "generic_file_aio_write" },
-    { 0xb6df5c9d, "generic_file_aio_read" },
+dquot_drop
+dquot_free_inode
+dquot_alloc_inode
+clear_nlink
+inode_init_owner
+is_bad_inode
+warn_slowpath_null
+__set_page_dirty_nobuffers
+dquot_initialize
+insert_inode_locked
+get_seconds
+get_random_bytes
+iput
+new_inode
+__bread
+blkdev_issue_flush
+journal_trans_will_send_data_barrier
+log_wait_commit
+log_start_commit
+filemap_write_and_wait_range
+generic_file_splice_read
+generic_file_splice_write
+dquot_file_open
+do_sync_write
+do_sync_read
+generic_file_mmap
+generic_file_aio_write
+generic_file_aio_read
 generic_removexattr
 generic_getxattr
 generic_setxattr
-    { 0xe7180a8b, "mutex_unlock" },
-    { 0x9a2fd821, "mutex_lock" },
-    { 0x16c1b18b, "filemap_flush" },
-    { 0xe0758053, "generic_read_dir" },
 memcpy
-    { 0x49193d3c, "page_cache_sync_readahead" },
-    { 0x6aaa0849, "generic_file_llseek" },
-    { 0x138ac49b, "generic_file_llseek_size" },
-    { 0xeb3db8c6, "blkdev_issue_discard" },
-    { 0x5f92c411, "__dquot_alloc_space" },
-    { 0xe92a534b, "journal_force_commit_nested" },
-    { 0x69f878ce, "" },
-    { 0x177d46cd, "__dquot_free_space" },
-    { 0xa1c76e0a, "_cond_resched" },
-    { 0x570eaaf0, "kmalloc_caches" },
-
 __mark_inode_dirty
-    { 0x1292e7d3, "module_layout" },
-    { 0x5a4896a8, "__put_user_2" },
-    { 0xb8e7ce2c, "__put_user_8" },
-    { 0x8f9c199c, "__get_user_2" },
-    { 0x6d334118, "__get_user_8" },
-    { 0xac3d20e2, "unregister_sysctl_table" },
-    { 0x628121e9, "register_sysctl_table" },
-    { 0xd0298b8b, "proc_dointvec_minmax" },
-    { 0x838d6f76, "single_release" },
-    { 0xbbfce3e5, "seq_read" },
-    { 0x7b047004, "seq_lseek" },
-    { 0xd7c83a2c, "remove_proc_entry" },
-    { 0x3ef7fd3e, "proc_create_data" },
-    { 0x31adda2a, "proc_mkdir" },
-    { 0x4be7e3b5, "seq_putc" },
-    { 0xb9249d16, "cpu_possible_mask" },
-    { 0xb9ae8b53, "single_open" },
-    { 0x452b0351, "posix_acl_to_xattr" },
-    { 0x75057c31, "posix_acl_equiv_mode" },
-    { 0x7ad41bf9, "posix_acl_valid" },
-    { 0xb637bd47, "posix_acl_from_xattr" },
-    { 0xb54088a3, "posix_acl_alloc" },
-    { 0x32bb04c8, "from_kqid" },
-    { 0x5e9fdc09, "init_user_ns" },
-    { 0x82d79b51, "sysctl_vfs_cache_pressure" },
-    { 0x527b11e4, "quota_send_warning" },
-    { 0xbe18153d, "try_wait_for_completion" },
-    { 0x405c1144, "get_seconds" },
-    { 0xc8b57c27, "autoremove_wake_function" },
-    { 0x4482cdb, "__refrigerator" },
-    { 0xe429601d, "freezing_slow_path" },
 schedule_timeout
-    { 0x7ab88a45, "system_freezing_cnt" },
 kthread_should_stop
-    { 0x27000b29, "crc32c" },
+
 __wake_up
 schedule
 add_wait_queue_exclusive
@@ -380,130 +268,38 @@ __alloc_percpu
 -unregister_cpu_notifier
 -register_cpu_notifier
 __bitmap_weight
-    { 0xfe7c4287, "nr_cpu_ids" },
 find_next_bit
-    { 0xbd100793, "cpu_online_mask" },
-    { 0xeae3dfd6, "__const_udelay" },
-    { 0xfa4eb184, "bdev_read_only" },
-    { 0x5c8b5ce8, "prepare_to_wait" },
-    { 0x34184afe, "current_kernel_time" },
-    { 0xfa66f77c, "finish_wait" },
-    { 0xf8983de7, "prepare_to_wait_exclusive" },
-    { 0x24fdac79, "wake_bit_function" },
-    { 0xbbfcaca5, "bit_waitqueue" },
-    { 0x73a78bc4, "downgrade_write" },
-    { 0x3b4ceb4a, "up_write" },
+cpu_online_mask
+bdev_read_only
+prepare_to_wait
+prepare_to_wait_exclusive
+wake_bit_function
+bit_waitqueue
+downgrade_write
+up_write
 down_write_trylock
-    { 0x57a6ccd0, "down_read" },
-    { 0xe6e3b875, "down_write" },
-    { 0xa735db59, "prandom_u32" },
-    { 0x11089ac7, "_ctype" },
-    { 0xe3a53f4c, "sort" },
-    { 0xb0e602eb, "memmove" },
-    { 0x449ad0a7, "memcmp" },
-    { 0x55e6b873, "kmem_cache_alloc" },
-    { 0x16c1b18b, "filemap_flush" },
-    { 0xe03c8e08, "inc_nlink" },
-    { 0x9d56ee4b, "drop_nlink" },
-    { 0x9166fada, "strncpy" },
-    { 0x600414cd, "kill_block_super" },
-    { 0x44e9a829, "match_token" },
-    { 0xf5893abf, "up_read" },
+memmove
+memcmp
+
 sync_inodes_sb
 down_read_trylock
-    { 0x6239095, "blkdev_issue_flush" },
-    { 0x3f71faa1, "mempool_create" },
-    { 0x183fa88b, "mempool_alloc_slab" },
-    { 0x8a99a016, "mempool_free_slab" },
-    { 0xc5fb10f, "d_make_root" },
-    { 0x274de7cb, "__mutex_init" },
-    { 0x349cba85, "strchr" },
-    { 0x85df9b6c, "strsep" },
-    { 0xaf6ae696, "kstrndup" },
-    { 0x20000329, "simple_strtoul" },
-    { 0x7f40f9b6, "inode_init_once" },
-    { 0xefba93e1, "mempool_destroy" },
-    { 0x60a13e90, "rcu_barrier" },
-    { 0x3c3d3896, "blkdev_put" },
-    { 0x3cca6666, "blkdev_get_by_path" },
-    { 0x86e98c11, "clear_inode" },
-    { 0x89b698bd, "truncate_inode_pages" },
 
-    { 0x76d3cd60, "laptop_mode" },
-    { 0x789bdca3, "seq_printf" },
-
-
-    { 0x593a99b, "init_timer_key" },
-    { 0x7d11c268, "jiffies" },
-    { 0x167c5967, "print_hex_dump" },
-    { 0x27e1a049, "printk" },
-    { 0x89667f82, "generic_readlink" },
-    { 0x1e61d1a, "generic_removexattr" },
-    { 0xd983e624, "generic_getxattr" },
-    { 0x19d0f5ea, "generic_setxattr" },
-    { 0x2e02d816, "unlock_new_inode" },
-    { 0x91001c37, "init_special_inode" },
 set_nlink
 inode_sb_list_add
 current_fs_time
-    { 0xa38b9832, "truncate_setsize" },
-    { 0xc2349a58, "block_truncate_page" },
-    { 0x9fd78ad3, "inode_change_ok" },
-    { 0x3054833c, "d_rehash" },
-    { 0xfdfc0b3b, "fiemap_fill_next_extent" },
-    { 0x871c0a7e, "fiemap_check_flags" },
-    { 0x31e4ef79, "d_splice_alias" },
-    { 0xe9bb3d10, "d_add_ci" },
-    { 0x30428be8, "d_invalidate" },
-    { 0x9469482, "kfree_call_rcu" },
-    { 0x1189372b, "d_instantiate" },
-    { 0x8df92f66, "memchr_inv" },
-    { 0x6729d3df, "__get_user_4" },
-    { 0xb2fd5ceb, "__put_user_4" },
-    { 0x24428be5, "strncpy_from_user" },
-    { 0x9291cd3b, "memdup_user" },
-    { 0x40a9b349, "vzalloc" },
-    { 0x999e8297, "vfree" },
-    { 0xef5cc865, "kmem_cache_alloc_trace" },
-    { 0x570eaaf0, "kmalloc_caches" },
-    { 0x3f4547a7, "put_unused_fd" },
-    { 0x8fd2d1c0, "fd_install" },
-    { 0x932a6d5f, "dentry_open" },
-    { 0xa843805a, "get_unused_fd_flags" },
-    { 0x66810dd, "dput" },
-    { 0xdcc4972c, "exportfs_decode_fh" },
-    { 0x1cb0b836, "path_put" },
-    { 0x6c91f09b, "user_path_at" },
-    { 0x342cf5a, "mnt_drop_write_file" },
-    { 0xf43980a4, "mnt_want_write_file" },
-    { 0x754d539c, "strlen" },
-    { 0x2411d11c, "mapping_tagged" },
-    { 0x40b57f00, "__destroy_inode" },
+
 igrab
 wake_up_bit
 is_bad_inode
-    { 0x5642793a, "radix_tree_tag_clear" },
-    { 0xa75312bc, "call_rcu_sched" },
+
 __init_rwsem
 inode_init_always
 msecs_to_jiffies
-    { 0x4a70e925, "thaw_bdev" },
-    { 0x62bcc4ea, "freeze_bdev" },
-    { 0x6fec7f7c, "mutex_trylock" },
-    { 0xd165565f, "ihold" },
-    { 0x39b7e594, "generic_file_remap_pages" },
-    { 0x8b200d34, "filemap_fault" },
-    { 0xb23304d9, "do_sync_write" },
-    { 0x60193d39, "do_sync_read" },
-    { 0xe0758053, "" },
+
 __sb_end_write
 generic_write_sync
 __sb_start_write
-    { 0xbc325899, "" },
-    { 0x22efceda, "" },
-    { 0x354d02bb, "inode_dio_wait" },
-    { 0xff516b96, "file_remove_suid" },
-    { 0x60dcd805, "file_update_time" },
+
 generic_write_checks
 generic_file_aio_read
 generic_segment_checks
@@ -516,25 +312,9 @@ generic_read_dir
 
 pagecache_write_begin
 pagecache_write_end
-    { 0xe7180a8b, "mutex_unlock" },
-    { 0x9a2fd821, "mutex_lock" },
-    { 0x5a909e32, "__lock_page" },
-    { 0xf1ccad68, "filemap_write_and_wait_range" },
-    { 0x6d146358, "touch_atime" },
-    { 0xe1e8d271, "block_page_mkwrite" },
-    { 0x58d475fc, "" },
-    { 0x54447349, "inode_newsize_ok" },
-    { 0xf3691bf7, "iput" },
-    { 0x4f21c2c2, "d_obtain_alias" },
-    { 0x6b2dc060, "dump_stack" },
-    { 0x4f8b5ddb, "_copy_to_user" },
-    { 0x4f6b400b, "_copy_from_user" },
-    { 0xeb3db8c6, "blkdev_issue_discard" },
-    { 0x4e1d1fdd, "truncate_pagecache_range" },
-    { 0x9fec53f3, "fput" },
-    { 0xeb5f9967, "fget_light" },
 
-    { 0x86cd4968, "kmem_cache_create" },
+__lock_page
+del_timer_sync
 register_shrinker
 unregister_shrinker
 blk_get_backing_dev_info
@@ -553,79 +333,36 @@ vm_unmap_ram
 __init_waitqueue_head
 __free_pages
 
-    { 0x64999478, "congestion_wait" },
-    { 0x3928efe9, "__per_cpu_offset" },
-    { 0x54efb5d6, "cpu_number" },
 alloc_pages_current
 __phys_addr
 --__stack_chk_fail
 bdevname
-    { 0xedd4f34f, "set_blocksize" },
-    { 0xc22a3091, "vm_unmap_aliases" },
-    { 0xafe26472, "vm_map_ram" },
 remove_wait_queue
-    { 0x93a6e0b2, "io_schedule" },
-    { 0x5860aad4, "add_wait_queue" },
-    { 0xffd5a395, "default_wake_function" },
-    { 0xdf59c1a3, "generic_error_remove_page" },
-    { 0x88b732fe, "block_is_partially_uptodate" },
-    { 0xd5b542c6, "buffer_migrate_page" },
-    { 0x73668838, "try_to_free_buffers" },
-    { 0x3053feb3, "redirty_page_for_writepage" },
-    { 0x2bf18eb, "__pagevec_release" },
-    { 0xd850ab23, "pagevec_lookup" },
-    { 0xbede4f95, "__lock_buffer" },
-    { 0xa1c76e0a, "_cond_resched" },
 bio_add_page
 bio_alloc_bioset
 fs_bio_set
 bio_get_nr_vecs
 
 generic_writepages
-
-    { 0xadaabe1b, "pv_lock_ops" },
-    { 0xd52bf1ce, "_raw_spin_lock" },
 submit_bio
 unlock_buffer
 bio_put
-    { 0xe6b4c73, "mark_buffer_async_write" },
-    { 0x6a697883, "clear_page_dirty_for_io" },
-    { 0x32dcfa1c, "end_page_writeback" },
-    { 0x36db3fd1, "test_set_page_writeback" },
 put_page
 unlock_page
-    { 0x81287d5b, "__block_write_begin" },
-    { 0xbe7e0d52, "grab_cache_page_write_begin" },
-    { 0x4b60c7ec, "truncate_pagecache" },
-    { 0x26088108, "" },
-    { 0x597511f3, "filemap_write_and_wait" },
-    { 0x831c498e, "block_invalidatepage" },
+__block_write_begin
+grab_cache_page_write_begin
+truncate_pagecache
+filemap_write_and_wait
+block_invalidatepage
 inode_dio_done
 mempool_alloc
 mempool_free
-    { 0x77d4bb8c, "__blockdev_direct_IO" },
-    { 0x4aad52d7, "" },
-    { 0x8e05fede, "aio_complete" },
-    { 0x859666c6, "" },
-    { 0xe9dff136, "" },
-    { 0xbdfb6dbb, "__fentry__" },
-    { 0x724fea13, "trace_event_raw_init" },
-    { 0x74252861, "ftrace_event_reg" },
-    { 0x1e047854, "warn_slowpath_fmt" },
-    { 0x941fa9c, "trace_define_field" },
-    { 0x2268b557, "perf_tp_event" },
-    { 0x7628f3c7, "this_cpu_off" },
-    { 0xe6602e9f, "perf_trace_buf_prepare" },
-    { 0x498d293a, "trace_buffer_unlock_commit" },
-    { 0x94fcbd64, "filter_current_check_discard" },
-    { 0x9621849f, "ring_buffer_event_data" },
-    { 0xfef8a166, "trace_current_buffer_lock_reserve" },
-    { 0x4c4fef19, "kernel_stack" },
-    { 0x78764f4e, "pv_irq_ops" },
-    { 0x23532c4d, "ftrace_print_flags_seq" },
-    { 0x47b6a10f, "ftrace_print_symbols_seq" },
-    { 0x16305289, "warn_slowpath_null" },
-    
+
+__cond_resched_lock
+__blockdev_direct_IO
+aio_complete
+__fentry__
+ktime_get
 iget_failed
 //-----trace_seq_printf
 current_umask
@@ -658,3 +395,289 @@ __ticket_spin_unlock
 
 prandom_u32
 crypto_shash_update
+"ftrace_event_reg
+simple_strtoul
+
+__cleancache_init_fs
+cleancache_enabled
+journal_clear_err
+journal_errno
+
+
+
+
+
+
+
+
+"blkdev_put"
+"sync_blockdev"
+"invalidate_bdev"
+"journal_destroy"
+""
+"journal_stop"
+"panic"
+"journal_abort"
+"sync_dirty_buffer"
+"journal_init_inode"
+"make_bad_inode"
+"match_int"
+"match_token"
+"strsep"
+"strchr"
+"strcmp"
+match_strdup
+current_kernel_time
+
+__stack_chk_fail
+trace_define_field
+
+__mutex_init
+print_hex_dump
+call_rcu_sched
+journal_start_commit
+dquot_writeback_dquots
+overflowuid
+overflowgid
+
+--seq_printf
+try_to_free_buffers
+
+
+trace_buffer_unlock_commit
+filter_current_check_discard
+ring_buffer_event_data
+trace_current_buffer_lock_reserve
+pv_irq_ops
+perf_tp_event
+this_cpu_off
+perf_trace_buf_prepare
+--trace_seq_printf
+__page_symlink
+strlen
+strncmp
+d_obtain_alias
+ihold
+inc_nlink
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+block_is_partially_uptodate
+buffer_migrate_page
+filemap_write_and_wait
+clear_inode
+__blockdev_direct_IO
+truncate_setsize
+inode_dio_wait
+setattr_copy
+dquot_transfer
+inode_change_ok
+
+
+
+
+grab_cache_page_write_begin
+put_page
+block_write_end
+truncate_inode_pages
+__find_get_block
+fs_overflowgid
+fs_overflowuid
+dump_stack
+init_special_inode
+
+set_nlink
+filemap_flush
+page_cache_sync_readahead
+generic_file_llseek
+generic_file_llseek_size
+blkdev_issue_discard
+__dquot_alloc_space
+journal_force_commit_nested
+__dquot_free_space
+_cond_resched
+kmalloc_caches
+module_layout
+__put_user_2
+__put_user_8
+__get_user_2
+__get_user_8
+unregister_sysctl_table
+register_sysctl_table
+proc_dointvec_minmax
+single_release
+seq_read
+seq_lseek
+remove_proc_entry
+proc_create_data
+proc_mkdir
+seq_putc
+cpu_possible_mask
+single_open
+posix_acl_to_xattr
+posix_acl_equiv_mode
+posix_acl_valid
+posix_acl_from_xattr
+posix_acl_alloc
+from_kqid
+init_user_ns
+sysctl_vfs_cache_pressure
+quota_send_warning
+try_wait_for_completion
+autoremove_wake_function
+__refrigerator
+freezing_slow_path
+system_freezing_cnt
+crc32c
+nr_cpu_ids
+__const_udelay
+current_kernel_time
+finish_wait
+down_read
+down_write
+prandom_u32
+_ctype
+sort
+filemap_flush
+inc_nlink
+drop_nlink
+strncpy
+kill_block_super
+match_token
+up_read
+blkdev_issue_flush
+mempool_create
+mempool_alloc_slab
+mempool_free_slab
+d_make_root
+__mutex_init
+--strchr
+strsep
+kstrndup
+simple_strtoul
+inode_init_once
+mempool_destroy
+rcu_barrier
+blkdev_put
+blkdev_get_by_path
+clear_inode
+truncate_inode_pages
+laptop_mode
+init_timer_key
+jiffies
+"print_hex_dump"
+"printk"
+generic_readlink
+generic_removexattr
+generic_getxattr
+generic_setxattr
+init_special_inode
+truncate_setsize
+block_truncate_page
+inode_change_ok
+d_rehash
+fiemap_fill_next_extent
+fiemap_check_flags
+d_splice_alias
+d_add_ci
+d_invalidate
+kfree_call_rcu
+d_instantiate
+memchr_inv
+__get_user_4
+__put_user_4
+strncpy_from_user
+memdup_user
+vzalloc
+vfree
+kmem_cache_alloc_trace
+kmalloc_caches
+put_unused_fd
+fd_install
+dentry_open
+get_unused_fd_flags
+dput
+exportfs_decode_fh
+path_put
+user_path_at
+mnt_drop_write_file
+mnt_want_write_file
+strlen
+mapping_tagged
+__destroy_inode
+radix_tree_tag_clear
+call_rcu_sched
+thaw_bdev
+freeze_bdev
+mutex_trylock
+ihold
+generic_file_remap_pages
+filemap_fault
+do_sync_write
+do_sync_read
+inode_dio_wait
+file_remove_suid
+file_update_time
+filemap_write_and_wait_range
+touch_atime
+block_page_mkwrite
+inode_newsize_ok
+d_obtain_alias
+dump_stack
+blkdev_issue_discard
+truncate_pagecache_range
+fput
+fget_light
+kmem_cache_create
+congestion_wait
+__per_cpu_offset
+cpu_number
+set_blocksize
+vm_unmap_aliases
+vm_map_ram
+io_schedule
+add_wait_queue
+default_wake_function
+generic_error_remove_page
+block_is_partially_uptodate
+buffer_migrate_page
+try_to_free_buffers
+redirty_page_for_writepage
+__pagevec_release
+pagevec_lookup
+__lock_buffer
+_cond_resched
+pv_lock_ops
+_raw_spin_lock
+mark_buffer_async_write
+clear_page_dirty_for_io
+end_page_writeback
+test_set_page_writeback
+trace_event_raw_init
+ftrace_event_reg
+--warn_slowpath_fmt
+trace_define_field
+perf_tp_event
+this_cpu_off
+"perf_trace_buf_prepare"
+"trace_buffer_unlock_commit"
+"filter_current_check_discard"
+"ring_buffer_event_data"
+"trace_current_buffer_lock_reserve"
+"kernel_stack"
+"pv_irq_ops"
+"ftrace_print_flags_seq"
+"ftrace_print_symbols_seq

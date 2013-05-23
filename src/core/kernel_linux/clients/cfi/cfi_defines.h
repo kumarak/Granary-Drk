@@ -37,6 +37,12 @@ enum WATCHPOINT_CONTEXT_STATE {
     WP_MEMORY_UNREACHABLE = 0x8ULL,
     WP_DESCRIPTOR_ACTIVE = 0x10ULL
 };
+
+enum section_state {
+    DYNAMIC_WRAPPER_SET = 0x1ULL,
+    KERNEL_WRAPPER_SET  = 0x10ULL
+};
+
 typedef struct {
     const char *name;
     void    *start;

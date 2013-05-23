@@ -184,9 +184,9 @@ void *__gxx_personality_v0; // for C-compatibility, even though runtime support 
     s.write("\n};\n\n")
 
     # write out the template instantiations to wrap the kernel functions
-    s.write("#define CFI_WRAP(a, f) {(cfi_type_erased_func_ptr) a, cfi_wrapper<a>(f), #f}\n")
-    s.write("#define CFI_PASS(a, f) {(cfi_type_erased_func_ptr) a, (cfi_type_erased_func_ptr) a, #f}\n")
-    s.write("typedef struct cfi_wrapper_info {cfi_type_erased_func_ptr original, wrapper; const char *name; } cfi_wrapper_info;");
+    s.write("#define CFI_WRAP(a, f) {(cfi_type_erased_func_ptr) a, cfi_wrapper<a>(f), cfi_hotpatch<a>(f), #f}\n")
+    s.write("#define CFI_PASS(a, f) {(cfi_type_erased_func_ptr) a, (cfi_type_erased_func_ptr) a, (cfi_type_erased_func_ptr) a, #f}\n")
+    s.write("typedef struct cfi_wrapper_info {cfi_type_erased_func_ptr original, wrapper, hotpatch; const char *name; } cfi_wrapper_info;");
     s.write("static cfi_wrapper_info V[] = {\n");
     funcs_to_wrap = get_white_list(white_list_file)
     for func_addr, func_name in V:
@@ -254,9 +254,12 @@ extern "C" {
         
         if(w->original == addr) {
             //if(w[1] == w[0]) {
-            //    kern_printk("calling unwrapped function %%lx\\n", addr_as_i64);
+              //  kern_printk("calling unwrapped function '%%s' %%lx\\n", w->name, addr_as_i64);
             //}
            // kern_printk("call : '%%s'\\n", w->name);
+           if(w->wrapper == addr){
+	    	kern_printk("calling unwrapped function '%%s' %%llx\\n", w->name, addr_as_i64);
+            }
             ret = w->wrapper;
         } else {
             //kern_printk("calling unexported function %%lx\\n", addr_as_i64);
@@ -267,6 +270,31 @@ extern "C" {
         
         //memcpy(&addr_as_i64, (void *) &ret, 8);
         //kern_printk("d=%%d ret=%%lu\\n", d, addr_as_i64);
+
+        return ret;
+    }
+
+    cfi_type_erased_func_ptr cfi_get_hotpatch_wrapper(cfi_type_erased_func_ptr addr) {
+        uint64_t addr_as_i64 = (uint64_t) addr;
+        uint32_t low_bits = (uint32_t) addr_as_i64;
+
+        int32_t d = G[hash_addr(0, low_bits) %% NUM_EXPORTED_FUNCS];
+        cfi_type_erased_func_ptr ret;
+        cfi_wrapper_info *w;
+
+        if(d < 0) {
+            d = -d - 1;
+        } else {
+            d = hash_addr(d, low_bits) %% NUM_EXPORTED_FUNCS;
+        }
+        
+        w = &(V[d]);
+
+        if(w->original == addr) {
+            ret = w->hotpatch;
+        } else {
+            ret = addr;
+        }
 
         return ret;
     }
