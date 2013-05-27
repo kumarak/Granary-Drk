@@ -412,6 +412,7 @@ emulate_push_mcontext(dr_mcontext_t *mc, reg_t value)
 static reg_t
 emulate_pop_mcontext(dr_mcontext_t *mc)
 {
+    reg_t value = *((reg_t*) mc->xsp);
     mc->xsp += sizeof(reg_t);
     return value;
 }
@@ -847,7 +848,7 @@ noinline void call_to_radix_tree_tag_set(dcontext){
 
 extern void dr_add_to_list(void *);
 
-static inline
+
 void initialize_spill_slot(void){
     struct thread_private_info *spill_slot;
     dr_printf("spill_slot was NULL!!!!!!!!!!!!!!!\n");
@@ -909,7 +910,7 @@ dispatch_exit_module(dcontext_t *dcontext) {
     /* call any client callbacks to handling module exits; these might
      * change the dcontext->next_tag. */
     if(dcontext->last_exit->flags & LINK_RETURN) {
-        /*if(thread_private_slot != NULL){
+     /*   if(thread_private_slot != NULL){
             thread_private_slot->section_count--;
             if(thread_private_slot->section_count == 0){
                 int i=0;
@@ -921,9 +922,6 @@ dispatch_exit_module(dcontext_t *dcontext) {
         }*/
     } else if(dcontext->last_exit->flags & LINK_CALL){
         if(dcontext->next_tag != (app_pc)dr_app_stop){
-           /* if(thread_private_slot != NULL){
-                thread_private_slot->section_count++;
-            }*/
             byte *return_addr = dr_get_stack_pointer_value(dcontext);
             if(return_addr != (app_pc)dr_app_start_on_return) {
             	if((return_addr < MODULE_END_ADDR) && (return_addr >= MODULE_START_ADDR)) {

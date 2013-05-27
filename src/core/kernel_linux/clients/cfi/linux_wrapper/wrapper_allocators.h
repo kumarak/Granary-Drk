@@ -8,6 +8,20 @@
 #ifndef WRAPPER_ALLOCATORS_H_
 #define WRAPPER_ALLOCATORS_H_
 
+extern "C" {
+    void debug___kmalloc(void *ptr, size_t size){
+        printk("%s\n", __FUNCTION__);
+    }
+
+    void debug_kmem_cache_alloc(void *ptr, size_t size){
+        printk("%s\n", __FUNCTION__);
+    }
+
+    void debug_kmem_cache_alloc_trace(void *ptr, size_t size){
+        printk("%s\n", __FUNCTION__);
+    }
+}
+
 #define FUNCTION_WRAPPER FUNC_WRAPPER
 #define P(x)
 
@@ -30,7 +44,7 @@ FUNCTION_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
             }
         }
         void *watchpoint_addr = __kmalloc(size, flags);
-
+#ifdef CONFIG_USING_WATCHPOINT
         ADD_WATCHPOINT(watchpoint_addr, size);
         watchpoint_descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(watchpoint_addr);
@@ -44,7 +58,8 @@ FUNCTION_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
         }
         //cfi_handler_alloc(target_module, watchpoint_addr, size, NULL);
         P(kern_printk("__kmalloc wrapper  : %lx, %lx\n", watchpoint_addr, size);)
-
+#endif
+        debug___kmalloc(watchpoint_addr, size);
         return watchpoint_addr;
 })
 #endif
@@ -61,7 +76,7 @@ FUNC_WRAPPER_VOID(kfree, ( void* addr), {
                 break;
             }
         }
-
+#ifdef CONFIG_USING_WATCHPOINT
         watchpoint_descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(addr);
         if(NULL != meta_info) {
@@ -74,6 +89,7 @@ FUNC_WRAPPER_VOID(kfree, ( void* addr), {
         }
 
         REMOVE_WATCHPOINT(addr);
+#endif
         kfree(addr);
 })
 
@@ -127,10 +143,8 @@ FUNC_WRAPPER(kmem_cache_alloc, (struct kmem_cache *s, gfp_t gfpflags), {
                 break;
             }
         }
-
         void *watch_ptr = kmem_cache_alloc(s, gfpflags);
-
-//#ifdef ACTIVATE_WATCHPOINT
+#ifdef CONFIG_USING_WATCHPOINT
         ADD_WATCHPOINT(watch_ptr, s->size);
         if(s->ctor != NULL)
             s->ctor(watch_ptr);
@@ -145,11 +159,9 @@ FUNC_WRAPPER(kmem_cache_alloc, (struct kmem_cache *s, gfp_t gfpflags), {
                 newval = meta_info->state | WP_MEMORY_ALLOCATED;
             }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
         }
-        cfi_handler_alloc(target_module, watch_ptr, s->size, NULL);
         P(kern_printk("kmem_cache_alloc wrapper : %lx  : %lx\n", (uint64_t)watch_ptr, s->size);)
-
-    //#endif
-
+#endif
+        debug_kmem_cache_alloc(watch_ptr, s->size);
         return watch_ptr;
 })
 
@@ -166,10 +178,8 @@ FUNC_WRAPPER(kmem_cache_alloc_trace, (struct kmem_cache *s, gfp_t gfpflags, size
                 break;
              }
         }
-
         void *watch_ptr = kmem_cache_alloc_trace(s, gfpflags, size);
-
-//#ifdef ACTIVATE_WATCHPOINT
+#ifdef CONFIG_USING_WATCHPOINT
         ADD_WATCHPOINT(watch_ptr, size);
         if(s->ctor != NULL)
             s->ctor(watch_ptr);
@@ -184,10 +194,8 @@ FUNC_WRAPPER(kmem_cache_alloc_trace, (struct kmem_cache *s, gfp_t gfpflags, size
                 newval = meta_info->state | WP_MEMORY_ALLOCATED;
             }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
         }
-//#endif
-    //    kern_printk("adding watchpoint kmem_cache_alloc_trace wrapper : %lx  : %lx\n", (uint64_t)watch_ptr, size);
-  //  }
-
+#endif
+        debug_kmem_cache_alloc_trace(watch_ptr, size);
         return watch_ptr;
 })
 //void *kmem_cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)
@@ -198,7 +206,6 @@ FUNC_WRAPPER(kmem_cache_alloc_node, (struct kmem_cache *cachep, gfp_t flags, int
 
 //void kmem_cache_free(struct kmem_cache *, void *);
 FUNC_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
-        P(kern_printk("kmem_cache_free wrapper : %lx\n", ptr);)
         function_t *wrap_func;
         uint i = 0;
         wrap_func = wrapped_functions[i];
@@ -209,7 +216,7 @@ FUNC_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
                 break;
             }
         }
-
+#ifdef CONFIG_USING_WATCHPOINT
         watchpoint_descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(ptr);
         if(NULL != meta_info) {
@@ -222,7 +229,7 @@ FUNC_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
         }
 
         REMOVE_WATCHPOINT(ptr);
-
+#endif
         kmem_cache_free(s, ptr);
 
 })
@@ -302,7 +309,7 @@ FUNC_WRAPPER_VOID(__free_pages, (struct page *page, unsigned int order), {
     __free_pages(page, order);
 })
 
-//extern void *__alloc_percpu(size_t size, size_t align);
+
 FUNCTION_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
         function_t *wrap_func;
         uint i = 0;
@@ -314,8 +321,9 @@ FUNCTION_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
                 break;
             }
         }
+
         void *watchpoint_addr = __alloc_percpu(size, align);
-//#ifdef ACTIVATE_WATCHPOINT
+#ifdef CONFIG_USING_WATCHPOINT
         ADD_WATCHPOINT(watchpoint_addr, size);
         watchpoint_descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(watchpoint_addr);
@@ -329,15 +337,11 @@ FUNCTION_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
         }
         cfi_handler_alloc(target_module, watchpoint_addr, size, NULL);
         P(kern_printk("__kmalloc wrapper  : %lx, %lx\n", watchpoint_addr, size);)
-//#endif
-  //  cfi_dump_stack();
+#endif
         return watchpoint_addr;
 })
 
-//extern void free_percpu(void *__pdata);
 FUNC_WRAPPER_VOID(free_percpu, ( void* __pdata), {
-        P(kern_printk("free_percpu wrapper : %lx\n", __pdata);)
-        /*check if this is watchpoint*/
         function_t *wrap_func;
         uint i = 0;
         wrap_func = wrapped_functions[i];
@@ -348,7 +352,8 @@ FUNC_WRAPPER_VOID(free_percpu, ( void* __pdata), {
                 break;
             }
         }
-//#ifdef ACTIVATE_WATCHPOINT
+
+#ifdef CONFIG_USING_WATCHPOINT
         watchpoint_descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(__pdata);
         if(NULL != meta_info) {
@@ -361,12 +366,10 @@ FUNC_WRAPPER_VOID(free_percpu, ( void* __pdata), {
         }
 
         REMOVE_WATCHPOINT(__pdata);
-//#endif
+#endif
         return free_percpu(__pdata);
 })
 
-/*extern struct workqueue_struct * __alloc_workqueue_key ( const char * fmt , unsigned int flags , int max_active , struct lock_class_key * key , const char * lock_name , const char namefmt [ ] );
-extern void destroy_workqueue ( struct workqueue_struct * wq ) ;*/
 
 FUNC_WRAPPER(__alloc_workqueue_key, (
         const char * fmt ,
@@ -410,6 +413,11 @@ FUNC_WRAPPER_VOID(destroy_workqueue,  ( struct workqueue_struct * wq ), {
     REMOVE_WATCHPOINT(wq);
 #endif
     return destroy_workqueue(wq);
+})
+
+FUNC_WRAPPER(mb_cache_create, (const char *name, int bucket_bits), {
+    struct mb_cache *ret = mb_cache_create(name, bucket_bits);
+    return ret;
 })
 
 #endif /* KERNEL_ALLOCATORS_H_ */

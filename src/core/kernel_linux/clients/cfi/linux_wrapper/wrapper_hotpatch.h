@@ -22,12 +22,12 @@ HOTPATCH_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
               break;
           }
     }
-    retval = cfi_dump_stack();
     void *watchpoint_addr = __kmalloc(size, flags);
+#ifdef CONFIG_USING_WATCHPOINT
     state = (enum section_state)get_section_state();
     if(state & KERNEL_WRAPPER_SET){
+        retval = cfi_dump_stack();
         kern_printk("ADD_WATCHPOINT with this pointer\n");
-//#ifdef ACTIVATE_WATCHPOINT
         ADD_WATCHPOINT(watchpoint_addr, size);
         watchpoint_descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(watchpoint_addr);
@@ -39,8 +39,8 @@ HOTPATCH_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
                 newval = meta_info->state | WP_MEMORY_ALLOCATED;
             }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
         }
-//#endif
     }
+#endif
     return watchpoint_addr;
 })
 
@@ -57,7 +57,7 @@ HOTPATCH_WRAPPER_VOID(kfree, ( void* addr), {
             break;
         }
     }
-    //#ifdef ACTIVATE_WATCHPOINT
+#ifdef CONFIG_USING_WATCHPOINT
         watchpoint_descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(addr);
         if(NULL != meta_info) {
@@ -70,8 +70,8 @@ HOTPATCH_WRAPPER_VOID(kfree, ( void* addr), {
         }
 
         REMOVE_WATCHPOINT(addr);
-    //#endif
-    kfree(addr);
+#endif
+        kfree(addr);
 })
 
 // TODO: handle _krealloc correctly
@@ -109,6 +109,8 @@ HOTPATCH_WRAPPER(__kmalloc_node_track_caller, (size_t size, gfp_t flags, int nod
     return __kmalloc_node_track_caller(size, flags, node, caller);
 })
 
+//volatile uint64_t watchpoint_counter = 0;
+
 /*  The wrapper for kmem_cache_alloc
  *
  */
@@ -125,29 +127,33 @@ HOTPATCH_WRAPPER(kmem_cache_alloc, (struct kmem_cache *s, gfp_t gfpflags), {
             break;
         }
     }
-    retval = cfi_dump_stack();
     void *watch_ptr = kmem_cache_alloc(s, gfpflags);
+
+#ifdef CONFIG_USING_WATCHPOINT
+
     state = (enum section_state)get_section_state();
     if(state & KERNEL_WRAPPER_SET){
-        kern_printk("ADD_WATCHPOINT with this pointer\n");
-//#ifdef ACTIVATE_WATCHPOINT
-        ADD_WATCHPOINT(watch_ptr, s->size);
-        if(s->ctor != NULL)
-            s->ctor(watch_ptr);
+        //uint64_t counter((uint64_t)__sync_fetch_and_add(&(watchpoint_counter), 0x1));
+        //if (counter < 10) {
+            retval = cfi_dump_stack();
+            ADD_WATCHPOINT(watch_ptr, s->size);
+            if(s->ctor != NULL)
+                s->ctor(watch_ptr);
 
-        watchpoint_descriptor *meta_info = NULL;
-        meta_info = WATCHPOINT_META(watch_ptr);
-        if(NULL != meta_info) {
-            uint64_t newval = 0x0ULL;
-            uint64_t oldval = 0x0ULL;
-            do {
-                oldval = meta_info->state;
-                newval = meta_info->state | WP_MEMORY_ALLOCATED;
-            }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
-        }
-//#endif
+            watchpoint_descriptor *meta_info = NULL;
+            meta_info = WATCHPOINT_META(watch_ptr);
+            if(NULL != meta_info) {
+                uint64_t newval = 0x0ULL;
+                uint64_t oldval = 0x0ULL;
+                do {
+                    oldval = meta_info->state;
+                    newval = meta_info->state | WP_MEMORY_ALLOCATED;
+                }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
+            }
+            kern_printk("ADD_WATCHPOINT with this pointer : %llx\n",watch_ptr );
+       // }
     }
-
+#endif
     return watch_ptr;
 })
 
@@ -165,29 +171,31 @@ HOTPATCH_WRAPPER(kmem_cache_alloc_trace, (struct kmem_cache *s, gfp_t gfpflags, 
                 break;
               }
         }
-    retval = cfi_dump_stack();
     void *watch_ptr = kmem_cache_alloc_trace(s, gfpflags, size);
+#ifdef CONFIG_USING_WATCHPOINT
     state = (enum section_state)get_section_state();
     if(state & KERNEL_WRAPPER_SET){
-        kern_printk("ADD_WATCHPOINT with this pointer\n");
-//#ifdef ACTIVATE_WATCHPOINT
-        ADD_WATCHPOINT(watch_ptr, s->size);
-        if(s->ctor != NULL)
-            s->ctor(watch_ptr);
+      //  uint64_t counter((uint64_t)__sync_fetch_and_add(&(watchpoint_counter), 0x1));
+      //  if (counter < 10) {
+            retval = cfi_dump_stack();
+            kern_printk("ADD_WATCHPOINT with this pointer\n");
+            ADD_WATCHPOINT(watch_ptr, s->size);
+            if(s->ctor != NULL)
+                s->ctor(watch_ptr);
 
-        watchpoint_descriptor *meta_info = NULL;
-        meta_info = WATCHPOINT_META(watch_ptr);
-        if(NULL != meta_info) {
-            uint64_t newval = 0x0ULL;
-            uint64_t oldval = 0x0ULL;
-            do {
-                oldval = meta_info->state;
-                newval = meta_info->state | WP_MEMORY_ALLOCATED;
-            }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
-        }
-//#endif
+            watchpoint_descriptor *meta_info = NULL;
+            meta_info = WATCHPOINT_META(watch_ptr);
+            if(NULL != meta_info) {
+                uint64_t newval = 0x0ULL;
+                uint64_t oldval = 0x0ULL;
+                do {
+                    oldval = meta_info->state;
+                    newval = meta_info->state | WP_MEMORY_ALLOCATED;
+                }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
+            }
+        //}
     }
-
+#endif
     return watch_ptr;
 })
 //void *kmem_cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)
@@ -209,8 +217,7 @@ HOTPATCH_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
             break;
         }
     }
-
-    //#ifdef ACTIVATE_WATCHPOINT
+#ifdef CONFIG_USING_WATCHPOINT
         watchpoint_descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(ptr);
         if(NULL != meta_info) {
@@ -223,9 +230,8 @@ HOTPATCH_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
         }
 
         REMOVE_WATCHPOINT(ptr);
-    //#endif
-
-    kmem_cache_free(s, ptr);
+#endif
+        kmem_cache_free(s, ptr);
 
 })
 
@@ -303,6 +309,8 @@ HOTPATCH_WRAPPER_VOID(__free_pages, (struct page *page, unsigned int order), {
 HOTPATCH_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
         function_t *wrap_func;
         uint i = 0;
+        unsigned int retval = 0;
+        enum section_state state;
         wrap_func = wrapped_functions[i];
         for(i = 0; wrap_func != NULL; wrap_func = wrapped_functions[++i]){
             if(wrap_func->start == (void*)__alloc_percpu){
@@ -312,7 +320,24 @@ HOTPATCH_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
             }
         }
         void *addr = __alloc_percpu(size, align);
-        cfi_dump_stack();
+#ifdef CONFIG_USING_WATCHPOINT
+        state = (enum section_state)get_section_state();
+        if(state & KERNEL_WRAPPER_SET){
+            retval = cfi_dump_stack();
+            ADD_WATCHPOINT(addr, size);
+            watchpoint_descriptor *meta_info = NULL;
+            meta_info = WATCHPOINT_META(addr);
+            if(NULL != meta_info) {
+                uint64_t newval = 0x0ULL;
+                uint64_t oldval = 0x0ULL;
+                do {
+                    oldval = meta_info->state;
+                    newval = meta_info->state | WP_MEMORY_ALLOCATED;
+                }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
+            }
+            P(kern_printk("__kmalloc wrapper  : %lx, %lx\n", watchpoint_addr, size);)
+        }
+#endif
         return addr;
 })
 
@@ -329,7 +354,20 @@ HOTPATCH_WRAPPER_VOID(free_percpu, ( void* __pdata), {
                 break;
             }
         }
+#ifdef CONFIG_USING_WATCHPOINT
+        watchpoint_descriptor *meta_info = NULL;
+        meta_info = WATCHPOINT_META(__pdata);
+        if(NULL != meta_info) {
+            uint64_t newval = 0x0ULL;
+            uint64_t oldval = 0x0ULL;
+            do {
+                oldval = meta_info->state;
+                newval = (meta_info->state & (~WP_MEMORY_ALLOCATED)/*| WP_MEMORY_FREED*/);
+            }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
+        }
 
+        REMOVE_WATCHPOINT(__pdata);
+#endif
         free_percpu(__pdata);
 
 })

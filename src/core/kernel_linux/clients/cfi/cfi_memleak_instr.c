@@ -862,8 +862,6 @@ instrument_memory_operations(void *drcontext, void* tag, instrlist_t *ilist, ins
 	(void)tag;
 }
 
-#define CALL_INDIRECT_SIZE 3
-
 dr_emit_flags_t
 memleak_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bool translating)
 {

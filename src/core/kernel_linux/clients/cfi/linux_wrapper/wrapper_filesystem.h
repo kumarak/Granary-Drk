@@ -8,6 +8,14 @@
 #ifndef WRAPPER_FILESYSTEM_H_
 #define WRAPPER_FILESYSTEM_H_
 
+
+extern "C" {
+    void debug_mount_bdev( struct file_system_type * fs_type , int flags , const char * dev_name , void * data ,
+        int ( * fill_super ) ( struct super_block * , void * , int ) ) {
+        kern_printk("%s\n", __FUNCTION__);
+    }
+}
+
 /******************************************
  * TYPE WRAPPERS
  */
@@ -546,6 +554,7 @@ TYPE_WRAPPER(umode_t*, {
 })
 #endif
 
+#if 1
 #ifndef WRAPPER_FOR_struct_buffer_head
 #define WRAPPER_FOR_struct_buffer_head
 TYPE_WRAPPER(struct buffer_head*, {
@@ -555,11 +564,41 @@ TYPE_WRAPPER(struct buffer_head*, {
            ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct buffer_head));
         }
         ABORT_IF_FUNCTION_IS_WRAPPED(arg.b_end_io);
-        WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_this_page);
-        WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_page);
-        WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_bdev);
+        //WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_this_page);
+        //WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_page);
+       // WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_bdev);
         WRAP_FUNCTION(TO_UNWATCHED_ADDRESS(arg)->b_end_io);
-        WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_assoc_map);
+     //   WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_assoc_map);
+    }
+    NO_POST
+    NO_RETURN
+})
+#endif
+#endif
+#ifndef WRAPPER_FOR_struct_timer_list
+#define WRAPPER_FOR_struct_timer_list
+TYPE_WRAPPER(struct timer_list*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           D(kern_printk( "added to hash table struct timer_list\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct timer_list));
+        }
+        WRAP_FUNCTION(TO_UNWATCHED_ADDRESS(arg)->function);
+    }
+    NO_POST
+    NO_RETURN
+})
+#endif
+
+#ifndef WRAPPER_FOR_struct_page
+#define WRAPPER_FOR_struct_page
+TYPE_WRAPPER(struct page*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           D(kern_printk( "added to hash table struct page\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct page));
+        }
+        WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->mapping);
     }
     NO_POST
     NO_RETURN
@@ -572,7 +611,6 @@ TYPE_WRAPPER(struct buffer_head*, {
  */
 
 FUNC_WRAPPER(register_filesystem, (struct file_system_type * fs), {
-        int retvar;
         if(!is_alias_address((uint64_t)fs)){
                D(kern_printk( "wrapper function register_filesystem\n");)
                ADD_TO_HASH(fs, SCAN_HEAD_FUNC(struct file_system_type));
@@ -580,10 +618,7 @@ FUNC_WRAPPER(register_filesystem, (struct file_system_type * fs), {
         //ADD_TO_HASH(fs, SCAN_HEAD_FUNC(struct file_system_type));
         WRAP_FUNC(fs->mount);
         WRAP_FUNC(fs->kill_sb);
-        set_section_state(KERNEL_WRAPPER_SET);
-        retvar = register_filesystem(fs);
-        unset_section_state(KERNEL_WRAPPER_SET);
-        return retvar;
+        return register_filesystem(fs);
 })
 
 FUNC_WRAPPER(iget_locked, (struct super_block *sb, unsigned long ino), {
@@ -619,9 +654,7 @@ FUNC_WRAPPER(security_inode_init_security, ( struct inode * inode , struct inode
 })
 #endif
 FUNC_WRAPPER(__bread, ( struct block_device * bdev , sector_t block , unsigned size ), {
-        set_section_state(KERNEL_WRAPPER_SET);
         struct buffer_head *ret = __bread(bdev, block, size);
-        unset_section_state(KERNEL_WRAPPER_SET);
         return ret;
 })
 
@@ -633,9 +666,7 @@ FUNC_WRAPPER(jbd2_journal_blocks_per_page, (struct inode *inode), {
         WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
         WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
         //inode = temp_inode;
-        set_section_state(KERNEL_WRAPPER_SET);
         ret = jbd2_journal_blocks_per_page(inode);
-        unset_section_state(KERNEL_WRAPPER_SET);
         return ret;
 })
 
@@ -648,9 +679,7 @@ FUNC_WRAPPER(generic_block_fiemap, (struct inode *inode, struct fiemap_extent_in
         WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
         //inode = temp_inode;
         WRAP_FUNC(get_block);
-        set_section_state(KERNEL_WRAPPER_SET);
         ret = generic_block_fiemap(inode, fieinfo, start, len, get_block);
-        unset_section_state(KERNEL_WRAPPER_SET);
         return ret;
 })
 
@@ -662,9 +691,7 @@ FUNC_WRAPPER_VOID(dquot_initialize, (struct inode *inode), {
         WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
         WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
         //inode = temp_inode;
-        set_section_state(KERNEL_WRAPPER_SET);
         dquot_initialize(inode);
-        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 FUNC_WRAPPER(inode_permission, (struct inode *inode, int mask), {
@@ -675,9 +702,7 @@ FUNC_WRAPPER(inode_permission, (struct inode *inode, int mask), {
         WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
         WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
         //inode = temp_inode;
-        set_section_state(KERNEL_WRAPPER_SET);
         ret = inode_permission(inode, mask);
-        unset_section_state(KERNEL_WRAPPER_SET);
         return ret;
 })
 
@@ -689,9 +714,7 @@ FUNC_WRAPPER(vfs_link, (struct dentry *old_dentry, struct inode *dir, struct den
         WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
         WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
         //dir = temp_inode;
-        set_section_state(KERNEL_WRAPPER_SET);
         ret = vfs_link(old_dentry, dir, new_dentry);
-        unset_section_state(KERNEL_WRAPPER_SET);
         return ret;
 })
 
@@ -703,9 +726,7 @@ FUNC_WRAPPER_VOID(make_bad_inode, (struct inode *inode), {
         WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
         WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
         //inode = temp_inode;
-        set_section_state(KERNEL_WRAPPER_SET);
         make_bad_inode(inode);
-        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 FUNC_WRAPPER_VOID(jbd2_journal_init_jbd_inode, (struct jbd2_inode *jinode, struct inode *inode), {
@@ -716,9 +737,7 @@ FUNC_WRAPPER_VOID(jbd2_journal_init_jbd_inode, (struct jbd2_inode *jinode, struc
         WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
         WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
         //inode = temp_inode;
-        set_section_state(KERNEL_WRAPPER_SET);
         jbd2_journal_init_jbd_inode(jinode, inode);
-        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 
@@ -730,9 +749,7 @@ FUNC_WRAPPER_VOID(iget_failed, (struct inode *inode), {
         WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
         WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
         //inode = temp_inode;
-        set_section_state(KERNEL_WRAPPER_SET);
         iget_failed(inode);
-        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 FUNC_WRAPPER(vfs_unlink, (struct inode *dir, struct dentry *dentry), {
@@ -743,9 +760,7 @@ FUNC_WRAPPER(vfs_unlink, (struct inode *dir, struct dentry *dentry), {
         WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
         WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
         //dir = temp_inode;
-        set_section_state(KERNEL_WRAPPER_SET);
         ret = vfs_unlink(dir, dentry);
-        unset_section_state(KERNEL_WRAPPER_SET);
         return ret;
 })
 
@@ -755,26 +770,20 @@ FUNC_WRAPPER_VOID(unlock_new_inode, (struct inode *inode), {
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_op);
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_fop);
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(TO_UNWATCHED_ADDRESS(inode)->i_mapping)->a_ops);
-        set_section_state(KERNEL_WRAPPER_SET);
         unlock_new_inode(inode);
-        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 FUNC_WRAPPER(d_splice_alias, (struct inode *inode, struct dentry *dentry), {
         struct inode *temp_inode = inode;
         //REMOVE_WATCHPOINT(inode);
-        set_section_state(KERNEL_WRAPPER_SET);
         struct dentry *ret = d_splice_alias(inode, dentry);
-        unset_section_state(KERNEL_WRAPPER_SET);
-        // inode = temp_inode;
+       // inode = temp_inode;
         return ret;
 })
 
 FUNC_WRAPPER(d_obtain_alias, (struct inode *inode), {
     //REMOVE_WATCHPOINT(inode);
-    set_section_state(KERNEL_WRAPPER_SET);
     struct dentry *ret = d_obtain_alias(inode);
-    unset_section_state(KERNEL_WRAPPER_SET);
     //RETURN_WRAP(ret);
     return ret;
 })
@@ -799,18 +808,14 @@ FUNC_WRAPPER_VOID(inode_needs_sync, (struct inode *inode), {
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_op);
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_fop);
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(TO_UNWATCHED_ADDRESS(inode)->i_mapping)->a_ops);
-        set_section_state(KERNEL_WRAPPER_SET);
         ret = inode_needs_sync(inode);
-        unset_section_state(KERNEL_WRAPPER_SET);
         return ret;
 })
 
 //extern void __percpu_counter_add ( struct percpu_counter * fbc , s64 amount , s32 batch ) ;
 FUNC_WRAPPER_VOID(__percpu_counter_add, ( struct percpu_counter * fbc , s64 amount , s32 batch ), {
         //REMOVE_WATCHPOINT(fbc);
-        set_section_state(KERNEL_WRAPPER_SET);
         __percpu_counter_add(fbc, amount, batch);
-        unset_section_state(KERNEL_WRAPPER_SET);
         //return ret;
 })
 
@@ -833,9 +838,7 @@ FUNC_WRAPPER(sb_min_blocksize, ( struct super_block *sb , int i ), {
 FUNC_WRAPPER_VOID(get_random_bytes, ( void * buf , int nbytes ), {
         kern_printk("get_random_bytes wrapper : %lx", buf);
         //REMOVE_WATCHPOINT(buf);
-        set_section_state(KERNEL_WRAPPER_SET);
         get_random_bytes(buf, nbytes);
-        unset_section_state(KERNEL_WRAPPER_SET);
         //buf = temp_ptr;
 })
 
@@ -857,9 +860,7 @@ FUNC_WRAPPER_VOID(__mark_inode_dirty, (struct inode *inode, int data), {
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_op);
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_fop);
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(TO_UNWATCHED_ADDRESS(inode)->i_mapping)->a_ops);
-        set_section_state(KERNEL_WRAPPER_SET);
         __mark_inode_dirty(inode, data);
-        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 #if 0
@@ -877,12 +878,8 @@ FUNC_WRAPPER_VOID(clear_inode, (struct inode *inode), {
 //int block_truncate_page(struct address_space *, loff_t, get_block_t *);
 
 FUNC_WRAPPER(block_truncate_page, (struct address_space *mapping, loff_t from, get_block_t *get_block), {
-        int retvar;
         WRAP_FUNC(get_block);
-        set_section_state(KERNEL_WRAPPER_SET);
-        retvar = block_truncate_page(mapping, from, get_block);
-        set_section_state(KERNEL_WRAPPER_SET);
-        return retvar;
+        return block_truncate_page(mapping, from, get_block);
 })
 
 FUNC_WRAPPER(block_write_begin,( struct file * file , struct address_space * mapping , loff_t pos , unsigned len , unsigned flags , struct page * * pagep , void * * fsdata , get_block_t  get_block ) , {
@@ -890,10 +887,12 @@ FUNC_WRAPPER(block_write_begin,( struct file * file , struct address_space * map
         return block_write_begin(file, mapping, pos, len, flags, pagep, fsdata, get_block);
 })
 
+#if 0
 FUNC_WRAPPER(generic_block_bmap, ( struct address_space * mapping , sector_t block , get_block_t  get_block ) , {
         WRAP_FUNC(get_block);
         return generic_block_bmap(mapping, block, get_block);
 })
+#endif
 
 FUNC_WRAPPER(mpage_readpage, ( struct page * page , get_block_t get_block ) , {
         WRAP_FUNC(get_block);
@@ -910,9 +909,9 @@ FUNC_WRAPPER(submit_bh, ( int rw , struct buffer_head * bh ), {
         if(NULL != bh) {
             WRAP_FUNC(TO_UNWATCHED_ADDRESS(bh)->b_end_io);
         }
-        set_section_state(KERNEL_WRAPPER_SET);
+        //set_section_state(KERNEL_WRAPPER_SET);
         retvar = submit_bh(rw, bh);
-        unset_section_state(KERNEL_WRAPPER_SET);
+       //unset_section_state(KERNEL_WRAPPER_SET);
         return retvar;
 })
 
@@ -1009,18 +1008,13 @@ FUNC_WRAPPER_VOID(destroy_workqueue,( struct workqueue_struct * wq ), {
 */
 
 FUNC_WRAPPER_VOID(inode_init_once, ( struct inode *inode ) ,{
-        set_section_state(KERNEL_WRAPPER_SET);
         inode_init_once(inode);
-        set_section_state(KERNEL_WRAPPER_SET);
 })
 
 //extern struct rb_node *rb_first(const struct rb_root *);
 FUNC_WRAPPER(rb_first, (const struct rb_root *rb),{
-        struct rb_node *retvar;
-        set_section_state(KERNEL_WRAPPER_SET);
-        retvar = rb_first(rb);
-        unset_section_state(KERNEL_WRAPPER_SET);
-        return retvar;
+    REMOVE_WATCHPOINT(rb);
+    return rb_first(rb);
 })
 
 FUNC_WRAPPER(_copy_to_user, (void *to, void *from, unsigned len), {
@@ -1035,81 +1029,26 @@ FUNC_WRAPPER(_copy_from_user, (void *to, void *from, unsigned len), {
 
 FUNC_WRAPPER_VOID(register_shrinker, (struct shrinker *shr), {
         WRAP_FUNC(TO_UNWATCHED_ADDRESS(shr)->shrink);
-        set_section_state(KERNEL_WRAPPER_SET);
         register_shrinker(shr);
-        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 FUNC_WRAPPER_VOID(unregister_shrinker, (struct shrinker *shr), {
         WRAP_FUNC(TO_UNWATCHED_ADDRESS(shr)->shrink);
-        set_section_state(KERNEL_WRAPPER_SET);
         unregister_shrinker(shr);
-        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 void __ticket_spin_unlock(arch_spinlock_t *lock);
 
 FUNC_WRAPPER_VOID(__ticket_spin_unlock, (arch_spinlock_t *lock), {
-        set_section_state(KERNEL_WRAPPER_SET);
+        //set_section_state(KERNEL_WRAPPER_SET);
         __ticket_spin_unlock(lock);
-        unset_section_state(KERNEL_WRAPPER_SET);
+       //unset_section_state(KERNEL_WRAPPER_SET);
 })
 
-extern void down(struct semaphore *sem);
-
-FUNC_WRAPPER_VOID(down, (struct semaphore *sem), {
-        set_section_state(KERNEL_WRAPPER_SET);
-        down(sem);
-        unset_section_state(KERNEL_WRAPPER_SET);
-})
-
-/*void __brelse ( struct buffer_head * ) ;
-void __bforget ( struct buffer_head * ) ;
-*/
-
-FUNC_WRAPPER_VOID(__brelse, (struct buffer_head *bh), {
-        if(NULL != bh) {
-            WRAP_FUNC(TO_UNWATCHED_ADDRESS(bh)->b_end_io);
-        }
-        set_section_state(KERNEL_WRAPPER_SET);
-        __brelse(bh);
-        unset_section_state(KERNEL_WRAPPER_SET);
-})
-
-FUNC_WRAPPER_VOID(__bforget, (struct buffer_head *bh), {
-        if(NULL != bh) {
-            WRAP_FUNC(TO_UNWATCHED_ADDRESS(bh)->b_end_io);
-        }
-        set_section_state(KERNEL_WRAPPER_SET);
-        __bforget(bh);
-        unset_section_state(KERNEL_WRAPPER_SET);
-})
-
-FUNC_WRAPPER_VOID(unlock_buffer, (struct buffer_head *bh), {
-        if(NULL != bh) {
-            WRAP_FUNC(TO_UNWATCHED_ADDRESS(bh)->b_end_io);
-        }
-        set_section_state(KERNEL_WRAPPER_SET);
-        unlock_buffer(bh);
-        unset_section_state(KERNEL_WRAPPER_SET);
-})
-
-FUNC_WRAPPER_VOID(__lock_buffer, (struct buffer_head *bh), {
-        if(NULL != bh) {
-            WRAP_FUNC(TO_UNWATCHED_ADDRESS(bh)->b_end_io);
-        }
-        set_section_state(KERNEL_WRAPPER_SET);
-        __lock_buffer(bh);
-        unset_section_state(KERNEL_WRAPPER_SET);
-})
-
-//bh_uptodate_or_lock
-
-FUNC_WRAPPER(bh_uptodate_or_lock, (struct buffer_head *bh), {
-        if(NULL != bh) {
-            WRAP_FUNC(TO_UNWATCHED_ADDRESS(bh)->b_end_io);
-        }
-        return bh_uptodate_or_lock(bh);
+//extern void call_rcu_sched ( struct callback_head * head , void ( * func ) ( struct callback_head * rcu ) ) ;
+FUNC_WRAPPER_VOID(call_rcu_sched, ( struct callback_head * head , void (*func)( struct callback_head * rcu )), {
+        WRAP_FUNC(func)
+        call_rcu_sched(head, func);
 })
 
 /*
@@ -1173,6 +1112,4 @@ FUNC_WRAPPER(kthread_create_on_node, ( threadfn thread_fun, void *data , int nod
                                     unsigned long first_index, unsigned int max_items), {
             return radix_tree_gang_lookup(root, results, first_index, max_items);
     })
-
-
 #endif /* WRAPPER_FILESYSTEM_H_ */

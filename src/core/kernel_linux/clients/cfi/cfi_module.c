@@ -141,6 +141,7 @@ void *module_page_alloc(unsigned long size) {
 static int __init
 cfi_module_init(void) {
     unsigned int ret;
+#ifdef CONFIG_USING_WATCHPOINT
     unsigned long drk_interface_addr = (unsigned long) cfi_enter_module_from_shadow;
 
     shadow_pointer_init = shadow_page_alloc(MODULE_SHADOW_END_EXTENDED - MODULE_SHADOW_START - 4096, MODULE_SHADOW_START, MODULE_SHADOW_END_EXTENDED);
@@ -148,6 +149,7 @@ cfi_module_init(void) {
 	if(shadow_pointer_init == NULL) {
 	    printk("shadow alloc failed\n");
     }
+#endif
 #if 0
     SHADOW_CALL[6] = ((drk_interface_addr >> 0)     & 0xff);
     SHADOW_CALL[7] = ((drk_interface_addr >> 8)     & 0xff);

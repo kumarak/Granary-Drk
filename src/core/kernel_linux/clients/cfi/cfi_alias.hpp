@@ -422,7 +422,7 @@ inline T *to_alias_heap_address(T *ptr, unsigned long size) throw() {
         return (T *) ((index_part | displacement_part) & ALIAS_ADDRESS_ENABLED);
     }
 }
-
+#if 1//def CONFIG_USING_WATCHPOINT
 /// get the meta information of a watchpoint; note: this assumes the address passed
 /// in is indeed a watchpoint
 template <typename T>
@@ -528,6 +528,18 @@ template <typename T>
 void REMOVE_TYPELESS_WATCHPOINT(T *&ptr) throw() {
     ptr = to_unaliased_address(ptr);
 }
+#else
+
+#define WATCHPOINT_META(x) 0
+#define COLLECT_WATCHPOINT(x)
+#define DESCRIPTOR_AT_INDEX(x) 0
+#define ADD_WATCHPOINT(x)
+#define ADD_WATCHPOINT(x, size)
+#define IS_WATCHPOINT(x) false
+#define TO_UNWATCHED_ADDRESS(x) x
+#define REMOVE_WATCHPOINT(x)
+#define REMOVE_TYPELESS_WATCHPOINT(x)
+#endif
 
 void WRAPPER_INIT(){
    // byte* alias_entry::collected_watchpoints = NULL;

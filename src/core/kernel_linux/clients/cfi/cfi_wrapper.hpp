@@ -599,13 +599,13 @@ FORCE_INLINE void arg_return_wrapper(int) {
 /// unroll and wrap arguments by type
 template <template<typename> class Wrap, typename Arg, typename... Rest>
 inline void arg_pre_wrapper(const int depth__, uint64_t func_addr, Arg &arg, Rest&... rest) {
-    recursive_wrapper<Wrap, Arg>::pre_wrap(/*TO_UNWATCHED_ADDRESS*/(arg), func_addr, depth__);
+    recursive_wrapper<Wrap, Arg>::pre_wrap(arg, func_addr, depth__);
     arg_pre_wrapper<Wrap, Rest...>(depth__, func_addr, rest...);
 }
 
 template <template<typename> class Wrap, typename Arg, typename... Rest>
 inline void arg_post_wrapper(const int depth__, uint64_t func_addr, Arg &arg, Rest&... rest) {
-    recursive_wrapper<Wrap, Arg>::post_wrap(/*TO_UNWATCHED_ADDRESS*/(arg), func_addr, depth__);
+    recursive_wrapper<Wrap, Arg>::post_wrap(arg, func_addr, depth__);
     arg_post_wrapper<Wrap, Rest...>(depth__, func_addr, rest...);
 }
 
@@ -771,9 +771,8 @@ public:
             D(kern_printk("in dynamic wrapper for %lx; wrapping %lu args\n", (uint64_t) addr,  sizeof...(Args)));
             arg_pre_wrapper<module_wrap_type, Args...>(depth__,addr, args...);
         }
-        cfi_print_symbol_name((struct kernsym*)addr);
+        cfi_print_symbol_name((void*)addr);
         cfi_thread_slot_module_enrty();
-        set_section_state(DYNAMIC_WRAPPER_SET);
 #else
         __asm__ volatile(
             "mov %%rbp, %%rsp;"
@@ -796,7 +795,6 @@ public:
             }
         }
 */
-        unset_section_state(KERNEL_WRAPPER_SET);
         if(count_wrappers<module_wrap_type, Args...>::HAS_ANY) {
             arg_post_wrapper<module_wrap_type, Args...>(depth__, addr, args...);
         }
@@ -833,7 +831,6 @@ public:
             arg_pre_wrapper<module_wrap_type, Args...>(depth__,addr, args...);
         }
         cfi_thread_slot_module_enrty();
-        set_section_state(DYNAMIC_WRAPPER_SET);
 #else
         __asm__ volatile(
             "mov %%rbp, %%rsp;"
@@ -847,7 +844,7 @@ public:
         dr_app_start();
         ((orig_func_type *) addr)(args...);
         /* implicit dr_app_stop(); */
-        unset_section_state(DYNAMIC_WRAPPER_SET);
+
         if(count_wrappers<module_wrap_type, Args...>::HAS_ANY) {
             arg_post_wrapper<module_wrap_type, Args...>(depth__, addr, args...);
         }
@@ -886,12 +883,10 @@ R (*to_shadow_address(R (*func_ptr)(Args...)))(Args...) {
 
         if(!shadow_allocator::is_shadow_allocate((void*)addr)) {
             void *value = NULL;
-            kern_printk("wrapping address : %llx\n", addr);
-
             int found = hashmap_get(dynamic_wrapper_table, (void*)addr, &value);
 
             if((value == NULL)){
-                kern_printk("inside allocator wrapping address : %llx\n", addr);
+                D(kern_printk("inside allocator wrapping address : %llx\n", addr);)
                 int ret;
                 volatile uint64_t oldval = 0x0ULL;
                 volatile uint64_t newval = 0x0ULL;
@@ -943,10 +938,10 @@ R (*to_shadow_address(R (*func_ptr)(Args...)))(Args...) {
                 }
 
                 ret = hashmap_put(dynamic_wrapper_table, (void*)addr, (void*)region);
-                kern_printk(" inside allocator actual address : %llx\t wrapper address : %llx\n", addr, shadow_address);
+                D(kern_printk(" inside allocator actual address : %llx\t wrapper address : %llx\n", addr, shadow_address);)
                 addr = (uint64_t)shadow_address;
             } else {
-                kern_printk("actual address : %llx\t wrapper address : %llx\n", addr, value);
+                D(kern_printk("actual address : %llx\t wrapper address : %llx\n", addr, value);)
 
                 addr = (uint64_t)&(((shadow_region*)value)->instr);
             }

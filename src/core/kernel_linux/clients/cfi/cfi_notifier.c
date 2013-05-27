@@ -350,16 +350,15 @@ print_module_symbol(void *mod, void*data){
     unsigned int i = 0;
 
     if((in_module_init((uint64_t)data, mod)) || (in_module_core((uint64_t)data, mod))){
-       // printk("module name : %s\n", module_name(mod));
+      //  printk("module name : %s\n", module_name(mod));
         for(i=0; i < vmod->num_symtab; i++){
             if((vmod->symtab[i].st_value == (uint64_t)data) ||
                     (vmod->symtab[i].st_value == ((uint64_t)data +MODULE_SHADOW_OFFSET))){
-               // printk("symbol address : %lx; name : %s\n",data, (vmod->strtab + vmod->symtab[i].st_name));
+               printk("module name : %s  symbol address : %lx; name : %s\n",module_name(mod), data, (vmod->strtab + vmod->symtab[i].st_name));
             }
         }
         return 1;
     }
-    //printk("address not in module\n");
     return 0;
 }
 

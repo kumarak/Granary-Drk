@@ -7,7 +7,7 @@
 TYPE_WRAPPER(struct callback_head, {
     PRE_WRAP {
         ABORT_IF_FUNCTION_IS_WRAPPED(arg.func);
-        WRAP_RECURSIVE(arg.next);
+       // WRAP_RECURSIVE(arg.next);
         WRAP_FUNCTION(arg.func);
     }
     NO_POST
@@ -1462,17 +1462,13 @@ TYPE_WRAPPER(struct address_space, {
 #endif
 
 
+#define WRAPPER_FOR_struct_page
 #ifndef WRAPPER_FOR_struct_page
 #define WRAPPER_FOR_struct_page
-TYPE_WRAPPER(struct page*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           D(kern_printk( "added to hash table struct page\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct page));
-        }
-        WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->mapping);
+TYPE_WRAPPER(struct page, {
+    PRE_WRAP {
+        WRAP_RECURSIVE(arg.mapping);
     }
-    NO_POST
     NO_RETURN
 })
 #endif
@@ -5538,36 +5534,7 @@ TYPE_WRAPPER(struct mii_if_info, {
 })
 #endif
 
-#ifndef WRAPPER_FOR_struct_blk_plug_cb
-#define WRAPPER_FOR_struct_blk_plug_cb
-TYPE_WRAPPER(struct blk_plug_cb*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           D(kern_printk( "added to hash table struct blk_plug_cb\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct blk_plug_cb));
-        }
-        WRAP_FUNCTION(TO_UNWATCHED_ADDRESS(arg)->callback);
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
 
-
-#ifndef WRAPPER_FOR_struct_blk_plug
-#define WRAPPER_FOR_struct_blk_plug
-TYPE_WRAPPER(struct blk_plug*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           D(kern_printk( "added to hash table struct blk_plug_cb\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct blk_plug));
-        }
-        //WRAP_FUNCTION(TO_UNWATCHED_ADDRESS(arg)->callback);
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
 #define WRAPPER_FOR_struct_blk_plug_cb
 #ifndef WRAPPER_FOR_struct_blk_plug_cb
 #define WRAPPER_FOR_struct_blk_plug_cb
