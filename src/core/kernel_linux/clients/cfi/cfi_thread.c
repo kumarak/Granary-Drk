@@ -332,6 +332,8 @@ bool func_module_print_greylist(void *addr, void *data){
         printk("%llx \t", addr);
     }*/
 
+    printk("%lx \t", addr);
+#if 0
     if(cfi_list_item_exist(&module_alloc_list[CFI_LOST_REFERENCE], ((void*)((uint64_t)addr /*| ALIAS_ADDRESS_INDEX_MASK*/)))){
         printk("%lx(this is lost watchpoint)\t", addr);
     } else if(!cfi_list_item_exist(&module_alloc_list[CFI_ALLOC_WHITE_LIST], ((void*)((uint64_t)addr /*| ALIAS_ADDRESS_INDEX_MASK*/)))) {
@@ -339,6 +341,7 @@ bool func_module_print_greylist(void *addr, void *data){
     } else {
         printk("%lx \t", addr);
     }
+#endif
     return 0;
 }
 

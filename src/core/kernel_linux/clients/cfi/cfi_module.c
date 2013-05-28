@@ -73,6 +73,11 @@ struct notifier_block module_load_nb = {
     .priority = -1,
 };
 
+void granary_fault(void)
+{
+
+}
+
 
 int DRK_IS_RUNNING = 0;
 
@@ -187,7 +192,7 @@ cfi_module_init(void) {
    	hashmap_init(1024, &local_symbol_table);
    	init_wrapper();
 
-#if 0
+#ifdef CLIENT_MEMORY_LEAK
    	/*sweep thread : it scans the rootset and finds the leaked memory*/
    	sweep_task = kthread_create(sweep_thread_init, NULL, "sweep-thread");
     if (!IS_ERR(sweep_task))

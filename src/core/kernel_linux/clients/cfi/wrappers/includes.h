@@ -16,6 +16,7 @@
 */
 
 #define DECLARE_HASH(name) struct hashtable_t *htable
+#define VOID(name) (void)name
 #define HASHMAP_PUT //hashmap_put
 
 extern struct module *target_module;
@@ -31,6 +32,8 @@ extern struct hashtable_t *module_watchpoint_map;
 
 extern struct hashtable_t *kernel_variable_hash;
 extern struct hashtable_t *dynamic_wrapper_table;
+
+extern void granary_fault(void);
 
 extern int hashmap_init(int initial_size, struct hashtable_t **htable);
 

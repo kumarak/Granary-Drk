@@ -1,25 +1,22 @@
     { 0x16305289, "warn_slowpath_null" }
-    { 0x167c5967, "print_hex_dump
     { 0x1e047854, "warn_slowpath_fmt
     { 0x1e3a88fb, "trace_seq_printf
     { 0x20000329, "simple_strtoul
     { 0x27e1a049, "printk
     { 0x349cba85, "strchr
     { 0x4550ba8a, "register_cpu_notifier
-    { 0x498d293a, "trace_buffer_unlock_commit
     { 0x5a921311, "strncmp
-    { 0x60a13e90, "rcu_barrier
+rcu_barrier
     { 0x724fea13, "trace_event_raw_init
     { 0x74252861, "ftrace_event_reg
     { 0x74cc1cbe, "unregister_cpu_notifier
     { 0x754d539c, "strlen
     { 0x789bdca3, "seq_printf
     { 0x85df9b6c, "strsep
-    { 0x9166fada, "strncpy
-    { 0x941fa9c, "trace_define_field
     { 0xaf6ae696, "kstrndup
     { 0xe2d5255a, "strcmp
     { 0xf0fdf6cb, "__stack_chk_fail
+set_freezable
     { 0xfef8a166, "trace_current_buffer_lock_reserve
 add_timer
 add_wait_queue
@@ -67,6 +64,7 @@ block_write_end
 block_write_full_page
 bmap
 __bread
+__breadahead
 __brelse
 buffer_migrate_page
 buffer_migrate_page
@@ -437,6 +435,7 @@ posix_acl_valid
 prandom_u32
 prepare_to_wait
 prepare_to_wait_exclusive
+print_hex_dump
 proc_create_data
 proc_dointvec_minmax
 proc_mkdir
@@ -486,6 +485,7 @@ rb_insert_color
 rb_next
 rb_prev
 rcu_barrier
+read_cache_page
 redirty_page_for_writepage
 redirty_page_for_writepage
 __refrigerator
@@ -522,6 +522,7 @@ __set_page_dirty_nobuffers
 single_open
 single_release
 sort
+strncpy
 strncpy_from_user
 submit_bh
 submit_bio
@@ -538,7 +539,9 @@ __ticket_spin_is_locked
 __ticket_spin_unlock
 touch_atime
 trace_buffer_unlock_commit
+trace_buffer_unlock_commit
 trace_current_buffer_lock_reserve
+trace_define_field
 trace_event_raw_init
 //-----trace_seq_printf
 truncate_inode_pages

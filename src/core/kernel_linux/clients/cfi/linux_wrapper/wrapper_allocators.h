@@ -295,8 +295,6 @@ FUNC_WRAPPER(posix_acl_alloc, (int count, gfp_t flags), {
 //extern unsigned long __get_free_pages(gfp_t gfp_mask, unsigned int order);
 FUNC_WRAPPER(__get_free_pages, (gfp_t gfp_mask, unsigned int order), {
     void* addr= (void*)__get_free_pages(gfp_mask, order);
-    //ADD_WATCHPOINT(addr);
-    //granary_lc_handle_alloc(target_module, addr, order*PAGE_SIZE, NULL);
     P(kern_printk("__get_free_pages wrapper : %lx\n", addr);)
     return (unsigned long)addr;
 })
@@ -304,8 +302,6 @@ FUNC_WRAPPER(__get_free_pages, (gfp_t gfp_mask, unsigned int order), {
 //void __free_pages(struct page *page, unsigned int order)
 FUNC_WRAPPER_VOID(__free_pages, (struct page *page, unsigned int order), {
     P(kern_printk("__free_pages wrapper\n");)
-    //REMOVE_WATCHPOINT(page);
-    //granary_lc_handle_free(target_module, page, NULL);
     __free_pages(page, order);
 })
 

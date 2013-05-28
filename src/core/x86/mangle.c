@@ -1874,6 +1874,7 @@ mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
     watchpoint_indirect_call_event(dcontext, ilist, instr, next_instr, mangle_calls, flags);
    if(is_kernel_text(curaddr)) {
        instr_t *next_instr = instr_get_next(instr);
+       next_instr = instr_get_next(next_instr);
        POST(ilist, next_instr, INSTR_CREATE_ret(dcontext));
        POST(ilist, next_instr, INSTR_CREATE_pop(dcontext, opnd_create_reg(REG_XCX)));
        POST(ilist, next_instr, INSTR_CREATE_mov_st(dcontext,  opnd_create_base_disp(REG_XSP,

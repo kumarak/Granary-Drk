@@ -289,7 +289,7 @@ public:
         entry->state &= ~WP_DESCRIPTOR_ACTIVE;
         add_to_free_list(entry);
 #ifdef CFI_DEBUG
-        kern_printk("collected index : %lx\n", index);
+      //  kern_printk("collected index : %lx\n", index);
 #endif
         return 1;
     }

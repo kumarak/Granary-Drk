@@ -1,14 +1,17 @@
 /* Auto-generated wrappers. */
 #define D(...) __VA_ARGS__
 
+#define PRE_WRAPPER_KERNEL(x)
+#define POST_WRAPPER_KERNEL(x)
 
 #ifndef WRAPPER_FOR_struct_callback_head
 #define WRAPPER_FOR_struct_callback_head
-TYPE_WRAPPER(struct callback_head, {
+TYPE_WRAPPER(struct callback_head*, {
     PRE_WRAP {
-        ABORT_IF_FUNCTION_IS_WRAPPED(arg.func);
+        PRE_WRAPPER_KERNEL(arg);
+        ABORT_IF_FUNCTION_IS_WRAPPED(arg->func);
        // WRAP_RECURSIVE(arg.next);
-        WRAP_FUNCTION(arg.func);
+        WRAP_FUNCTION(arg->func);
     }
     NO_POST
     NO_RETURN
@@ -19,8 +22,10 @@ TYPE_WRAPPER(struct callback_head, {
 
 #ifndef WRAPPER_FOR_struct_kset_uevent_ops
 #define WRAPPER_FOR_struct_kset_uevent_ops
-TYPE_WRAPPER(struct kset_uevent_ops, {
-    NO_PRE
+TYPE_WRAPPER(struct kset_uevent_ops*, {
+    PRE_WRAP {
+        PRE_WRAPPER_KERNEL(arg);
+    }
     NO_POST
     NO_RETURN
 })
@@ -30,10 +35,11 @@ TYPE_WRAPPER(struct kset_uevent_ops, {
 
 #ifndef WRAPPER_FOR_struct_kset
 #define WRAPPER_FOR_struct_kset
-TYPE_WRAPPER(struct kset, {
+TYPE_WRAPPER(struct kset*, {
     PRE_WRAP {
+        PRE_WRAPPER_KERNEL(arg);
         ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct kset));
-        WRAP_RECURSIVE(arg.kobj);
+        WRAP_RECURSIVE(arg->kobj);
     }
     NO_POST
     NO_RETURN
@@ -41,16 +47,16 @@ TYPE_WRAPPER(struct kset, {
 #endif
 
 
-//#define WRAPPER_FOR_struct_sysfs_ops
 #ifndef WRAPPER_FOR_struct_sysfs_ops
 #define WRAPPER_FOR_struct_sysfs_ops
-TYPE_WRAPPER(struct sysfs_ops, {
+TYPE_WRAPPER(struct sysfs_ops*, {
     PRE_WRAP {
-        ABORT_IF_FUNCTION_IS_WRAPPED(arg.show);
+        PRE_WRAPPER_KERNEL(arg);
+        ABORT_IF_FUNCTION_IS_WRAPPED(arg->show);
         ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct sysfs_ops));
-        WRAP_FUNCTION(arg.show);
-        WRAP_FUNCTION(arg.store);
-        WRAP_FUNCTION(arg.namespace_);
+        WRAP_FUNCTION(arg->show);
+        WRAP_FUNCTION(arg->store);
+        WRAP_FUNCTION(arg->namespace_);
     }
     NO_POST
     NO_RETURN
@@ -61,13 +67,14 @@ TYPE_WRAPPER(struct sysfs_ops, {
 
 #ifndef WRAPPER_FOR_struct_kobj_ns_type_operations
 #define WRAPPER_FOR_struct_kobj_ns_type_operations
-TYPE_WRAPPER(struct kobj_ns_type_operations, {
+TYPE_WRAPPER(struct kobj_ns_type_operations*, {
     PRE_WRAP {
+        PRE_WRAPPER_KERNEL(arg);
         ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct kobj_ns_type_operations));
-        WRAP_FUNCTION(arg.grab_current_ns);
-        WRAP_FUNCTION(arg.netlink_ns);
-        WRAP_FUNCTION(arg.initial_ns);
-        WRAP_FUNCTION(arg.drop_ns);
+        WRAP_FUNCTION(arg->grab_current_ns);
+        WRAP_FUNCTION(arg->netlink_ns);
+        WRAP_FUNCTION(arg->initial_ns);
+        WRAP_FUNCTION(arg->drop_ns);
     }
     NO_POST
     NO_RETURN
@@ -75,15 +82,15 @@ TYPE_WRAPPER(struct kobj_ns_type_operations, {
 #endif
 
 
-#define WRAPPER_FOR_struct_kobj_type
 #ifndef WRAPPER_FOR_struct_kobj_type
 #define WRAPPER_FOR_struct_kobj_type
-TYPE_WRAPPER(struct kobj_type, {
+TYPE_WRAPPER(struct kobj_type*, {
     PRE_WRAP {
-        ABORT_IF_FUNCTION_IS_WRAPPED(arg.release);
-        WRAP_FUNCTION(arg.release);
-        WRAP_FUNCTION(arg.child_ns_type);
-        WRAP_FUNCTION(arg.namespace_);
+        PRE_WRAPPER_KERNEL(arg);
+        ABORT_IF_FUNCTION_IS_WRAPPED(arg->release);
+        WRAP_FUNCTION(arg->release);
+        WRAP_FUNCTION(arg->child_ns_type);
+        WRAP_FUNCTION(arg->namespace_);
     }
     NO_POST
     NO_RETURN
@@ -91,96 +98,103 @@ TYPE_WRAPPER(struct kobj_type, {
 #endif
 
 
-#define WRAPPER_FOR_struct_kobject
 #ifndef WRAPPER_FOR_struct_kobject
 #define WRAPPER_FOR_struct_kobject
-TYPE_WRAPPER(struct kobject, {
+TYPE_WRAPPER(struct kobject*, {
     PRE_WRAP {
-        WRAP_RECURSIVE(arg.parent);
-        WRAP_RECURSIVE(arg.ktype);
+        PRE_WRAPPER_KERNEL(arg);
+        WRAP_RECURSIVE(arg->parent);
+        WRAP_RECURSIVE(arg->ktype);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
 
 
-#define WRAPPER_FOR_struct_module_kobject
 #ifndef WRAPPER_FOR_struct_module_kobject
 #define WRAPPER_FOR_struct_module_kobject
-TYPE_WRAPPER(struct module_kobject, {
+TYPE_WRAPPER(struct module_kobject*, {
     PRE_WRAP {
-        WRAP_RECURSIVE(arg.kobj);
-        WRAP_RECURSIVE(arg.mod);
-        WRAP_RECURSIVE(arg.drivers_dir);
+        PRE_WRAPPER_KERNEL(arg);
+        WRAP_RECURSIVE(arg->kobj);
+        WRAP_RECURSIVE(arg->mod);
+        WRAP_RECURSIVE(arg->drivers_dir);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
 
 
-#define WRAPPER_FOR_struct_module_attribute
 #ifndef WRAPPER_FOR_struct_module_attribute
 #define WRAPPER_FOR_struct_module_attribute
-TYPE_WRAPPER(struct module_attribute, {
+TYPE_WRAPPER(struct module_attribute*, {
     PRE_WRAP {
-        ABORT_IF_FUNCTION_IS_WRAPPED(arg.show);
-        WRAP_FUNCTION(arg.show);
-        WRAP_FUNCTION(arg.store);
-        WRAP_FUNCTION(arg.setup);
-        WRAP_FUNCTION(arg.test);
-        WRAP_FUNCTION(arg.free);
+        PRE_WRAPPER_KERNEL(arg);
+        ABORT_IF_FUNCTION_IS_WRAPPED(arg->show);
+        WRAP_FUNCTION(arg->show);
+        WRAP_FUNCTION(arg->store);
+        WRAP_FUNCTION(arg->setup);
+        WRAP_FUNCTION(arg->test);
+        WRAP_FUNCTION(arg->free);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
 
 
-#define WRAPPER_FOR_struct_kernel_param_ops
 #ifndef WRAPPER_FOR_struct_kernel_param_ops
 #define WRAPPER_FOR_struct_kernel_param_ops
-TYPE_WRAPPER(struct kernel_param_ops, {
+TYPE_WRAPPER(struct kernel_param_ops*, {
     PRE_WRAP {
-        ABORT_IF_FUNCTION_IS_WRAPPED(arg.set);
-        WRAP_FUNCTION(arg.set);
-        WRAP_FUNCTION(arg.get);
-        WRAP_FUNCTION(arg.free);
+        PRE_WRAPPER_KERNEL(arg);
+        ABORT_IF_FUNCTION_IS_WRAPPED(arg->set);
+        WRAP_FUNCTION(arg->set);
+        WRAP_FUNCTION(arg->get);
+        WRAP_FUNCTION(arg->free);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
 
 
-#define WRAPPER_FOR_struct_kparam_array
 #ifndef WRAPPER_FOR_struct_kparam_array
 #define WRAPPER_FOR_struct_kparam_array
-TYPE_WRAPPER(struct kparam_array, {
-    NO_PRE
+TYPE_WRAPPER(struct kparam_array*, {
+    PRE_WRAP {
+        PRE_WRAPPER_KERNEL(arg);
+    }
     NO_POST
     NO_RETURN
 })
 #endif
 
 
-#define WRAPPER_FOR_struct_kernel_param
 #ifndef WRAPPER_FOR_struct_kernel_param
 #define WRAPPER_FOR_struct_kernel_param
-TYPE_WRAPPER(struct kernel_param, {
-    NO_PRE
+TYPE_WRAPPER(struct kernel_param*, {
+    PRE_WRAP {
+        PRE_WRAPPER_KERNEL(arg);
+    }
     NO_POST
     NO_RETURN
 })
 #endif
 
 
-#define WRAPPER_FOR_struct_tracepoint
 #ifndef WRAPPER_FOR_struct_tracepoint
 #define WRAPPER_FOR_struct_tracepoint
-TYPE_WRAPPER(struct tracepoint, {
+TYPE_WRAPPER(struct tracepoint*, {
     PRE_WRAP {
-        ABORT_IF_FUNCTION_IS_WRAPPED(arg.regfunc);
-        WRAP_FUNCTION(arg.regfunc);
-        WRAP_FUNCTION(arg.unregfunc);
+        PRE_WRAPPER_KERNEL(arg);
+        ABORT_IF_FUNCTION_IS_WRAPPED(arg->regfunc);
+        WRAP_FUNCTION(arg->regfunc);
+        WRAP_FUNCTION(arg->unregfunc);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
@@ -261,13 +275,14 @@ TYPE_WRAPPER(struct path, {
 #endif
 
 
-#define WRAPPER_FOR_struct_aio_ring_info
 #ifndef WRAPPER_FOR_struct_aio_ring_info
 #define WRAPPER_FOR_struct_aio_ring_info
-TYPE_WRAPPER(struct aio_ring_info, {
+TYPE_WRAPPER(struct aio_ring_info*, {
     PRE_WRAP {
-        WRAP_RECURSIVE(arg.ring_pages);
+        PRE_WRAPPER_KERNEL(arg);
+        WRAP_RECURSIVE(arg->ring_pages);
     }
+    NO_POST
     NO_RETURN
 })
 #endif
@@ -276,9 +291,10 @@ TYPE_WRAPPER(struct aio_ring_info, {
 //#define WRAPPER_FOR_struct_work_struct
 #ifndef WRAPPER_FOR_struct_work_struct
 #define WRAPPER_FOR_struct_work_struct
-TYPE_WRAPPER(struct work_struct, {
+TYPE_WRAPPER(struct work_struct*, {
     PRE_WRAP {
-        WRAP_FUNCTION(arg.func);
+        PRE_WRAPPER_KERNEL(arg);
+        WRAP_FUNCTION(arg->func);
     }
     NO_POST
     NO_RETURN
@@ -289,10 +305,11 @@ TYPE_WRAPPER(struct work_struct, {
 
 #ifndef WRAPPER_FOR_struct_timer_list
 #define WRAPPER_FOR_struct_timer_list
-TYPE_WRAPPER(struct timer_list, {
+TYPE_WRAPPER(struct timer_list*, {
     PRE_WRAP {
+        PRE_WRAPPER_KERNEL(arg);
         ADD_TO_HASH(&arg, SCAN_HEAD_FUNC(struct timer_list));
-        WRAP_FUNCTION(arg.function);
+        WRAP_FUNCTION(arg->function);
     }
     NO_POST
     NO_RETURN
@@ -300,13 +317,13 @@ TYPE_WRAPPER(struct timer_list, {
 #endif
 
 
-//#define WRAPPER_FOR_struct_delayed_work
 #ifndef WRAPPER_FOR_struct_delayed_work
 #define WRAPPER_FOR_struct_delayed_work
-TYPE_WRAPPER(struct delayed_work, {
+TYPE_WRAPPER(struct delayed_work*, {
     PRE_WRAP {
-        WRAP_RECURSIVE(arg.work);
-        WRAP_RECURSIVE(arg.timer);
+        PRE_WRAPPER_KERNEL(arg);
+        WRAP_RECURSIVE(arg->work);
+        WRAP_RECURSIVE(arg->timer);
     }
     NO_POST
     NO_RETURN
@@ -384,14 +401,14 @@ TYPE_WRAPPER(struct fasync_struct, {
 #endif
 
 
-//#define WRAPPER_FOR_struct_file_lock_operations
 #ifndef WRAPPER_FOR_struct_file_lock_operations
 #define WRAPPER_FOR_struct_file_lock_operations
-TYPE_WRAPPER(struct file_lock_operations, {
+TYPE_WRAPPER(struct file_lock_operations*, {
     PRE_WRAP {
-        ABORT_IF_FUNCTION_IS_WRAPPED(arg.fl_copy_lock);
-        WRAP_FUNCTION(arg.fl_copy_lock);
-        WRAP_FUNCTION(arg.fl_release_private);
+        PRE_WRAPPER_KERNEL(arg);
+        ABORT_IF_FUNCTION_IS_WRAPPED(arg->fl_copy_lock);
+        WRAP_FUNCTION(arg->fl_copy_lock);
+        WRAP_FUNCTION(arg->fl_release_private);
     }
     NO_POST
     NO_RETURN
@@ -434,13 +451,14 @@ TYPE_WRAPPER(struct file_lock, {
 
 #ifndef WRAPPER_FOR_struct_seq_operations
 #define WRAPPER_FOR_struct_seq_operations
-TYPE_WRAPPER(struct seq_operations, {
+TYPE_WRAPPER(struct seq_operations*, {
     PRE_WRAP {
+        PRE_WRAPPER_KERNEL(arg);
         ADD_TO_HASH(&arg, SCAN_HEAD_FUNC(struct seq_operations));
-        WRAP_FUNCTION(arg.start);
-        WRAP_FUNCTION(arg.stop);
-        WRAP_FUNCTION(arg.next);
-        WRAP_FUNCTION(arg.show);
+        WRAP_FUNCTION(arg->start);
+        WRAP_FUNCTION(arg->stop);
+        WRAP_FUNCTION(arg->next);
+        WRAP_FUNCTION(arg->show);
     }
     NO_POST
     NO_RETURN
@@ -450,10 +468,11 @@ TYPE_WRAPPER(struct seq_operations, {
 
 #ifndef WRAPPER_FOR_struct_seq_file
 #define WRAPPER_FOR_struct_seq_file
-TYPE_WRAPPER(struct seq_file, {
+TYPE_WRAPPER(struct seq_file*, {
     PRE_WRAP {
+        PRE_WRAPPER_KERNEL(arg);
         ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct seq_file));
-        WRAP_RECURSIVE(arg.lock);
+        WRAP_RECURSIVE(arg->lock);
     }
     NO_POST
     NO_RETURN
@@ -464,36 +483,37 @@ TYPE_WRAPPER(struct seq_file, {
 
 #ifndef WRAPPER_FOR_struct_file_operations
 #define WRAPPER_FOR_struct_file_operations
-TYPE_WRAPPER(struct file_operations, {
+TYPE_WRAPPER(struct file_operations*, {
     PRE_WRAP {
+        PRE_WRAPPER_KERNEL(arg);
         ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct file_operations));
-        WRAP_RECURSIVE(arg.owner);
-        WRAP_FUNCTION(arg.llseek);
-        WRAP_FUNCTION(arg.read);
-        WRAP_FUNCTION(arg.write);
-        WRAP_FUNCTION(arg.aio_read);
-        WRAP_FUNCTION(arg.aio_write);
-        WRAP_FUNCTION(arg.readdir);
-        WRAP_FUNCTION(arg.poll);
-        WRAP_FUNCTION(arg.unlocked_ioctl);
-        WRAP_FUNCTION(arg.compat_ioctl);
-        WRAP_FUNCTION(arg.mmap);
-        WRAP_FUNCTION(arg.open);
-        WRAP_FUNCTION(arg.flush);
-        WRAP_FUNCTION(arg.release);
-        WRAP_FUNCTION(arg.fsync);
-        WRAP_FUNCTION(arg.aio_fsync);
-        WRAP_FUNCTION(arg.fasync);
-        WRAP_FUNCTION(arg.lock);
-        WRAP_FUNCTION(arg.sendpage);
-        WRAP_FUNCTION(arg.get_unmapped_area);
-        WRAP_FUNCTION(arg.check_flags);
-        WRAP_FUNCTION(arg.flock);
-        WRAP_FUNCTION(arg.splice_write);
-        WRAP_FUNCTION(arg.splice_read);
-        WRAP_FUNCTION(arg.setlease);
-        WRAP_FUNCTION(arg.fallocate);
-        WRAP_FUNCTION(arg.show_fdinfo);
+        WRAP_RECURSIVE(arg->owner);
+        WRAP_FUNCTION(arg->llseek);
+        WRAP_FUNCTION(arg->read);
+        WRAP_FUNCTION(arg->write);
+        WRAP_FUNCTION(arg->aio_read);
+        WRAP_FUNCTION(arg->aio_write);
+        WRAP_FUNCTION(arg->readdir);
+        WRAP_FUNCTION(arg->poll);
+        WRAP_FUNCTION(arg->unlocked_ioctl);
+        WRAP_FUNCTION(arg->compat_ioctl);
+        WRAP_FUNCTION(arg->mmap);
+        WRAP_FUNCTION(arg->open);
+        WRAP_FUNCTION(arg->flush);
+        WRAP_FUNCTION(arg->release);
+        WRAP_FUNCTION(arg->fsync);
+        WRAP_FUNCTION(arg->aio_fsync);
+        WRAP_FUNCTION(arg->fasync);
+        WRAP_FUNCTION(arg->lock);
+        WRAP_FUNCTION(arg->sendpage);
+        WRAP_FUNCTION(arg->get_unmapped_area);
+        WRAP_FUNCTION(arg->check_flags);
+        WRAP_FUNCTION(arg->flock);
+        WRAP_FUNCTION(arg->splice_write);
+        WRAP_FUNCTION(arg->splice_read);
+        WRAP_FUNCTION(arg->setlease);
+        WRAP_FUNCTION(arg->fallocate);
+        WRAP_FUNCTION(arg->show_fdinfo);
     }
     NO_POST
     NO_RETURN
@@ -501,12 +521,12 @@ TYPE_WRAPPER(struct file_operations, {
 #endif
 
 
-#define WRAPPER_FOR_struct_fown_struct
 #ifndef WRAPPER_FOR_struct_fown_struct
 #define WRAPPER_FOR_struct_fown_struct
-TYPE_WRAPPER(struct fown_struct, {
+TYPE_WRAPPER(struct fown_struct*, {
     PRE_WRAP {
-        WRAP_RECURSIVE(arg.pid);
+        PRE_WRAPPER_KERNEL(arg);
+        WRAP_RECURSIVE(arg->pid);
     }
     NO_RETURN
 })

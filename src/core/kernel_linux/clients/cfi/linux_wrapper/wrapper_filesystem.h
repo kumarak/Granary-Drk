@@ -611,6 +611,7 @@ TYPE_WRAPPER(struct page*, {
  */
 
 FUNC_WRAPPER(register_filesystem, (struct file_system_type * fs), {
+        int retvar;
         if(!is_alias_address((uint64_t)fs)){
                D(kern_printk( "wrapper function register_filesystem\n");)
                ADD_TO_HASH(fs, SCAN_HEAD_FUNC(struct file_system_type));
@@ -618,7 +619,10 @@ FUNC_WRAPPER(register_filesystem, (struct file_system_type * fs), {
         //ADD_TO_HASH(fs, SCAN_HEAD_FUNC(struct file_system_type));
         WRAP_FUNC(fs->mount);
         WRAP_FUNC(fs->kill_sb);
-        return register_filesystem(fs);
+        set_section_state(KERNEL_WRAPPER_SET);
+        retvar = register_filesystem(fs);
+        unset_section_state(KERNEL_WRAPPER_SET);
+        return retvar;
 })
 
 FUNC_WRAPPER(iget_locked, (struct super_block *sb, unsigned long ino), {
@@ -654,113 +658,104 @@ FUNC_WRAPPER(security_inode_init_security, ( struct inode * inode , struct inode
 })
 #endif
 FUNC_WRAPPER(__bread, ( struct block_device * bdev , sector_t block , unsigned size ), {
+        set_section_state(KERNEL_WRAPPER_SET);
         struct buffer_head *ret = __bread(bdev, block, size);
+        unset_section_state(KERNEL_WRAPPER_SET);
         return ret;
 })
 
 FUNC_WRAPPER(jbd2_journal_blocks_per_page, (struct inode *inode), {
-        struct inode *temp_inode = inode;
-        int ret;
-        REMOVE_WATCHPOINT(temp_inode);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_sb);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
-        //inode = temp_inode;
-        ret = jbd2_journal_blocks_per_page(inode);
-        return ret;
+        int retvar;
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_sb);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_op);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_fop);
+        set_section_state(KERNEL_WRAPPER_SET);
+        retvar = jbd2_journal_blocks_per_page(inode);
+        unset_section_state(KERNEL_WRAPPER_SET);
+        return retvar;
 })
 
 FUNC_WRAPPER(generic_block_fiemap, (struct inode *inode, struct fiemap_extent_info *fieinfo, u64 start, u64 len, get_block_t get_block), {
-        struct inode *temp_inode = inode;
         int ret;
-        REMOVE_WATCHPOINT(temp_inode);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_sb);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
-        //inode = temp_inode;
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_sb);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_op);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_fop);
         WRAP_FUNC(get_block);
+        set_section_state(KERNEL_WRAPPER_SET);
         ret = generic_block_fiemap(inode, fieinfo, start, len, get_block);
+        unset_section_state(KERNEL_WRAPPER_SET);
         return ret;
 })
 
 
 FUNC_WRAPPER_VOID(dquot_initialize, (struct inode *inode), {
-        struct inode *temp_inode = inode;
-        REMOVE_WATCHPOINT(temp_inode);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_sb);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
-        //inode = temp_inode;
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_sb);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_op);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_fop);
+        set_section_state(KERNEL_WRAPPER_SET);
         dquot_initialize(inode);
+        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 FUNC_WRAPPER(inode_permission, (struct inode *inode, int mask), {
-        struct inode *temp_inode = inode;
         int ret;
-        REMOVE_WATCHPOINT(temp_inode);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_sb);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
-        //inode = temp_inode;
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_sb);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_op);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_fop);
+        set_section_state(KERNEL_WRAPPER_SET);
         ret = inode_permission(inode, mask);
+        unset_section_state(KERNEL_WRAPPER_SET);
         return ret;
 })
 
 FUNC_WRAPPER(vfs_link, (struct dentry *old_dentry, struct inode *dir, struct dentry *new_dentry), {
-        struct inode *temp_inode = dir;
         int ret;
-        REMOVE_WATCHPOINT(temp_inode);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_sb);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
-        //dir = temp_inode;
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(dir)->i_sb);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(dir)->i_op);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(dir)->i_fop);
+        set_section_state(KERNEL_WRAPPER_SET);
         ret = vfs_link(old_dentry, dir, new_dentry);
+        unset_section_state(KERNEL_WRAPPER_SET);
         return ret;
 })
 
 FUNC_WRAPPER_VOID(make_bad_inode, (struct inode *inode), {
-        struct inode *temp_inode = inode;
         int ret;
-        REMOVE_WATCHPOINT(temp_inode);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_sb);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
-        //inode = temp_inode;
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_sb);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_op);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_fop);
+        set_section_state(KERNEL_WRAPPER_SET);
         make_bad_inode(inode);
+        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 FUNC_WRAPPER_VOID(jbd2_journal_init_jbd_inode, (struct jbd2_inode *jinode, struct inode *inode), {
-        struct inode *temp_inode = inode;
-        int ret;
-        REMOVE_WATCHPOINT(temp_inode);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_sb);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
-        //inode = temp_inode;
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_sb);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_op);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_fop);
+        set_section_state(KERNEL_WRAPPER_SET);
         jbd2_journal_init_jbd_inode(jinode, inode);
+        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 
 FUNC_WRAPPER_VOID(iget_failed, (struct inode *inode), {
-        struct inode *temp_inode = inode;
-        int ret;
-        REMOVE_WATCHPOINT(temp_inode);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_sb);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
-        //inode = temp_inode;
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_sb);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_op);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_fop);
+        set_section_state(KERNEL_WRAPPER_SET);
         iget_failed(inode);
+        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 FUNC_WRAPPER(vfs_unlink, (struct inode *dir, struct dentry *dentry), {
-        struct inode *temp_inode = dir;
         int ret;
-        REMOVE_WATCHPOINT(temp_inode);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_sb);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_op);
-        WRAP_RECURSIVE_KERNEL(temp_inode->i_fop);
-        //dir = temp_inode;
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(dir)->i_sb);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(dir)->i_op);
+        WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(dir)->i_fop);
+        set_section_state(KERNEL_WRAPPER_SET);
         ret = vfs_unlink(dir, dentry);
+        unset_section_state(KERNEL_WRAPPER_SET);
         return ret;
 })
 
@@ -770,28 +765,30 @@ FUNC_WRAPPER_VOID(unlock_new_inode, (struct inode *inode), {
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_op);
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_fop);
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(TO_UNWATCHED_ADDRESS(inode)->i_mapping)->a_ops);
+        set_section_state(KERNEL_WRAPPER_SET);
         unlock_new_inode(inode);
+        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 FUNC_WRAPPER(d_splice_alias, (struct inode *inode, struct dentry *dentry), {
-        struct inode *temp_inode = inode;
-        //REMOVE_WATCHPOINT(inode);
+        set_section_state(KERNEL_WRAPPER_SET);
         struct dentry *ret = d_splice_alias(inode, dentry);
-       // inode = temp_inode;
+        unset_section_state(KERNEL_WRAPPER_SET);
         return ret;
 })
 
 FUNC_WRAPPER(d_obtain_alias, (struct inode *inode), {
-    //REMOVE_WATCHPOINT(inode);
-    struct dentry *ret = d_obtain_alias(inode);
-    //RETURN_WRAP(ret);
-    return ret;
+        set_section_state(KERNEL_WRAPPER_SET);
+        struct dentry *ret = d_obtain_alias(inode);
+        unset_section_state(KERNEL_WRAPPER_SET);
+        return ret;
 })
 
 
 FUNC_WRAPPER_VOID(__breadahead, ( struct block_device * bdev , sector_t block , unsigned size ), {
-        //REMOVE_WATCHPOINT(bdev);
+        set_section_state(KERNEL_WRAPPER_SET);
         __breadahead(bdev, block, size);
+        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 FUNC_WRAPPER(mpage_writepages, (struct address_space *mapping, struct writeback_control *wbc, get_block_t get_block), {
@@ -808,14 +805,18 @@ FUNC_WRAPPER_VOID(inode_needs_sync, (struct inode *inode), {
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_op);
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_fop);
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(TO_UNWATCHED_ADDRESS(inode)->i_mapping)->a_ops);
+       //set_section_state(KERNEL_WRAPPER_SET);
         ret = inode_needs_sync(inode);
+       //unset_section_state(KERNEL_WRAPPER_SET);
         return ret;
 })
 
 //extern void __percpu_counter_add ( struct percpu_counter * fbc , s64 amount , s32 batch ) ;
 FUNC_WRAPPER_VOID(__percpu_counter_add, ( struct percpu_counter * fbc , s64 amount , s32 batch ), {
         //REMOVE_WATCHPOINT(fbc);
+       //set_section_state(KERNEL_WRAPPER_SET);
         __percpu_counter_add(fbc, amount, batch);
+       //unset_section_state(KERNEL_WRAPPER_SET);
         //return ret;
 })
 
@@ -823,6 +824,7 @@ FUNC_WRAPPER_VOID(__percpu_counter_add, ( struct percpu_counter * fbc , s64 amou
 FUNC_WRAPPER(mount_bdev,( struct file_system_type * fs_type , int flags , const char * dev_name , void * data ,
         int ( * fill_super ) ( struct super_block * , void * , int ) ), {
         WRAP_FUNC(fill_super);
+        debug_mount_bdev(fs_type, flags, dev_name, data, fill_super);
         return mount_bdev(fs_type, flags, dev_name, data, fill_super);
 })
 
@@ -838,7 +840,9 @@ FUNC_WRAPPER(sb_min_blocksize, ( struct super_block *sb , int i ), {
 FUNC_WRAPPER_VOID(get_random_bytes, ( void * buf , int nbytes ), {
         kern_printk("get_random_bytes wrapper : %lx", buf);
         //REMOVE_WATCHPOINT(buf);
+        //set_section_state(KERNEL_WRAPPER_SET);
         get_random_bytes(buf, nbytes);
+       //unset_section_state(KERNEL_WRAPPER_SET);
         //buf = temp_ptr;
 })
 
@@ -860,7 +864,9 @@ FUNC_WRAPPER_VOID(__mark_inode_dirty, (struct inode *inode, int data), {
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_op);
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(inode)->i_fop);
         WRAP_RECURSIVE_KERNEL(TO_UNWATCHED_ADDRESS(TO_UNWATCHED_ADDRESS(inode)->i_mapping)->a_ops);
+        set_section_state(KERNEL_WRAPPER_SET);
         __mark_inode_dirty(inode, data);
+        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 #if 0
@@ -878,8 +884,12 @@ FUNC_WRAPPER_VOID(clear_inode, (struct inode *inode), {
 //int block_truncate_page(struct address_space *, loff_t, get_block_t *);
 
 FUNC_WRAPPER(block_truncate_page, (struct address_space *mapping, loff_t from, get_block_t *get_block), {
+        int retvar;
         WRAP_FUNC(get_block);
-        return block_truncate_page(mapping, from, get_block);
+        //set_section_state(KERNEL_WRAPPER_SET);
+        retvar = block_truncate_page(mapping, from, get_block);
+       //unset_section_state(KERNEL_WRAPPER_SET);
+        return retvar;
 })
 
 FUNC_WRAPPER(block_write_begin,( struct file * file , struct address_space * mapping , loff_t pos , unsigned len , unsigned flags , struct page * * pagep , void * * fsdata , get_block_t  get_block ) , {
@@ -945,10 +955,7 @@ FUNC_WRAPPER_VOID(delayed_work_timer_fn, (unsigned long __data),{
     delayed_work_timer_fn(__data);
 })
 
-/*extern bool flush_work ( struct work_struct * work ) ;
-extern bool cancel_work_sync ( struct work_struct * work ) ;
-extern bool flush_delayed_work ( struct delayed_work * dwork ) ;
-*/
+
 
 extern "C" {
     void debug_flush_work(struct work_struct *work){
@@ -998,23 +1005,19 @@ FUNC_WRAPPER(queue_delayed_work,( struct workqueue_struct * wq , struct delayed_
      return queue_delayed_work(wq , work, delay);
 })
 
-//extern void destroy_workqueue ( struct workqueue_struct * wq ) ;
-/*
-FUNC_WRAPPER_VOID(destroy_workqueue,( struct workqueue_struct * wq ), {
-     debug_destroy_workqueue(wq);
-     //REMOVE_WATCHPOINT(work);
-     destroy_workqueue(wq);
-})
-*/
-
 FUNC_WRAPPER_VOID(inode_init_once, ( struct inode *inode ) ,{
-        inode_init_once(inode);
+            set_section_state(KERNEL_WRAPPER_SET);
+            inode_init_once(inode);
+            unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 //extern struct rb_node *rb_first(const struct rb_root *);
 FUNC_WRAPPER(rb_first, (const struct rb_root *rb),{
-    REMOVE_WATCHPOINT(rb);
-    return rb_first(rb);
+        struct rb_node *retvar;
+        set_section_state(KERNEL_WRAPPER_SET);
+        retvar = rb_first(rb);
+        unset_section_state(KERNEL_WRAPPER_SET);
+        return retvar;
 })
 
 FUNC_WRAPPER(_copy_to_user, (void *to, void *from, unsigned len), {
@@ -1029,12 +1032,16 @@ FUNC_WRAPPER(_copy_from_user, (void *to, void *from, unsigned len), {
 
 FUNC_WRAPPER_VOID(register_shrinker, (struct shrinker *shr), {
         WRAP_FUNC(TO_UNWATCHED_ADDRESS(shr)->shrink);
+        set_section_state(KERNEL_WRAPPER_SET);
         register_shrinker(shr);
+        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 FUNC_WRAPPER_VOID(unregister_shrinker, (struct shrinker *shr), {
         WRAP_FUNC(TO_UNWATCHED_ADDRESS(shr)->shrink);
+        set_section_state(KERNEL_WRAPPER_SET);
         unregister_shrinker(shr);
+        unset_section_state(KERNEL_WRAPPER_SET);
 })
 
 void __ticket_spin_unlock(arch_spinlock_t *lock);
@@ -1051,20 +1058,7 @@ FUNC_WRAPPER_VOID(call_rcu_sched, ( struct callback_head * head , void (*func)( 
         call_rcu_sched(head, func);
 })
 
-/*
-FUNC_WRAPPER(kthread_create_on_node, ( threadfn thread_fun, void *data , int node, const char namefmt[], ... ), {
-        struct kthread_create_info *create(0);
-        char format_buff[sizeof(create->result->comm)];
-        va_list args;
-        va_start(args, namefmt);
-        kern_vsnprintf(&(format_buff[0]), sizeof(format_buff), namefmt, args);
-        va_end(args);
-        WRAP_FUNC(thread_fun);
-        D( kern_printk(" kthread_create wrapped !!!!!!!!!!!!!!!!!!  : %lx",thread_fun); )
-        return kthread_create_on_node(thread_fun, data, node, format_buff);
-})
 
-*/
 //#if defined(CAN_WRAP_kthread_create_on_node) && CAN_WRAP_kthread_create_on_node
 #   define WRAPPER_FOR_kthread_create_on_node 1
     FUNC_WRAPPER(kthread_create_on_node, (
@@ -1112,4 +1106,6 @@ FUNC_WRAPPER(kthread_create_on_node, ( threadfn thread_fun, void *data , int nod
                                     unsigned long first_index, unsigned int max_items), {
             return radix_tree_gang_lookup(root, results, first_index, max_items);
     })
+
+
 #endif /* WRAPPER_FILESYSTEM_H_ */

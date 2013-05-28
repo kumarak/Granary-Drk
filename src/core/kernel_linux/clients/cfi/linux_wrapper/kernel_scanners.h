@@ -4358,6 +4358,7 @@ TYPE_SCAN_WRAPPER(struct super_block, {
     SCAN_HEAD{
         DECLARE_HASH(htable);
         SCANNER(struct super_block);
+        VOID(htable);
     }
     SCAN {
         S(kern_printk( "struct super_block\n");)
@@ -4379,7 +4380,7 @@ TYPE_SCAN_WRAPPER(struct super_block, {
         SCAN_FUNCTION(arg.s_count);
         SCAN_RECURSIVE(arg.s_active);
         SCAN_FUNCTION(arg.s_security);
-        const struct xattr_handler **handlers(arg.s_xattr);
+ /*       const struct xattr_handler **handlers(arg.s_xattr);
         const struct xattr_handler *handler(nullptr);
         if(handlers != nullptr){
             for((handler) = *(handlers)++;
@@ -4387,7 +4388,7 @@ TYPE_SCAN_WRAPPER(struct super_block, {
                     (handler) = *(handlers)++) {
                 SCAN_RECURSIVE_PTR(handler);
             }
-        }
+        }*/
 //  Pointer(Pointer(Attributed(const , Use(Struct(struct xattr_handler))))) arg.s_xattr
         SCAN_RECURSIVE(arg.s_inodes);
         SCAN_RECURSIVE(arg.s_anon);

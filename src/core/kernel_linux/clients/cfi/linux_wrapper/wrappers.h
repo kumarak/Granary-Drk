@@ -119,6 +119,7 @@ extern int get_unused_fd_flags(unsigned flags);
 extern void fd_install(unsigned int fd, struct file *file);
 extern void put_unused_fd(unsigned int fd);
 extern void fput(struct file *);
+extern bool set_freezable(void);
 
 unsigned pagevec_lookup(struct pagevec *pvec, struct address_space *mapping,
                  pgoff_t start, unsigned nr_pages);

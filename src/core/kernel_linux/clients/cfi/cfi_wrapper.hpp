@@ -895,16 +895,37 @@ R (*to_shadow_address(R (*func_ptr)(Args...)))(Args...) {
                 uint64_t wrapper_addr = (uint64_t) cfi_dynamic_wrapper_ret_impl<R, Args...>::wrapper;
 
                 shadow_region *region = shadow_allocator::allocate();
+                if(NULL == region) {
+                    granary_fault();
+                    return (func_type *)addr;
+                }
                 volatile uint64_t *shadow_address((uint64_t*)&(region->instr));
                 volatile uint64_t *shadow_slot((uint64_t*)&(region->slot));
 
                 int64_t shadow_ptr = (int64_t)shadow_address;
                 int64_t offset_val = (wrapper_addr - (shadow_ptr + 5));
 
-                unsigned long hotpatch_instruction[] = {
+                unsigned char instruction[] = {
                         0xe8, 0x00, 0x00, 0x00, 0x00,
                         /*      0x68, 0x00, 0x00, 0x00, 0x00, */
                         0xc3 // ret
+                };
+
+                instruction[1] = ((offset_val >> 0)     & 0xff);
+                instruction[2] = ((offset_val >> 8)     & 0xff);
+                instruction[3] = ((offset_val >> 16)    & 0xff);
+                instruction[4] = ((offset_val >> 24)    & 0xff);
+
+                memcpy((void*)shadow_address, instruction, 6);
+
+                region->slot = addr;
+
+#if 0
+                /*
+                unsigned long hotpatch_instruction[] = {
+                        0xe8, 0x00, 0x00, 0x00, 0x00,
+                       */ /*      0x68, 0x00, 0x00, 0x00, 0x00, */
+                       /* 0xc3 // ret
                 };
 
                 hotpatch_instruction[1] = ((offset_val >> 0)     & 0xff);
@@ -919,6 +940,8 @@ R (*to_shadow_address(R (*func_ptr)(Args...)))(Args...) {
                                                 + (hotpatch_instruction[4] << 32)
                                                 + (hotpatch_instruction[5] << 40)};
 
+
+                memcpy(shadow_address);
                 if(shadow_address > (uint64_t*)4095){
                     oldval = *(shadow_address);
                     newval = hotpatch_instr;
@@ -935,8 +958,8 @@ R (*to_shadow_address(R (*func_ptr)(Args...)))(Args...) {
                     do {
                         newval = addr;
                     }while(!__sync_bool_compare_and_swap(shadow_slot, oldval, newval));
-                }
-
+                }*/
+#endif
                 ret = hashmap_put(dynamic_wrapper_table, (void*)addr, (void*)region);
                 D(kern_printk(" inside allocator actual address : %llx\t wrapper address : %llx\n", addr, shadow_address);)
                 addr = (uint64_t)shadow_address;

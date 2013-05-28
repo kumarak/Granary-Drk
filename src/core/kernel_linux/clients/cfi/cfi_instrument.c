@@ -2448,9 +2448,9 @@ void cfi_hotpatch_kernel(void *drcontext){
     printk("%s\n", __FUNCTION__);
     client->cache_start = dr_thread_alloc(drcontext, CLIENT_CACHE_SIZE);
 
-   // client->cache_ptr = emit_hotpatch_code_(drcontext, client, client->cache_start, (void*)kfree);
-
+#ifdef CONFIG_USING_WATCHPOINT
     cfi_hotpatch_init(GLOBAL_DCONTEXT);
+#endif
    //
     //
     //client->cache_ptr = hijack_kernel_function(drcontext, client, client->cache_start, (void*)__ticket_spin_is_locked, (void*)cfi__ticket_spin_is_locked);
