@@ -1,3 +1,6 @@
+"""Parse a compiler-generated assembly so that we can see what
+kinds of assembly syntax the compiler being used uses, so that certain
+assembly macros can be customized to those compilers."""
 
 PREFIX_WITH_UNDERSCORE = False
 USE_GLOBL = False
@@ -13,9 +16,9 @@ with open("scripts/static/asm.S") as lines:
     if "foo" in line:
       if "_foo" in line:
         PREFIX_WITH_UNDERSCORE = True
-    if "globl" in line:
+    if ".globl" in line:
       USE_GLOBL = True
-    if "type" in line:
+    if ".type" in line:
       USE_TYPE = True
       if "@function" in line:
         USE_AT_FUNCTION = True

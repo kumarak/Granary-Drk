@@ -1,9 +1,13 @@
+"""Process DynamoRIO's instr_create.h file and generate a simplied
+instruction creation API for use by Granary."""
 
 import re
 
 code = open('granary/gen/instruction.cc', 'w')
 #direct_ctis = open('granary/gen/mangle_direct_cti.cc', 'w')
 header = open('granary/gen/instruction.h', 'w')
+
+DC = re.compile(r"([ (,])dc([ ),])")
 
 def C(*args):
   global code
@@ -96,28 +100,27 @@ def emit_instr_function(lines, i, instr, args):
   arg_list = build_typed_arg_list(typed_arg, args[1:])
   copied_code = "\n    ".join(sub_lines)
   
+  func_name = instr + "_"
+  if "jecxz" == instr:
+    H("    instruction ", func_name, "(", arg_list, ");")
+    func_name = "jrcxz_"
+
   # emit the new function
-  H("    instruction ", instr, "_(", arg_list, ");")
-  C("instruction ", instr, "_(", arg_list, ") {")
-  C("    instruction in__; // need to make sure granary policy is 0")
-  if 1 <= len(args):
-    C("    dynamorio::dcontext_t dc__ = {")
-    C("        false, /* x86_mode */")
-    C("        0, /* private code */")
-    C("        &(in__.instr) /* allocated_instr */")
-    C("    };")
-    C("    dynamorio::dcontext_t *", args[0], " = &dc__;")
-  C("   ", copied_code)
+  H("    instruction ", func_name, "(", arg_list, ");")
+  C("instruction ", func_name, "(", arg_list, ") {")
 
   # this is a hack: the way be build base/disp operand types from
   # registers is such that the register size can propagate through.
   # this is an attempt to fix it in some cases.
   if "lea" == instr:
-    C("    in__.instr.u.o.src0.size = dynamorio::OPSZ_lea;")
-
-  C("    return in__;")
+    C("    %s.size = dynamorio::OPSZ_lea;" % args[2])
   for arg in args[1:]:
     C("    (void) ", arg, ";")
+
+  if len(args) and "dc" == args[0]:
+    copied_code = DC.sub(r"\1(instruction::DCONTEXT)\2", copied_code)
+  C("   return ", copied_code)
+  
   C("}")
 
   if "dynamorio::OP_" in copied_code:
@@ -190,7 +193,7 @@ with open("deps/dr/x86/instr_create.h") as lines_:
   H('    inline operand pc_(app_pc pc) { return dynamorio::opnd_create_pc(pc); }')
   H('    inline operand far_pc_(uint16_t sel, app_pc pc) { return dynamorio::opnd_create_far_pc(sel, pc); }')
   H('    inline operand instr_(dynamorio::instr_t *instr) { return dynamorio::opnd_create_instr(instr); }')
-  H('    inline operand far_instr_(uint16_t sel, instruction *instr) { return dynamorio::opnd_create_far_instr(sel, &(instr->instr)); }')
+  H('    inline operand far_instr_(uint16_t sel, dynamorio::instr_t *instr) { return dynamorio::opnd_create_far_instr(sel, instr); }')
   H('    operand mem_pc_(app_pc *);')
   lines = list(lines_)
   i = 0
@@ -223,6 +226,8 @@ with open("deps/dr/x86/instr_create.h") as lines_:
 
   C('}')
   C()
+
+  H('    inline instruction cmpxchg16b_(operand d) throw() { d.size = dynamorio::OPSZ_8_rex16; return cmpxchg8b_(d); }')
   H('}')
   H('#endif /* GRANARY_GEN_INSTRUCTION_H_ */')
   H()

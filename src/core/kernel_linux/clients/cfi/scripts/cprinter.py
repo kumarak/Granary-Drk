@@ -32,8 +32,12 @@ def pretty_print_type(ctype, inner="", lang="C"):
     inner = "(%s%s)(%s)" % (s, inner, ", ".join(param_types))
     return pretty_print_type(ctype.ret_type, inner=inner, lang=lang)
 
+  # type use, forward along
+  if isinstance(ctype, CTypeUse):
+    return pretty_print_type(ctype.ctype, inner, lang)
+
   # pointers (including function pointers)
-  if isinstance(ctype, CTypePointer):
+  elif isinstance(ctype, CTypePointer):
     while isinstance(ctype, CTypePointer):
       s += "*"
       s += ctype.is_const     and " const " or "" 
@@ -93,7 +97,7 @@ def pretty_print_type(ctype, inner="", lang="C"):
   elif isinstance(ctype, CTypeArray):
     s = "%s %s[%s]" % (pretty_print_type(ctype.ctype, lang=lang),
                        inner,
-                       " ".join(repr(t) for t in ctype.size_expr_toks))
+                       " ".join(str(t) for t in ctype.size_expr_toks))
 
   # struct, union, enum; note: technically function and array as well; but these
   # should be caught elsewhere
