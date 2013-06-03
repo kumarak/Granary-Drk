@@ -8,7 +8,6 @@
 #ifndef CFI_SCANNER_HPP_
 #define CFI_SCANNER_HPP_
 
-#define KERNEL_ADDRESS_OFFSET       0xffff000000000000
 #define KERNEL_MEMORY_START         0xffff880000000000
 #define KERNEL_MEMORY_HOLE_START    0xffffc80000000000
 #define KERNEL_MEMORY_HOLE_END      0xffffc8ffffffffff

@@ -202,11 +202,14 @@ int module_load_notifier(
         );
 
         for(i = 0; i < mod->core_num_syms; ++i) {
+#if 0
             if(SHF_ALLOC == mod->core_symtab[i].st_shndx) {
                 mod->core_symtab[i].st_value = (long int) cfi_to_shadow_address(
                     (cfi_type_erased_func_ptr) mod->core_symtab[i].st_value
                 );
-            }else if((SHF_MERGE | SHF_WRITE) == mod->core_symtab[i].st_shndx ){
+            }else
+#endif
+                if((SHF_MERGE | SHF_WRITE) == mod->core_symtab[i].st_shndx ){
                 cfi_list_append(&module_global_list, (void*)mod->core_symtab[i].st_value);
             }
         }
@@ -290,7 +293,7 @@ void cfi_thread_slot_module_enrty(void)
     if(thread->spill_slot[0] == (unsigned long)NULL){
         thread_spill_slot = (struct thread_private_info*)kmalloc(sizeof(struct thread_private_info), GFP_ATOMIC);
         thread_spill_slot->stack = NULL;
-        thread_spill_slot->is_running_module = 1;
+     //   thread_spill_slot->is_running_module = 1;
         thread_spill_slot->section_count = 0;
         thread_spill_slot->stack = kmalloc(THREAD_SIZE, GFP_ATOMIC);
         //thread_spill_slot->stack_start_address = thread;
@@ -303,7 +306,7 @@ void cfi_thread_slot_module_enrty(void)
     } else {
         thread_spill_slot = (struct thread_private_info*)thread->spill_slot[0];
         thread_spill_slot->tsk = get_current();
-        thread_spill_slot->is_running_module = 1;
+      //  thread_spill_slot->is_running_module = 1;
        // thread_spill_slot->section_count++;
         thread_spill_slot->copy_stack = 0;
     }

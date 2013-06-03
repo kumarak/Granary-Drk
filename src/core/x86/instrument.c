@@ -5252,7 +5252,7 @@ dr_get_mcontext_snapshot(void *addr) {
         dr_printf("WTF!!!!!!!!!!!!!!!!! spill_slot is NULL\n");
         spill_slot = kernel_thread_private_slot_init(SPILL_SLOT_1);
         spill_slot->section_count = 1;
-        spill_slot->is_running_module = 1;
+      //  spill_slot->is_running_module = 1;
         spill_slot->tsk = kernel_get_current();
         dr_add_to_list((void*)spill_slot);
     }

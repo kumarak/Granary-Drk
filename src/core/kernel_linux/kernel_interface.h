@@ -3,6 +3,7 @@
 
 #include "basic_types.h"
 
+
 /* A minimal interface to the kernel. Seperated from the rest of the code not
  * for modularity but because of #include and symbol definition conflicts.
  */
@@ -25,6 +26,8 @@ void kernel_free_heap(void* heap);
 void* kernel_allocate(size_t size);
 void kernel_free(void* heap);
 
+void debug_interrupt(struct kmem_cache*);
+
 void*
 kernel_get_thread_private_slot(size_t slot);
 
@@ -39,6 +42,9 @@ kernel_memcpy(void *dest, void *src, size_t size);
 
 void*
 kernel_get_current(void);
+
+bool
+is_shadow_address(void *pc);
 
 
 int kernel_get_online_processor_count(void);
@@ -67,6 +73,8 @@ const char* kernel_getenv(const char* name);
 bool kernel_native_swapgs(void* pc);
 
 bool is_kernel_code(void* pc);
+bool
+is_kernel_symbol(void *pc);
 
 /* None of these routines are safe to use after initilization. */
 void* kernel_load_shared_library(char* name);

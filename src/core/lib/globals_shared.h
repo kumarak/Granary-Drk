@@ -1754,16 +1754,20 @@ typedef struct _dr_mcontext_t {
     };
 } dr_mcontext_t;
 
+enum {
+    GRANARY_GP_FLAG = 0x1ULL,
+};
 
 struct thread_private_info {
     void *stack;
     void *stack_start_address;
     void *current_stack;
     struct task_struct *tsk;
-    unsigned int is_running_module;
+  //  unsigned int is_running_module;
     unsigned long section_count;
     unsigned long gen_num;
     unsigned long copy_stack;
+    unsigned long long flags;
    /* dr_mcontext_t mc;*/
     reg_t regs[16];
 };

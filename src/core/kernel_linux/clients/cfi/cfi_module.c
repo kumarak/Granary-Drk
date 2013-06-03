@@ -23,6 +23,9 @@
 #include <linux/fs.h>
 #include <asm/thread_info.h>
 
+extern unsigned long long shadow_module_start;
+extern unsigned long long shadow_module_end;
+
 /*Memleak declaration*/
 
 #define DEFAULT_HASHTABLE_SIZE 0
@@ -37,7 +40,6 @@ struct hashtable_t  *module_alloc_hash[3];
 DEFINE_HASHTABLE(alloc_pointer_hash);
 
 DEFINE_HASHTABLE(kernel_pointer_hash);
-DEFINE_HASHTABLE(local_symbol_table);
 DEFINE_HASHTABLE(kernel_variable_hash);
 
 DEFINE_HASHTABLE(dynamic_wrapper_table);
@@ -46,7 +48,6 @@ CFI_LIST_DECLARE(module_global_list);
 CFI_LIST_DECLARE(atomic_sweep_list);
 CFI_LIST_DECLARE(watchpoint_scan_list);
 CFI_LIST_DECLARE(list_collected_watchpoint);
-CFI_LIST_DECLARE(list_collected_watchpoint_kernel);
 CFI_LIST_DECLARE(kernel_leaked_watchpoints);
 
 CFI_LIST_DECLARE(list_loaded_module);
@@ -105,7 +106,7 @@ typedef void *(vmalloc_area_type)(struct vm_struct *, gfp_t gfp_mask, pgprot_t p
 typedef void *(vmalloc_node_range_type)(unsigned long size, unsigned long align,
 										unsigned long start, unsigned long end, gfp_t gfp_mask,
 										pgprot_t prot, int node, void *caller);
-
+#if 0
 void *shadow_page_alloc(unsigned long size, unsigned long va_start, unsigned long va_end) {
 #ifdef LINUX_V2_6_32
     struct vm_struct *area;
@@ -131,13 +132,22 @@ void *shadow_page_alloc(unsigned long size, unsigned long va_start, unsigned lon
     								-1, __builtin_return_address(0));
 #endif
 }
+#endif
 
 typedef void* (vmodule_alloc)(unsigned long);
 
 void *module_page_alloc(unsigned long size) {
     vmodule_alloc *module_alloc = (vmodule_alloc *) MODULE_ALLOC;
     size = PAGE_ALIGN(size);
+    void *start_address = module_alloc(size);
+    shadow_module_start = (unsigned long long)start_address;
+    shadow_module_end = (unsigned long long)start_address + size;
+    return start_address;
+}
 
+void *module_descriptor_table_alloc(unsigned long size) {
+    vmodule_alloc *module_alloc = (vmodule_alloc *) MODULE_ALLOC;
+    size = PAGE_ALIGN(size);
     return module_alloc(size);
 }
 
@@ -146,7 +156,7 @@ void *module_page_alloc(unsigned long size) {
 static int __init
 cfi_module_init(void) {
     unsigned int ret;
-#ifdef CONFIG_USING_WATCHPOINT
+#if 0//def CONFIG_USING_WATCHPOINT
     unsigned long drk_interface_addr = (unsigned long) cfi_enter_module_from_shadow;
 
     shadow_pointer_init = shadow_page_alloc(MODULE_SHADOW_END_EXTENDED - MODULE_SHADOW_START - 4096, MODULE_SHADOW_START, MODULE_SHADOW_END_EXTENDED);
@@ -187,9 +197,7 @@ cfi_module_init(void) {
    	cfi_list_init(&list_collected_watchpoint);
    	cfi_list_init(&kernel_leaked_watchpoints);
    	cfi_list_init(&list_loaded_module);
-   	cfi_list_init(&list_collected_watchpoint_kernel);
 
-   	hashmap_init(1024, &local_symbol_table);
    	init_wrapper();
 
 #ifdef CLIENT_MEMORY_LEAK

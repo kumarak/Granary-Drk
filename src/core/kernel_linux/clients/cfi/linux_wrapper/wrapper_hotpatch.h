@@ -8,6 +8,8 @@
 #ifndef WRAPPER_HOTPATCH_H_
 #define WRAPPER_HOTPATCH_H_
 
+//#undef CONFIG_USING_WATCHPOINT
+
 
 HOTPATCH_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
     function_t *wrap_func;
@@ -26,10 +28,10 @@ HOTPATCH_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
 #ifdef CONFIG_USING_WATCHPOINT
     state = (enum section_state)get_section_state();
     if(state & KERNEL_WRAPPER_SET){
-        retval = cfi_dump_stack();
-        kern_printk("ADD_WATCHPOINT with this pointer\n");
+  //      retval = cfi_dump_stack();
+       P( kern_printk("ADD_WATCHPOINT with this pointer\n");)
         ADD_WATCHPOINT(watchpoint_addr, size);
-        watchpoint_descriptor *meta_info = NULL;
+        descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(watchpoint_addr);
         if(NULL != meta_info) {
             uint64_t newval = 0x0ULL;
@@ -58,15 +60,18 @@ HOTPATCH_WRAPPER_VOID(kfree, ( void* addr), {
         }
     }
 #ifdef CONFIG_USING_WATCHPOINT
-        watchpoint_descriptor *meta_info = NULL;
+        descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(addr);
         if(NULL != meta_info) {
             uint64_t newval = 0x0ULL;
             uint64_t oldval = 0x0ULL;
+          //  meta_info->state = (meta_info->state & (~WP_MEMORY_ALLOCATED));
+#if 1
             do {
                 oldval = meta_info->state;
-                newval = (meta_info->state & (~WP_MEMORY_ALLOCATED)/*| WP_MEMORY_FREED*/);
+                newval = (meta_info->state & (~WP_MEMORY_ALLOCATED));
             }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
+#endif
         }
 
         REMOVE_WATCHPOINT(addr);
@@ -135,28 +140,32 @@ HOTPATCH_WRAPPER(kmem_cache_alloc, (struct kmem_cache *s, gfp_t gfpflags), {
     if(state & KERNEL_WRAPPER_SET){
         //uint64_t counter((uint64_t)__sync_fetch_and_add(&(watchpoint_counter), 0x1));
         //if (counter < 10) {
-            retval = cfi_dump_stack();
+      //      retval = cfi_dump_stack();
             ADD_WATCHPOINT(watch_ptr, s->size);
             if(s->ctor != NULL)
                 s->ctor(watch_ptr);
 
-            watchpoint_descriptor *meta_info = NULL;
+            descriptor *meta_info = NULL;
             meta_info = WATCHPOINT_META(watch_ptr);
             if(NULL != meta_info) {
                 uint64_t newval = 0x0ULL;
                 uint64_t oldval = 0x0ULL;
+                meta_info->state = meta_info->state | WP_MEMORY_ALLOCATED;
+#if 0
                 do {
                     oldval = meta_info->state;
                     newval = meta_info->state | WP_MEMORY_ALLOCATED;
                 }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
+#endif
             }
-            kern_printk("ADD_WATCHPOINT with this pointer : %llx\n",watch_ptr );
+           P( kern_printk("ADD_WATCHPOINT with this pointer : %llx\n",watch_ptr );)
        // }
     }
 #endif
     return watch_ptr;
 })
 
+#if 0
 
 HOTPATCH_WRAPPER(kmem_cache_alloc_trace, (struct kmem_cache *s, gfp_t gfpflags, size_t size), {
     function_t *wrap_func;
@@ -177,7 +186,7 @@ HOTPATCH_WRAPPER(kmem_cache_alloc_trace, (struct kmem_cache *s, gfp_t gfpflags, 
     if(state & KERNEL_WRAPPER_SET){
       //  uint64_t counter((uint64_t)__sync_fetch_and_add(&(watchpoint_counter), 0x1));
       //  if (counter < 10) {
-            retval = cfi_dump_stack();
+      //      retval = cfi_dump_stack();
             kern_printk("ADD_WATCHPOINT with this pointer\n");
             ADD_WATCHPOINT(watch_ptr, s->size);
             if(s->ctor != NULL)
@@ -188,16 +197,20 @@ HOTPATCH_WRAPPER(kmem_cache_alloc_trace, (struct kmem_cache *s, gfp_t gfpflags, 
             if(NULL != meta_info) {
                 uint64_t newval = 0x0ULL;
                 uint64_t oldval = 0x0ULL;
+                meta_info->state = meta_info->state | WP_MEMORY_ALLOCATED;
+#if 0
                 do {
                     oldval = meta_info->state;
                     newval = meta_info->state | WP_MEMORY_ALLOCATED;
                 }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
+#endif
             }
         //}
     }
 #endif
     return watch_ptr;
 })
+#endif
 //void *kmem_cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)
 HOTPATCH_WRAPPER(kmem_cache_alloc_node, (struct kmem_cache *cachep, gfp_t flags, int nodeid), {
     kern_printk("kmem_cache_alloc_node wrapper\n");
@@ -218,17 +231,19 @@ HOTPATCH_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
         }
     }
 #ifdef CONFIG_USING_WATCHPOINT
-        watchpoint_descriptor *meta_info = NULL;
+#if 1
+        descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(ptr);
         if(NULL != meta_info) {
             uint64_t newval = 0x0ULL;
             uint64_t oldval = 0x0ULL;
+       //     meta_info->state = (meta_info->state & (~WP_MEMORY_ALLOCATED));
+            newval = (meta_info->state & (~WP_MEMORY_ALLOCATED));
             do {
                 oldval = meta_info->state;
-                newval = (meta_info->state & (~WP_MEMORY_ALLOCATED)/*| WP_MEMORY_FREED*/);
             }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
         }
-
+#endif
         REMOVE_WATCHPOINT(ptr);
 #endif
         kmem_cache_free(s, ptr);
@@ -323,9 +338,9 @@ HOTPATCH_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
 #ifdef CONFIG_USING_WATCHPOINT
         state = (enum section_state)get_section_state();
         if(state & KERNEL_WRAPPER_SET){
-            retval = cfi_dump_stack();
+         //   retval = cfi_dump_stack();
             ADD_WATCHPOINT(addr, size);
-            watchpoint_descriptor *meta_info = NULL;
+            descriptor *meta_info = NULL;
             meta_info = WATCHPOINT_META(addr);
             if(NULL != meta_info) {
                 uint64_t newval = 0x0ULL;
@@ -355,14 +370,14 @@ HOTPATCH_WRAPPER_VOID(free_percpu, ( void* __pdata), {
             }
         }
 #ifdef CONFIG_USING_WATCHPOINT
-        watchpoint_descriptor *meta_info = NULL;
+        descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(__pdata);
         if(NULL != meta_info) {
             uint64_t newval = 0x0ULL;
             uint64_t oldval = 0x0ULL;
             do {
                 oldval = meta_info->state;
-                newval = (meta_info->state & (~WP_MEMORY_ALLOCATED)/*| WP_MEMORY_FREED*/);
+                newval = (meta_info->state & (~WP_MEMORY_ALLOCATED));
             }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
         }
 

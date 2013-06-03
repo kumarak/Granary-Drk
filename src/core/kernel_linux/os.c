@@ -1437,6 +1437,14 @@ general_fault_on_granary_code(void* addr){
 
 }
 
+noinline int
+granary_debug_page_fault(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext)
+{
+    (void)frame;
+    (void)mcontext;
+    return 0;
+}
+
 static
 int handle_pagefault_interrupt(dcontext_t* dcontext, interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext)
 {
@@ -1446,6 +1454,8 @@ int handle_pagefault_interrupt(dcontext_t* dcontext, interrupt_stack_frame_t* fr
 	{
 		return ret;
 	}
+
+	granary_debug_page_fault(frame, mcontext);
 
 	if(dr_is_granary_code(frame->xip)){
 	    general_fault_on_granary_code(frame->xip);
@@ -1474,6 +1484,7 @@ int handle_pagefault_interrupt(dcontext_t* dcontext, interrupt_stack_frame_t* fr
 
 }
 
+# if 0
 #define KERNEL_ADDRESS_OFFSET		0xffff000000000000
 #define WATCHPOINT_ADDRESS_MASK     0x8000800000000000
 #define IS_WATCHPOINT               0x800000000000
@@ -1484,122 +1495,14 @@ reg_t is_watchpoint_address(reg_t addr){
     else
         return addr;
 }
-
+#endif
 #define SPILL_SLOT_1    1
 
 //*********************************************************************************************
 
-struct memory_operand_modifier {
-    bool has_memory_operand;
-    bool has_source_memory_operand;
-    bool has_dest_memory_operand;
-    bool has_src_seg;
-    bool has_dsts_seg;
-    uint32_t src_size;
-    uint32_t dsts_size;
-    opnd_t found_operand;
-    opnd_t replacement_operand;
-};
-
-typedef void (opnd_callback_t)(instr_t *, opnd_t *, bool is_source,  void *state);
-
-static inline reg_id_t reg_to_reg64(reg_id_t reg) {
-    if(reg < DR_REG_SPL) {
-        while(reg >= DR_REG_EAX) {
-            reg -= (DR_REG_EAX - 1);
-        }
-        return reg;
-    }
-    return DR_REG_NULL;
-}
-
-static void
-memory_src_operand_finder(instr_t *in, opnd_t *opnd, bool is_source, struct memory_operand_modifier *mod) {
-
-        if(BASE_DISP_kind == opnd->kind){
-            if(opnd->value.base_disp.base_reg && !reg_to_reg64(opnd->value.base_disp.base_reg)) {
-                return;
-            }
-            if(opnd->value.base_disp.index_reg && !reg_to_reg64(opnd->value.base_disp.index_reg)) {
-                return;
-            }
-            mod->has_source_memory_operand = true;
-            mod->has_memory_operand = true;
-            mod->found_operand = *opnd;
-        }
-        if(!opnd->seg.segment) {
-            mod->has_src_seg = 1;
-        }
-        mod->src_size = opnd->size;
-        (void) in;
-}
-
-static void
-memory_dsts_operand_finder(instr_t *in, opnd_t *opnd, bool is_source, struct memory_operand_modifier *mod) {
-        if(BASE_DISP_kind == opnd->kind){
-            if(opnd->value.base_disp.base_reg && !reg_to_reg64(opnd->value.base_disp.base_reg)) {
-                return;
-            }
-            if(opnd->value.base_disp.index_reg && !reg_to_reg64(opnd->value.base_disp.index_reg)) {
-                return;
-            }
-            mod->has_dest_memory_operand = true;
-            mod->has_memory_operand = true;
-            mod->found_operand = *opnd;
-        }
-        if(opnd->seg.segment) {
-            mod->has_dsts_seg = 1;
-        }
-        mod->dsts_size = opnd->size;
-        (void) in;
-}
-
-
-static
-void for_each_dsts_operand(instr_t *in, void *state, opnd_callback_t *callback) {
-    int i = 0, max = in->num_dsts;
-    for(; i < max; ++i) {
-        callback(in, &(in->dsts[i]), false, state);
-    }
-}
-
-static
-void for_each_src_operand(instr_t *in, void *state, opnd_callback_t *callback) {
-    int i = 0, max = in->num_srcs - 1;
-    if(in->num_srcs) {
-        callback(in, &(in->src0), true, state);
-        for(i = 0; i < max; ++i) {
-            callback(in, &(in->srcs[i]), true, state);
-        }
-    }
-}
 
 //*********************************************************************************************
 
-
-noinline void
-general_fault_on_new_pc(unsigned long count, void* addr)
-{
-
-}
-
-noinline void
-gp_fix_reg(unsigned long count, void* addr)
-{
-
-}
-
-noinline void
-general_fault_on_rep_stos(unsigned long count, void* addr)
-{
-
-}
-
-noinline void
-general_fault_on_xadd(unsigned long count, void* addr)
-{
-
-}
 
 noinline void
 break_on_address(void* addr)
@@ -1623,6 +1526,17 @@ granary_debug_gp_fault(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext, 
     return 0;
 }
 
+static void
+set_gp_flag(dr_mcontext_t *mcontext){
+    struct thread_private_info *thread_private_slot;
+    thread_private_slot = kernel_get_thread_private_slot_from_rsp((void*)mcontext->rsp, 0);
+    if(!thread_private_slot){
+        thread_private_slot = kernel_thread_private_slot_init(SPILL_SLOT_1);
+    }
+
+    thread_private_slot->flags |= GRANARY_GP_FLAG;
+}
+
 static
 int
 handler_general_protection_fault(dcontext_t* drcontext, interrupt_stack_frame_t* frame,
@@ -1642,20 +1556,20 @@ handler_general_protection_fault(dcontext_t* drcontext, interrupt_stack_frame_t*
     local = local_heap_protected(dcontext);
     if (local)
         SELF_PROTECT_LOCAL(dcontext, WRITABLE);
-#if 1
+#if 0
 
     instrumented_xip = dr_get_basic_block(dcontext, frame->xip);
 
     if(instrumented_xip)
         frame->xip = instrumented_xip;
 #endif
-#if 0
-    	//mcontext->xip = frame->xip;
+#if 1
     	dcontext->next_tag = frame->xip;
     	dcontext->next_app_tag = frame->xip;
     	mcontext->xsp = frame->xsp;
     	mcontext->xflags = frame->xflags;
     	dcontext->gp_pc = frame->xip;
+    	set_gp_flag(mcontext);
     	dcontext->is_general_fault = true;
     	transfer_to_dispatch(dcontext, 0, mcontext);
     	ASSERT_NOT_REACHED();
@@ -1930,7 +1844,12 @@ handler_general_protection_fault(dcontext_t* drcontext, interrupt_stack_frame_t*
 noinline int
 granary_debug_interrupt(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext, unsigned int vector)
 {
+   // struct kmem_cache *cache;
+  //  struct kmem_cache_cpu *c;
     dr_printf("exception at address : %lx", frame->xip);
+    //cache = (struct kmem_cache*)mcontext->r13;
+   // debug_interrupt(cache);
+
     (void)frame;
     (void)mcontext;
     return 0;

@@ -10,10 +10,10 @@
 
     WRAP_FUNCTION_NORET(kfree, 1, const void *)
     WRAP_FUNCTION(__kmalloc, void *, 2, size_t, gfp_t)
-    //WRAP_FUNCTION_NORET(free_percpu, 1, void *)
-    //WRAP_FUNCTION(__alloc_percpu, void *, 2, size_t, size_t)
+    WRAP_FUNCTION_NORET(free_percpu, 1, void *)
+    WRAP_FUNCTION(__alloc_percpu, void *, 2, size_t, size_t)
     WRAP_FUNCTION(kmem_cache_alloc, void *, 2, struct kmem_cache*, gfp_t)
-    WRAP_FUNCTION(kmem_cache_alloc_trace, void *, 3, struct kmem_cache*, gfp_t, size_t)
+  //  WRAP_FUNCTION(kmem_cache_alloc_trace, void *, 3, struct kmem_cache*, gfp_t, size_t)
     WRAP_FUNCTION_NORET(kmem_cache_free, 2, struct kmem_cache *, void *)
     //extern void * kmem_cache_alloc_trace ( struct kmem_cache * s , gfp_t gfpflags , size_t size ) ;
     /*WRAP_FUNCTION(__kmalloc_node, void *, 3, size_t, gfp_t, int)

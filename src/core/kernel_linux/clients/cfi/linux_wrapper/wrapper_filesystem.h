@@ -16,6 +16,10 @@ extern "C" {
     }
 }
 
+#define IS_ARG_VALID(x) \
+    if((uint64_t)x < 4096)  \
+    {   return; }
+
 /******************************************
  * TYPE WRAPPERS
  */
@@ -559,15 +563,19 @@ TYPE_WRAPPER(umode_t*, {
 #define WRAPPER_FOR_struct_buffer_head
 TYPE_WRAPPER(struct buffer_head*, {
     PRE{
+        IS_ARG_VALID(arg);
+        ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct buffer_head));
+
         if(!is_alias_address((uint64_t)arg)){
-           D(kern_printk( "added to hash table struct buffer_head\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct buffer_head));
+            WRAP_FUNCTION(arg->b_end_io);
+        } else {
+            WRAP_FUNCTION(TO_UNWATCHED_ADDRESS(arg)->b_end_io);
         }
-        ABORT_IF_FUNCTION_IS_WRAPPED(arg.b_end_io);
+
         //WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_this_page);
         //WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_page);
        // WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_bdev);
-        WRAP_FUNCTION(TO_UNWATCHED_ADDRESS(arg)->b_end_io);
+
      //   WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->b_assoc_map);
     }
     NO_POST
@@ -609,6 +617,13 @@ TYPE_WRAPPER(struct page*, {
 /***********************************************
  * FUNCTION WRAPPER
  */
+//void unlock_page(struct page *page)
+
+FUNC_WRAPPER_VOID(unlock_page, (struct page *page), {
+        set_section_state(KERNEL_WRAPPER_SET);
+        unlock_page(page);
+        unset_section_state(KERNEL_WRAPPER_SET);
+})
 
 FUNC_WRAPPER(register_filesystem, (struct file_system_type * fs), {
         int retvar;
@@ -838,8 +853,7 @@ FUNC_WRAPPER(sb_min_blocksize, ( struct super_block *sb , int i ), {
 })
 
 FUNC_WRAPPER_VOID(get_random_bytes, ( void * buf , int nbytes ), {
-        kern_printk("get_random_bytes wrapper : %lx", buf);
-        //REMOVE_WATCHPOINT(buf);
+        D(kern_printk("get_random_bytes wrapper : %lx", buf);)
         //set_section_state(KERNEL_WRAPPER_SET);
         get_random_bytes(buf, nbytes);
        //unset_section_state(KERNEL_WRAPPER_SET);

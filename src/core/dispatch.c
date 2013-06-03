@@ -175,6 +175,37 @@ void null_next_tag_curiosity(dcontext_t *dcontext) { }
  * Having no stack state kept across cache executions avoids
  * self-protection issues with the dstack.
  */
+
+static bool
+is_gp_flag_set(dcontext_t *dcontext){
+    struct thread_private_info *thread_private_slot;
+    thread_private_slot = kernel_get_thread_private_slot_from_rsp((void*)get_mcontext(dcontext)->rsp, 0);
+    if(thread_private_slot){
+        if(thread_private_slot->flags & GRANARY_GP_FLAG){
+            return true;
+        }
+    }
+    return false;
+}
+
+static void
+unset_gp_flag(dcontext_t *dcontext){
+    struct thread_private_info *thread_private_slot;
+    thread_private_slot = kernel_get_thread_private_slot_from_rsp((void*)get_mcontext(dcontext)->rsp, 0);
+    if(thread_private_slot){
+        thread_private_slot->flags &= ~(GRANARY_GP_FLAG);
+    }
+}
+
+static inline
+bool is_gp_exit(dcontext_t *dcontext){
+    if((dcontext->gp_pc != dcontext->next_tag) && is_gp_flag_set(dcontext)){
+        unset_gp_flag(dcontext);
+        return true;
+    }
+    return false;
+}
+
 void
 dispatch(dcontext_t *dcontext)
 {
@@ -247,28 +278,23 @@ dispatch(dcontext_t *dcontext)
         else
 #endif
 #ifdef LINUX_KERNEL
-        //	dcontext->current_tag = dcontext->next_tag;
-        //	if(dcontext->next_tag == NULL)
-        	//	null_next_tag_curiosity(dcontext);
 
-            if(is_module_shadow_address(dcontext)) {
+            if(is_shadow_address(dcontext->next_tag) || is_gp_exit(dcontext)) {
+                dispatch_enter_native(dcontext);
+                ASSERT_NOT_REACHED();
 
-            unsigned long long next_addr = (unsigned long long) dcontext->next_tag;
-            next_addr -= MODULE_SHADOW_OFFSET;
-            dcontext->next_tag = (app_pc) next_addr;
+                /* we are exiting the module, i.e. going into the kernel */
+            } else if (is_module_exit_point(dcontext)) {
+                dispatch_exit_module(dcontext);
+                ASSERT_NOT_REACHED();
 
-        /* we are exiting the module, i.e. going into the kernel */
-        } else if (is_module_exit_point(dcontext)) {
-            dispatch_exit_module(dcontext);
-            ASSERT_NOT_REACHED();
-
-        /* somehow we are jumping into Granary code; we allow some minor tails of Granary
-         * code to be instrumented if Granary code calls dr_app_start. */
-        } else if(dcontext->app_start_next_tag != dcontext->next_tag && dr_is_granary_code(dcontext->next_tag)) {
-            null_next_tag_curiosity(dcontext);
-            dispatch_exit_module(dcontext);
-            ASSERT_NOT_REACHED();
-        }
+                /* somehow we are jumping into Granary code; we allow some minor tails of Granary
+                 * code to be instrumented if Granary code calls dr_app_start. */
+            } else if(dcontext->app_start_next_tag != dcontext->next_tag && dr_is_granary_code(dcontext->next_tag)) {
+                null_next_tag_curiosity(dcontext);
+                dispatch_exit_module(dcontext);
+                ASSERT_NOT_REACHED();
+            }
 #endif
 
         ASSERT_SANE_DISPATCH_TARGET(dcontext->next_tag);
@@ -301,10 +327,17 @@ dispatch(dcontext_t *dcontext)
             }
             if (targetf == NULL) {
                 SELF_PROTECT_LOCAL(dcontext, WRITABLE);
-                targetf = build_basic_block_fragment(dcontext, dcontext->next_tag,
+                if(is_kernel_symbol(dcontext->next_tag)){
+                    targetf = build_basic_block_fragment(dcontext, dcontext->next_tag,
+                                               0, false/*link*/, true/*visible*/
+                                               _IF_CLIENT(false/*!for_trace*/)
+                                               _IF_CLIENT(NULL));
+                }else {
+                    targetf = build_basic_block_fragment(dcontext, dcontext->next_tag,
                                                0, true/*link*/, true/*visible*/
                                                _IF_CLIENT(false/*!for_trace*/)
                                                _IF_CLIENT(NULL));
+                }
                 SELF_PROTECT_LOCAL(dcontext, READONLY);
                 if (dcontext->emulating_interrupt_return) {
                     STATS_INC(num_fragment_tails_iret);
@@ -388,12 +421,11 @@ is_module_shadow_address(dcontext_t *dcontext) {
 
 static bool
 is_module_exit_point(dcontext_t *dcontext) {
-    //if(get_thread_private_slot(SPILL_SLOT_2)) {
     //dr_get_symbol_name(dcontext->next_tag);
-    //if(dcontext->gp_pc == dcontext->next_tag){
+    if(dcontext->gp_pc == dcontext->next_tag){
       //  dcontext->is_general_fault = false;
-        //return false;
-    //}
+        return false;
+    }
     return ((dcontext->next_tag >= (app_pc) KERNEL_START_ADDR) && (dcontext->next_tag < (app_pc) KERNEL_END_ADDR));
 }
 
@@ -408,25 +440,8 @@ emulate_push_mcontext(dr_mcontext_t *mc, reg_t value)
     *((reg_t*) mc->xsp) = value;
 }
 #endif
-/*
-static reg_t
-emulate_pop_mcontext(dr_mcontext_t *mc)
-{
-    reg_t value = *((reg_t*) mc->xsp);
-    mc->xsp += sizeof(reg_t);
-    return value;
-}
 
-static reg_t
-get_stack_element(dr_mcontext_t *mc, int index) {
-    return ((reg_t*) mc->xsp)[index];
-}
 
-void
-set_stack_element(dr_mcontext_t *mc, int index, reg_t val) {
-    ((reg_t*) mc->xsp)[index] = val;
-}
-*/
 /* returns true if pc is a point at which DynamoRIO should stop interpreting */
 bool
 is_stopping_point(dcontext_t *dcontext, app_pc pc)
@@ -854,7 +869,7 @@ void initialize_spill_slot(void){
     dr_printf("spill_slot was NULL!!!!!!!!!!!!!!!\n");
     spill_slot = kernel_thread_private_slot_init(SPILL_SLOT_1);
     spill_slot->section_count = 0;
-    spill_slot->is_running_module = 1;
+   // spill_slot->is_running_module = 1;
     spill_slot->tsk = kernel_get_current();
     dr_add_to_list((void*)spill_slot);
 }
@@ -880,7 +895,7 @@ dispatch_exit_module(dcontext_t *dcontext) {
 
     if(thread_private_slot != NULL){
 
-        thread_private_slot->is_running_module = 0;
+      //  thread_private_slot->is_running_module = 0;
         thread_private_slot->copy_stack = 1;
        // thread_private_slot->current_stack = (void*)get_mcontext(dcontext)->rsp;
        // thread_private_slot->stack_start_address = get_stack_init_address();

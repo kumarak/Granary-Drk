@@ -651,8 +651,12 @@ public:
         typedef R (orig_func_type)(Args...);
         D( kern_printk("in wrapper for %lx; wrapping %lu args\n", (uint64_t) addr, sizeof...(Args)); )
         const int depth__ = 0;
-        if(count_wrappers<wrap_type, Args...>::HAS_ANY) {
-            arg_pre_wrapper<wrap_type, Args...>(depth__,addr, args...);
+        enum section_state state;
+        state = (enum section_state)get_section_state();
+        if(!(state & KERNEL_WRAPPER_SET)){
+            if(count_wrappers<wrap_type, Args...>::HAS_ANY) {
+                arg_pre_wrapper<wrap_type, Args...>(depth__,addr, args...);
+            }
         }
         //native_box<R> ret_val(addr, args...);
         set_section_state(KERNEL_WRAPPER_SET);
@@ -675,8 +679,12 @@ public:
         typedef R (orig_func_type)(Args...);
         D( kern_printk("in wrapper for %lx; wrapping %lu args\n", (uint64_t) addr, sizeof...(Args)); )
         const int depth__ = 0;
-        if(count_wrappers<wrap_type, Args...>::HAS_ANY) {
-            arg_pre_wrapper<wrap_type, Args...>(depth__,addr, args...);
+        enum section_state state;
+        state = (enum section_state)get_section_state();
+        if(!(state & KERNEL_WRAPPER_SET)){
+            if(count_wrappers<wrap_type, Args...>::HAS_ANY) {
+                arg_pre_wrapper<wrap_type, Args...>(depth__,addr, args...);
+            }
         }
         set_section_state(KERNEL_WRAPPER_SET);
         ((orig_func_type *) addr)(args...);
@@ -744,7 +752,8 @@ public:
 
 
 /// include shadow aliasing machinery
-#include "cfi_alias.hpp"
+//#include "cfi_alias.hpp"
+#include "descriptor_table.hpp"
 #include "aliases/aliases.hpp"
 #include "cfi_scanner.hpp"
 
@@ -771,7 +780,7 @@ public:
             D(kern_printk("in dynamic wrapper for %lx; wrapping %lu args\n", (uint64_t) addr,  sizeof...(Args)));
             arg_pre_wrapper<module_wrap_type, Args...>(depth__,addr, args...);
         }
-        cfi_print_symbol_name((void*)addr);
+     //   cfi_print_symbol_name((void*)addr);
         cfi_thread_slot_module_enrty();
 #else
         __asm__ volatile(

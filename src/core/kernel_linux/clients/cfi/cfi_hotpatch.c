@@ -179,7 +179,7 @@ emit_hotpatch_code(void *drcontext, byte *cache_pc, function_t *func)
     if(func->wrapper_func != NULL) {
         wrapper_pc = (app_pc)func->wrapper_func;
     } else {
-        wrapper_pc = (app_pc)func->start;
+        wrapper_pc = (app_pc)func->replace_func;
     }
 
     offset_val = ((uint64_t)wrapper_pc - (orig_pc+5));

@@ -154,7 +154,8 @@ SYS_MAP := $(DR_CORE_DIR)/../debugging/linux-3.8.2/System.map
 #SYS_MAP := /boot/System.map-$(shell uname -r)
 $(DR_CORE_DIR)/kernel_linux/modules/../../kernel_linux/clients/cfi/cfi_wrapper.cc: $(DR_CORE_DIR)/kernel_linux/clients/cfi/cfi_wrapper.hpp $(DR_CORE_DIR)/kernel_linux/clients/cfi/wrappers/white_list.txt $(DR_CORE_DIR)/kernel_linux/clients/cfi/types/kernel_types.hpp
 	sudo cp $(SYS_MAP) $(DR_CORE_DIR)/kernel_linux/clients/cfi/wrappers/map.txt
-	sudo python2.6 $(DR_CORE_DIR)/kernel_linux/clients/cfi/make_wrappers.py $(DR_CORE_DIR)/kernel_linux/clients/cfi/
+	bash  $(DR_CORE_DIR)/symbols.sh $(DR_CORE_DIR)/../debugging/linux-3.8.2/Module.symvers $(DR_CORE_DIR)/kernel_linux/clients/cfi/wrappers/exported_syms
+	sudo python $(DR_CORE_DIR)/kernel_linux/clients/cfi/make_wrappers.py $(DR_CORE_DIR)/kernel_linux/clients/cfi/
 	g++ -mcmodel=kernel $(CXX_FLAGS) -DX86_64 -DLINUX -DLINUX_KERNEL -I$(GUEST_KERNELDIR)/include -I$(GUEST_KERNELDIR)/arch/x86/include -I$(DR_CORE_DIR) -c $(DR_CORE_DIR)/kernel_linux/clients/cfi/cfi_wrapper.cc \
 		-o $(DR_CORE_DIR)/kernel_linux/clients/cfi/cfi_wrapper.o
 	g++ -mcmodel=kernel $(CXX_FLAGS) -DX86_64 -DLINUX -DLINUX_KERNEL -I$(GUEST_KERNELDIR)/include -I/usr/include/ -I$(GUEST_KERNELDIR)/arch/x86/include -I$(DR_CORE_DIR)  \

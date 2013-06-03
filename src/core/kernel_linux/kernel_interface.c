@@ -46,6 +46,12 @@ struct thread_private_info {
 ASSERT_TYPE_SIZE(4096, struct dynamorio_page);
 DEFINE_PER_CPU_ALIGNED(struct dynamorio_page, dynamorio_page);
 
+unsigned long long shadow_module_start = 0x0ULL;
+EXPORT_SYMBOL_GPL(shadow_module_start);
+
+unsigned long long shadow_module_end = 0x0ULL;
+EXPORT_SYMBOL_GPL(shadow_module_end);
+
 static void
 zero_cpu_private_data(void) {
     int i;
@@ -106,6 +112,13 @@ find_kernel_sybmol_callback(void *data, const char *name, struct module *module,
         return 1;
     }
     return 0;
+}
+
+void debug_interrupt(struct kmem_cache* cache){
+    struct kmem_cache_cpu *c;
+
+    c = __this_cpu_ptr(cache->cpu_slab);
+    printk("%llx\n", c);
 }
 
 static bool
@@ -406,13 +419,10 @@ kernel_get_thread_private_slot_from_rsp(void *rsp_ptr, size_t slot)
     register unsigned long current_stack_pointer asm("rsp");
     struct thread_info *thread1 = current_thread_info();
     thread = (struct thread_info*)((unsigned long long)rsp_ptr & 0xffffffffffffc000);
-    //printk("thread : %lx, thread1 : %lx mcontext->rsp : %lx, rsp : %lx\n", thread, thread1, rsp_ptr, current_stack_pointer);
-   // printk("--%s-- : %lx\n", __FUNCTION__, thread);
     thread_private_slot = ((struct thread_info*)thread1)->spill_slot[0];
     return thread_private_slot;
-    //void *thread_private_slot = thread->spill_slot[0];
-    //return thread_private_slot;
 }
+
 
 void
 set_thread_private_slot(size_t slot, unsigned int flag){
@@ -574,4 +584,20 @@ is_kernel_code(void *pc)
            (p >= 0xffffffffa0000000 && p < 0xfffffffffff00000);
 
     /* Could be less strict and check that pc > 0x00007fffffffffff */
+}
+
+bool
+is_kernel_symbol(void *pc)
+{
+    unsigned long p = (unsigned long) pc;
+    /* Taken from Documentation/x86/x86_64/mm.txt */
+    return (p >= 0xffffffff80000000 && p < 0xffffffffa0000000);
+
+    /* Could be less strict and check that pc > 0x00007fffffffffff */
+}
+
+bool
+is_shadow_address(void *pc){
+    unsigned long p = (unsigned long) pc;
+    return (p >= shadow_module_start && p < shadow_module_end);
 }

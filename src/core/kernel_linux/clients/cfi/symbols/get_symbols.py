@@ -54,7 +54,7 @@ def get_func_symbol_names(host_file_name, client_file_name):
                     if "printk" == func_name:
                         printk_addr = m.group(1)
 
-                    if "module_alloc" == func_name:
+                    if "module_alloc_update_bounds" == func_name:
                         module_alloc_addr = m.group(1)
 
 		    if "__kernel_text_address" == func_name:

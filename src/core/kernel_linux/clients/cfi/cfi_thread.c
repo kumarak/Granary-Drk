@@ -324,14 +324,6 @@ bool func_module_collectlist(void *addr, void *data){
 }
 
 bool func_module_print_greylist(void *addr, void *data){
-/*    struct watchpoint_descriptor *descriptor = (struct watchpoint_descriptor*)get_watchpoint_meta(addr);
-
-    if(descriptor->state & WP_MEMORY_ALLOCATED){
-        printk("%llx(alloclist)\t", addr);
-    } else {
-        printk("%llx \t", addr);
-    }*/
-
     printk("%lx \t", addr);
 #if 0
     if(cfi_list_item_exist(&module_alloc_list[CFI_LOST_REFERENCE], ((void*)((uint64_t)addr /*| ALIAS_ADDRESS_INDEX_MASK*/)))){
@@ -345,7 +337,6 @@ bool func_module_print_greylist(void *addr, void *data){
     return 0;
 }
 
-static inline
 bool is_watchpoint(uint64_t value){
 #if 0
     if((value & WATCHPOINT_ADDRESS_MASK) == WATCHPOINT){
@@ -609,11 +600,21 @@ r) {
 #endif
 }
 
-int htable_callback(void *data, const char *key, void *value){
+int htable_callback(void *data, void *key, void *value){
+    void *base_ptr  = NULL;
     scan_callback fn= (scan_callback)value;
     printk("hash item : key(%lx) value(%lx)\n ", key, value);
-    if(fn != NULL)
-    	fn(key);
+    if(is_watchpoint(key)){
+        base_ptr = cfi_update_descriptor_state(key, WP_MEMORY_REACHABLE);
+        if (NULL != base_ptr) {
+            //printk("src (%lx) \t dest(%lx)\n", src, base_ptr);
+            cfi_list_append(&kernel_leaked_watchpoints, base_ptr);
+            cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
+        }
+    } else {
+        if(fn != NULL)
+            fn(key);
+    }
     return 0;
 }
 
@@ -645,7 +646,7 @@ sweep_thread_init(void *arg)
 
     while (!kthread_should_stop()){
         dr_printf("*******************************************************inside sweep_thread_init\n");
-#if 1
+#if 0
         stop_machine(copy_stack_callback, 0, 0);
 
         preempt_disable();
@@ -664,18 +665,20 @@ sweep_thread_init(void *arg)
             descriptor = get_descriptor_at_index(i);
             if(NULL != descriptor){
 #ifdef DEBUG
-                if((descriptor->state & WP_MEMORY_ALLOCATED) /*&& !(descriptor->state & WP_MEMORY_FREED)*/){
+                if((descriptor->state & WP_MEMORY_ALLOCATED) /*&& !(descriptor->state & (WP_DESCRIPTOR_KERNEL_ALLOC))*/){
                     printk("%llx(%lx)\t", descriptor->base_address, i);
                     //cfi_list_append(&module_alloc_list[CFI_ALLOC_WHITE_LIST], descriptor->base_address);
                 }
 #endif
                 if((descriptor->state & WP_MEMORY_ALLOCATED)
                         /*&& !(descriptor->state & WP_MEMORY_FREED)*/
-                        && !(descriptor->state & WP_MEMORY_REACHABLE)){
+                        && !(descriptor->state & WP_MEMORY_REACHABLE)
+                        /*&& !(descriptor->state & (WP_DESCRIPTOR_KERNEL_ALLOC))*/){
                       cfi_list_append(&module_alloc_list[CFI_LOST_REFERENCE], descriptor->base_address);
                   }
 
-                if(!(descriptor->state & WP_MEMORY_ALLOCATED) && !(descriptor->state & WP_MEMORY_REACHABLE)){
+                if(!(descriptor->state & WP_MEMORY_ALLOCATED)
+                        && !(descriptor->state & WP_MEMORY_REACHABLE)){
                     wrapper_collect_descriptor(i);
 #ifdef DEBUG
                     //cfi_list_append(&module_alloc_list[CFI_COLLECT_LIST], i);

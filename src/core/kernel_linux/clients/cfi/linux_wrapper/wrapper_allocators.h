@@ -46,7 +46,7 @@ FUNCTION_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
         void *watchpoint_addr = __kmalloc(size, flags);
 #ifdef CONFIG_USING_WATCHPOINT
         ADD_WATCHPOINT(watchpoint_addr, size);
-        watchpoint_descriptor *meta_info = NULL;
+        descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(watchpoint_addr);
         if(NULL != meta_info) {
             uint64_t newval = 0x0ULL;
@@ -59,7 +59,7 @@ FUNCTION_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
         //cfi_handler_alloc(target_module, watchpoint_addr, size, NULL);
         P(kern_printk("__kmalloc wrapper  : %lx, %lx\n", watchpoint_addr, size);)
 #endif
-        debug___kmalloc(watchpoint_addr, size);
+       // debug___kmalloc(watchpoint_addr, size);
         return watchpoint_addr;
 })
 #endif
@@ -77,7 +77,7 @@ FUNC_WRAPPER_VOID(kfree, ( void* addr), {
             }
         }
 #ifdef CONFIG_USING_WATCHPOINT
-        watchpoint_descriptor *meta_info = NULL;
+        descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(addr);
         if(NULL != meta_info) {
             uint64_t newval = 0x0ULL;
@@ -149,22 +149,26 @@ FUNC_WRAPPER(kmem_cache_alloc, (struct kmem_cache *s, gfp_t gfpflags), {
         if(s->ctor != NULL)
             s->ctor(watch_ptr);
 
-        watchpoint_descriptor *meta_info = NULL;
+        descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(watch_ptr);
         if(NULL != meta_info) {
             uint64_t newval = 0x0ULL;
             uint64_t oldval = 0x0ULL;
+            meta_info->state = meta_info->state | WP_MEMORY_ALLOCATED;
+#if 0
             do {
                 oldval = meta_info->state;
                 newval = meta_info->state | WP_MEMORY_ALLOCATED;
             }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
+#endif
         }
         P(kern_printk("kmem_cache_alloc wrapper : %lx  : %lx\n", (uint64_t)watch_ptr, s->size);)
 #endif
-        debug_kmem_cache_alloc(watch_ptr, s->size);
+      //  debug_kmem_cache_alloc(watch_ptr, s->size);
         return watch_ptr;
 })
 
+#if 0
 
 FUNC_WRAPPER(kmem_cache_alloc_trace, (struct kmem_cache *s, gfp_t gfpflags, size_t size), {
         function_t *wrap_func;
@@ -195,9 +199,10 @@ FUNC_WRAPPER(kmem_cache_alloc_trace, (struct kmem_cache *s, gfp_t gfpflags, size
             }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
         }
 #endif
-        debug_kmem_cache_alloc_trace(watch_ptr, size);
+      //  debug_kmem_cache_alloc_trace(watch_ptr, size);
         return watch_ptr;
 })
+#endif
 //void *kmem_cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)
 FUNC_WRAPPER(kmem_cache_alloc_node, (struct kmem_cache *cachep, gfp_t flags, int nodeid), {
     kern_printk("kmem_cache_alloc_node wrapper\n");
@@ -217,15 +222,18 @@ FUNC_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
             }
         }
 #ifdef CONFIG_USING_WATCHPOINT
-        watchpoint_descriptor *meta_info = NULL;
+        descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(ptr);
         if(NULL != meta_info) {
             uint64_t newval = 0x0ULL;
             uint64_t oldval = 0x0ULL;
+         //   meta_info->state = (meta_info->state & (~WP_MEMORY_ALLOCATED)/*| WP_MEMORY_FREED*/);
+#if 1
             do {
                 oldval = meta_info->state;
                 newval = (meta_info->state & (~WP_MEMORY_ALLOCATED)/*| WP_MEMORY_FREED*/);
             }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
+#endif
         }
 
         REMOVE_WATCHPOINT(ptr);
@@ -321,7 +329,7 @@ FUNCTION_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
         void *watchpoint_addr = __alloc_percpu(size, align);
 #ifdef CONFIG_USING_WATCHPOINT
         ADD_WATCHPOINT(watchpoint_addr, size);
-        watchpoint_descriptor *meta_info = NULL;
+        descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(watchpoint_addr);
         if(NULL != meta_info) {
             uint64_t newval = 0x0ULL;
@@ -331,7 +339,7 @@ FUNCTION_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
                 newval = meta_info->state | WP_MEMORY_ALLOCATED;
             }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
         }
-        cfi_handler_alloc(target_module, watchpoint_addr, size, NULL);
+        ///cfi_handler_alloc(target_module, watchpoint_addr, size, NULL);
         P(kern_printk("__kmalloc wrapper  : %lx, %lx\n", watchpoint_addr, size);)
 #endif
         return watchpoint_addr;
@@ -350,7 +358,7 @@ FUNC_WRAPPER_VOID(free_percpu, ( void* __pdata), {
         }
 
 #ifdef CONFIG_USING_WATCHPOINT
-        watchpoint_descriptor *meta_info = NULL;
+        descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(__pdata);
         if(NULL != meta_info) {
             uint64_t newval = 0x0ULL;
@@ -395,7 +403,7 @@ FUNC_WRAPPER_VOID(destroy_workqueue,  ( struct workqueue_struct * wq ), {
     /*check if this is watchpoint*/
     cfi_handler_free(target_module, wq, NULL);
 
-    watchpoint_descriptor *meta_info = NULL;
+    descriptor *meta_info = NULL;
     meta_info = WATCHPOINT_META(wq);
     if(NULL != meta_info) {
         uint64_t newval = 0x0ULL;

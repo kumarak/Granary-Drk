@@ -1784,18 +1784,18 @@ mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
     insert_push_retaddr(dcontext, ilist, next_instr, retaddr, opnd_get_size(pushop));
 #endif
 
-    if(!is_kernel_text(curaddr)) {
+    /*if(!is_kernel_text(curaddr))*/ {
         /* save away xcx so that we can use it */
         /* (it's restored in x86.s (indirect_branch_lookup) */
         PRE(ilist, instr,
                 SAVE_TO_DC_OR_TLS(dcontext, flags, REG_XCX, MANGLE_XCX_SPILL_SLOT, XCX_OFFSET));
-    } else {
+    } /*else {
         //instr_t *next_instr = instr_get_next(instr);
         insert_push_retaddr(dcontext, ilist, instr, retaddr, opnd_get_size(pushop));
         //PRE(ilist, instr, next_instr);
         PRE(ilist, instr, INSTR_CREATE_push(dcontext, opnd_create_reg(REG_XCX)));
         PRE(ilist, instr, INSTR_CREATE_push(dcontext, opnd_create_reg(REG_XCX)));
-    }
+    }*/
 
 
 #ifdef STEAL_REGISTER
@@ -1872,7 +1872,7 @@ mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
 
 #if 1
     watchpoint_indirect_call_event(dcontext, ilist, instr, next_instr, mangle_calls, flags);
-   if(is_kernel_text(curaddr)) {
+ /*  if(is_kernel_text(curaddr)) {
        instr_t *next_instr = instr_get_next(instr);
        next_instr = instr_get_next(next_instr);
        POST(ilist, next_instr, INSTR_CREATE_ret(dcontext));
@@ -1881,7 +1881,7 @@ mangle_indirect_call(dcontext_t *dcontext, instrlist_t *ilist, instr_t *instr,
                 REG_NULL, 0, sizeof(reg_t), OPSZ_8), opnd_create_reg(REG_XCX)));
 
 
-    }
+    }*/
 #endif
 #ifdef RETURN_STACK
     /* NEW CALL HANDLING: RETURN STACK! */

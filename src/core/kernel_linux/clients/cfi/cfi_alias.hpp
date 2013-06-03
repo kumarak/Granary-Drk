@@ -49,7 +49,8 @@ enum {
 
     ALIAS_ADDRESS_INDEX_MASK                = 0xffff000000000000ULL,
     ALIAS_ADDRESS_INDEX_OFFSET              = (12 * 4),
-    ALIAS_ADDRESS_DISPLACEMENT_MASK         = 0x0000ffffffffffffULL
+    ALIAS_ADDRESS_DISPLACEMENT_MASK         = 0x0000ffffffffffffULL,
+    ALIAS_ADDRESS_BASE                      = 0x00007fffffffffffULL
 };
 
 #include "cfi_region_allocator.hpp"
@@ -322,32 +323,20 @@ public:
 
     template <typename T>
     static watchpoint_descriptor *allocate(T *address, unsigned long size) {
-#if 1
         watchpoint_descriptor *descriptor = get_next_free_descriptor();
         if(descriptor == NULL){
             descriptor = entries.get_index(max_active_index);
             max_active_index++;
         }
-        if(descriptor != NULL){
+        if(entries.is_allocated(descriptor)){
             descriptor->base_address = (uint64_t)address;
             descriptor->limit = (uint64_t)address + size;
             descriptor->next = NULL;
             descriptor->state |= WP_DESCRIPTOR_ACTIVE;
+            return descriptor;
+        }else {
+            return NULL;
         }
-        return descriptor;
-#else
-        unsigned long index = get_next_free_index();
-        kern_printk("watchpoint number : %lx size : %lu\n", index, sizeof(watchpoint_descriptor));
-       // watchpoint_descriptor *entry(entries.allocate());
-        watchpoint_descriptor *entry(entries.allocate_index(index));
-        kern_printk("meta_info address : %lx\n", entry);
-        entry->base_address = (uint64_t)address;
-        entry->limit = (uint64_t)address + size;
-        entry->next = NULL;
-        entry->state = 0x0ULL;
-        entry->state |= WP_DESCRIPTOR_ACTIVE;
-        return entry;
-#endif
     }
 };
 
@@ -362,7 +351,7 @@ atomic_region_allocator<watchpoint_descriptor> alias_entry::entries(
 );
 
 inline static bool is_alias_address(uint64_t addr) {
-    if(addr != 0)
+    if(addr > ALIAS_ADDRESS_BASE)
         return !(addr & ALIAS_ADDRESS_NOT_ENABLED);
     else
         return false;
@@ -408,7 +397,7 @@ inline T *to_alias_address(T *ptr) throw() {
 /// aliased points to the beginning of some data structure.
 template <typename T>
 inline T *to_alias_heap_address(T *ptr, unsigned long size) throw() {
-    if(!ptr) {
+    if((uint64_t)ptr < ALIAS_ADDRESS_BASE) {
         return ptr;
     }
 
@@ -416,10 +405,14 @@ inline T *to_alias_heap_address(T *ptr, unsigned long size) throw() {
         return ptr;
     } else {
         watchpoint_descriptor *entry(alias_entry::allocate<T>(ptr, size));
-        const uint64_t index(alias_entry::entries.offset_of(entry));
-        const uint64_t displacement_part(ALIAS_ADDRESS_DISPLACEMENT_MASK & ((uint64_t) ptr));
-        const uint64_t index_part(index << ALIAS_ADDRESS_INDEX_OFFSET);
-        return (T *) ((index_part | displacement_part) & ALIAS_ADDRESS_ENABLED);
+        if(entry != NULL) {
+            const uint64_t index(alias_entry::entries.offset_of(entry));
+            const uint64_t displacement_part(ALIAS_ADDRESS_DISPLACEMENT_MASK & ((uint64_t) ptr));
+            const uint64_t index_part(index << ALIAS_ADDRESS_INDEX_OFFSET);
+            return (T *) ((index_part | displacement_part) & ALIAS_ADDRESS_ENABLED);
+        } else {
+            return ptr;
+        }
     }
 }
 #if 1//def CONFIG_USING_WATCHPOINT
@@ -497,7 +490,7 @@ void ADD_WATCHPOINT(T *&ptr, unsigned long size) throw() {
 /// convert an aliased address into an unaliased address
 template <typename T>
 inline T *to_unaliased_address(T *ptr) throw() {
-    if(!ptr) {
+    if((uint64_t)ptr < ALIAS_ADDRESS_BASE) {
         return ptr;
     }
     return (T*)(ALIAS_ADDRESS_INDEX_MASK | ((uint64_t) ptr));
@@ -509,10 +502,12 @@ inline static bool IS_WATCHPOINT(T &val) {
     return is_alias_address((uint64_t) &val);
 }
 
+# if 0
 template <typename T>
 bool IS_WATCHPOINT(T *&ptr) throw() {
     return is_alias_address((uint64_t) ptr);
 }
+#endif
 
 template <typename T>
 T* TO_UNWATCHED_ADDRESS(T *&ptr){

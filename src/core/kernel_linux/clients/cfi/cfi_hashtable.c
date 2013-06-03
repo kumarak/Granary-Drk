@@ -159,6 +159,12 @@ hashmap_get(struct hashtable_t *htable, void *key, void **value) {
     return 0;
 }
 
+extern bool is_watchpoint(uint64_t value);
+
+void debug_hashmap(hashtable_entry_t *hentry){
+    printk("%s,", __FUNCTION__);
+}
+
 /**
  * Internal method to insert into a hash table
  * @return 1 if the key is new, 0 if updated.
@@ -197,14 +203,14 @@ static int hashmap_insert_table(hashtable_entry_t *table, int table_size, void *
         hentry->value = value;
 
     } else {
-       // dr_printf("%s : hash_index : %d, key : %lx, value : %lx\n", __FUNCTION__, hash_index, key, value);
-       // if(htable->count < DEFAULT_CAPACITY){
             hentry = kmalloc(sizeof(hashtable_entry_t), GFP_ATOMIC);
+            if(is_watchpoint(hentry)){
+                debug_hashmap(hentry);
+            }
             hentry->key = key;
             hentry->value = value;
             hentry->next = NULL;
             last_entry->next = hentry;
-       // }
     }
 
     return 1;
