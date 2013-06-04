@@ -84,6 +84,10 @@ public:
     }
 
     inline bool is_allocated(const T *addr) const throw() {
+        if((void*)this < (void*)4095){
+            granary_fault();
+            return false;
+        }
         return begin <= addr && addr < end /*&& 0 == (((uint64_t) addr) % SIZE)*/;
     }
 

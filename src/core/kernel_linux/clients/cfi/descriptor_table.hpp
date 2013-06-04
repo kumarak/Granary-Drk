@@ -348,9 +348,13 @@ template <typename T>
 descriptor *WATCHPOINT_META(T *ptr) throw() {
     unsigned index(0);
     uint64_t displacement(0);
-    if(likely(ptr && decode_watchpoint_address((uint64_t) ptr, index, displacement))) {
-        if(descriptor_table::is_active_index(index)) {
-            return  descriptor_table::entries.get_index(index);
+    if(!is_watchpoint_address((uint64_t)ptr)){
+        return NULL;
+    } else {
+        if(likely(ptr && decode_watchpoint_address((uint64_t) ptr, index, displacement))) {
+            if(descriptor_table::is_active_index(index)) {
+                return  descriptor_table::entries.get_index(index);
+            }
         }
     }
     return 0;
@@ -391,6 +395,7 @@ void* DESCRIPTOR_AT_INDEX(T index) throw() {
     if(descriptor_table::is_active_index(index)) {
         return  descriptor_table::entries.get_index(index);
     }
+    return NULL;
 }
 
 template <typename T>
@@ -413,11 +418,20 @@ void ADD_WATCHPOINT(T *&ptr, unsigned long size) throw() {
 }
 
 template <typename T>
-inline T *to_unwatched_address(T *ptr) throw() {
+inline T *get_unwatched_address(T *ptr) throw() {
+    unsigned index(0);
+    uint64_t displacement(0);
     if((uint64_t)ptr < WP_ADDRESS_BASE) {
         return ptr;
     }
-    return (T*)(WP_ADDRESS_INDEX_MASK | ((uint64_t) ptr));
+    if(likely(ptr && decode_watchpoint_address((uint64_t) ptr, index, displacement))) {
+        if(descriptor_table::is_active_index(index)) {
+            return (T*)(WP_ADDRESS_INDEX_MASK | ((uint64_t) ptr));
+        }
+    }
+
+  //  return (T*)(WP_ADDRESS_INDEX_MASK | ((uint64_t) ptr));
+    return ptr;
 }
 
 
@@ -435,17 +449,17 @@ bool IS_WATCHPOINT(T *&ptr) throw() {
 
 template <typename T>
 T* TO_UNWATCHED_ADDRESS(T *&ptr){
-    return to_unwatched_address(ptr);
+    return get_unwatched_address(ptr);
 }
 
 template <typename T>
 void REMOVE_WATCHPOINT(T *&ptr) throw() {
-    ptr = to_unwatched_address(ptr);
+    ptr = get_unwatched_address(ptr);
 }
 
 template <typename T>
 void REMOVE_TYPELESS_WATCHPOINT(T *&ptr) throw() {
-    ptr = to_unwatched_address(ptr);
+    ptr = get_unwatched_address(ptr);
 }
 #else
 

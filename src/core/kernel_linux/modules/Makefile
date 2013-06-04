@@ -1,5 +1,5 @@
 
-EXTRA_CFLAGS=-O1 -g3 $(DR_INCLUDE_FLAGS) -Wframe-larger-than=4096
+EXTRA_CFLAGS=-O1 -g3 $(DR_INCLUDE_FLAGS) -Wuninitialized -Wframe-larger-than=4096
 #EXTRA_CFLAGS=-O1 -g $(DR_INCLUDE_FLAGS) -Werror -Wframe-larger-than=4096
 
 

@@ -10,7 +10,7 @@
 
 #include "cfi_module.h"
 
-unsigned int
+int
 sweep_thread_init(void *arg);
 
 

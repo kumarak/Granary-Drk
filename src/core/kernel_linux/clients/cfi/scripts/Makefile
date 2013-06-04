@@ -117,8 +117,6 @@ types:
 # auto-generate wrappers
 wrappers: types
 	$(GR_PYTHON) generate_wrappers.py $(GR_OUTPUT_TYPES) > $(GR_OUTPUT_WRAPPERS)
-
-dynamic_wrappers: types
 	$(GR_PYTHON) generate_dynamic_wrappers.py $(GR_OUTPUT_TYPES) > $(GR_OUTPUT_DYNAMIC_WRAPPERS)
 
 scanners: types

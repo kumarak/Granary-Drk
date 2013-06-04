@@ -55,6 +55,8 @@ enum trace_reg {
 
 #define pgoff_t unsigned long
 
+typedef bool _Bool;
+
 extern __u32 half_md4_transform(__u32 buf[4], __u32 const in[8]);
 extern int trace_event_raw_init(struct ftrace_event_call *call);
 
@@ -128,7 +130,9 @@ unsigned pagevec_lookup(struct pagevec *pvec, struct address_space *mapping,
         unsigned long size = type_class<ArgT__>::get_size();    \
         unsigned long i = 0;    \
         uint64_t *ptr = (uint64_t*)(&x);  \
-        if(NULL != ptr) {   \
+        if((uint64_t)ptr < WP_ADDRESS_BASE) {   \
+            return; \
+            }   \
             while(i < size){    \
                 uint64_t value = (uint64_t)(*ptr);  \
                 if(is_alias_address(value)) {   \
@@ -136,13 +140,21 @@ unsigned pagevec_lookup(struct pagevec *pvec, struct address_space *mapping,
                 }   \
                 ptr++;  \
                 i = i + sizeof(void*);  \
-            }   \
-        }
+            }
 
+
+#define PRE_WRAPPER_KERNEL(x) \
+    if((uint64_t)x < 4096)  \
+    {   return; }
 
 #include "kernel_scanners.h"
 #include "wrapper_filesystem.h"
 #include "wrapper_allocators.h"
+
+//#define PRE_WRAPPER_KERNEL(x)
+#define WRAPPER_FOR_struct_callback_head
+#define WRAPPER_FOR_struct_mutex
+
 #include "kernel_wrappers.h"
 #include "dynamic_wrappers.h"
 

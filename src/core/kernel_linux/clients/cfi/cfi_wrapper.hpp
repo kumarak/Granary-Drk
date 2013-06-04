@@ -133,19 +133,7 @@ public:
         struct impl body ; \
     };
 
-/*#define RETURN_TYPE_WRAPPER(type_name, body) \
-    template <> \
-    class return_wrap_type<type_name> { \
-    public: \
-        enum { \
-            NUM = 1, \
-            WRAP_CHOICE = 2, \
-            IS_DEFINED = 1 \
-        }; \
-        typedef identity_type<type_name>::type ArgT__; \
-        struct impl body ; \
-    };
-*/
+
 #define FUNC_WRAPPER(func_name, args, body) \
     template <typename R, typename... Args> \
     class cfi_wrapper_impl<KERN_ADDR_ ## func_name, R, Args...> { \
@@ -190,10 +178,6 @@ public:
         lval = to_shadow_address(lval); \
     }
 
-#define UNALIAS_ADDRESS(lval) \
-    if(lval != 0) {  \
-        lval = to_unaliased_address(lval); \
-    }
 
 
 
@@ -892,24 +876,22 @@ R (*to_shadow_address(R (*func_ptr)(Args...)))(Args...) {
 
         if(!shadow_allocator::is_shadow_allocate((void*)addr)) {
             void *value = NULL;
-            int found = hashmap_get(dynamic_wrapper_table, (void*)addr, &value);
+            hashmap_get(dynamic_wrapper_table, (void*)addr, &value);
 
             if((value == NULL)){
+                int ret = 0;
                 D(kern_printk("inside allocator wrapping address : %llx\n", addr);)
-                int ret;
-                volatile uint64_t oldval = 0x0ULL;
-                volatile uint64_t newval = 0x0ULL;
-                volatile uint64_t hotpatch_instr = 0x0ULL;
 
                 uint64_t wrapper_addr = (uint64_t) cfi_dynamic_wrapper_ret_impl<R, Args...>::wrapper;
 
                 shadow_region *region = shadow_allocator::allocate();
+
                 if(NULL == region) {
                     granary_fault();
                     return (func_type *)addr;
                 }
-                volatile uint64_t *shadow_address((uint64_t*)&(region->instr));
-                volatile uint64_t *shadow_slot((uint64_t*)&(region->slot));
+
+                uint64_t *shadow_address((uint64_t*)&(region->instr));
 
                 int64_t shadow_ptr = (int64_t)shadow_address;
                 int64_t offset_val = (wrapper_addr - (shadow_ptr + 5));
@@ -1155,7 +1137,6 @@ public:
     static R wrapper(Args... args) {
         typedef R (orig_func_type)(Args...);
         D( kern_printk("in wrapper for %lx; wrapping %lu args\n", (uint64_t) addr, sizeof...(Args)); )
-        const int depth__ = 0;
 
         R ret(((orig_func_type *) addr)(args...));
 
@@ -1169,10 +1150,7 @@ public:
     static R wrapper(Args... args) {
         typedef R (orig_func_type)(Args...);
         D( kern_printk("in wrapper for %lx; wrapping %lu args\n", (uint64_t) addr, sizeof...(Args)); )
-        const int depth__ = 0;
-
         ((orig_func_type *) addr)(args...);
-
     }
 };
 

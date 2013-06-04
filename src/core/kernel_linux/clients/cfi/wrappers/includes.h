@@ -15,7 +15,10 @@
 #include <linux/fs.h>
 */
 
-#define DECLARE_HASH(name) struct hashtable_t *htable
+#define DECLARE_HASH(name)  \
+    struct hashtable_t *name = NULL;  \
+    (void)name;
+
 #define VOID(name) (void)name
 #define HASHMAP_PUT //hashmap_put
 
@@ -74,6 +77,12 @@ cfi_handler_lost(struct module *mod, const void *addr,
 
 extern void
 cfi_collect_watcpoint(const void *src, const void *wp);
+
+extern void
+handle_alloc_percpu(const void *addr, unsigned long size);
+
+extern void
+handle_free_percpu(const void *addr);
 
 extern unsigned int cfi_dump_stack();
 

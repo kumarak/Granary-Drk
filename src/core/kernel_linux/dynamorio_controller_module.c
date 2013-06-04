@@ -242,7 +242,7 @@ stats_ioctl(struct inode* inode, struct file* file,
                                DYNAMORIO_STATS_MAX_SIZE, &stats->buffer);
 }
 
-static int device_ioctl(
+static long device_ioctl(
 #ifdef LINUX_VERSION_V26
 			struct inode* inode,
 #endif

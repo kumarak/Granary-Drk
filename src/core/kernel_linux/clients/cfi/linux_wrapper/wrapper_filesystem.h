@@ -105,10 +105,9 @@ TYPE_WRAPPER(struct inode*, {
 #define WRAPPER_FOR_struct_inode
 TYPE_WRAPPER(struct inode*, {
     PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           D(kern_printk( "added to hash table struct inode\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inode));
-        }
+        IS_ARG_VALID(arg);
+        D(kern_printk( "added to hash table struct inode\n");)
+        ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inode));
         WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->i_sb);
         WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->i_op);
         WRAP_RECURSIVE(TO_UNWATCHED_ADDRESS(arg)->i_fop);
@@ -125,20 +124,7 @@ TYPE_WRAPPER(struct inode*, {
 })
 #endif
 
-#if 0
-TYPE_WRAPPER(struct inode, {
-        pre {
-            D( kern_printk("    wrapping inode\n"); )
-          //  ADD_TO_HASH( &arg, SCAN_HEAD_FUNC(struct inode));
-            WRAP_RECURSIVE_KERNEL(arg.i_sb);
-            WRAP_RECURSIVE_KERNEL(arg.i_op);
-            WRAP_RECURSIVE_KERNEL(arg.i_fop);
-            WRAP_RECURSIVE_KERNEL(arg.i_mapping);
-        }
-                no_post
-        no_return
-})
-#endif
+
 
 #define LOOP_COUNT 5
 
@@ -182,6 +168,7 @@ TYPE_WRAPPER(struct address_space, {
 #define WRAPPER_FOR_struct_address_space_operations
 TYPE_WRAPPER(struct address_space_operations*, {
     PRE{
+        IS_ARG_VALID(arg);
         if(!is_alias_address((uint64_t)arg)){
            D(kern_printk( "added to hash table struct address_space_operations\n");)
            ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct address_space_operations));

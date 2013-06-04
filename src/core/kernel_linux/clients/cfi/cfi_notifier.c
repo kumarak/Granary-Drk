@@ -108,6 +108,7 @@ struct module_sect_attrs
 static void
 on_target_module_load(struct module *vmod){
 
+    struct module_sect_attrs *attrs = NULL;
     struct kernel_module *module = kmalloc(sizeof(struct kernel_module), GFP_ATOMIC);
     unsigned long l = 0;
     module->mod = vmod;
@@ -118,17 +119,18 @@ on_target_module_load(struct module *vmod){
     module->rodata_begin = module->text_end;
     module->rodata_end = module->text_end + (vmod->core_ro_size - vmod->core_text_size);
 
-    printk("core size : %lx\t core_text_size : %lx\t core_ro_size %lx\n", vmod->core_size, vmod->core_text_size, vmod->core_ro_size);
+    printk("core size : %x\t core_text_size : %x\t core_ro_size %x\n", vmod->core_size, vmod->core_text_size, vmod->core_ro_size);
 
-    struct module_sect_attrs *attrs = (struct module_sect_attrs*)vmod->sect_attrs;
+    attrs = (struct module_sect_attrs*)vmod->sect_attrs;
+
     while(l < attrs->nsections) {
         if(!strcmp(attrs->attrs[l].name, ".data")) {
-            module->data_begin =  attrs->attrs[l].address;
-            module->data_end =  attrs->attrs[l+1].address;
+            module->data_begin =  (void*)attrs->attrs[l].address;
+            module->data_end =  (void*)attrs->attrs[l+1].address;
             printk("name : %s \t address : %lx", attrs->attrs[l].name, attrs->attrs[l].address);
         } else if(!strcmp(attrs->attrs[l].name, ".bss")){
-            module->bss_begin =  attrs->attrs[l].address;
-            module->bss_end =  attrs->attrs[l+1].address;
+            module->bss_begin =  (void*)attrs->attrs[l].address;
+            module->bss_end =  (void*)attrs->attrs[l+1].address;
             printk("name : %s \t address : %lx", attrs->attrs[l].name, attrs->attrs[l].address);
         }
         l++;
@@ -265,7 +267,7 @@ void set_section_state(enum section_state state) {
     struct thread_private_info *thread_spill_slot;
     struct thread_info *thread = current_thread_info();
 
-    thread_spill_slot = thread->spill_slot[0];
+    thread_spill_slot = (struct thread_private_info*)thread->spill_slot[0];
 
     if(thread_spill_slot != NULL){
         thread_spill_slot->section_count |= state ;
@@ -276,7 +278,7 @@ void unset_section_state(enum section_state state){
     struct thread_private_info *thread_spill_slot;
     struct thread_info *thread = current_thread_info();
 
-    thread_spill_slot = thread->spill_slot[0];
+    thread_spill_slot =  (struct thread_private_info*)thread->spill_slot[0];
 
     if(thread_spill_slot != NULL){
         thread_spill_slot->section_count &= (~state);
@@ -286,19 +288,14 @@ void unset_section_state(enum section_state state){
 void cfi_thread_slot_module_enrty(void)
 {
     struct thread_private_info *thread_spill_slot;
-
     struct thread_info *thread = current_thread_info();
-    register unsigned long current_stack_pointer asm("rsp");
 
     if(thread->spill_slot[0] == (unsigned long)NULL){
         thread_spill_slot = (struct thread_private_info*)kmalloc(sizeof(struct thread_private_info), GFP_ATOMIC);
         thread_spill_slot->stack = NULL;
-     //   thread_spill_slot->is_running_module = 1;
         thread_spill_slot->section_count = 0;
         thread_spill_slot->stack = kmalloc(THREAD_SIZE, GFP_ATOMIC);
-        //thread_spill_slot->stack_start_address = thread;
         thread_spill_slot->copy_stack = 0;
-        //thread_spill_slot->current_stack = (void*)current_stack_pointer;
         thread_spill_slot->tsk = get_current();
         thread->spill_slot[0] = (unsigned long)thread_spill_slot;
 
@@ -306,8 +303,6 @@ void cfi_thread_slot_module_enrty(void)
     } else {
         thread_spill_slot = (struct thread_private_info*)thread->spill_slot[0];
         thread_spill_slot->tsk = get_current();
-      //  thread_spill_slot->is_running_module = 1;
-       // thread_spill_slot->section_count++;
         thread_spill_slot->copy_stack = 0;
     }
 
@@ -357,7 +352,7 @@ print_module_symbol(void *mod, void*data){
         for(i=0; i < vmod->num_symtab; i++){
             if((vmod->symtab[i].st_value == (uint64_t)data) ||
                     (vmod->symtab[i].st_value == ((uint64_t)data +MODULE_SHADOW_OFFSET))){
-               printk("module name : %s  symbol address : %lx; name : %s\n",module_name(mod), data, (vmod->strtab + vmod->symtab[i].st_name));
+               printk("module name : %s  symbol address : %llx; name : %s\n",module_name(mod), (uint64_t)data, (vmod->strtab + vmod->symtab[i].st_name));
             }
         }
         return 1;

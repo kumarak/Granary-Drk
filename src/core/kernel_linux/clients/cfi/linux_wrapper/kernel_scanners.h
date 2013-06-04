@@ -1,5 +1,5 @@
 /* Auto-generated scanning functions. */
-#define S(...) __VA_ARGS__
+#define S(...) __VA_ARGS__ 
 
 #ifndef SCANNER_FOR_struct_callback_head
 #define SCANNER_FOR_struct_callback_head
@@ -40,7 +40,6 @@ TYPE_SCAN_WRAPPER(struct nameidata, {
     }
 })
 #endif
-
 
 
 #ifndef SCANNER_FOR_struct_iattr
@@ -123,7 +122,6 @@ TYPE_SCAN_WRAPPER(struct kset_uevent_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_kset
 #ifndef SCANNER_FOR_struct_kset
 #define SCANNER_FOR_struct_kset
 TYPE_SCAN_WRAPPER(struct kset, {
@@ -143,7 +141,6 @@ TYPE_SCAN_WRAPPER(struct kset, {
 #endif
 
 
-//#define SCANNER_FOR_struct_sysfs_ops
 #ifndef SCANNER_FOR_struct_sysfs_ops
 #define SCANNER_FOR_struct_sysfs_ops
 TYPE_SCAN_WRAPPER(struct sysfs_ops, {
@@ -162,7 +159,6 @@ TYPE_SCAN_WRAPPER(struct sysfs_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_kobj_ns_type_operations
 #ifndef SCANNER_FOR_struct_kobj_ns_type_operations
 #define SCANNER_FOR_struct_kobj_ns_type_operations
 TYPE_SCAN_WRAPPER(struct kobj_ns_type_operations, {
@@ -229,6 +225,7 @@ TYPE_SCAN_WRAPPER(struct kobject, {
 })
 #endif
 
+
 #ifndef SCANNER_FOR_struct_module_kobject
 #define SCANNER_FOR_struct_module_kobject
 TYPE_SCAN_WRAPPER(struct module_kobject, {
@@ -269,7 +266,6 @@ TYPE_SCAN_WRAPPER(struct module_attribute, {
 #endif
 
 
-//#define SCANNER_FOR_struct_kernel_param_ops
 #ifndef SCANNER_FOR_struct_kernel_param_ops
 #define SCANNER_FOR_struct_kernel_param_ops
 TYPE_SCAN_WRAPPER(struct kernel_param_ops, {
@@ -288,7 +284,6 @@ TYPE_SCAN_WRAPPER(struct kernel_param_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_kparam_array
 #ifndef SCANNER_FOR_struct_kparam_array
 #define SCANNER_FOR_struct_kparam_array
 TYPE_SCAN_WRAPPER(struct kparam_array, {
@@ -323,30 +318,7 @@ TYPE_SCAN_WRAPPER(struct kernel_param, {
         SCAN_RECURSIVE_PTR(arg.ops);
         SCAN_FUNCTION(arg.perm);
         SCAN_FUNCTION(arg.level);
-        SCAN_FUNCTION(arg.arg);
-        SCAN_RECURSIVE_PTR(arg.str);
-        SCAN_RECURSIVE_PTR(arg.arr);
 //  Union(union anon_union_27) None
-    }
-})
-#endif
-
-
-#ifndef SCANNER_FOR_struct_tracepoint
-#define SCANNER_FOR_struct_tracepoint
-TYPE_SCAN_WRAPPER(struct tracepoint, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct tracepoint);
-    }
-    SCAN {
-        S(kern_printk( "struct tracepoint\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_FUNCTION(arg.name);
-        SCAN_RECURSIVE(arg.key);
-        SCAN_FUNCTION(arg.regfunc);
-        SCAN_FUNCTION(arg.unregfunc);
-        SCAN_RECURSIVE_PTR(arg.funcs);
     }
 })
 #endif
@@ -423,11 +395,6 @@ TYPE_SCAN_WRAPPER(struct attribute_group, {
         S(SCAN_OBJECT(arg);)
         SCAN_FUNCTION(arg.name);
         SCAN_FUNCTION(arg.is_visible);
-        struct attribute *attr = (struct attribute*)*(arg.attrs);
-        while(attr != NULL){
-            SCAN_RECURSIVE_PTR(attr);
-            attr++;
-        }
 //  Pointer(Pointer(Use(Struct(struct attribute)))) arg.attrs
     }
 })
@@ -483,11 +450,6 @@ TYPE_SCAN_WRAPPER(struct device_type, {
         S(kern_printk( "struct device_type\n");)
         S(SCAN_OBJECT(arg);)
         SCAN_FUNCTION(arg.name);
-        struct attribute_group *attr_group = (struct attribute_group*)*(arg.groups);
-        while(attr_group != NULL){
-            SCAN_RECURSIVE_PTR(attr_group);
-            attr_group++;
-        }
 //  Pointer(Pointer(Attributed(const , Use(Struct(struct attribute_group))))) arg.groups
         SCAN_FUNCTION(arg.uevent);
         SCAN_FUNCTION(arg.devnode);
@@ -556,11 +518,6 @@ TYPE_SCAN_WRAPPER(struct device_driver, {
         SCAN_FUNCTION(arg.shutdown);
         SCAN_FUNCTION(arg.suspend);
         SCAN_FUNCTION(arg.resume);
-        struct attribute_group *attr_group = (struct attribute_group*)*(arg.groups);
-        while(attr_group != NULL){
-            SCAN_RECURSIVE_PTR(attr_group);
-            attr_group++;
-        }
 //  Pointer(Pointer(Attributed(const , Use(Struct(struct attribute_group))))) arg.groups
         SCAN_RECURSIVE_PTR(arg.pm);
         SCAN_RECURSIVE_PTR(arg.p);
@@ -642,7 +599,6 @@ TYPE_SCAN_WRAPPER(struct timer_list, {
 #endif
 
 
-//#define SCANNER_FOR_struct_wakeup_source
 #ifndef SCANNER_FOR_struct_wakeup_source
 #define SCANNER_FOR_struct_wakeup_source
 TYPE_SCAN_WRAPPER(struct wakeup_source, {
@@ -668,14 +624,13 @@ TYPE_SCAN_WRAPPER(struct wakeup_source, {
         SCAN_FUNCTION(arg.relax_count);
         SCAN_FUNCTION(arg.expire_count);
         SCAN_FUNCTION(arg.wakeup_count);
-//  Bitfield(Use(TypeDef(bool, Use(TypeDef(K_Bool, BuiltIn(int)))))) arg.active
-//  Bitfield(Use(TypeDef(bool, Use(TypeDef(K_Bool, BuiltIn(int)))))) arg.autosleep_enabled
+//  Bitfield(Use(TypeDef(bool, BuiltIn(_Bool)))) arg.active
+//  Bitfield(Use(TypeDef(bool, BuiltIn(_Bool)))) arg.autosleep_enabled
     }
 })
 #endif
 
 
-//#define SCANNER_FOR_struct_work_struct
 #ifndef SCANNER_FOR_struct_work_struct
 #define SCANNER_FOR_struct_work_struct
 TYPE_SCAN_WRAPPER(struct work_struct, {
@@ -694,7 +649,6 @@ TYPE_SCAN_WRAPPER(struct work_struct, {
 #endif
 
 
-//#define SCANNER_FOR_struct_notifier_block
 #ifndef SCANNER_FOR_struct_notifier_block
 #define SCANNER_FOR_struct_notifier_block
 TYPE_SCAN_WRAPPER(struct notifier_block, {
@@ -713,7 +667,6 @@ TYPE_SCAN_WRAPPER(struct notifier_block, {
 #endif
 
 
-//#define SCANNER_FOR_struct_blocking_notifier_head
 #ifndef SCANNER_FOR_struct_blocking_notifier_head
 #define SCANNER_FOR_struct_blocking_notifier_head
 TYPE_SCAN_WRAPPER(struct blocking_notifier_head, {
@@ -731,7 +684,6 @@ TYPE_SCAN_WRAPPER(struct blocking_notifier_head, {
 #endif
 
 
-//#define SCANNER_FOR_struct_pm_qos_constraints
 #ifndef SCANNER_FOR_struct_pm_qos_constraints
 #define SCANNER_FOR_struct_pm_qos_constraints
 TYPE_SCAN_WRAPPER(struct pm_qos_constraints, {
@@ -752,7 +704,6 @@ TYPE_SCAN_WRAPPER(struct pm_qos_constraints, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dev_pm_qos_request
 #ifndef SCANNER_FOR_struct_dev_pm_qos_request
 #define SCANNER_FOR_struct_dev_pm_qos_request
 TYPE_SCAN_WRAPPER(struct dev_pm_qos_request, {
@@ -771,7 +722,6 @@ TYPE_SCAN_WRAPPER(struct dev_pm_qos_request, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dev_pm_qos
 #ifndef SCANNER_FOR_struct_dev_pm_qos
 #define SCANNER_FOR_struct_dev_pm_qos
 TYPE_SCAN_WRAPPER(struct dev_pm_qos, {
@@ -791,7 +741,6 @@ TYPE_SCAN_WRAPPER(struct dev_pm_qos, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dev_pm_info
 #ifndef SCANNER_FOR_struct_dev_pm_info
 #define SCANNER_FOR_struct_dev_pm_info
 TYPE_SCAN_WRAPPER(struct dev_pm_info, {
@@ -805,16 +754,16 @@ TYPE_SCAN_WRAPPER(struct dev_pm_info, {
         SCAN_RECURSIVE(arg.power_state);
 //  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.can_wakeup
 //  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.async_suspend
-//  Bitfield(Use(TypeDef(bool, Use(TypeDef(K_Bool, BuiltIn(int)))))) arg.is_prepared
-//  Bitfield(Use(TypeDef(bool, Use(TypeDef(K_Bool, BuiltIn(int)))))) arg.is_suspended
-//  Bitfield(Use(TypeDef(bool, Use(TypeDef(K_Bool, BuiltIn(int)))))) arg.ignore_children
-//  Bitfield(Use(TypeDef(bool, Use(TypeDef(K_Bool, BuiltIn(int)))))) arg.early_init
+//  Bitfield(Use(TypeDef(bool, BuiltIn(_Bool)))) arg.is_prepared
+//  Bitfield(Use(TypeDef(bool, BuiltIn(_Bool)))) arg.is_suspended
+//  Bitfield(Use(TypeDef(bool, BuiltIn(_Bool)))) arg.ignore_children
+//  Bitfield(Use(TypeDef(bool, BuiltIn(_Bool)))) arg.early_init
         SCAN_RECURSIVE(arg.lock);
         SCAN_RECURSIVE(arg.entry);
         SCAN_RECURSIVE(arg.completion);
         SCAN_RECURSIVE_PTR(arg.wakeup);
-//  Bitfield(Use(TypeDef(bool, Use(TypeDef(K_Bool, BuiltIn(int)))))) arg.wakeup_path
-//  Bitfield(Use(TypeDef(bool, Use(TypeDef(K_Bool, BuiltIn(int)))))) arg.syscore
+//  Bitfield(Use(TypeDef(bool, BuiltIn(_Bool)))) arg.wakeup_path
+//  Bitfield(Use(TypeDef(bool, BuiltIn(_Bool)))) arg.syscore
         SCAN_RECURSIVE(arg.suspend_timer);
         SCAN_FUNCTION(arg.timer_expires);
         SCAN_RECURSIVE(arg.work);
@@ -846,7 +795,6 @@ TYPE_SCAN_WRAPPER(struct dev_pm_info, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dev_pm_domain
 #ifndef SCANNER_FOR_struct_dev_pm_domain
 #define SCANNER_FOR_struct_dev_pm_domain
 TYPE_SCAN_WRAPPER(struct dev_pm_domain, {
@@ -863,7 +811,6 @@ TYPE_SCAN_WRAPPER(struct dev_pm_domain, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dma_map_ops
 #ifndef SCANNER_FOR_struct_dma_map_ops
 #define SCANNER_FOR_struct_dma_map_ops
 TYPE_SCAN_WRAPPER(struct dma_map_ops, {
@@ -895,7 +842,6 @@ TYPE_SCAN_WRAPPER(struct dma_map_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dev_archdata
 #ifndef SCANNER_FOR_struct_dev_archdata
 #define SCANNER_FOR_struct_dev_archdata
 TYPE_SCAN_WRAPPER(struct dev_archdata, {
@@ -913,7 +859,6 @@ TYPE_SCAN_WRAPPER(struct dev_archdata, {
 #endif
 
 
-//#define SCANNER_FOR_struct_class_attribute
 #ifndef SCANNER_FOR_struct_class_attribute
 #define SCANNER_FOR_struct_class_attribute
 TYPE_SCAN_WRAPPER(struct class_attribute, {
@@ -933,7 +878,6 @@ TYPE_SCAN_WRAPPER(struct class_attribute, {
 #endif
 
 
-//#define SCANNER_FOR_struct_bin_attribute
 #ifndef SCANNER_FOR_struct_bin_attribute
 #define SCANNER_FOR_struct_bin_attribute
 TYPE_SCAN_WRAPPER(struct bin_attribute, {
@@ -955,7 +899,6 @@ TYPE_SCAN_WRAPPER(struct bin_attribute, {
 #endif
 
 
-//#define SCANNER_FOR_struct_class_
 #ifndef SCANNER_FOR_struct_class_
 #define SCANNER_FOR_struct_class_
 TYPE_SCAN_WRAPPER(struct class_, {
@@ -987,7 +930,6 @@ TYPE_SCAN_WRAPPER(struct class_, {
 #endif
 
 
-//#define SCANNER_FOR_struct_device
 #ifndef SCANNER_FOR_struct_device
 #define SCANNER_FOR_struct_device
 TYPE_SCAN_WRAPPER(struct device, {
@@ -1032,7 +974,6 @@ TYPE_SCAN_WRAPPER(struct device, {
 #endif
 
 
-//#define SCANNER_FOR_struct_hd_struct
 #ifndef SCANNER_FOR_struct_hd_struct
 #define SCANNER_FOR_struct_hd_struct
 TYPE_SCAN_WRAPPER(struct hd_struct, {
@@ -1063,7 +1004,6 @@ TYPE_SCAN_WRAPPER(struct hd_struct, {
 #endif
 
 
-//#define SCANNER_FOR_struct_disk_part_tbl
 #ifndef SCANNER_FOR_struct_disk_part_tbl
 #define SCANNER_FOR_struct_disk_part_tbl
 TYPE_SCAN_WRAPPER(struct disk_part_tbl, {
@@ -1083,7 +1023,6 @@ TYPE_SCAN_WRAPPER(struct disk_part_tbl, {
 #endif
 
 
-//#define SCANNER_FOR_struct_block_device_operations
 #ifndef SCANNER_FOR_struct_block_device_operations
 #define SCANNER_FOR_struct_block_device_operations
 TYPE_SCAN_WRAPPER(struct block_device_operations, {
@@ -1111,7 +1050,6 @@ TYPE_SCAN_WRAPPER(struct block_device_operations, {
 #endif
 
 
-//#define SCANNER_FOR_struct_call_single_data
 #ifndef SCANNER_FOR_struct_call_single_data
 #define SCANNER_FOR_struct_call_single_data
 TYPE_SCAN_WRAPPER(struct call_single_data, {
@@ -1132,7 +1070,6 @@ TYPE_SCAN_WRAPPER(struct call_single_data, {
 #endif
 
 
-//#define SCANNER_FOR_struct_kmem_cache_cpu
 #ifndef SCANNER_FOR_struct_kmem_cache_cpu
 #define SCANNER_FOR_struct_kmem_cache_cpu
 TYPE_SCAN_WRAPPER(struct kmem_cache_cpu, {
@@ -1152,7 +1089,6 @@ TYPE_SCAN_WRAPPER(struct kmem_cache_cpu, {
 #endif
 
 
-//#define SCANNER_FOR_struct_kmem_cache
 #ifndef SCANNER_FOR_struct_kmem_cache
 #define SCANNER_FOR_struct_kmem_cache
 TYPE_SCAN_WRAPPER(struct kmem_cache, {
@@ -1189,7 +1125,6 @@ TYPE_SCAN_WRAPPER(struct kmem_cache, {
 #endif
 
 
-//#define SCANNER_FOR_struct_io_cq
 #ifndef SCANNER_FOR_struct_io_cq
 #define SCANNER_FOR_struct_io_cq
 TYPE_SCAN_WRAPPER(struct io_cq, {
@@ -1210,7 +1145,6 @@ TYPE_SCAN_WRAPPER(struct io_cq, {
 #endif
 
 
-//#define SCANNER_FOR_struct_io_context
 #ifndef SCANNER_FOR_struct_io_context
 #define SCANNER_FOR_struct_io_context
 TYPE_SCAN_WRAPPER(struct io_context, {
@@ -1237,7 +1171,6 @@ TYPE_SCAN_WRAPPER(struct io_context, {
 #endif
 
 
-//#define SCANNER_FOR_struct_cgroup
 #ifndef SCANNER_FOR_struct_cgroup
 #define SCANNER_FOR_struct_cgroup
 TYPE_SCAN_WRAPPER(struct cgroup, {
@@ -1274,7 +1207,6 @@ TYPE_SCAN_WRAPPER(struct cgroup, {
 #endif
 
 
-//#define SCANNER_FOR_struct_cgroup_subsys_state
 #ifndef SCANNER_FOR_struct_cgroup_subsys_state
 #define SCANNER_FOR_struct_cgroup_subsys_state
 TYPE_SCAN_WRAPPER(struct cgroup_subsys_state, {
@@ -1295,7 +1227,6 @@ TYPE_SCAN_WRAPPER(struct cgroup_subsys_state, {
 #endif
 
 
-//#define SCANNER_FOR_struct_bio_vec
 #ifndef SCANNER_FOR_struct_bio_vec
 #define SCANNER_FOR_struct_bio_vec
 TYPE_SCAN_WRAPPER(struct bio_vec, {
@@ -1314,7 +1245,6 @@ TYPE_SCAN_WRAPPER(struct bio_vec, {
 #endif
 
 
-//#define SCANNER_FOR_struct_bio_integrity_payload
 #ifndef SCANNER_FOR_struct_bio_integrity_payload
 #define SCANNER_FOR_struct_bio_integrity_payload
 TYPE_SCAN_WRAPPER(struct bio_integrity_payload, {
@@ -1340,7 +1270,6 @@ TYPE_SCAN_WRAPPER(struct bio_integrity_payload, {
 #endif
 
 
-//#define SCANNER_FOR_struct_mempool_s
 #ifndef SCANNER_FOR_struct_mempool_s
 #define SCANNER_FOR_struct_mempool_s
 TYPE_SCAN_WRAPPER(struct mempool_s, {
@@ -1364,7 +1293,6 @@ TYPE_SCAN_WRAPPER(struct mempool_s, {
 #endif
 
 
-//#define SCANNER_FOR_struct_bio_set
 #ifndef SCANNER_FOR_struct_bio_set
 #define SCANNER_FOR_struct_bio_set
 TYPE_SCAN_WRAPPER(struct bio_set, {
@@ -1385,7 +1313,6 @@ TYPE_SCAN_WRAPPER(struct bio_set, {
 #endif
 
 
-//#define SCANNER_FOR_struct_bio
 #ifndef SCANNER_FOR_struct_bio
 #define SCANNER_FOR_struct_bio
 TYPE_SCAN_WRAPPER(struct bio, {
@@ -1422,7 +1349,6 @@ TYPE_SCAN_WRAPPER(struct bio, {
 #endif
 
 
-//#define SCANNER_FOR_struct_request_list
 #ifndef SCANNER_FOR_struct_request_list
 #define SCANNER_FOR_struct_request_list
 TYPE_SCAN_WRAPPER(struct request_list, {
@@ -1445,7 +1371,6 @@ TYPE_SCAN_WRAPPER(struct request_list, {
 #endif
 
 
-//#define SCANNER_FOR_struct_request
 #ifndef SCANNER_FOR_struct_request
 #define SCANNER_FOR_struct_request
 TYPE_SCAN_WRAPPER(struct request, {
@@ -1503,7 +1428,6 @@ TYPE_SCAN_WRAPPER(struct request, {
 #endif
 
 
-//#define SCANNER_FOR_struct_elevator_ops
 #ifndef SCANNER_FOR_struct_elevator_ops
 #define SCANNER_FOR_struct_elevator_ops
 TYPE_SCAN_WRAPPER(struct elevator_ops, {
@@ -1538,7 +1462,6 @@ TYPE_SCAN_WRAPPER(struct elevator_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_elv_fs_entry
 #ifndef SCANNER_FOR_struct_elv_fs_entry
 #define SCANNER_FOR_struct_elv_fs_entry
 TYPE_SCAN_WRAPPER(struct elv_fs_entry, {
@@ -1557,7 +1480,6 @@ TYPE_SCAN_WRAPPER(struct elv_fs_entry, {
 #endif
 
 
-//#define SCANNER_FOR_struct_elevator_type
 #ifndef SCANNER_FOR_struct_elevator_type
 #define SCANNER_FOR_struct_elevator_type
 TYPE_SCAN_WRAPPER(struct elevator_type, {
@@ -1582,7 +1504,6 @@ TYPE_SCAN_WRAPPER(struct elevator_type, {
 #endif
 
 
-//#define SCANNER_FOR_struct_elevator_queue
 #ifndef SCANNER_FOR_struct_elevator_queue
 #define SCANNER_FOR_struct_elevator_queue
 TYPE_SCAN_WRAPPER(struct elevator_queue, {
@@ -1604,7 +1525,6 @@ TYPE_SCAN_WRAPPER(struct elevator_queue, {
 #endif
 
 
-//#define SCANNER_FOR_struct_bvec_merge_data
 #ifndef SCANNER_FOR_struct_bvec_merge_data
 #define SCANNER_FOR_struct_bvec_merge_data
 TYPE_SCAN_WRAPPER(struct bvec_merge_data, {
@@ -1624,7 +1544,6 @@ TYPE_SCAN_WRAPPER(struct bvec_merge_data, {
 #endif
 
 
-//#define SCANNER_FOR_struct_delayed_work
 #ifndef SCANNER_FOR_struct_delayed_work
 #define SCANNER_FOR_struct_delayed_work
 TYPE_SCAN_WRAPPER(struct delayed_work, {
@@ -1643,7 +1562,6 @@ TYPE_SCAN_WRAPPER(struct delayed_work, {
 #endif
 
 
-//#define SCANNER_FOR_struct_bdi_writeback
 #ifndef SCANNER_FOR_struct_bdi_writeback
 #define SCANNER_FOR_struct_bdi_writeback
 TYPE_SCAN_WRAPPER(struct bdi_writeback, {
@@ -1669,7 +1587,6 @@ TYPE_SCAN_WRAPPER(struct bdi_writeback, {
 #endif
 
 
-//#define SCANNER_FOR_struct_backing_dev_info
 #ifndef SCANNER_FOR_struct_backing_dev_info
 #define SCANNER_FOR_struct_backing_dev_info
 TYPE_SCAN_WRAPPER(struct backing_dev_info, {
@@ -1712,7 +1629,6 @@ TYPE_SCAN_WRAPPER(struct backing_dev_info, {
 #endif
 
 
-//#define SCANNER_FOR_struct_blk_queue_tag
 #ifndef SCANNER_FOR_struct_blk_queue_tag
 #define SCANNER_FOR_struct_blk_queue_tag
 TYPE_SCAN_WRAPPER(struct blk_queue_tag, {
@@ -1734,7 +1650,6 @@ TYPE_SCAN_WRAPPER(struct blk_queue_tag, {
 #endif
 
 
-//#define SCANNER_FOR_struct_bsg_class_device
 #ifndef SCANNER_FOR_struct_bsg_class_device
 #define SCANNER_FOR_struct_bsg_class_device
 TYPE_SCAN_WRAPPER(struct bsg_class_device, {
@@ -1756,7 +1671,6 @@ TYPE_SCAN_WRAPPER(struct bsg_class_device, {
 #endif
 
 
-//#define SCANNER_FOR_struct_request_queue
 #ifndef SCANNER_FOR_struct_request_queue
 #define SCANNER_FOR_struct_request_queue
 TYPE_SCAN_WRAPPER(struct request_queue, {
@@ -1817,7 +1731,6 @@ TYPE_SCAN_WRAPPER(struct request_queue, {
         SCAN_FUNCTION(arg.sg_timeout);
         SCAN_FUNCTION(arg.sg_reserved_size);
         SCAN_FUNCTION(arg.node);
-        SCAN_RECURSIVE_PTR(arg.blk_trace);
         SCAN_FUNCTION(arg.flush_flags);
 //  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.flush_not_queueable
 //  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.flush_queue_delayed
@@ -1839,7 +1752,6 @@ TYPE_SCAN_WRAPPER(struct request_queue, {
 #endif
 
 
-//#define SCANNER_FOR_struct_blk_integrity
 #ifndef SCANNER_FOR_struct_blk_integrity
 #define SCANNER_FOR_struct_blk_integrity
 TYPE_SCAN_WRAPPER(struct blk_integrity, {
@@ -1865,7 +1777,6 @@ TYPE_SCAN_WRAPPER(struct blk_integrity, {
 #endif
 
 
-//#define SCANNER_FOR_struct_gendisk
 #ifndef SCANNER_FOR_struct_gendisk
 #define SCANNER_FOR_struct_gendisk
 TYPE_SCAN_WRAPPER(struct gendisk, {
@@ -1901,7 +1812,6 @@ TYPE_SCAN_WRAPPER(struct gendisk, {
 #endif
 
 
-//#define SCANNER_FOR_struct_block_device
 #ifndef SCANNER_FOR_struct_block_device
 #define SCANNER_FOR_struct_block_device
 TYPE_SCAN_WRAPPER(struct block_device, {
@@ -1939,7 +1849,6 @@ TYPE_SCAN_WRAPPER(struct block_device, {
 #endif
 
 
-//#define SCANNER_FOR_struct_swap_info_struct
 #ifndef SCANNER_FOR_struct_swap_info_struct
 #define SCANNER_FOR_struct_swap_info_struct
 TYPE_SCAN_WRAPPER(struct swap_info_struct, {
@@ -1974,7 +1883,6 @@ TYPE_SCAN_WRAPPER(struct swap_info_struct, {
 #endif
 
 
-//#define SCANNER_FOR_struct_address_space_operations
 #ifndef SCANNER_FOR_struct_address_space_operations
 #define SCANNER_FOR_struct_address_space_operations
 TYPE_SCAN_WRAPPER(struct address_space_operations, {
@@ -2009,7 +1917,6 @@ TYPE_SCAN_WRAPPER(struct address_space_operations, {
 #endif
 
 
-//#define SCANNER_FOR_struct_address_space
 #ifndef SCANNER_FOR_struct_address_space
 #define SCANNER_FOR_struct_address_space
 TYPE_SCAN_WRAPPER(struct address_space, {
@@ -2040,7 +1947,6 @@ TYPE_SCAN_WRAPPER(struct address_space, {
 #endif
 
 
-//#define SCANNER_FOR_struct_page
 #ifndef SCANNER_FOR_struct_page
 #define SCANNER_FOR_struct_page
 TYPE_SCAN_WRAPPER(struct page, {
@@ -2053,7 +1959,7 @@ TYPE_SCAN_WRAPPER(struct page, {
         S(SCAN_OBJECT(arg);)
         SCAN_FUNCTION(arg.flags);
         SCAN_RECURSIVE_PTR(arg.mapping);
-      //  SCAN_RECURSIVE(None);
+//        SCAN_RECURSIVE(None);
 //  Union(union anon_union_119) None
 //  Union(union anon_union_120) None
     }
@@ -2061,7 +1967,6 @@ TYPE_SCAN_WRAPPER(struct page, {
 #endif
 
 
-//#define SCANNER_FOR_struct_vm_fault
 #ifndef SCANNER_FOR_struct_vm_fault
 #define SCANNER_FOR_struct_vm_fault
 TYPE_SCAN_WRAPPER(struct vm_fault, {
@@ -2081,7 +1986,6 @@ TYPE_SCAN_WRAPPER(struct vm_fault, {
 #endif
 
 
-//#define SCANNER_FOR_struct_vm_operations_struct
 #ifndef SCANNER_FOR_struct_vm_operations_struct
 #define SCANNER_FOR_struct_vm_operations_struct
 TYPE_SCAN_WRAPPER(struct vm_operations_struct, {
@@ -2106,7 +2010,6 @@ TYPE_SCAN_WRAPPER(struct vm_operations_struct, {
 #endif
 
 
-//#define SCANNER_FOR_struct_vm_area_struct
 #ifndef SCANNER_FOR_struct_vm_area_struct
 #define SCANNER_FOR_struct_vm_area_struct
 TYPE_SCAN_WRAPPER(struct vm_area_struct, {
@@ -2139,7 +2042,6 @@ TYPE_SCAN_WRAPPER(struct vm_area_struct, {
 #endif
 
 
-//#define SCANNER_FOR_mm_context_t
 #ifndef SCANNER_FOR_mm_context_t
 #define SCANNER_FOR_mm_context_t
 TYPE_SCAN_WRAPPER(mm_context_t, {
@@ -2160,7 +2062,6 @@ TYPE_SCAN_WRAPPER(mm_context_t, {
 #endif
 
 
-//#define SCANNER_FOR_struct_core_thread
 #ifndef SCANNER_FOR_struct_core_thread
 #define SCANNER_FOR_struct_core_thread
 TYPE_SCAN_WRAPPER(struct core_thread, {
@@ -2178,7 +2079,6 @@ TYPE_SCAN_WRAPPER(struct core_thread, {
 #endif
 
 
-//#define SCANNER_FOR_struct_core_state
 #ifndef SCANNER_FOR_struct_core_state
 #define SCANNER_FOR_struct_core_state
 TYPE_SCAN_WRAPPER(struct core_state, {
@@ -2197,7 +2097,6 @@ TYPE_SCAN_WRAPPER(struct core_state, {
 #endif
 
 
-//#define SCANNER_FOR_struct_mm_struct
 #ifndef SCANNER_FOR_struct_mm_struct
 #define SCANNER_FOR_struct_mm_struct
 TYPE_SCAN_WRAPPER(struct mm_struct, {
@@ -2264,7 +2163,6 @@ TYPE_SCAN_WRAPPER(struct mm_struct, {
 #endif
 
 
-//#define SCANNER_FOR_struct_pid
 #ifndef SCANNER_FOR_struct_pid
 #define SCANNER_FOR_struct_pid
 TYPE_SCAN_WRAPPER(struct pid, {
@@ -2285,7 +2183,6 @@ TYPE_SCAN_WRAPPER(struct pid, {
 #endif
 
 
-//#define SCANNER_FOR_struct_pid_link
 #ifndef SCANNER_FOR_struct_pid_link
 #define SCANNER_FOR_struct_pid_link
 TYPE_SCAN_WRAPPER(struct pid_link, {
@@ -2303,7 +2200,6 @@ TYPE_SCAN_WRAPPER(struct pid_link, {
 #endif
 
 
-//#define SCANNER_FOR_struct_cred
 #ifndef SCANNER_FOR_struct_cred
 #define SCANNER_FOR_struct_cred
 TYPE_SCAN_WRAPPER(struct cred, {
@@ -2333,7 +2229,6 @@ TYPE_SCAN_WRAPPER(struct cred, {
         SCAN_RECURSIVE_PTR(arg.process_keyring);
         SCAN_RECURSIVE_PTR(arg.thread_keyring);
         SCAN_RECURSIVE_PTR(arg.request_key_auth);
-        SCAN_FUNCTION(arg.security);
         SCAN_RECURSIVE_PTR(arg.user);
         SCAN_RECURSIVE_PTR(arg.user_ns);
         SCAN_RECURSIVE_PTR(arg.group_info);
@@ -2343,7 +2238,6 @@ TYPE_SCAN_WRAPPER(struct cred, {
 #endif
 
 
-//#define SCANNER_FOR_struct_poll_table_struct
 #ifndef SCANNER_FOR_struct_poll_table_struct
 #define SCANNER_FOR_struct_poll_table_struct
 TYPE_SCAN_WRAPPER(struct poll_table_struct, {
@@ -2361,7 +2255,6 @@ TYPE_SCAN_WRAPPER(struct poll_table_struct, {
 #endif
 
 
-//#define SCANNER_FOR_struct_fasync_struct
 #ifndef SCANNER_FOR_struct_fasync_struct
 #define SCANNER_FOR_struct_fasync_struct
 TYPE_SCAN_WRAPPER(struct fasync_struct, {
@@ -2383,7 +2276,6 @@ TYPE_SCAN_WRAPPER(struct fasync_struct, {
 #endif
 
 
-//#define SCANNER_FOR_struct_file_lock_operations
 #ifndef SCANNER_FOR_struct_file_lock_operations
 #define SCANNER_FOR_struct_file_lock_operations
 TYPE_SCAN_WRAPPER(struct file_lock_operations, {
@@ -2401,7 +2293,6 @@ TYPE_SCAN_WRAPPER(struct file_lock_operations, {
 #endif
 
 
-//#define SCANNER_FOR_struct_lock_manager_operations
 #ifndef SCANNER_FOR_struct_lock_manager_operations
 #define SCANNER_FOR_struct_lock_manager_operations
 TYPE_SCAN_WRAPPER(struct lock_manager_operations, {
@@ -2422,7 +2313,6 @@ TYPE_SCAN_WRAPPER(struct lock_manager_operations, {
 #endif
 
 
-//#define SCANNER_FOR_struct_file_lock
 #ifndef SCANNER_FOR_struct_file_lock
 #define SCANNER_FOR_struct_file_lock
 TYPE_SCAN_WRAPPER(struct file_lock, {
@@ -2456,7 +2346,6 @@ TYPE_SCAN_WRAPPER(struct file_lock, {
 #endif
 
 
-//#define SCANNER_FOR_struct_seq_operations
 #ifndef SCANNER_FOR_struct_seq_operations
 #define SCANNER_FOR_struct_seq_operations
 TYPE_SCAN_WRAPPER(struct seq_operations, {
@@ -2476,7 +2365,6 @@ TYPE_SCAN_WRAPPER(struct seq_operations, {
 #endif
 
 
-//#define SCANNER_FOR_struct_seq_file
 #ifndef SCANNER_FOR_struct_seq_file
 #define SCANNER_FOR_struct_seq_file
 TYPE_SCAN_WRAPPER(struct seq_file, {
@@ -2503,7 +2391,6 @@ TYPE_SCAN_WRAPPER(struct seq_file, {
 #endif
 
 
-//#define SCANNER_FOR_struct_file_operations
 #ifndef SCANNER_FOR_struct_file_operations
 #define SCANNER_FOR_struct_file_operations
 TYPE_SCAN_WRAPPER(struct file_operations, {
@@ -2546,7 +2433,6 @@ TYPE_SCAN_WRAPPER(struct file_operations, {
 #endif
 
 
-//#define SCANNER_FOR_struct_proc_dir_entry
 #ifndef SCANNER_FOR_struct_proc_dir_entry
 #define SCANNER_FOR_struct_proc_dir_entry
 TYPE_SCAN_WRAPPER(struct proc_dir_entry, {
@@ -2583,7 +2469,6 @@ TYPE_SCAN_WRAPPER(struct proc_dir_entry, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ctl_table
 #ifndef SCANNER_FOR_struct_ctl_table
 #define SCANNER_FOR_struct_ctl_table
 TYPE_SCAN_WRAPPER(struct ctl_table, {
@@ -2608,7 +2493,6 @@ TYPE_SCAN_WRAPPER(struct ctl_table, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ctl_table_root
 #ifndef SCANNER_FOR_struct_ctl_table_root
 #define SCANNER_FOR_struct_ctl_table_root
 TYPE_SCAN_WRAPPER(struct ctl_table_root, {
@@ -2627,7 +2511,6 @@ TYPE_SCAN_WRAPPER(struct ctl_table_root, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ctl_node
 #ifndef SCANNER_FOR_struct_ctl_node
 #define SCANNER_FOR_struct_ctl_node
 TYPE_SCAN_WRAPPER(struct ctl_node, {
@@ -2645,7 +2528,6 @@ TYPE_SCAN_WRAPPER(struct ctl_node, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ctl_table_header
 #ifndef SCANNER_FOR_struct_ctl_table_header
 #define SCANNER_FOR_struct_ctl_table_header
 TYPE_SCAN_WRAPPER(struct ctl_table_header, {
@@ -2668,7 +2550,6 @@ TYPE_SCAN_WRAPPER(struct ctl_table_header, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ctl_dir
 #ifndef SCANNER_FOR_struct_ctl_dir
 #define SCANNER_FOR_struct_ctl_dir
 TYPE_SCAN_WRAPPER(struct ctl_dir, {
@@ -2686,7 +2567,6 @@ TYPE_SCAN_WRAPPER(struct ctl_dir, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ctl_table_set
 #ifndef SCANNER_FOR_struct_ctl_table_set
 #define SCANNER_FOR_struct_ctl_table_set
 TYPE_SCAN_WRAPPER(struct ctl_table_set, {
@@ -2704,7 +2584,6 @@ TYPE_SCAN_WRAPPER(struct ctl_table_set, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netns_core
 #ifndef SCANNER_FOR_struct_netns_core
 #define SCANNER_FOR_struct_netns_core
 TYPE_SCAN_WRAPPER(struct netns_core, {
@@ -2723,7 +2602,6 @@ TYPE_SCAN_WRAPPER(struct netns_core, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netns_mib
 #ifndef SCANNER_FOR_struct_netns_mib
 #define SCANNER_FOR_struct_netns_mib
 TYPE_SCAN_WRAPPER(struct netns_mib, {
@@ -2752,7 +2630,6 @@ TYPE_SCAN_WRAPPER(struct netns_mib, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netns_packet
 #ifndef SCANNER_FOR_struct_netns_packet
 #define SCANNER_FOR_struct_netns_packet
 TYPE_SCAN_WRAPPER(struct netns_packet, {
@@ -2770,7 +2647,6 @@ TYPE_SCAN_WRAPPER(struct netns_packet, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netns_unix
 #ifndef SCANNER_FOR_struct_netns_unix
 #define SCANNER_FOR_struct_netns_unix
 TYPE_SCAN_WRAPPER(struct netns_unix, {
@@ -2788,7 +2664,6 @@ TYPE_SCAN_WRAPPER(struct netns_unix, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netns_ipv4
 #ifndef SCANNER_FOR_struct_netns_ipv4
 #define SCANNER_FOR_struct_netns_ipv4
 TYPE_SCAN_WRAPPER(struct netns_ipv4, {
@@ -2822,7 +2697,6 @@ TYPE_SCAN_WRAPPER(struct netns_ipv4, {
         SCAN_RECURSIVE_PTR(arg.iptable_mangle);
         SCAN_RECURSIVE_PTR(arg.iptable_raw);
         SCAN_RECURSIVE_PTR(arg.arptable_filter);
-        SCAN_RECURSIVE_PTR(arg.iptable_security);
         SCAN_RECURSIVE_PTR(arg.nat_table);
         SCAN_FUNCTION(arg.sysctl_icmp_echo_ignore_all);
         SCAN_FUNCTION(arg.sysctl_icmp_echo_ignore_broadcasts);
@@ -2839,7 +2713,6 @@ TYPE_SCAN_WRAPPER(struct netns_ipv4, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netns_sysctl_ipv6
 #ifndef SCANNER_FOR_struct_netns_sysctl_ipv6
 #define SCANNER_FOR_struct_netns_sysctl_ipv6
 TYPE_SCAN_WRAPPER(struct netns_sysctl_ipv6, {
@@ -2869,7 +2742,6 @@ TYPE_SCAN_WRAPPER(struct netns_sysctl_ipv6, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dst_entry
 #ifndef SCANNER_FOR_struct_dst_entry
 #define SCANNER_FOR_struct_dst_entry
 TYPE_SCAN_WRAPPER(struct dst_entry, {
@@ -2908,7 +2780,6 @@ TYPE_SCAN_WRAPPER(struct dst_entry, {
 #endif
 
 
-//#define SCANNER_FOR_struct_pneigh_entry
 #ifndef SCANNER_FOR_struct_pneigh_entry
 #define SCANNER_FOR_struct_pneigh_entry
 TYPE_SCAN_WRAPPER(struct pneigh_entry, {
@@ -2929,7 +2800,6 @@ TYPE_SCAN_WRAPPER(struct pneigh_entry, {
 #endif
 
 
-//#define SCANNER_FOR_struct_neigh_parms
 #ifndef SCANNER_FOR_struct_neigh_parms
 #define SCANNER_FOR_struct_neigh_parms
 TYPE_SCAN_WRAPPER(struct neigh_parms, {
@@ -2968,7 +2838,6 @@ TYPE_SCAN_WRAPPER(struct neigh_parms, {
 #endif
 
 
-//#define SCANNER_FOR_struct_sk_buff_head
 #ifndef SCANNER_FOR_struct_sk_buff_head
 #define SCANNER_FOR_struct_sk_buff_head
 TYPE_SCAN_WRAPPER(struct sk_buff_head, {
@@ -2988,7 +2857,6 @@ TYPE_SCAN_WRAPPER(struct sk_buff_head, {
 #endif
 
 
-//#define SCANNER_FOR_struct_neigh_hash_table
 #ifndef SCANNER_FOR_struct_neigh_hash_table
 #define SCANNER_FOR_struct_neigh_hash_table
 TYPE_SCAN_WRAPPER(struct neigh_hash_table, {
@@ -3008,7 +2876,6 @@ TYPE_SCAN_WRAPPER(struct neigh_hash_table, {
 #endif
 
 
-//#define SCANNER_FOR_struct_neigh_table
 #ifndef SCANNER_FOR_struct_neigh_table
 #define SCANNER_FOR_struct_neigh_table
 TYPE_SCAN_WRAPPER(struct neigh_table, {
@@ -3049,7 +2916,6 @@ TYPE_SCAN_WRAPPER(struct neigh_table, {
 #endif
 
 
-//#define SCANNER_FOR_struct_neigh_ops
 #ifndef SCANNER_FOR_struct_neigh_ops
 #define SCANNER_FOR_struct_neigh_ops
 TYPE_SCAN_WRAPPER(struct neigh_ops, {
@@ -3070,7 +2936,6 @@ TYPE_SCAN_WRAPPER(struct neigh_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_neighbour
 #ifndef SCANNER_FOR_struct_neighbour
 #define SCANNER_FOR_struct_neighbour
 TYPE_SCAN_WRAPPER(struct neighbour, {
@@ -3110,7 +2975,6 @@ TYPE_SCAN_WRAPPER(struct neighbour, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dst_ops
 #ifndef SCANNER_FOR_struct_dst_ops
 #define SCANNER_FOR_struct_dst_ops
 TYPE_SCAN_WRAPPER(struct dst_ops, {
@@ -3144,7 +3008,6 @@ TYPE_SCAN_WRAPPER(struct dst_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netns_ipv6
 #ifndef SCANNER_FOR_struct_netns_ipv6
 #define SCANNER_FOR_struct_netns_ipv6
 TYPE_SCAN_WRAPPER(struct netns_ipv6, {
@@ -3163,7 +3026,6 @@ TYPE_SCAN_WRAPPER(struct netns_ipv6, {
         SCAN_RECURSIVE_PTR(arg.ip6table_filter);
         SCAN_RECURSIVE_PTR(arg.ip6table_mangle);
         SCAN_RECURSIVE_PTR(arg.ip6table_raw);
-        SCAN_RECURSIVE_PTR(arg.ip6table_security);
         SCAN_RECURSIVE_PTR(arg.ip6table_nat);
         SCAN_RECURSIVE_PTR(arg.ip6_null_entry);
         SCAN_RECURSIVE_PTR(arg.rt6_stats);
@@ -3188,7 +3050,6 @@ TYPE_SCAN_WRAPPER(struct netns_ipv6, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netns_sctp
 #ifndef SCANNER_FOR_struct_netns_sctp
 #define SCANNER_FOR_struct_netns_sctp
 TYPE_SCAN_WRAPPER(struct netns_sctp, {
@@ -3239,7 +3100,6 @@ TYPE_SCAN_WRAPPER(struct netns_sctp, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netns_dccp
 #ifndef SCANNER_FOR_struct_netns_dccp
 #define SCANNER_FOR_struct_netns_dccp
 TYPE_SCAN_WRAPPER(struct netns_dccp, {
@@ -3257,7 +3117,6 @@ TYPE_SCAN_WRAPPER(struct netns_dccp, {
 #endif
 
 
-//#define SCANNER_FOR_struct_nf_proto_net
 #ifndef SCANNER_FOR_struct_nf_proto_net
 #define SCANNER_FOR_struct_nf_proto_net
 TYPE_SCAN_WRAPPER(struct nf_proto_net, {
@@ -3278,7 +3137,6 @@ TYPE_SCAN_WRAPPER(struct nf_proto_net, {
 #endif
 
 
-//#define SCANNER_FOR_struct_nf_generic_net
 #ifndef SCANNER_FOR_struct_nf_generic_net
 #define SCANNER_FOR_struct_nf_generic_net
 TYPE_SCAN_WRAPPER(struct nf_generic_net, {
@@ -3296,7 +3154,6 @@ TYPE_SCAN_WRAPPER(struct nf_generic_net, {
 #endif
 
 
-//#define SCANNER_FOR_struct_nf_tcp_net
 #ifndef SCANNER_FOR_struct_nf_tcp_net
 #define SCANNER_FOR_struct_nf_tcp_net
 TYPE_SCAN_WRAPPER(struct nf_tcp_net, {
@@ -3317,7 +3174,6 @@ TYPE_SCAN_WRAPPER(struct nf_tcp_net, {
 #endif
 
 
-//#define SCANNER_FOR_struct_nf_udp_net
 #ifndef SCANNER_FOR_struct_nf_udp_net
 #define SCANNER_FOR_struct_nf_udp_net
 TYPE_SCAN_WRAPPER(struct nf_udp_net, {
@@ -3335,7 +3191,6 @@ TYPE_SCAN_WRAPPER(struct nf_udp_net, {
 #endif
 
 
-//#define SCANNER_FOR_struct_nf_icmp_net
 #ifndef SCANNER_FOR_struct_nf_icmp_net
 #define SCANNER_FOR_struct_nf_icmp_net
 TYPE_SCAN_WRAPPER(struct nf_icmp_net, {
@@ -3353,7 +3208,6 @@ TYPE_SCAN_WRAPPER(struct nf_icmp_net, {
 #endif
 
 
-//#define SCANNER_FOR_struct_nf_ip_net
 #ifndef SCANNER_FOR_struct_nf_ip_net
 #define SCANNER_FOR_struct_nf_ip_net
 TYPE_SCAN_WRAPPER(struct nf_ip_net, {
@@ -3376,7 +3230,6 @@ TYPE_SCAN_WRAPPER(struct nf_ip_net, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netns_ct
 #ifndef SCANNER_FOR_struct_netns_ct
 #define SCANNER_FOR_struct_netns_ct
 TYPE_SCAN_WRAPPER(struct netns_ct, {
@@ -3419,7 +3272,6 @@ TYPE_SCAN_WRAPPER(struct netns_ct, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netns_nf_frag
 #ifndef SCANNER_FOR_struct_netns_nf_frag
 #define SCANNER_FOR_struct_netns_nf_frag
 TYPE_SCAN_WRAPPER(struct netns_nf_frag, {
@@ -3437,7 +3289,6 @@ TYPE_SCAN_WRAPPER(struct netns_nf_frag, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netns_xfrm
 #ifndef SCANNER_FOR_struct_netns_xfrm
 #define SCANNER_FOR_struct_netns_xfrm
 TYPE_SCAN_WRAPPER(struct netns_xfrm, {
@@ -3479,7 +3330,6 @@ TYPE_SCAN_WRAPPER(struct netns_xfrm, {
 #endif
 
 
-//#define SCANNER_FOR_struct_net
 #ifndef SCANNER_FOR_struct_net
 #define SCANNER_FOR_struct_net
 TYPE_SCAN_WRAPPER(struct net, {
@@ -3534,7 +3384,6 @@ TYPE_SCAN_WRAPPER(struct net, {
 #endif
 
 
-//#define SCANNER_FOR_struct_nsproxy
 #ifndef SCANNER_FOR_struct_nsproxy
 #define SCANNER_FOR_struct_nsproxy
 TYPE_SCAN_WRAPPER(struct nsproxy, {
@@ -3556,7 +3405,6 @@ TYPE_SCAN_WRAPPER(struct nsproxy, {
 #endif
 
 
-//#define SCANNER_FOR_struct_hrtimer_clock_base
 #ifndef SCANNER_FOR_struct_hrtimer_clock_base
 #define SCANNER_FOR_struct_hrtimer_clock_base
 TYPE_SCAN_WRAPPER(struct hrtimer_clock_base, {
@@ -3580,7 +3428,6 @@ TYPE_SCAN_WRAPPER(struct hrtimer_clock_base, {
 #endif
 
 
-//#define SCANNER_FOR_struct_hrtimer
 #ifndef SCANNER_FOR_struct_hrtimer
 #define SCANNER_FOR_struct_hrtimer
 TYPE_SCAN_WRAPPER(struct hrtimer, {
@@ -3604,7 +3451,6 @@ TYPE_SCAN_WRAPPER(struct hrtimer, {
 #endif
 
 
-//#define SCANNER_FOR_struct_signal_struct
 #ifndef SCANNER_FOR_struct_signal_struct
 #define SCANNER_FOR_struct_signal_struct
 TYPE_SCAN_WRAPPER(struct signal_struct, {
@@ -3678,7 +3524,6 @@ TYPE_SCAN_WRAPPER(struct signal_struct, {
 #endif
 
 
-//#define SCANNER_FOR_struct_sigaction
 #ifndef SCANNER_FOR_struct_sigaction
 #define SCANNER_FOR_struct_sigaction
 TYPE_SCAN_WRAPPER(struct sigaction, {
@@ -3698,7 +3543,6 @@ TYPE_SCAN_WRAPPER(struct sigaction, {
 #endif
 
 
-//#define SCANNER_FOR_struct_k_sigaction
 #ifndef SCANNER_FOR_struct_k_sigaction
 #define SCANNER_FOR_struct_k_sigaction
 TYPE_SCAN_WRAPPER(struct k_sigaction, {
@@ -3715,7 +3559,6 @@ TYPE_SCAN_WRAPPER(struct k_sigaction, {
 #endif
 
 
-//#define SCANNER_FOR_struct_bio_list
 #ifndef SCANNER_FOR_struct_bio_list
 #define SCANNER_FOR_struct_bio_list
 TYPE_SCAN_WRAPPER(struct bio_list, {
@@ -3733,7 +3576,6 @@ TYPE_SCAN_WRAPPER(struct bio_list, {
 #endif
 
 
-//#define SCANNER_FOR_struct_css_set
 #ifndef SCANNER_FOR_struct_css_set
 #define SCANNER_FOR_struct_css_set
 TYPE_SCAN_WRAPPER(struct css_set, {
@@ -3755,7 +3597,6 @@ TYPE_SCAN_WRAPPER(struct css_set, {
 #endif
 
 
-//#define SCANNER_FOR_struct_page_frag
 #ifndef SCANNER_FOR_struct_page_frag
 #define SCANNER_FOR_struct_page_frag
 TYPE_SCAN_WRAPPER(struct page_frag, {
@@ -3774,7 +3615,6 @@ TYPE_SCAN_WRAPPER(struct page_frag, {
 #endif
 
 
-//#define SCANNER_FOR_struct_task_struct
 #ifndef SCANNER_FOR_struct_task_struct
 #define SCANNER_FOR_struct_task_struct
 TYPE_SCAN_WRAPPER(struct task_struct, {
@@ -3803,7 +3643,6 @@ TYPE_SCAN_WRAPPER(struct task_struct, {
         SCAN_RECURSIVE_PTR(arg.sched_task_group);
         SCAN_RECURSIVE(arg.preempt_notifiers);
         SCAN_FUNCTION(arg.fpu_counter);
-        SCAN_FUNCTION(arg.btrace_seq);
         SCAN_FUNCTION(arg.policy);
         SCAN_FUNCTION(arg.nr_cpus_allowed);
         SCAN_RECURSIVE(arg.cpus_allowed);
@@ -3926,20 +3765,12 @@ TYPE_SCAN_WRAPPER(struct task_struct, {
 //  Array(Use(Struct(struct latency_record))) arg.latency_record
         SCAN_FUNCTION(arg.timer_slack_ns);
         SCAN_FUNCTION(arg.default_timer_slack_ns);
-        SCAN_FUNCTION(arg.curr_ret_stack);
-        SCAN_RECURSIVE_PTR(arg.ret_stack);
-        SCAN_FUNCTION(arg.ftrace_timestamp);
-        SCAN_RECURSIVE(arg.trace_overrun);
-        SCAN_RECURSIVE(arg.tracing_graph_pause);
-        SCAN_FUNCTION(arg.trace);
-        SCAN_FUNCTION(arg.trace_recursion);
         SCAN_RECURSIVE(arg.ptrace_bp_refcnt);
     }
 })
 #endif
 
 
-//#define SCANNER_FOR_struct_module
 #ifndef SCANNER_FOR_struct_module
 #define SCANNER_FOR_struct_module
 TYPE_SCAN_WRAPPER(struct module, {
@@ -4002,14 +3833,6 @@ TYPE_SCAN_WRAPPER(struct module, {
         SCAN_FUNCTION(arg.args);
         SCAN_FUNCTION(arg.percpu);
         SCAN_FUNCTION(arg.percpu_size);
-        SCAN_FUNCTION(arg.num_tracepoints);
-//  Pointer(Pointer(const Use(Struct(struct tracepoint)))) arg.tracepoints_ptrs
-        SCAN_FUNCTION(arg.num_trace_bprintk_fmt);
-//  Pointer(Pointer(Attributed(const , BuiltIn(char)))) arg.trace_bprintk_fmt_start
-//  Pointer(Pointer(Use(Struct(struct ftrace_event_call)))) arg.trace_events
-        SCAN_FUNCTION(arg.num_trace_events);
-        SCAN_FUNCTION(arg.num_ftrace_callsites);
-        SCAN_FUNCTION(arg.ftrace_callsites);
         SCAN_RECURSIVE(arg.source_list);
         SCAN_RECURSIVE(arg.target_list);
         SCAN_RECURSIVE_PTR(arg.waiter);
@@ -4020,7 +3843,6 @@ TYPE_SCAN_WRAPPER(struct module, {
 #endif
 
 
-//#define SCANNER_FOR_struct_file_system_type
 #ifndef SCANNER_FOR_struct_file_system_type
 #define SCANNER_FOR_struct_file_system_type
 TYPE_SCAN_WRAPPER(struct file_system_type, {
@@ -4030,10 +3852,6 @@ TYPE_SCAN_WRAPPER(struct file_system_type, {
     }
     SCAN {
         S(kern_printk( "struct file_system_type\n");)
-        uint64_t *addr = (uint64_t*)(&arg);
-        if(addr == NULL){
-            return;
-        }
         S(SCAN_OBJECT(arg);)
         SCAN_FUNCTION(arg.name);
         SCAN_FUNCTION(arg.fs_flags);
@@ -4054,7 +3872,6 @@ TYPE_SCAN_WRAPPER(struct file_system_type, {
 #endif
 
 
-//#define SCANNER_FOR_struct_super_operations
 #ifndef SCANNER_FOR_struct_super_operations
 #define SCANNER_FOR_struct_super_operations
 TYPE_SCAN_WRAPPER(struct super_operations, {
@@ -4092,7 +3909,6 @@ TYPE_SCAN_WRAPPER(struct super_operations, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dquot
 #ifndef SCANNER_FOR_struct_dquot
 #define SCANNER_FOR_struct_dquot
 TYPE_SCAN_WRAPPER(struct dquot, {
@@ -4120,7 +3936,6 @@ TYPE_SCAN_WRAPPER(struct dquot, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dquot_operations
 #ifndef SCANNER_FOR_struct_dquot_operations
 #define SCANNER_FOR_struct_dquot_operations
 TYPE_SCAN_WRAPPER(struct dquot_operations, {
@@ -4144,7 +3959,6 @@ TYPE_SCAN_WRAPPER(struct dquot_operations, {
 #endif
 
 
-//#define SCANNER_FOR_struct_quotactl_ops
 #ifndef SCANNER_FOR_struct_quotactl_ops
 #define SCANNER_FOR_struct_quotactl_ops
 TYPE_SCAN_WRAPPER(struct quotactl_ops, {
@@ -4170,7 +3984,6 @@ TYPE_SCAN_WRAPPER(struct quotactl_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_export_operations
 #ifndef SCANNER_FOR_struct_export_operations
 #define SCANNER_FOR_struct_export_operations
 TYPE_SCAN_WRAPPER(struct export_operations, {
@@ -4192,7 +4005,6 @@ TYPE_SCAN_WRAPPER(struct export_operations, {
 #endif
 
 
-//#define SCANNER_FOR_struct_xattr_handler
 #ifndef SCANNER_FOR_struct_xattr_handler
 #define SCANNER_FOR_struct_xattr_handler
 TYPE_SCAN_WRAPPER(struct xattr_handler, {
@@ -4213,7 +4025,6 @@ TYPE_SCAN_WRAPPER(struct xattr_handler, {
 #endif
 
 
-//#define SCANNER_FOR_struct_quota_format_ops
 #ifndef SCANNER_FOR_struct_quota_format_ops
 #define SCANNER_FOR_struct_quota_format_ops
 TYPE_SCAN_WRAPPER(struct quota_format_ops, {
@@ -4236,7 +4047,6 @@ TYPE_SCAN_WRAPPER(struct quota_format_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_quota_format_type
 #ifndef SCANNER_FOR_struct_quota_format_type
 #define SCANNER_FOR_struct_quota_format_type
 TYPE_SCAN_WRAPPER(struct quota_format_type, {
@@ -4256,7 +4066,6 @@ TYPE_SCAN_WRAPPER(struct quota_format_type, {
 #endif
 
 
-//#define SCANNER_FOR_struct_mem_dqinfo
 #ifndef SCANNER_FOR_struct_mem_dqinfo
 #define SCANNER_FOR_struct_mem_dqinfo
 TYPE_SCAN_WRAPPER(struct mem_dqinfo, {
@@ -4281,7 +4090,6 @@ TYPE_SCAN_WRAPPER(struct mem_dqinfo, {
 #endif
 
 
-//#define SCANNER_FOR_struct_quota_info
 #ifndef SCANNER_FOR_struct_quota_info
 #define SCANNER_FOR_struct_quota_info
 TYPE_SCAN_WRAPPER(struct quota_info, {
@@ -4304,7 +4112,6 @@ TYPE_SCAN_WRAPPER(struct quota_info, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dentry_operations
 #ifndef SCANNER_FOR_struct_dentry_operations
 #define SCANNER_FOR_struct_dentry_operations
 TYPE_SCAN_WRAPPER(struct dentry_operations, {
@@ -4330,7 +4137,6 @@ TYPE_SCAN_WRAPPER(struct dentry_operations, {
 #endif
 
 
-//#define SCANNER_FOR_struct_shrinker
 #ifndef SCANNER_FOR_struct_shrinker
 #define SCANNER_FOR_struct_shrinker
 TYPE_SCAN_WRAPPER(struct shrinker, {
@@ -4351,14 +4157,12 @@ TYPE_SCAN_WRAPPER(struct shrinker, {
 #endif
 
 
-
 #ifndef SCANNER_FOR_struct_super_block
 #define SCANNER_FOR_struct_super_block
 TYPE_SCAN_WRAPPER(struct super_block, {
     SCAN_HEAD{
         DECLARE_HASH(htable);
         SCANNER(struct super_block);
-        VOID(htable);
     }
     SCAN {
         S(kern_printk( "struct super_block\n");)
@@ -4379,16 +4183,6 @@ TYPE_SCAN_WRAPPER(struct super_block, {
         SCAN_RECURSIVE(arg.s_umount);
         SCAN_FUNCTION(arg.s_count);
         SCAN_RECURSIVE(arg.s_active);
-        SCAN_FUNCTION(arg.s_security);
- /*       const struct xattr_handler **handlers(arg.s_xattr);
-        const struct xattr_handler *handler(nullptr);
-        if(handlers != nullptr){
-            for((handler) = *(handlers)++;
-                    handler;
-                    (handler) = *(handlers)++) {
-                SCAN_RECURSIVE_PTR(handler);
-            }
-        }*/
 //  Pointer(Pointer(Attributed(const , Use(Struct(struct xattr_handler))))) arg.s_xattr
         SCAN_RECURSIVE(arg.s_inodes);
         SCAN_RECURSIVE(arg.s_anon);
@@ -4432,7 +4226,7 @@ TYPE_SCAN_WRAPPER(struct inode, {
         SCANNER(struct inode);
     }
     SCAN {
-        S(kern_printk( "struct inode : %lx\n", ((uint64_t*)&arg));)
+        S(kern_printk( "struct inode\n");)
         S(SCAN_OBJECT(arg);)
         SCAN_FUNCTION(arg.i_mode);
         SCAN_FUNCTION(arg.i_opflags);
@@ -4444,7 +4238,6 @@ TYPE_SCAN_WRAPPER(struct inode, {
         SCAN_RECURSIVE_PTR(arg.i_op);
         SCAN_RECURSIVE_PTR(arg.i_sb);
         SCAN_RECURSIVE_PTR(arg.i_mapping);
-        SCAN_FUNCTION(arg.i_security);
         SCAN_FUNCTION(arg.i_ino);
 //  Union(union anon_union_121) None
         SCAN_FUNCTION(arg.i_rdev);
@@ -4471,8 +4264,6 @@ TYPE_SCAN_WRAPPER(struct inode, {
         SCAN_RECURSIVE_PTR(arg.i_fop);
         SCAN_RECURSIVE_PTR(arg.i_flock);
         SCAN_RECURSIVE(arg.i_data);
-        SCAN_RECURSIVE_PTR(arg.i_dquot[0]);
-        SCAN_RECURSIVE_PTR(arg.i_dquot[1]);
 //  Array(Pointer(Use(Struct(struct dquot)))) arg.i_dquot
         SCAN_RECURSIVE(arg.i_devices);
 //  Union(union anon_union_123) None
@@ -4485,7 +4276,6 @@ TYPE_SCAN_WRAPPER(struct inode, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dentry
 #ifndef SCANNER_FOR_struct_dentry
 #define SCANNER_FOR_struct_dentry
 TYPE_SCAN_WRAPPER(struct dentry, {
@@ -4536,7 +4326,6 @@ TYPE_SCAN_WRAPPER(struct vfsmount, {
 #endif
 
 
-
 #ifndef SCANNER_FOR_struct_path
 #define SCANNER_FOR_struct_path
 TYPE_SCAN_WRAPPER(struct path, {
@@ -4552,7 +4341,6 @@ TYPE_SCAN_WRAPPER(struct path, {
     }
 })
 #endif
-
 
 
 #ifndef SCANNER_FOR_struct_fown_struct
@@ -4574,7 +4362,6 @@ TYPE_SCAN_WRAPPER(struct fown_struct, {
     }
 })
 #endif
-
 
 
 #ifndef SCANNER_FOR_struct_file
@@ -4600,7 +4387,6 @@ TYPE_SCAN_WRAPPER(struct file, {
         SCAN_RECURSIVE_PTR(arg.f_cred);
         SCAN_RECURSIVE(arg.f_ra);
         SCAN_FUNCTION(arg.f_version);
-        SCAN_FUNCTION(arg.f_security);
         SCAN_FUNCTION(arg.private_data);
         SCAN_RECURSIVE(arg.f_ep_links);
         SCAN_RECURSIVE(arg.f_tfile_llink);
@@ -4633,7 +4419,6 @@ TYPE_SCAN_WRAPPER(struct aio_ring_info, {
 #endif
 
 
-//#define SCANNER_FOR_struct_kioctx
 #ifndef SCANNER_FOR_struct_kioctx
 #define SCANNER_FOR_struct_kioctx
 TYPE_SCAN_WRAPPER(struct kioctx, {
@@ -4663,7 +4448,6 @@ TYPE_SCAN_WRAPPER(struct kioctx, {
 #endif
 
 
-//#define SCANNER_FOR_struct_kiocb
 #ifndef SCANNER_FOR_struct_kiocb
 #define SCANNER_FOR_struct_kiocb
 TYPE_SCAN_WRAPPER(struct kiocb, {
@@ -4703,7 +4487,6 @@ TYPE_SCAN_WRAPPER(struct kiocb, {
 #endif
 
 
-//#define SCANNER_FOR_struct_request_sock
 #ifndef SCANNER_FOR_struct_request_sock
 #define SCANNER_FOR_struct_request_sock
 TYPE_SCAN_WRAPPER(struct request_sock, {
@@ -4732,7 +4515,6 @@ TYPE_SCAN_WRAPPER(struct request_sock, {
 #endif
 
 
-//#define SCANNER_FOR_struct_request_sock_ops
 #ifndef SCANNER_FOR_struct_request_sock_ops
 #define SCANNER_FOR_struct_request_sock_ops
 TYPE_SCAN_WRAPPER(struct request_sock_ops, {
@@ -4757,7 +4539,6 @@ TYPE_SCAN_WRAPPER(struct request_sock_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_timewait_sock_ops
 #ifndef SCANNER_FOR_struct_timewait_sock_ops
 #define SCANNER_FOR_struct_timewait_sock_ops
 TYPE_SCAN_WRAPPER(struct timewait_sock_ops, {
@@ -4778,7 +4559,6 @@ TYPE_SCAN_WRAPPER(struct timewait_sock_ops, {
 #endif
 
 
-////#define SCANNER_FOR_struct_proto
 #ifndef SCANNER_FOR_struct_proto
 #define SCANNER_FOR_struct_proto
 TYPE_SCAN_WRAPPER(struct proto, {
@@ -4839,7 +4619,6 @@ TYPE_SCAN_WRAPPER(struct proto, {
 #endif
 
 
-//#define SCANNER_FOR_struct_sock_common
 #ifndef SCANNER_FOR_struct_sock_common
 #define SCANNER_FOR_struct_sock_common
 TYPE_SCAN_WRAPPER(struct sock_common, {
@@ -4870,7 +4649,6 @@ TYPE_SCAN_WRAPPER(struct sock_common, {
 #endif
 
 
-//#define SCANNER_FOR_struct_sk_filter
 #ifndef SCANNER_FOR_struct_sk_filter
 #define SCANNER_FOR_struct_sk_filter
 TYPE_SCAN_WRAPPER(struct sk_filter, {
@@ -4891,7 +4669,6 @@ TYPE_SCAN_WRAPPER(struct sk_filter, {
 #endif
 
 
-//#define SCANNER_FOR_struct_socket_wq
 #ifndef SCANNER_FOR_struct_socket_wq
 #define SCANNER_FOR_struct_socket_wq
 TYPE_SCAN_WRAPPER(struct socket_wq, {
@@ -4910,7 +4687,6 @@ TYPE_SCAN_WRAPPER(struct socket_wq, {
 #endif
 
 
-//#define SCANNER_FOR_struct_proto_ops
 #ifndef SCANNER_FOR_struct_proto_ops
 #define SCANNER_FOR_struct_proto_ops
 TYPE_SCAN_WRAPPER(struct proto_ops, {
@@ -4949,7 +4725,6 @@ TYPE_SCAN_WRAPPER(struct proto_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_socket
 #ifndef SCANNER_FOR_struct_socket
 #define SCANNER_FOR_struct_socket
 TYPE_SCAN_WRAPPER(struct socket, {
@@ -4972,7 +4747,6 @@ TYPE_SCAN_WRAPPER(struct socket, {
 #endif
 
 
-//#define SCANNER_FOR_struct_cg_proto
 #ifndef SCANNER_FOR_struct_cg_proto
 #define SCANNER_FOR_struct_cg_proto
 TYPE_SCAN_WRAPPER(struct cg_proto, {
@@ -4995,7 +4769,6 @@ TYPE_SCAN_WRAPPER(struct cg_proto, {
 #endif
 
 
-//#define SCANNER_FOR_struct_sock
 #ifndef SCANNER_FOR_struct_sock
 #define SCANNER_FOR_struct_sock
 TYPE_SCAN_WRAPPER(struct sock, {
@@ -5061,7 +4834,6 @@ TYPE_SCAN_WRAPPER(struct sock, {
         SCAN_RECURSIVE_PTR(arg.sk_send_head);
         SCAN_FUNCTION(arg.sk_peek_off);
         SCAN_FUNCTION(arg.sk_write_pending);
-        SCAN_FUNCTION(arg.sk_security);
         SCAN_FUNCTION(arg.sk_mark);
         SCAN_FUNCTION(arg.sk_classid);
         SCAN_RECURSIVE_PTR(arg.sk_cgrp);
@@ -5076,7 +4848,6 @@ TYPE_SCAN_WRAPPER(struct sock, {
 #endif
 
 
-//#define SCANNER_FOR_struct_nf_bridge_info
 #ifndef SCANNER_FOR_struct_nf_bridge_info
 #define SCANNER_FOR_struct_nf_bridge_info
 TYPE_SCAN_WRAPPER(struct nf_bridge_info, {
@@ -5097,7 +4868,6 @@ TYPE_SCAN_WRAPPER(struct nf_bridge_info, {
 #endif
 
 
-//#define SCANNER_FOR_struct_sk_buff
 #ifndef SCANNER_FOR_struct_sk_buff
 #define SCANNER_FOR_struct_sk_buff
 TYPE_SCAN_WRAPPER(struct sk_buff, {
@@ -5171,7 +4941,6 @@ TYPE_SCAN_WRAPPER(struct sk_buff, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netlink_callback
 #ifndef SCANNER_FOR_struct_netlink_callback
 #define SCANNER_FOR_struct_netlink_callback
 TYPE_SCAN_WRAPPER(struct netlink_callback, {
@@ -5198,7 +4967,6 @@ TYPE_SCAN_WRAPPER(struct netlink_callback, {
 #endif
 
 
-//#define SCANNER_FOR_struct_net_device_ops
 #ifndef SCANNER_FOR_struct_net_device_ops
 #define SCANNER_FOR_struct_net_device_ops
 TYPE_SCAN_WRAPPER(struct net_device_ops, {
@@ -5263,7 +5031,6 @@ TYPE_SCAN_WRAPPER(struct net_device_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ethtool_ops
 #ifndef SCANNER_FOR_struct_ethtool_ops
 #define SCANNER_FOR_struct_ethtool_ops
 TYPE_SCAN_WRAPPER(struct ethtool_ops, {
@@ -5325,7 +5092,6 @@ TYPE_SCAN_WRAPPER(struct ethtool_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_header_ops
 #ifndef SCANNER_FOR_struct_header_ops
 #define SCANNER_FOR_struct_header_ops
 TYPE_SCAN_WRAPPER(struct header_ops, {
@@ -5346,7 +5112,6 @@ TYPE_SCAN_WRAPPER(struct header_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dsa_chip_data
 #ifndef SCANNER_FOR_struct_dsa_chip_data
 #define SCANNER_FOR_struct_dsa_chip_data
 TYPE_SCAN_WRAPPER(struct dsa_chip_data, {
@@ -5366,7 +5131,6 @@ TYPE_SCAN_WRAPPER(struct dsa_chip_data, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dsa_platform_data
 #ifndef SCANNER_FOR_struct_dsa_platform_data
 #define SCANNER_FOR_struct_dsa_platform_data
 TYPE_SCAN_WRAPPER(struct dsa_platform_data, {
@@ -5385,7 +5149,6 @@ TYPE_SCAN_WRAPPER(struct dsa_platform_data, {
 #endif
 
 
-//#define SCANNER_FOR_struct_phy_driver
 #ifndef SCANNER_FOR_struct_phy_driver
 #define SCANNER_FOR_struct_phy_driver
 TYPE_SCAN_WRAPPER(struct phy_driver, {
@@ -5422,7 +5185,6 @@ TYPE_SCAN_WRAPPER(struct phy_driver, {
 #endif
 
 
-//#define SCANNER_FOR_struct_phy_device
 #ifndef SCANNER_FOR_struct_phy_device
 #define SCANNER_FOR_struct_phy_device
 TYPE_SCAN_WRAPPER(struct phy_device, {
@@ -5467,7 +5229,6 @@ TYPE_SCAN_WRAPPER(struct phy_device, {
 #endif
 
 
-//#define SCANNER_FOR_struct_mii_bus
 #ifndef SCANNER_FOR_struct_mii_bus
 #define SCANNER_FOR_struct_mii_bus
 TYPE_SCAN_WRAPPER(struct mii_bus, {
@@ -5496,7 +5257,6 @@ TYPE_SCAN_WRAPPER(struct mii_bus, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dsa_switch_driver
 #ifndef SCANNER_FOR_struct_dsa_switch_driver
 #define SCANNER_FOR_struct_dsa_switch_driver
 TYPE_SCAN_WRAPPER(struct dsa_switch_driver, {
@@ -5524,7 +5284,6 @@ TYPE_SCAN_WRAPPER(struct dsa_switch_driver, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dsa_switch
 #ifndef SCANNER_FOR_struct_dsa_switch
 #define SCANNER_FOR_struct_dsa_switch
 TYPE_SCAN_WRAPPER(struct dsa_switch, {
@@ -5549,7 +5308,6 @@ TYPE_SCAN_WRAPPER(struct dsa_switch, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dsa_switch_tree
 #ifndef SCANNER_FOR_struct_dsa_switch_tree
 #define SCANNER_FOR_struct_dsa_switch_tree
 TYPE_SCAN_WRAPPER(struct dsa_switch_tree, {
@@ -5574,7 +5332,6 @@ TYPE_SCAN_WRAPPER(struct dsa_switch_tree, {
 #endif
 
 
-//#define SCANNER_FOR_struct_rps_map
 #ifndef SCANNER_FOR_struct_rps_map
 #define SCANNER_FOR_struct_rps_map
 TYPE_SCAN_WRAPPER(struct rps_map, {
@@ -5593,7 +5350,6 @@ TYPE_SCAN_WRAPPER(struct rps_map, {
 #endif
 
 
-//#define SCANNER_FOR_struct_rps_dev_flow_table
 #ifndef SCANNER_FOR_struct_rps_dev_flow_table
 #define SCANNER_FOR_struct_rps_dev_flow_table
 TYPE_SCAN_WRAPPER(struct rps_dev_flow_table, {
@@ -5613,7 +5369,6 @@ TYPE_SCAN_WRAPPER(struct rps_dev_flow_table, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netdev_rx_queue
 #ifndef SCANNER_FOR_struct_netdev_rx_queue
 #define SCANNER_FOR_struct_netdev_rx_queue
 TYPE_SCAN_WRAPPER(struct netdev_rx_queue, {
@@ -5633,7 +5388,6 @@ TYPE_SCAN_WRAPPER(struct netdev_rx_queue, {
 #endif
 
 
-//#define SCANNER_FOR_struct_qdisc_walker
 #ifndef SCANNER_FOR_struct_qdisc_walker
 #define SCANNER_FOR_struct_qdisc_walker
 TYPE_SCAN_WRAPPER(struct qdisc_walker, {
@@ -5653,7 +5407,6 @@ TYPE_SCAN_WRAPPER(struct qdisc_walker, {
 #endif
 
 
-//#define SCANNER_FOR_struct_tcf_proto_ops
 #ifndef SCANNER_FOR_struct_tcf_proto_ops
 #define SCANNER_FOR_struct_tcf_proto_ops
 TYPE_SCAN_WRAPPER(struct tcf_proto_ops, {
@@ -5681,7 +5434,6 @@ TYPE_SCAN_WRAPPER(struct tcf_proto_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_tcf_proto
 #ifndef SCANNER_FOR_struct_tcf_proto
 #define SCANNER_FOR_struct_tcf_proto
 TYPE_SCAN_WRAPPER(struct tcf_proto, {
@@ -5706,7 +5458,6 @@ TYPE_SCAN_WRAPPER(struct tcf_proto, {
 #endif
 
 
-//#define SCANNER_FOR_struct_gnet_dump
 #ifndef SCANNER_FOR_struct_gnet_dump
 #define SCANNER_FOR_struct_gnet_dump
 TYPE_SCAN_WRAPPER(struct gnet_dump, {
@@ -5730,7 +5481,6 @@ TYPE_SCAN_WRAPPER(struct gnet_dump, {
 #endif
 
 
-//#define SCANNER_FOR_struct_Qdisc_class_ops
 #ifndef SCANNER_FOR_struct_Qdisc_class_ops
 #define SCANNER_FOR_struct_Qdisc_class_ops
 TYPE_SCAN_WRAPPER(struct Qdisc_class_ops, {
@@ -5760,7 +5510,6 @@ TYPE_SCAN_WRAPPER(struct Qdisc_class_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_Qdisc_ops
 #ifndef SCANNER_FOR_struct_Qdisc_ops
 #define SCANNER_FOR_struct_Qdisc_ops
 TYPE_SCAN_WRAPPER(struct Qdisc_ops, {
@@ -5792,7 +5541,6 @@ TYPE_SCAN_WRAPPER(struct Qdisc_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_qdisc_size_table
 #ifndef SCANNER_FOR_struct_qdisc_size_table
 #define SCANNER_FOR_struct_qdisc_size_table
 TYPE_SCAN_WRAPPER(struct qdisc_size_table, {
@@ -5813,7 +5561,6 @@ TYPE_SCAN_WRAPPER(struct qdisc_size_table, {
 #endif
 
 
-//#define SCANNER_FOR_struct_Qdisc
 #ifndef SCANNER_FOR_struct_Qdisc
 #define SCANNER_FOR_struct_Qdisc
 TYPE_SCAN_WRAPPER(struct Qdisc, {
@@ -5854,7 +5601,6 @@ TYPE_SCAN_WRAPPER(struct Qdisc, {
 #endif
 
 
-//#define SCANNER_FOR_struct_netdev_queue
 #ifndef SCANNER_FOR_struct_netdev_queue
 #define SCANNER_FOR_struct_netdev_queue
 TYPE_SCAN_WRAPPER(struct netdev_queue, {
@@ -5881,7 +5627,6 @@ TYPE_SCAN_WRAPPER(struct netdev_queue, {
 #endif
 
 
-//#define SCANNER_FOR_struct_xps_map
 #ifndef SCANNER_FOR_struct_xps_map
 #define SCANNER_FOR_struct_xps_map
 TYPE_SCAN_WRAPPER(struct xps_map, {
@@ -5901,7 +5646,6 @@ TYPE_SCAN_WRAPPER(struct xps_map, {
 #endif
 
 
-//#define SCANNER_FOR_struct_xps_dev_maps
 #ifndef SCANNER_FOR_struct_xps_dev_maps
 #define SCANNER_FOR_struct_xps_dev_maps
 TYPE_SCAN_WRAPPER(struct xps_dev_maps, {
@@ -5996,7 +5740,6 @@ TYPE_SCAN_WRAPPER(struct pm_qos_request, {
 #endif
 
 
-//#define SCANNER_FOR_struct_net_device
 #ifndef SCANNER_FOR_struct_net_device
 #define SCANNER_FOR_struct_net_device
 TYPE_SCAN_WRAPPER(struct net_device, {
@@ -6174,7 +5917,6 @@ TYPE_SCAN_WRAPPER(struct irq_data, {
 #endif
 
 
-//#define SCANNER_FOR_struct_irq_chip
 #ifndef SCANNER_FOR_struct_irq_chip
 #define SCANNER_FOR_struct_irq_chip
 TYPE_SCAN_WRAPPER(struct irq_chip, {
@@ -6213,7 +5955,40 @@ TYPE_SCAN_WRAPPER(struct irq_chip, {
 #endif
 
 
-//#define SCANNER_FOR_struct_scsi_host_template
+#ifndef SCANNER_FOR_struct_preempt_notifier
+#define SCANNER_FOR_struct_preempt_notifier
+TYPE_SCAN_WRAPPER(struct preempt_notifier, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct preempt_notifier);
+    }
+    SCAN {
+        S(kern_printk( "struct preempt_notifier\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE(arg.link);
+        SCAN_RECURSIVE_PTR(arg.ops);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_preempt_ops
+#define SCANNER_FOR_struct_preempt_ops
+TYPE_SCAN_WRAPPER(struct preempt_ops, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct preempt_ops);
+    }
+    SCAN {
+        S(kern_printk( "struct preempt_ops\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_FUNCTION(arg.sched_in);
+        SCAN_FUNCTION(arg.sched_out);
+    }
+})
+#endif
+
+
 #ifndef SCANNER_FOR_struct_scsi_host_template
 #define SCANNER_FOR_struct_scsi_host_template
 TYPE_SCAN_WRAPPER(struct scsi_host_template, {
@@ -6278,7 +6053,6 @@ TYPE_SCAN_WRAPPER(struct scsi_host_template, {
 #endif
 
 
-//#define SCANNER_FOR_struct_Scsi_Host
 #ifndef SCANNER_FOR_struct_Scsi_Host
 #define SCANNER_FOR_struct_Scsi_Host
 TYPE_SCAN_WRAPPER(struct Scsi_Host, {
@@ -6358,7 +6132,6 @@ TYPE_SCAN_WRAPPER(struct Scsi_Host, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ata_device
 #ifndef SCANNER_FOR_struct_ata_device
 #define SCANNER_FOR_struct_ata_device
 TYPE_SCAN_WRAPPER(struct ata_device, {
@@ -6404,7 +6177,6 @@ TYPE_SCAN_WRAPPER(struct ata_device, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ata_eh_info
 #ifndef SCANNER_FOR_struct_ata_eh_info
 #define SCANNER_FOR_struct_ata_eh_info
 TYPE_SCAN_WRAPPER(struct ata_eh_info, {
@@ -6429,7 +6201,6 @@ TYPE_SCAN_WRAPPER(struct ata_eh_info, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ata_eh_context
 #ifndef SCANNER_FOR_struct_ata_eh_context
 #define SCANNER_FOR_struct_ata_eh_context
 TYPE_SCAN_WRAPPER(struct ata_eh_context, {
@@ -6454,7 +6225,6 @@ TYPE_SCAN_WRAPPER(struct ata_eh_context, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ata_link
 #ifndef SCANNER_FOR_struct_ata_link
 #define SCANNER_FOR_struct_ata_link
 TYPE_SCAN_WRAPPER(struct ata_link, {
@@ -6484,7 +6254,6 @@ TYPE_SCAN_WRAPPER(struct ata_link, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ata_port
 #ifndef SCANNER_FOR_struct_ata_port
 #define SCANNER_FOR_struct_ata_port
 TYPE_SCAN_WRAPPER(struct ata_port, {
@@ -6549,7 +6318,6 @@ TYPE_SCAN_WRAPPER(struct ata_port, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ata_queued_cmd
 #ifndef SCANNER_FOR_struct_ata_queued_cmd
 #define SCANNER_FOR_struct_ata_queued_cmd
 TYPE_SCAN_WRAPPER(struct ata_queued_cmd, {
@@ -6589,7 +6357,6 @@ TYPE_SCAN_WRAPPER(struct ata_queued_cmd, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ata_port_operations
 #ifndef SCANNER_FOR_struct_ata_port_operations
 #define SCANNER_FOR_struct_ata_port_operations
 TYPE_SCAN_WRAPPER(struct ata_port_operations, {
@@ -6665,7 +6432,6 @@ TYPE_SCAN_WRAPPER(struct ata_port_operations, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ata_host
 #ifndef SCANNER_FOR_struct_ata_host
 #define SCANNER_FOR_struct_ata_host
 TYPE_SCAN_WRAPPER(struct ata_host, {
@@ -6692,7 +6458,6 @@ TYPE_SCAN_WRAPPER(struct ata_host, {
 #endif
 
 
-//#define SCANNER_FOR_struct_irqaction
 #ifndef SCANNER_FOR_struct_irqaction
 #define SCANNER_FOR_struct_irqaction
 TYPE_SCAN_WRAPPER(struct irqaction, {
@@ -6720,7 +6485,6 @@ TYPE_SCAN_WRAPPER(struct irqaction, {
 #endif
 
 
-//#define SCANNER_FOR_struct_irq_affinity_notify
 #ifndef SCANNER_FOR_struct_irq_affinity_notify
 #define SCANNER_FOR_struct_irq_affinity_notify
 TYPE_SCAN_WRAPPER(struct irq_affinity_notify, {
@@ -6741,7 +6505,6 @@ TYPE_SCAN_WRAPPER(struct irq_affinity_notify, {
 #endif
 
 
-//#define SCANNER_FOR_struct_irq_desc
 #ifndef SCANNER_FOR_struct_irq_desc
 #define SCANNER_FOR_struct_irq_desc
 TYPE_SCAN_WRAPPER(struct irq_desc, {
@@ -6817,7 +6580,6 @@ TYPE_SCAN_WRAPPER(struct nfq_ct_hook, {
 #endif
 
 
-//#define SCANNER_FOR_struct_pv_lazy_ops
 #ifndef SCANNER_FOR_struct_pv_lazy_ops
 #define SCANNER_FOR_struct_pv_lazy_ops
 TYPE_SCAN_WRAPPER(struct pv_lazy_ops, {
@@ -6901,7 +6663,6 @@ TYPE_SCAN_WRAPPER(struct ip_options_rcu, {
 #endif
 
 
-//#define SCANNER_FOR_struct_inet_cork
 #ifndef SCANNER_FOR_struct_inet_cork
 #define SCANNER_FOR_struct_inet_cork
 TYPE_SCAN_WRAPPER(struct inet_cork, {
@@ -7025,6 +6786,383 @@ TYPE_SCAN_WRAPPER(struct udp6_sock, {
 #endif
 
 
+#ifndef SCANNER_FOR_struct_x86_init_irqs
+#define SCANNER_FOR_struct_x86_init_irqs
+TYPE_SCAN_WRAPPER(struct x86_init_irqs, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct x86_init_irqs);
+    }
+    SCAN {
+        S(kern_printk( "struct x86_init_irqs\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_FUNCTION(arg.pre_vector_init);
+        SCAN_FUNCTION(arg.intr_init);
+        SCAN_FUNCTION(arg.trap_init);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_seq_net_private
+#define SCANNER_FOR_struct_seq_net_private
+TYPE_SCAN_WRAPPER(struct seq_net_private, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct seq_net_private);
+    }
+    SCAN {
+        S(kern_printk( "struct seq_net_private\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE_PTR(arg.net);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_neigh_seq_state
+#define SCANNER_FOR_struct_neigh_seq_state
+TYPE_SCAN_WRAPPER(struct neigh_seq_state, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct neigh_seq_state);
+    }
+    SCAN {
+        S(kern_printk( "struct neigh_seq_state\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE(arg.p);
+        SCAN_RECURSIVE_PTR(arg.tbl);
+        SCAN_RECURSIVE_PTR(arg.nht);
+        SCAN_FUNCTION(arg.neigh_sub_iter);
+        SCAN_FUNCTION(arg.bucket);
+        SCAN_FUNCTION(arg.flags);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_zone
+#define SCANNER_FOR_struct_zone
+TYPE_SCAN_WRAPPER(struct zone, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct zone);
+    }
+    SCAN {
+        S(kern_printk( "struct zone\n");)
+        S(SCAN_OBJECT(arg);)
+//  Array(Attributed(unsigned , BuiltIn(long))) arg.watermark
+        SCAN_FUNCTION(arg.percpu_drift_mark);
+//  Array(Attributed(unsigned , BuiltIn(long))) arg.lowmem_reserve
+        SCAN_FUNCTION(arg.dirty_balance_reserve);
+        SCAN_FUNCTION(arg.node);
+        SCAN_FUNCTION(arg.min_unmapped_pages);
+        SCAN_FUNCTION(arg.min_slab_pages);
+        SCAN_RECURSIVE_PTR(arg.pageset);
+        SCAN_RECURSIVE(arg.lock);
+        SCAN_FUNCTION(arg.all_unreclaimable);
+        SCAN_FUNCTION(arg.compact_blockskip_flush);
+        SCAN_FUNCTION(arg.compact_cached_free_pfn);
+        SCAN_FUNCTION(arg.compact_cached_migrate_pfn);
+        SCAN_RECURSIVE(arg.span_seqlock);
+//  Array(Use(Struct(struct free_area))) arg.free_area
+        SCAN_FUNCTION(arg.compact_considered);
+        SCAN_FUNCTION(arg.compact_defer_shift);
+        SCAN_FUNCTION(arg.compact_order_failed);
+        SCAN_RECURSIVE(arg._pad1_);
+        SCAN_RECURSIVE(arg.lru_lock);
+        SCAN_RECURSIVE(arg.lruvec);
+        SCAN_FUNCTION(arg.pages_scanned);
+        SCAN_FUNCTION(arg.flags);
+//  Array(Use(TypeDef(atomic_long_t, Use(TypeDef(atomic64_t, Struct(atomic64_t)))))) arg.vm_stat
+        SCAN_FUNCTION(arg.inactive_ratio);
+        SCAN_RECURSIVE(arg._pad2_);
+        SCAN_RECURSIVE_PTR(arg.wait_table);
+        SCAN_FUNCTION(arg.wait_table_hash_nr_entries);
+        SCAN_FUNCTION(arg.wait_table_bits);
+        SCAN_RECURSIVE_PTR(arg.zone_pgdat);
+        SCAN_FUNCTION(arg.zone_start_pfn);
+        SCAN_FUNCTION(arg.spanned_pages);
+        SCAN_FUNCTION(arg.present_pages);
+        SCAN_FUNCTION(arg.managed_pages);
+        SCAN_FUNCTION(arg.name);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_zoneref
+#define SCANNER_FOR_struct_zoneref
+TYPE_SCAN_WRAPPER(struct zoneref, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct zoneref);
+    }
+    SCAN {
+        S(kern_printk( "struct zoneref\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE_PTR(arg.zone);
+        SCAN_FUNCTION(arg.zone_idx);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_pglist_data
+#define SCANNER_FOR_struct_pglist_data
+TYPE_SCAN_WRAPPER(struct pglist_data, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct pglist_data);
+    }
+    SCAN {
+        S(kern_printk( "struct pglist_data\n");)
+        S(SCAN_OBJECT(arg);)
+//  Array(Use(Struct(struct zone))) arg.node_zones
+//  Array(Use(Struct(struct zonelist))) arg.node_zonelists
+        SCAN_FUNCTION(arg.nr_zones);
+        SCAN_RECURSIVE(arg.node_size_lock);
+        SCAN_FUNCTION(arg.node_start_pfn);
+        SCAN_FUNCTION(arg.node_present_pages);
+        SCAN_FUNCTION(arg.node_spanned_pages);
+        SCAN_FUNCTION(arg.node_id);
+        SCAN_RECURSIVE(arg.reclaim_nodes);
+        SCAN_RECURSIVE(arg.kswapd_wait);
+        SCAN_RECURSIVE(arg.pfmemalloc_wait);
+        SCAN_RECURSIVE_PTR(arg.kswapd);
+        SCAN_FUNCTION(arg.kswapd_max_order);
+//  Enum(enum zone_type) arg.classzone_idx
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_vm_region
+#define SCANNER_FOR_struct_vm_region
+TYPE_SCAN_WRAPPER(struct vm_region, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct vm_region);
+    }
+    SCAN {
+        S(kern_printk( "struct vm_region\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE(arg.vm_rb);
+        SCAN_FUNCTION(arg.vm_flags);
+        SCAN_FUNCTION(arg.vm_start);
+        SCAN_FUNCTION(arg.vm_end);
+        SCAN_FUNCTION(arg.vm_top);
+        SCAN_FUNCTION(arg.vm_pgoff);
+        SCAN_RECURSIVE_PTR(arg.vm_file);
+        SCAN_FUNCTION(arg.vm_usage);
+//  Bitfield(Use(TypeDef(bool, BuiltIn(_Bool)))) arg.vm_icache_flushed
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_pnp_driver
+#define SCANNER_FOR_struct_pnp_driver
+TYPE_SCAN_WRAPPER(struct pnp_driver, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct pnp_driver);
+    }
+    SCAN {
+        S(kern_printk( "struct pnp_driver\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_FUNCTION(arg.name);
+        SCAN_RECURSIVE_PTR(arg.id_table);
+        SCAN_FUNCTION(arg.flags);
+        SCAN_FUNCTION(arg.probe);
+        SCAN_FUNCTION(arg.remove);
+        SCAN_FUNCTION(arg.shutdown);
+        SCAN_FUNCTION(arg.suspend);
+        SCAN_FUNCTION(arg.resume);
+        SCAN_RECURSIVE(arg.driver);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_pnp_dev
+#define SCANNER_FOR_struct_pnp_dev
+TYPE_SCAN_WRAPPER(struct pnp_dev, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct pnp_dev);
+    }
+    SCAN {
+        S(kern_printk( "struct pnp_dev\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE(arg.dev);
+        SCAN_FUNCTION(arg.dma_mask);
+        SCAN_FUNCTION(arg.number);
+        SCAN_FUNCTION(arg.status);
+        SCAN_RECURSIVE(arg.global_list);
+        SCAN_RECURSIVE(arg.protocol_list);
+        SCAN_RECURSIVE(arg.card_list);
+        SCAN_RECURSIVE(arg.rdev_list);
+        SCAN_RECURSIVE_PTR(arg.protocol);
+        SCAN_RECURSIVE_PTR(arg.card);
+        SCAN_RECURSIVE_PTR(arg.driver);
+        SCAN_RECURSIVE_PTR(arg.card_link);
+        SCAN_RECURSIVE_PTR(arg.id);
+        SCAN_FUNCTION(arg.active);
+        SCAN_FUNCTION(arg.capabilities);
+        SCAN_FUNCTION(arg.num_dependent_sets);
+        SCAN_RECURSIVE(arg.resources);
+        SCAN_RECURSIVE(arg.options);
+//  Array(BuiltIn(char)) arg.name
+        SCAN_FUNCTION(arg.flags);
+        SCAN_RECURSIVE_PTR(arg.procent);
+        SCAN_FUNCTION(arg.data);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_pnp_protocol
+#define SCANNER_FOR_struct_pnp_protocol
+TYPE_SCAN_WRAPPER(struct pnp_protocol, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct pnp_protocol);
+    }
+    SCAN {
+        S(kern_printk( "struct pnp_protocol\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE(arg.protocol_list);
+        SCAN_FUNCTION(arg.name);
+        SCAN_FUNCTION(arg.get);
+        SCAN_FUNCTION(arg.set);
+        SCAN_FUNCTION(arg.disable);
+        SCAN_FUNCTION(arg.can_wakeup);
+        SCAN_FUNCTION(arg.suspend);
+        SCAN_FUNCTION(arg.resume);
+        SCAN_FUNCTION(arg.number);
+        SCAN_RECURSIVE(arg.dev);
+        SCAN_RECURSIVE(arg.cards);
+        SCAN_RECURSIVE(arg.devices);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_pnp_card
+#define SCANNER_FOR_struct_pnp_card
+TYPE_SCAN_WRAPPER(struct pnp_card, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct pnp_card);
+    }
+    SCAN {
+        S(kern_printk( "struct pnp_card\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE(arg.dev);
+        SCAN_FUNCTION(arg.number);
+        SCAN_RECURSIVE(arg.global_list);
+        SCAN_RECURSIVE(arg.protocol_list);
+        SCAN_RECURSIVE(arg.devices);
+        SCAN_RECURSIVE_PTR(arg.protocol);
+        SCAN_RECURSIVE_PTR(arg.id);
+//  Array(BuiltIn(char)) arg.name
+        SCAN_FUNCTION(arg.pnpver);
+        SCAN_FUNCTION(arg.productver);
+        SCAN_FUNCTION(arg.serial);
+        SCAN_FUNCTION(arg.checksum);
+        SCAN_RECURSIVE_PTR(arg.procdir);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_pnp_card_link
+#define SCANNER_FOR_struct_pnp_card_link
+TYPE_SCAN_WRAPPER(struct pnp_card_link, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct pnp_card_link);
+    }
+    SCAN {
+        S(kern_printk( "struct pnp_card_link\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE_PTR(arg.card);
+        SCAN_RECURSIVE_PTR(arg.driver);
+        SCAN_FUNCTION(arg.driver_data);
+        SCAN_RECURSIVE(arg.pm_state);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_pnp_card_driver
+#define SCANNER_FOR_struct_pnp_card_driver
+TYPE_SCAN_WRAPPER(struct pnp_card_driver, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct pnp_card_driver);
+    }
+    SCAN {
+        S(kern_printk( "struct pnp_card_driver\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE(arg.global_list);
+        SCAN_FUNCTION(arg.name);
+        SCAN_RECURSIVE_PTR(arg.id_table);
+        SCAN_FUNCTION(arg.flags);
+        SCAN_FUNCTION(arg.probe);
+        SCAN_FUNCTION(arg.remove);
+        SCAN_FUNCTION(arg.suspend);
+        SCAN_FUNCTION(arg.resume);
+        SCAN_RECURSIVE(arg.link);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_netdev_hw_addr
+#define SCANNER_FOR_struct_netdev_hw_addr
+TYPE_SCAN_WRAPPER(struct netdev_hw_addr, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct netdev_hw_addr);
+    }
+    SCAN {
+        S(kern_printk( "struct netdev_hw_addr\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE(arg.list);
+//  Array(Attributed(unsigned , BuiltIn(char))) arg.addr
+        SCAN_FUNCTION(arg.type);
+        SCAN_FUNCTION(arg.synced);
+        SCAN_FUNCTION(arg.global_use);
+        SCAN_FUNCTION(arg.refcount);
+        SCAN_RECURSIVE(arg.callback_head);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_rq_map_data
+#define SCANNER_FOR_struct_rq_map_data
+TYPE_SCAN_WRAPPER(struct rq_map_data, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct rq_map_data);
+    }
+    SCAN {
+        S(kern_printk( "struct rq_map_data\n");)
+        S(SCAN_OBJECT(arg);)
+//  Pointer(Pointer(Use(Struct(struct page)))) arg.pages
+        SCAN_FUNCTION(arg.page_order);
+        SCAN_FUNCTION(arg.nr_entries);
+        SCAN_FUNCTION(arg.offset);
+        SCAN_FUNCTION(arg.null_mapped);
+        SCAN_FUNCTION(arg.from_user);
+    }
+})
+#endif
+
+
 #ifndef SCANNER_FOR_struct_crypto_ablkcipher
 #define SCANNER_FOR_struct_crypto_ablkcipher
 TYPE_SCAN_WRAPPER(struct crypto_ablkcipher, {
@@ -7061,7 +7199,6 @@ TYPE_SCAN_WRAPPER(struct crypto_async_request, {
 #endif
 
 
-#define SCANNER_FOR_struct_ablkcipher_request
 #ifndef SCANNER_FOR_struct_ablkcipher_request
 #define SCANNER_FOR_struct_ablkcipher_request
 TYPE_SCAN_WRAPPER(struct ablkcipher_request, {
@@ -7083,7 +7220,6 @@ TYPE_SCAN_WRAPPER(struct ablkcipher_request, {
 #endif
 
 
-#define SCANNER_FOR_struct_ablkcipher_tfm
 #ifndef SCANNER_FOR_struct_ablkcipher_tfm
 #define SCANNER_FOR_struct_ablkcipher_tfm
 TYPE_SCAN_WRAPPER(struct ablkcipher_tfm, {
@@ -7107,7 +7243,6 @@ TYPE_SCAN_WRAPPER(struct ablkcipher_tfm, {
 #endif
 
 
-#define SCANNER_FOR_struct_crypto_aead
 #ifndef SCANNER_FOR_struct_crypto_aead
 #define SCANNER_FOR_struct_crypto_aead
 TYPE_SCAN_WRAPPER(struct crypto_aead, {
@@ -7124,7 +7259,6 @@ TYPE_SCAN_WRAPPER(struct crypto_aead, {
 #endif
 
 
-#define SCANNER_FOR_struct_aead_request
 #ifndef SCANNER_FOR_struct_aead_request
 #define SCANNER_FOR_struct_aead_request
 TYPE_SCAN_WRAPPER(struct aead_request, {
@@ -7188,7 +7322,6 @@ TYPE_SCAN_WRAPPER(struct crypto_blkcipher, {
 #endif
 
 
-
 #ifndef SCANNER_FOR_struct_blkcipher_desc
 #define SCANNER_FOR_struct_blkcipher_desc
 TYPE_SCAN_WRAPPER(struct blkcipher_desc, {
@@ -7205,7 +7338,6 @@ TYPE_SCAN_WRAPPER(struct blkcipher_desc, {
     }
 })
 #endif
-
 
 
 #ifndef SCANNER_FOR_struct_blkcipher_tfm
@@ -7227,7 +7359,6 @@ TYPE_SCAN_WRAPPER(struct blkcipher_tfm, {
 #endif
 
 
-
 #ifndef SCANNER_FOR_struct_cipher_tfm
 #define SCANNER_FOR_struct_cipher_tfm
 TYPE_SCAN_WRAPPER(struct cipher_tfm, {
@@ -7246,7 +7377,6 @@ TYPE_SCAN_WRAPPER(struct cipher_tfm, {
 #endif
 
 
-
 #ifndef SCANNER_FOR_struct_crypto_hash
 #define SCANNER_FOR_struct_crypto_hash
 TYPE_SCAN_WRAPPER(struct crypto_hash, {
@@ -7261,7 +7391,6 @@ TYPE_SCAN_WRAPPER(struct crypto_hash, {
     }
 })
 #endif
-
 
 
 #ifndef SCANNER_FOR_struct_hash_desc
@@ -7279,7 +7408,6 @@ TYPE_SCAN_WRAPPER(struct hash_desc, {
     }
 })
 #endif
-
 
 
 #ifndef SCANNER_FOR_struct_hash_tfm
@@ -7320,7 +7448,6 @@ TYPE_SCAN_WRAPPER(struct compress_tfm, {
 #endif
 
 
-
 #ifndef SCANNER_FOR_struct_crypto_rng
 #define SCANNER_FOR_struct_crypto_rng
 TYPE_SCAN_WRAPPER(struct crypto_rng, {
@@ -7337,7 +7464,6 @@ TYPE_SCAN_WRAPPER(struct crypto_rng, {
 #endif
 
 
-#define SCANNER_FOR_struct_rng_tfm
 #ifndef SCANNER_FOR_struct_rng_tfm
 #define SCANNER_FOR_struct_rng_tfm
 TYPE_SCAN_WRAPPER(struct rng_tfm, {
@@ -7355,7 +7481,6 @@ TYPE_SCAN_WRAPPER(struct rng_tfm, {
 #endif
 
 
-#define SCANNER_FOR_struct_ablkcipher_alg
 #ifndef SCANNER_FOR_struct_ablkcipher_alg
 #define SCANNER_FOR_struct_ablkcipher_alg
 TYPE_SCAN_WRAPPER(struct ablkcipher_alg, {
@@ -7380,7 +7505,6 @@ TYPE_SCAN_WRAPPER(struct ablkcipher_alg, {
 #endif
 
 
-#define SCANNER_FOR_struct_aead_alg
 #ifndef SCANNER_FOR_struct_aead_alg
 #define SCANNER_FOR_struct_aead_alg
 TYPE_SCAN_WRAPPER(struct aead_alg, {
@@ -7405,30 +7529,6 @@ TYPE_SCAN_WRAPPER(struct aead_alg, {
 #endif
 
 
-#define SCANNER_FOR_struct_blkcipher_alg
-#ifndef SCANNER_FOR_struct_blkcipher_alg
-#define SCANNER_FOR_struct_blkcipher_alg
-TYPE_SCAN_WRAPPER(struct blkcipher_alg, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct blkcipher_alg);
-    }
-    SCAN {
-        S(kern_printk( "struct blkcipher_alg\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_FUNCTION(arg.setkey);
-        SCAN_FUNCTION(arg.encrypt);
-        SCAN_FUNCTION(arg.decrypt);
-        SCAN_FUNCTION(arg.geniv);
-        SCAN_FUNCTION(arg.min_keysize);
-        SCAN_FUNCTION(arg.max_keysize);
-        SCAN_FUNCTION(arg.ivsize);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_cipher_alg
 #ifndef SCANNER_FOR_struct_cipher_alg
 #define SCANNER_FOR_struct_cipher_alg
 TYPE_SCAN_WRAPPER(struct cipher_alg, {
@@ -7449,7 +7549,23 @@ TYPE_SCAN_WRAPPER(struct cipher_alg, {
 #endif
 
 
-#define SCANNER_FOR_struct_rng_alg
+#ifndef SCANNER_FOR_struct_compress_alg
+#define SCANNER_FOR_struct_compress_alg
+TYPE_SCAN_WRAPPER(struct compress_alg, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct compress_alg);
+    }
+    SCAN {
+        S(kern_printk( "struct compress_alg\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_FUNCTION(arg.coa_compress);
+        SCAN_FUNCTION(arg.coa_decompress);
+    }
+})
+#endif
+
+
 #ifndef SCANNER_FOR_struct_rng_alg
 #define SCANNER_FOR_struct_rng_alg
 TYPE_SCAN_WRAPPER(struct rng_alg, {
@@ -7468,7 +7584,6 @@ TYPE_SCAN_WRAPPER(struct rng_alg, {
 #endif
 
 
-#define SCANNER_FOR_struct_crypto_alg
 #ifndef SCANNER_FOR_struct_crypto_alg
 #define SCANNER_FOR_struct_crypto_alg
 TYPE_SCAN_WRAPPER(struct crypto_alg, {
@@ -7500,7 +7615,6 @@ TYPE_SCAN_WRAPPER(struct crypto_alg, {
 #endif
 
 
-#define SCANNER_FOR_struct_crypto_tfm
 #ifndef SCANNER_FOR_struct_crypto_tfm
 #define SCANNER_FOR_struct_crypto_tfm
 TYPE_SCAN_WRAPPER(struct crypto_tfm, {
@@ -7521,417 +7635,28 @@ TYPE_SCAN_WRAPPER(struct crypto_tfm, {
 #endif
 
 
-#define SCANNER_FOR_struct_compress_alg
-#ifndef SCANNER_FOR_struct_compress_alg
-#define SCANNER_FOR_struct_compress_alg
-TYPE_SCAN_WRAPPER(struct compress_alg, {
+#ifndef SCANNER_FOR_struct_blkcipher_alg
+#define SCANNER_FOR_struct_blkcipher_alg
+TYPE_SCAN_WRAPPER(struct blkcipher_alg, {
     SCAN_HEAD{
         DECLARE_HASH(htable);
-        SCANNER(struct compress_alg);
+        SCANNER(struct blkcipher_alg);
     }
     SCAN {
-        S(kern_printk( "struct compress_alg\n");)
+        S(kern_printk( "struct blkcipher_alg\n");)
         S(SCAN_OBJECT(arg);)
-        SCAN_FUNCTION(arg.coa_compress);
-        SCAN_FUNCTION(arg.coa_decompress);
+        SCAN_FUNCTION(arg.setkey);
+        SCAN_FUNCTION(arg.encrypt);
+        SCAN_FUNCTION(arg.decrypt);
+        SCAN_FUNCTION(arg.geniv);
+        SCAN_FUNCTION(arg.min_keysize);
+        SCAN_FUNCTION(arg.max_keysize);
+        SCAN_FUNCTION(arg.ivsize);
     }
 })
 #endif
 
 
-#define SCANNER_FOR_struct_x86_init_irqs
-#ifndef SCANNER_FOR_struct_x86_init_irqs
-#define SCANNER_FOR_struct_x86_init_irqs
-TYPE_SCAN_WRAPPER(struct x86_init_irqs, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct x86_init_irqs);
-    }
-    SCAN {
-        S(kern_printk( "struct x86_init_irqs\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_FUNCTION(arg.pre_vector_init);
-        SCAN_FUNCTION(arg.intr_init);
-        SCAN_FUNCTION(arg.trap_init);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_seq_net_private
-#ifndef SCANNER_FOR_struct_seq_net_private
-#define SCANNER_FOR_struct_seq_net_private
-TYPE_SCAN_WRAPPER(struct seq_net_private, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct seq_net_private);
-    }
-    SCAN {
-        S(kern_printk( "struct seq_net_private\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE_PTR(arg.net);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_neigh_seq_state
-#ifndef SCANNER_FOR_struct_neigh_seq_state
-#define SCANNER_FOR_struct_neigh_seq_state
-TYPE_SCAN_WRAPPER(struct neigh_seq_state, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct neigh_seq_state);
-    }
-    SCAN {
-        S(kern_printk( "struct neigh_seq_state\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE(arg.p);
-        SCAN_RECURSIVE_PTR(arg.tbl);
-        SCAN_RECURSIVE_PTR(arg.nht);
-        SCAN_FUNCTION(arg.neigh_sub_iter);
-        SCAN_FUNCTION(arg.bucket);
-        SCAN_FUNCTION(arg.flags);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_zone
-#ifndef SCANNER_FOR_struct_zone
-#define SCANNER_FOR_struct_zone
-TYPE_SCAN_WRAPPER(struct zone, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct zone);
-    }
-    SCAN {
-        S(kern_printk( "struct zone\n");)
-        S(SCAN_OBJECT(arg);)
-//  Array(Attributed(unsigned , BuiltIn(long))) arg.watermark
-        SCAN_FUNCTION(arg.percpu_drift_mark);
-//  Array(Attributed(unsigned , BuiltIn(long))) arg.lowmem_reserve
-        SCAN_FUNCTION(arg.dirty_balance_reserve);
-        SCAN_FUNCTION(arg.node);
-        SCAN_FUNCTION(arg.min_unmapped_pages);
-        SCAN_FUNCTION(arg.min_slab_pages);
-        SCAN_RECURSIVE_PTR(arg.pageset);
-        SCAN_RECURSIVE(arg.lock);
-        SCAN_FUNCTION(arg.all_unreclaimable);
-        SCAN_FUNCTION(arg.compact_blockskip_flush);
-        SCAN_FUNCTION(arg.compact_cached_free_pfn);
-        SCAN_FUNCTION(arg.compact_cached_migrate_pfn);
-        SCAN_RECURSIVE(arg.span_seqlock);
-//  Array(Use(Struct(struct free_area))) arg.free_area
-        SCAN_FUNCTION(arg.compact_considered);
-        SCAN_FUNCTION(arg.compact_defer_shift);
-        SCAN_FUNCTION(arg.compact_order_failed);
-        SCAN_RECURSIVE(arg._pad1_);
-        SCAN_RECURSIVE(arg.lru_lock);
-        SCAN_RECURSIVE(arg.lruvec);
-        SCAN_FUNCTION(arg.pages_scanned);
-        SCAN_FUNCTION(arg.flags);
-//  Array(Use(TypeDef(atomic_long_t, Use(TypeDef(atomic64_t, Struct(atomic64_t)))))) arg.vm_stat
-        SCAN_FUNCTION(arg.inactive_ratio);
-        SCAN_RECURSIVE(arg._pad2_);
-        SCAN_RECURSIVE_PTR(arg.wait_table);
-        SCAN_FUNCTION(arg.wait_table_hash_nr_entries);
-        SCAN_FUNCTION(arg.wait_table_bits);
-        SCAN_RECURSIVE_PTR(arg.zone_pgdat);
-        SCAN_FUNCTION(arg.zone_start_pfn);
-        SCAN_FUNCTION(arg.spanned_pages);
-        SCAN_FUNCTION(arg.present_pages);
-        SCAN_FUNCTION(arg.managed_pages);
-        SCAN_FUNCTION(arg.name);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_zoneref
-#ifndef SCANNER_FOR_struct_zoneref
-#define SCANNER_FOR_struct_zoneref
-TYPE_SCAN_WRAPPER(struct zoneref, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct zoneref);
-    }
-    SCAN {
-        S(kern_printk( "struct zoneref\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE_PTR(arg.zone);
-        SCAN_FUNCTION(arg.zone_idx);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_pglist_data
-#ifndef SCANNER_FOR_struct_pglist_data
-#define SCANNER_FOR_struct_pglist_data
-TYPE_SCAN_WRAPPER(struct pglist_data, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct pglist_data);
-    }
-    SCAN {
-        S(kern_printk( "struct pglist_data\n");)
-        S(SCAN_OBJECT(arg);)
-//  Array(Use(Struct(struct zone))) arg.node_zones
-//  Array(Use(Struct(struct zonelist))) arg.node_zonelists
-        SCAN_FUNCTION(arg.nr_zones);
-        SCAN_RECURSIVE(arg.node_size_lock);
-        SCAN_FUNCTION(arg.node_start_pfn);
-        SCAN_FUNCTION(arg.node_present_pages);
-        SCAN_FUNCTION(arg.node_spanned_pages);
-        SCAN_FUNCTION(arg.node_id);
-        SCAN_RECURSIVE(arg.reclaim_nodes);
-        SCAN_RECURSIVE(arg.kswapd_wait);
-        SCAN_RECURSIVE(arg.pfmemalloc_wait);
-        SCAN_RECURSIVE_PTR(arg.kswapd);
-        SCAN_FUNCTION(arg.kswapd_max_order);
-//  Enum(enum zone_type) arg.classzone_idx
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_vm_region
-#ifndef SCANNER_FOR_struct_vm_region
-#define SCANNER_FOR_struct_vm_region
-TYPE_SCAN_WRAPPER(struct vm_region, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct vm_region);
-    }
-    SCAN {
-        S(kern_printk( "struct vm_region\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE(arg.vm_rb);
-        SCAN_FUNCTION(arg.vm_flags);
-        SCAN_FUNCTION(arg.vm_start);
-        SCAN_FUNCTION(arg.vm_end);
-        SCAN_FUNCTION(arg.vm_top);
-        SCAN_FUNCTION(arg.vm_pgoff);
-        SCAN_RECURSIVE_PTR(arg.vm_file);
-        SCAN_FUNCTION(arg.vm_usage);
-//  Bitfield(Use(TypeDef(bool, Use(TypeDef(K_Bool, BuiltIn(int)))))) arg.vm_icache_flushed
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_pnp_driver
-#ifndef SCANNER_FOR_struct_pnp_driver
-#define SCANNER_FOR_struct_pnp_driver
-TYPE_SCAN_WRAPPER(struct pnp_driver, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct pnp_driver);
-    }
-    SCAN {
-        S(kern_printk( "struct pnp_driver\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_FUNCTION(arg.name);
-        SCAN_RECURSIVE_PTR(arg.id_table);
-        SCAN_FUNCTION(arg.flags);
-        SCAN_FUNCTION(arg.probe);
-        SCAN_FUNCTION(arg.remove);
-        SCAN_FUNCTION(arg.shutdown);
-        SCAN_FUNCTION(arg.suspend);
-        SCAN_FUNCTION(arg.resume);
-        SCAN_RECURSIVE(arg.driver);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_pnp_dev
-#ifndef SCANNER_FOR_struct_pnp_dev
-#define SCANNER_FOR_struct_pnp_dev
-TYPE_SCAN_WRAPPER(struct pnp_dev, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct pnp_dev);
-    }
-    SCAN {
-        S(kern_printk( "struct pnp_dev\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE(arg.dev);
-        SCAN_FUNCTION(arg.dma_mask);
-        SCAN_FUNCTION(arg.number);
-        SCAN_FUNCTION(arg.status);
-        SCAN_RECURSIVE(arg.global_list);
-        SCAN_RECURSIVE(arg.protocol_list);
-        SCAN_RECURSIVE(arg.card_list);
-        SCAN_RECURSIVE(arg.rdev_list);
-        SCAN_RECURSIVE_PTR(arg.protocol);
-        SCAN_RECURSIVE_PTR(arg.card);
-        SCAN_RECURSIVE_PTR(arg.driver);
-        SCAN_RECURSIVE_PTR(arg.card_link);
-        SCAN_RECURSIVE_PTR(arg.id);
-        SCAN_FUNCTION(arg.active);
-        SCAN_FUNCTION(arg.capabilities);
-        SCAN_FUNCTION(arg.num_dependent_sets);
-        SCAN_RECURSIVE(arg.resources);
-        SCAN_RECURSIVE(arg.options);
-//  Array(BuiltIn(char)) arg.name
-        SCAN_FUNCTION(arg.flags);
-        SCAN_RECURSIVE_PTR(arg.procent);
-        SCAN_FUNCTION(arg.data);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_pnp_protocol
-#ifndef SCANNER_FOR_struct_pnp_protocol
-#define SCANNER_FOR_struct_pnp_protocol
-TYPE_SCAN_WRAPPER(struct pnp_protocol, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct pnp_protocol);
-    }
-    SCAN {
-        S(kern_printk( "struct pnp_protocol\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE(arg.protocol_list);
-        SCAN_FUNCTION(arg.name);
-        SCAN_FUNCTION(arg.get);
-        SCAN_FUNCTION(arg.set);
-        SCAN_FUNCTION(arg.disable);
-        SCAN_FUNCTION(arg.can_wakeup);
-        SCAN_FUNCTION(arg.suspend);
-        SCAN_FUNCTION(arg.resume);
-        SCAN_FUNCTION(arg.number);
-        SCAN_RECURSIVE(arg.dev);
-        SCAN_RECURSIVE(arg.cards);
-        SCAN_RECURSIVE(arg.devices);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_pnp_card
-#ifndef SCANNER_FOR_struct_pnp_card
-#define SCANNER_FOR_struct_pnp_card
-TYPE_SCAN_WRAPPER(struct pnp_card, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct pnp_card);
-    }
-    SCAN {
-        S(kern_printk( "struct pnp_card\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE(arg.dev);
-        SCAN_FUNCTION(arg.number);
-        SCAN_RECURSIVE(arg.global_list);
-        SCAN_RECURSIVE(arg.protocol_list);
-        SCAN_RECURSIVE(arg.devices);
-        SCAN_RECURSIVE_PTR(arg.protocol);
-        SCAN_RECURSIVE_PTR(arg.id);
-//  Array(BuiltIn(char)) arg.name
-        SCAN_FUNCTION(arg.pnpver);
-        SCAN_FUNCTION(arg.productver);
-        SCAN_FUNCTION(arg.serial);
-        SCAN_FUNCTION(arg.checksum);
-        SCAN_RECURSIVE_PTR(arg.procdir);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_pnp_card_link
-#ifndef SCANNER_FOR_struct_pnp_card_link
-#define SCANNER_FOR_struct_pnp_card_link
-TYPE_SCAN_WRAPPER(struct pnp_card_link, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct pnp_card_link);
-    }
-    SCAN {
-        S(kern_printk( "struct pnp_card_link\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE_PTR(arg.card);
-        SCAN_RECURSIVE_PTR(arg.driver);
-        SCAN_FUNCTION(arg.driver_data);
-        SCAN_RECURSIVE(arg.pm_state);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_pnp_card_driver
-#ifndef SCANNER_FOR_struct_pnp_card_driver
-#define SCANNER_FOR_struct_pnp_card_driver
-TYPE_SCAN_WRAPPER(struct pnp_card_driver, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct pnp_card_driver);
-    }
-    SCAN {
-        S(kern_printk( "struct pnp_card_driver\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE(arg.global_list);
-        SCAN_FUNCTION(arg.name);
-        SCAN_RECURSIVE_PTR(arg.id_table);
-        SCAN_FUNCTION(arg.flags);
-        SCAN_FUNCTION(arg.probe);
-        SCAN_FUNCTION(arg.remove);
-        SCAN_FUNCTION(arg.suspend);
-        SCAN_FUNCTION(arg.resume);
-        SCAN_RECURSIVE(arg.link);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_netdev_hw_addr
-#ifndef SCANNER_FOR_struct_netdev_hw_addr
-#define SCANNER_FOR_struct_netdev_hw_addr
-TYPE_SCAN_WRAPPER(struct netdev_hw_addr, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct netdev_hw_addr);
-    }
-    SCAN {
-        S(kern_printk( "struct netdev_hw_addr\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE(arg.list);
-//  Array(Attributed(unsigned , BuiltIn(char))) arg.addr
-        SCAN_FUNCTION(arg.type);
-        SCAN_FUNCTION(arg.synced);
-        SCAN_FUNCTION(arg.global_use);
-        SCAN_FUNCTION(arg.refcount);
-        SCAN_RECURSIVE(arg.callback_head);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_rq_map_data
-#ifndef SCANNER_FOR_struct_rq_map_data
-#define SCANNER_FOR_struct_rq_map_data
-TYPE_SCAN_WRAPPER(struct rq_map_data, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct rq_map_data);
-    }
-    SCAN {
-        S(kern_printk( "struct rq_map_data\n");)
-        S(SCAN_OBJECT(arg);)
-//  Pointer(Pointer(Use(Struct(struct page)))) arg.pages
-        SCAN_FUNCTION(arg.page_order);
-        SCAN_FUNCTION(arg.nr_entries);
-        SCAN_FUNCTION(arg.offset);
-        SCAN_FUNCTION(arg.null_mapped);
-        SCAN_FUNCTION(arg.from_user);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_scm_cookie
 #ifndef SCANNER_FOR_struct_scm_cookie
 #define SCANNER_FOR_struct_scm_cookie
 TYPE_SCAN_WRAPPER(struct scm_cookie, {
@@ -7946,13 +7671,11 @@ TYPE_SCAN_WRAPPER(struct scm_cookie, {
         SCAN_RECURSIVE_PTR(arg.cred);
         SCAN_RECURSIVE_PTR(arg.fp);
         SCAN_RECURSIVE(arg.creds);
-        SCAN_FUNCTION(arg.secid);
     }
 })
 #endif
 
 
-#define SCANNER_FOR_struct_sock_iocb
 #ifndef SCANNER_FOR_struct_sock_iocb
 #define SCANNER_FOR_struct_sock_iocb
 TYPE_SCAN_WRAPPER(struct sock_iocb, {
@@ -7977,7 +7700,6 @@ TYPE_SCAN_WRAPPER(struct sock_iocb, {
 #endif
 
 
-#define SCANNER_FOR_struct_x86_init_mapping
 #ifndef SCANNER_FOR_struct_x86_init_mapping
 #define SCANNER_FOR_struct_x86_init_mapping
 TYPE_SCAN_WRAPPER(struct x86_init_mapping, {
@@ -7992,7 +7714,6 @@ TYPE_SCAN_WRAPPER(struct x86_init_mapping, {
     }
 })
 #endif
-
 
 
 #ifndef SCANNER_FOR_struct_exec_domain
@@ -8022,7 +7743,6 @@ TYPE_SCAN_WRAPPER(struct exec_domain, {
 #endif
 
 
-//#define SCANNER_FOR_struct_buffer_head
 #ifndef SCANNER_FOR_struct_buffer_head
 #define SCANNER_FOR_struct_buffer_head
 TYPE_SCAN_WRAPPER(struct buffer_head, {
@@ -8034,9 +7754,7 @@ TYPE_SCAN_WRAPPER(struct buffer_head, {
         S(kern_printk( "struct buffer_head\n");)
         S(SCAN_OBJECT(arg);)
         SCAN_FUNCTION(arg.b_state);
-        kern_printk("buffer head next ptr : %lx\n",arg.b_this_page);
-        /*TODO: the next pointer to buffer cache is taking garbage value; look for this*/
-       // SCAN_RECURSIVE_PTR(arg.b_this_page);
+        SCAN_RECURSIVE_PTR(arg.b_this_page);
         SCAN_RECURSIVE_PTR(arg.b_page);
         SCAN_FUNCTION(arg.b_blocknr);
         SCAN_FUNCTION(arg.b_size);
@@ -8067,7 +7785,6 @@ TYPE_SCAN_WRAPPER(struct crypto_shash, {
     }
 })
 #endif
-
 
 
 #ifndef SCANNER_FOR_struct_journal_s
@@ -8143,7 +7860,6 @@ TYPE_SCAN_WRAPPER(struct journal_s, {
 #endif
 
 
-#define SCANNER_FOR_struct_transaction_s
 #ifndef SCANNER_FOR_struct_transaction_s
 #define SCANNER_FOR_struct_transaction_s
 TYPE_SCAN_WRAPPER(struct transaction_s, {
@@ -8187,7 +7903,6 @@ TYPE_SCAN_WRAPPER(struct transaction_s, {
 #endif
 
 
-#define SCANNER_FOR_struct_jbd2_buffer_trigger_type
 #ifndef SCANNER_FOR_struct_jbd2_buffer_trigger_type
 #define SCANNER_FOR_struct_jbd2_buffer_trigger_type
 TYPE_SCAN_WRAPPER(struct jbd2_buffer_trigger_type, {
@@ -8205,7 +7920,6 @@ TYPE_SCAN_WRAPPER(struct jbd2_buffer_trigger_type, {
 #endif
 
 
-//#define SCANNER_FOR_struct_journal_head
 #ifndef SCANNER_FOR_struct_journal_head
 #define SCANNER_FOR_struct_journal_head
 TYPE_SCAN_WRAPPER(struct journal_head, {
@@ -8237,7 +7951,6 @@ TYPE_SCAN_WRAPPER(struct journal_head, {
 #endif
 
 
-#define SCANNER_FOR_struct_x86_init_pci
 #ifndef SCANNER_FOR_struct_x86_init_pci
 #define SCANNER_FOR_struct_x86_init_pci
 TYPE_SCAN_WRAPPER(struct x86_init_pci, {
@@ -8257,64 +7970,6 @@ TYPE_SCAN_WRAPPER(struct x86_init_pci, {
 #endif
 
 
-#define SCANNER_FOR_struct_pv_cpu_ops
-#ifndef SCANNER_FOR_struct_pv_cpu_ops
-#define SCANNER_FOR_struct_pv_cpu_ops
-TYPE_SCAN_WRAPPER(struct pv_cpu_ops, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct pv_cpu_ops);
-    }
-    SCAN {
-        S(kern_printk( "struct pv_cpu_ops\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_FUNCTION(arg.get_debugreg);
-        SCAN_FUNCTION(arg.set_debugreg);
-        SCAN_FUNCTION(arg.clts);
-        SCAN_FUNCTION(arg.read_cr0);
-        SCAN_FUNCTION(arg.write_cr0);
-        SCAN_FUNCTION(arg.read_cr4_safe);
-        SCAN_FUNCTION(arg.read_cr4);
-        SCAN_FUNCTION(arg.write_cr4);
-        SCAN_FUNCTION(arg.read_cr8);
-        SCAN_FUNCTION(arg.write_cr8);
-        SCAN_FUNCTION(arg.load_tr_desc);
-        SCAN_FUNCTION(arg.load_gdt);
-        SCAN_FUNCTION(arg.load_idt);
-        SCAN_FUNCTION(arg.store_gdt);
-        SCAN_FUNCTION(arg.store_idt);
-        SCAN_FUNCTION(arg.set_ldt);
-        SCAN_FUNCTION(arg.store_tr);
-        SCAN_FUNCTION(arg.load_tls);
-        SCAN_FUNCTION(arg.load_gs_index);
-        SCAN_FUNCTION(arg.write_ldt_entry);
-        SCAN_FUNCTION(arg.write_gdt_entry);
-        SCAN_FUNCTION(arg.write_idt_entry);
-        SCAN_FUNCTION(arg.alloc_ldt);
-        SCAN_FUNCTION(arg.free_ldt);
-        SCAN_FUNCTION(arg.load_sp0);
-        SCAN_FUNCTION(arg.set_iopl_mask);
-        SCAN_FUNCTION(arg.wbinvd);
-        SCAN_FUNCTION(arg.io_delay);
-        SCAN_FUNCTION(arg.cpuid);
-        SCAN_FUNCTION(arg.read_msr);
-        SCAN_FUNCTION(arg.write_msr);
-        SCAN_FUNCTION(arg.read_tsc);
-        SCAN_FUNCTION(arg.read_pmc);
-        SCAN_FUNCTION(arg.read_tscp);
-        SCAN_FUNCTION(arg.irq_enable_sysexit);
-        SCAN_FUNCTION(arg.usergs_sysret64);
-        SCAN_FUNCTION(arg.usergs_sysret32);
-        SCAN_FUNCTION(arg.iret);
-        SCAN_FUNCTION(arg.swapgs);
-        SCAN_FUNCTION(arg.start_context_switch);
-        SCAN_FUNCTION(arg.end_context_switch);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_socket_alloc
 #ifndef SCANNER_FOR_struct_socket_alloc
 #define SCANNER_FOR_struct_socket_alloc
 TYPE_SCAN_WRAPPER(struct socket_alloc, {
@@ -8332,7 +7987,6 @@ TYPE_SCAN_WRAPPER(struct socket_alloc, {
 #endif
 
 
-#define SCANNER_FOR_struct_klist
 #ifndef SCANNER_FOR_struct_klist
 #define SCANNER_FOR_struct_klist
 TYPE_SCAN_WRAPPER(struct klist, {
@@ -8352,7 +8006,6 @@ TYPE_SCAN_WRAPPER(struct klist, {
 #endif
 
 
-#define SCANNER_FOR_struct_inet6_request_sock
 #ifndef SCANNER_FOR_struct_inet6_request_sock
 #define SCANNER_FOR_struct_inet6_request_sock
 TYPE_SCAN_WRAPPER(struct inet6_request_sock, {
@@ -8372,7 +8025,6 @@ TYPE_SCAN_WRAPPER(struct inet6_request_sock, {
 #endif
 
 
-#define SCANNER_FOR_struct_pci_slot
 #ifndef SCANNER_FOR_struct_pci_slot
 #define SCANNER_FOR_struct_pci_slot
 TYPE_SCAN_WRAPPER(struct pci_slot, {
@@ -8393,7 +8045,6 @@ TYPE_SCAN_WRAPPER(struct pci_slot, {
 #endif
 
 
-#define SCANNER_FOR_struct_pci_error_handlers
 #ifndef SCANNER_FOR_struct_pci_error_handlers
 #define SCANNER_FOR_struct_pci_error_handlers
 TYPE_SCAN_WRAPPER(struct pci_error_handlers, {
@@ -8414,7 +8065,6 @@ TYPE_SCAN_WRAPPER(struct pci_error_handlers, {
 #endif
 
 
-#define SCANNER_FOR_struct_pci_driver
 #ifndef SCANNER_FOR_struct_pci_driver
 #define SCANNER_FOR_struct_pci_driver
 TYPE_SCAN_WRAPPER(struct pci_driver, {
@@ -8444,7 +8094,6 @@ TYPE_SCAN_WRAPPER(struct pci_driver, {
 #endif
 
 
-#define SCANNER_FOR_struct_pci_dev
 #ifndef SCANNER_FOR_struct_pci_dev
 #define SCANNER_FOR_struct_pci_dev
 TYPE_SCAN_WRAPPER(struct pci_dev, {
@@ -8541,7 +8190,6 @@ TYPE_SCAN_WRAPPER(struct pci_dev, {
 #endif
 
 
-#define SCANNER_FOR_struct_pci_bus
 #ifndef SCANNER_FOR_struct_pci_bus
 #define SCANNER_FOR_struct_pci_bus
 TYPE_SCAN_WRAPPER(struct pci_bus, {
@@ -8581,7 +8229,6 @@ TYPE_SCAN_WRAPPER(struct pci_bus, {
 #endif
 
 
-#define SCANNER_FOR_struct_pci_ops
 #ifndef SCANNER_FOR_struct_pci_ops
 #define SCANNER_FOR_struct_pci_ops
 TYPE_SCAN_WRAPPER(struct pci_ops, {
@@ -8599,7 +8246,6 @@ TYPE_SCAN_WRAPPER(struct pci_ops, {
 #endif
 
 
-#define SCANNER_FOR_struct_proc_ns_operations
 #ifndef SCANNER_FOR_struct_proc_ns_operations
 #define SCANNER_FOR_struct_proc_ns_operations
 TYPE_SCAN_WRAPPER(struct proc_ns_operations, {
@@ -8621,7 +8267,6 @@ TYPE_SCAN_WRAPPER(struct proc_ns_operations, {
 #endif
 
 
-#define SCANNER_FOR_struct_nfq_ct_nat_hook
 #ifndef SCANNER_FOR_struct_nfq_ct_nat_hook
 #define SCANNER_FOR_struct_nfq_ct_nat_hook
 TYPE_SCAN_WRAPPER(struct nfq_ct_nat_hook, {
@@ -8638,7 +8283,6 @@ TYPE_SCAN_WRAPPER(struct nfq_ct_nat_hook, {
 #endif
 
 
-#define SCANNER_FOR_struct_jbd2_inode
 #ifndef SCANNER_FOR_struct_jbd2_inode
 #define SCANNER_FOR_struct_jbd2_inode
 TYPE_SCAN_WRAPPER(struct jbd2_inode, {
@@ -8659,7 +8303,6 @@ TYPE_SCAN_WRAPPER(struct jbd2_inode, {
 #endif
 
 
-#define SCANNER_FOR_struct_pernet_operations
 #ifndef SCANNER_FOR_struct_pernet_operations
 #define SCANNER_FOR_struct_pernet_operations
 TYPE_SCAN_WRAPPER(struct pernet_operations, {
@@ -8681,7 +8324,31 @@ TYPE_SCAN_WRAPPER(struct pernet_operations, {
 #endif
 
 
-#define SCANNER_FOR_struct_mm_walk
+#ifndef SCANNER_FOR_struct_jbd2_journal_handle
+#define SCANNER_FOR_struct_jbd2_journal_handle
+TYPE_SCAN_WRAPPER(struct jbd2_journal_handle, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct jbd2_journal_handle);
+    }
+    SCAN {
+        S(kern_printk( "struct jbd2_journal_handle\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE_PTR(arg.h_transaction);
+        SCAN_FUNCTION(arg.h_buffer_credits);
+        SCAN_FUNCTION(arg.h_ref);
+        SCAN_FUNCTION(arg.h_err);
+//  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.h_sync
+//  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.h_jdata
+//  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.h_aborted
+//  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.h_cowing
+//  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.h_base_credits
+//  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.h_user_credits
+    }
+})
+#endif
+
+
 #ifndef SCANNER_FOR_struct_mm_walk
 #define SCANNER_FOR_struct_mm_walk
 TYPE_SCAN_WRAPPER(struct mm_walk, {
@@ -8705,7 +8372,6 @@ TYPE_SCAN_WRAPPER(struct mm_walk, {
 #endif
 
 
-#define SCANNER_FOR_struct_cdrom_device_info
 #ifndef SCANNER_FOR_struct_cdrom_device_info
 #define SCANNER_FOR_struct_cdrom_device_info
 TYPE_SCAN_WRAPPER(struct cdrom_device_info, {
@@ -8744,7 +8410,6 @@ TYPE_SCAN_WRAPPER(struct cdrom_device_info, {
 #endif
 
 
-#define SCANNER_FOR_struct_cdrom_device_ops
 #ifndef SCANNER_FOR_struct_cdrom_device_ops
 #define SCANNER_FOR_struct_cdrom_device_ops
 TYPE_SCAN_WRAPPER(struct cdrom_device_ops, {
@@ -8776,7 +8441,6 @@ TYPE_SCAN_WRAPPER(struct cdrom_device_ops, {
 #endif
 
 
-#define SCANNER_FOR_struct_dm_dev
 #ifndef SCANNER_FOR_struct_dm_dev
 #define SCANNER_FOR_struct_dm_dev
 TYPE_SCAN_WRAPPER(struct dm_dev, {
@@ -8795,7 +8459,6 @@ TYPE_SCAN_WRAPPER(struct dm_dev, {
 #endif
 
 
-#define SCANNER_FOR_struct_x86_platform_ops
 #ifndef SCANNER_FOR_struct_x86_platform_ops
 #define SCANNER_FOR_struct_x86_platform_ops
 TYPE_SCAN_WRAPPER(struct x86_platform_ops, {
@@ -8822,7 +8485,6 @@ TYPE_SCAN_WRAPPER(struct x86_platform_ops, {
 #endif
 
 
-#define SCANNER_FOR_struct_nf_afinfo
 #ifndef SCANNER_FOR_struct_nf_afinfo
 #define SCANNER_FOR_struct_nf_afinfo
 TYPE_SCAN_WRAPPER(struct nf_afinfo, {
@@ -8845,25 +8507,6 @@ TYPE_SCAN_WRAPPER(struct nf_afinfo, {
 #endif
 
 
-#define SCANNER_FOR_struct_hrtimer_sleeper
-#ifndef SCANNER_FOR_struct_hrtimer_sleeper
-#define SCANNER_FOR_struct_hrtimer_sleeper
-TYPE_SCAN_WRAPPER(struct hrtimer_sleeper, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct hrtimer_sleeper);
-    }
-    SCAN {
-        S(kern_printk( "struct hrtimer_sleeper\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE(arg.timer);
-        SCAN_RECURSIVE_PTR(arg.task);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_inet_frag_queue
 #ifndef SCANNER_FOR_struct_inet_frag_queue
 #define SCANNER_FOR_struct_inet_frag_queue
 TYPE_SCAN_WRAPPER(struct inet_frag_queue, {
@@ -8892,7 +8535,6 @@ TYPE_SCAN_WRAPPER(struct inet_frag_queue, {
 #endif
 
 
-#define SCANNER_FOR_struct___wait_queue
 #ifndef SCANNER_FOR_struct___wait_queue
 #define SCANNER_FOR_struct___wait_queue
 TYPE_SCAN_WRAPPER(struct __wait_queue, {
@@ -8912,7 +8554,6 @@ TYPE_SCAN_WRAPPER(struct __wait_queue, {
 #endif
 
 
-#define SCANNER_FOR_struct_poll_table_entry
 #ifndef SCANNER_FOR_struct_poll_table_entry
 #define SCANNER_FOR_struct_poll_table_entry
 TYPE_SCAN_WRAPPER(struct poll_table_entry, {
@@ -8932,7 +8573,6 @@ TYPE_SCAN_WRAPPER(struct poll_table_entry, {
 #endif
 
 
-#define SCANNER_FOR_struct_poll_wqueues
 #ifndef SCANNER_FOR_struct_poll_wqueues
 #define SCANNER_FOR_struct_poll_wqueues
 TYPE_SCAN_WRAPPER(struct poll_wqueues, {
@@ -8955,7 +8595,6 @@ TYPE_SCAN_WRAPPER(struct poll_wqueues, {
 #endif
 
 
-#define SCANNER_FOR_struct_dev_ext_attribute
 #ifndef SCANNER_FOR_struct_dev_ext_attribute
 #define SCANNER_FOR_struct_dev_ext_attribute
 TYPE_SCAN_WRAPPER(struct dev_ext_attribute, {
@@ -8973,7 +8612,6 @@ TYPE_SCAN_WRAPPER(struct dev_ext_attribute, {
 #endif
 
 
-#define SCANNER_FOR_struct_pv_apic_ops
 #ifndef SCANNER_FOR_struct_pv_apic_ops
 #define SCANNER_FOR_struct_pv_apic_ops
 TYPE_SCAN_WRAPPER(struct pv_apic_ops, {
@@ -8990,7 +8628,6 @@ TYPE_SCAN_WRAPPER(struct pv_apic_ops, {
 #endif
 
 
-#define SCANNER_FOR_struct_atomic_notifier_head
 #ifndef SCANNER_FOR_struct_atomic_notifier_head
 #define SCANNER_FOR_struct_atomic_notifier_head
 TYPE_SCAN_WRAPPER(struct atomic_notifier_head, {
@@ -9008,7 +8645,6 @@ TYPE_SCAN_WRAPPER(struct atomic_notifier_head, {
 #endif
 
 
-#define SCANNER_FOR_struct_inet_connection_sock_af_ops
 #ifndef SCANNER_FOR_struct_inet_connection_sock_af_ops
 #define SCANNER_FOR_struct_inet_connection_sock_af_ops
 TYPE_SCAN_WRAPPER(struct inet_connection_sock_af_ops, {
@@ -9039,7 +8675,6 @@ TYPE_SCAN_WRAPPER(struct inet_connection_sock_af_ops, {
 #endif
 
 
-#define SCANNER_FOR_struct_tree_descr
 #ifndef SCANNER_FOR_struct_tree_descr
 #define SCANNER_FOR_struct_tree_descr
 TYPE_SCAN_WRAPPER(struct tree_descr, {
@@ -9058,7 +8693,6 @@ TYPE_SCAN_WRAPPER(struct tree_descr, {
 #endif
 
 
-#define SCANNER_FOR_struct_restart_block
 #ifndef SCANNER_FOR_struct_restart_block
 #define SCANNER_FOR_struct_restart_block
 TYPE_SCAN_WRAPPER(struct restart_block, {
@@ -9076,7 +8710,6 @@ TYPE_SCAN_WRAPPER(struct restart_block, {
 #endif
 
 
-#define SCANNER_FOR_struct_napi_gro_cb
 #ifndef SCANNER_FOR_struct_napi_gro_cb
 #define SCANNER_FOR_struct_napi_gro_cb
 TYPE_SCAN_WRAPPER(struct napi_gro_cb, {
@@ -9102,7 +8735,6 @@ TYPE_SCAN_WRAPPER(struct napi_gro_cb, {
 #endif
 
 
-#define SCANNER_FOR_struct_inet_request_sock
 #ifndef SCANNER_FOR_struct_inet_request_sock
 #define SCANNER_FOR_struct_inet_request_sock
 TYPE_SCAN_WRAPPER(struct inet_request_sock, {
@@ -9133,7 +8765,6 @@ TYPE_SCAN_WRAPPER(struct inet_request_sock, {
 #endif
 
 
-#define SCANNER_FOR_struct_tcp_request_sock
 #ifndef SCANNER_FOR_struct_tcp_request_sock
 #define SCANNER_FOR_struct_tcp_request_sock
 TYPE_SCAN_WRAPPER(struct tcp_request_sock, {
@@ -9156,7 +8787,6 @@ TYPE_SCAN_WRAPPER(struct tcp_request_sock, {
 #endif
 
 
-#define SCANNER_FOR_struct_fastopen_queue
 #ifndef SCANNER_FOR_struct_fastopen_queue
 #define SCANNER_FOR_struct_fastopen_queue
 TYPE_SCAN_WRAPPER(struct fastopen_queue, {
@@ -9177,7 +8807,6 @@ TYPE_SCAN_WRAPPER(struct fastopen_queue, {
 #endif
 
 
-#define SCANNER_FOR_struct_request_sock_queue
 #ifndef SCANNER_FOR_struct_request_sock_queue
 #define SCANNER_FOR_struct_request_sock_queue
 TYPE_SCAN_WRAPPER(struct request_sock_queue, {
@@ -9199,7 +8828,6 @@ TYPE_SCAN_WRAPPER(struct request_sock_queue, {
 #endif
 
 
-#define SCANNER_FOR_struct_inet_connection_sock
 #ifndef SCANNER_FOR_struct_inet_connection_sock
 #define SCANNER_FOR_struct_inet_connection_sock
 TYPE_SCAN_WRAPPER(struct inet_connection_sock, {
@@ -9237,7 +8865,6 @@ TYPE_SCAN_WRAPPER(struct inet_connection_sock, {
 #endif
 
 
-#define SCANNER_FOR_struct_dma_async_tx_descriptor
 #ifndef SCANNER_FOR_struct_dma_async_tx_descriptor
 #define SCANNER_FOR_struct_dma_async_tx_descriptor
 TYPE_SCAN_WRAPPER(struct dma_async_tx_descriptor, {
@@ -9260,7 +8887,6 @@ TYPE_SCAN_WRAPPER(struct dma_async_tx_descriptor, {
 #endif
 
 
-#define SCANNER_FOR_struct_dma_device
 #ifndef SCANNER_FOR_struct_dma_device
 #define SCANNER_FOR_struct_dma_device
 TYPE_SCAN_WRAPPER(struct dma_device, {
@@ -9305,7 +8931,6 @@ TYPE_SCAN_WRAPPER(struct dma_device, {
 #endif
 
 
-#define SCANNER_FOR_struct_dma_chan_dev
 #ifndef SCANNER_FOR_struct_dma_chan_dev
 #define SCANNER_FOR_struct_dma_chan_dev
 TYPE_SCAN_WRAPPER(struct dma_chan_dev, {
@@ -9325,7 +8950,6 @@ TYPE_SCAN_WRAPPER(struct dma_chan_dev, {
 #endif
 
 
-#define SCANNER_FOR_struct_dma_chan
 #ifndef SCANNER_FOR_struct_dma_chan
 #define SCANNER_FOR_struct_dma_chan
 TYPE_SCAN_WRAPPER(struct dma_chan, {
@@ -9351,7 +8975,6 @@ TYPE_SCAN_WRAPPER(struct dma_chan, {
 #endif
 
 
-#define SCANNER_FOR_struct_dma_page_list
 #ifndef SCANNER_FOR_struct_dma_page_list
 #define SCANNER_FOR_struct_dma_page_list
 TYPE_SCAN_WRAPPER(struct dma_page_list, {
@@ -9370,7 +8993,6 @@ TYPE_SCAN_WRAPPER(struct dma_page_list, {
 #endif
 
 
-#define SCANNER_FOR_struct_tcp_sock
 #ifndef SCANNER_FOR_struct_tcp_sock
 #define SCANNER_FOR_struct_tcp_sock
 TYPE_SCAN_WRAPPER(struct tcp_sock, {
@@ -9481,7 +9103,6 @@ TYPE_SCAN_WRAPPER(struct tcp_sock, {
 #endif
 
 
-#define SCANNER_FOR_struct_inet_frags
 #ifndef SCANNER_FOR_struct_inet_frags
 #define SCANNER_FOR_struct_inet_frags
 TYPE_SCAN_WRAPPER(struct inet_frags, {
@@ -9509,7 +9130,6 @@ TYPE_SCAN_WRAPPER(struct inet_frags, {
 #endif
 
 
-#define SCANNER_FOR_struct_ff_device
 #ifndef SCANNER_FOR_struct_ff_device
 #define SCANNER_FOR_struct_ff_device
 TYPE_SCAN_WRAPPER(struct ff_device, {
@@ -9537,7 +9157,6 @@ TYPE_SCAN_WRAPPER(struct ff_device, {
 #endif
 
 
-#define SCANNER_FOR_struct_input_handler
 #ifndef SCANNER_FOR_struct_input_handler
 #define SCANNER_FOR_struct_input_handler
 TYPE_SCAN_WRAPPER(struct input_handler, {
@@ -9567,7 +9186,6 @@ TYPE_SCAN_WRAPPER(struct input_handler, {
 #endif
 
 
-#define SCANNER_FOR_struct_input_handle
 #ifndef SCANNER_FOR_struct_input_handle
 #define SCANNER_FOR_struct_input_handle
 TYPE_SCAN_WRAPPER(struct input_handle, {
@@ -9590,7 +9208,6 @@ TYPE_SCAN_WRAPPER(struct input_handle, {
 #endif
 
 
-#define SCANNER_FOR_struct_input_dev
 #ifndef SCANNER_FOR_struct_input_dev
 #define SCANNER_FOR_struct_input_dev
 TYPE_SCAN_WRAPPER(struct input_dev, {
@@ -9652,7 +9269,6 @@ TYPE_SCAN_WRAPPER(struct input_dev, {
 #endif
 
 
-#define SCANNER_FOR_struct_sg_mapping_iter
 #ifndef SCANNER_FOR_struct_sg_mapping_iter
 #define SCANNER_FOR_struct_sg_mapping_iter
 TYPE_SCAN_WRAPPER(struct sg_mapping_iter, {
@@ -9676,7 +9292,6 @@ TYPE_SCAN_WRAPPER(struct sg_mapping_iter, {
 #endif
 
 
-#define SCANNER_FOR_struct_mutex_waiter
 #ifndef SCANNER_FOR_struct_mutex_waiter
 #define SCANNER_FOR_struct_mutex_waiter
 TYPE_SCAN_WRAPPER(struct mutex_waiter, {
@@ -9694,7 +9309,26 @@ TYPE_SCAN_WRAPPER(struct mutex_waiter, {
 #endif
 
 
-#define SCANNER_FOR_struct_clocksource
+#ifndef SCANNER_FOR_struct_tracepoint
+#define SCANNER_FOR_struct_tracepoint
+TYPE_SCAN_WRAPPER(struct tracepoint, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct tracepoint);
+    }
+    SCAN {
+        S(kern_printk( "struct tracepoint\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_FUNCTION(arg.name);
+        SCAN_RECURSIVE(arg.key);
+        SCAN_FUNCTION(arg.regfunc);
+        SCAN_FUNCTION(arg.unregfunc);
+        SCAN_RECURSIVE_PTR(arg.funcs);
+    }
+})
+#endif
+
+
 #ifndef SCANNER_FOR_struct_clocksource
 #define SCANNER_FOR_struct_clocksource
 TYPE_SCAN_WRAPPER(struct clocksource, {
@@ -9729,7 +9363,6 @@ TYPE_SCAN_WRAPPER(struct clocksource, {
 #endif
 
 
-#define SCANNER_FOR_struct_task_migration_notifier
 #ifndef SCANNER_FOR_struct_task_migration_notifier
 #define SCANNER_FOR_struct_task_migration_notifier
 TYPE_SCAN_WRAPPER(struct task_migration_notifier, {
@@ -9748,7 +9381,6 @@ TYPE_SCAN_WRAPPER(struct task_migration_notifier, {
 #endif
 
 
-#define SCANNER_FOR_struct_flow_cache_object
 #ifndef SCANNER_FOR_struct_flow_cache_object
 #define SCANNER_FOR_struct_flow_cache_object
 TYPE_SCAN_WRAPPER(struct flow_cache_object, {
@@ -9765,7 +9397,6 @@ TYPE_SCAN_WRAPPER(struct flow_cache_object, {
 #endif
 
 
-#define SCANNER_FOR_struct_flow_cache_ops
 #ifndef SCANNER_FOR_struct_flow_cache_ops
 #define SCANNER_FOR_struct_flow_cache_ops
 TYPE_SCAN_WRAPPER(struct flow_cache_ops, {
@@ -9784,7 +9415,6 @@ TYPE_SCAN_WRAPPER(struct flow_cache_ops, {
 #endif
 
 
-#define SCANNER_FOR_struct_blk_scsi_cmd_filter
 #ifndef SCANNER_FOR_struct_blk_scsi_cmd_filter
 #define SCANNER_FOR_struct_blk_scsi_cmd_filter
 TYPE_SCAN_WRAPPER(struct blk_scsi_cmd_filter, {
@@ -9803,7 +9433,6 @@ TYPE_SCAN_WRAPPER(struct blk_scsi_cmd_filter, {
 #endif
 
 
-#define SCANNER_FOR_struct_req_iterator
 #ifndef SCANNER_FOR_struct_req_iterator
 #define SCANNER_FOR_struct_req_iterator
 TYPE_SCAN_WRAPPER(struct req_iterator, {
@@ -9821,7 +9450,6 @@ TYPE_SCAN_WRAPPER(struct req_iterator, {
 #endif
 
 
-#define SCANNER_FOR_struct_acpi_device_dir
 #ifndef SCANNER_FOR_struct_acpi_device_dir
 #define SCANNER_FOR_struct_acpi_device_dir
 TYPE_SCAN_WRAPPER(struct acpi_device_dir, {
@@ -9838,7 +9466,6 @@ TYPE_SCAN_WRAPPER(struct acpi_device_dir, {
 #endif
 
 
-#define SCANNER_FOR_struct_cgroup_map_cb
 #ifndef SCANNER_FOR_struct_cgroup_map_cb
 #define SCANNER_FOR_struct_cgroup_map_cb
 TYPE_SCAN_WRAPPER(struct cgroup_map_cb, {
@@ -9856,7 +9483,6 @@ TYPE_SCAN_WRAPPER(struct cgroup_map_cb, {
 #endif
 
 
-#define SCANNER_FOR_struct_node
 #ifndef SCANNER_FOR_struct_node
 #define SCANNER_FOR_struct_node
 TYPE_SCAN_WRAPPER(struct node, {
@@ -9874,7 +9500,6 @@ TYPE_SCAN_WRAPPER(struct node, {
 #endif
 
 
-#define SCANNER_FOR_struct_clock_event_device
 #ifndef SCANNER_FOR_struct_clock_event_device
 #define SCANNER_FOR_struct_clock_event_device
 TYPE_SCAN_WRAPPER(struct clock_event_device, {
@@ -9912,7 +9537,6 @@ TYPE_SCAN_WRAPPER(struct clock_event_device, {
 #endif
 
 
-#define SCANNER_FOR_struct_tick_device
 #ifndef SCANNER_FOR_struct_tick_device
 #define SCANNER_FOR_struct_tick_device
 TYPE_SCAN_WRAPPER(struct tick_device, {
@@ -9930,7 +9554,6 @@ TYPE_SCAN_WRAPPER(struct tick_device, {
 #endif
 
 
-#define SCANNER_FOR_struct_ahash_request
 #ifndef SCANNER_FOR_struct_ahash_request
 #define SCANNER_FOR_struct_ahash_request
 TYPE_SCAN_WRAPPER(struct ahash_request, {
@@ -9952,7 +9575,6 @@ TYPE_SCAN_WRAPPER(struct ahash_request, {
 #endif
 
 
-#define SCANNER_FOR_struct_crypto_ahash
 #ifndef SCANNER_FOR_struct_crypto_ahash
 #define SCANNER_FOR_struct_crypto_ahash
 TYPE_SCAN_WRAPPER(struct crypto_ahash, {
@@ -9978,7 +9600,6 @@ TYPE_SCAN_WRAPPER(struct crypto_ahash, {
 #endif
 
 
-#define SCANNER_FOR_struct_raw_notifier_head
 #ifndef SCANNER_FOR_struct_raw_notifier_head
 #define SCANNER_FOR_struct_raw_notifier_head
 TYPE_SCAN_WRAPPER(struct raw_notifier_head, {
@@ -9995,7 +9616,6 @@ TYPE_SCAN_WRAPPER(struct raw_notifier_head, {
 #endif
 
 
-#define SCANNER_FOR_struct_net_proto_family
 #ifndef SCANNER_FOR_struct_net_proto_family
 #define SCANNER_FOR_struct_net_proto_family
 TYPE_SCAN_WRAPPER(struct net_proto_family, {
@@ -10014,7 +9634,6 @@ TYPE_SCAN_WRAPPER(struct net_proto_family, {
 #endif
 
 
-#define SCANNER_FOR_struct_offload_callbacks
 #ifndef SCANNER_FOR_struct_offload_callbacks
 #define SCANNER_FOR_struct_offload_callbacks
 TYPE_SCAN_WRAPPER(struct offload_callbacks, {
@@ -10034,7 +9653,6 @@ TYPE_SCAN_WRAPPER(struct offload_callbacks, {
 #endif
 
 
-#define SCANNER_FOR_struct_class_attribute_string
 #ifndef SCANNER_FOR_struct_class_attribute_string
 #define SCANNER_FOR_struct_class_attribute_string
 TYPE_SCAN_WRAPPER(struct class_attribute_string, {
@@ -10052,7 +9670,6 @@ TYPE_SCAN_WRAPPER(struct class_attribute_string, {
 #endif
 
 
-#define SCANNER_FOR_struct_subsys_interface
 #ifndef SCANNER_FOR_struct_subsys_interface
 #define SCANNER_FOR_struct_subsys_interface
 TYPE_SCAN_WRAPPER(struct subsys_interface, {
@@ -10073,7 +9690,6 @@ TYPE_SCAN_WRAPPER(struct subsys_interface, {
 #endif
 
 
-#define SCANNER_FOR_struct_ubuf_info
 #ifndef SCANNER_FOR_struct_ubuf_info
 #define SCANNER_FOR_struct_ubuf_info
 TYPE_SCAN_WRAPPER(struct ubuf_info, {
@@ -10092,27 +9708,28 @@ TYPE_SCAN_WRAPPER(struct ubuf_info, {
 #endif
 
 
-#define SCANNER_FOR_struct_disk_part_iter
-#ifndef SCANNER_FOR_struct_disk_part_iter
-#define SCANNER_FOR_struct_disk_part_iter
-TYPE_SCAN_WRAPPER(struct disk_part_iter, {
+#ifndef SCANNER_FOR_struct_ata_port_info
+#define SCANNER_FOR_struct_ata_port_info
+TYPE_SCAN_WRAPPER(struct ata_port_info, {
     SCAN_HEAD{
         DECLARE_HASH(htable);
-        SCANNER(struct disk_part_iter);
+        SCANNER(struct ata_port_info);
     }
     SCAN {
-        S(kern_printk( "struct disk_part_iter\n");)
+        S(kern_printk( "struct ata_port_info\n");)
         S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE_PTR(arg.disk);
-        SCAN_RECURSIVE_PTR(arg.part);
-        SCAN_FUNCTION(arg.idx);
         SCAN_FUNCTION(arg.flags);
+        SCAN_FUNCTION(arg.link_flags);
+        SCAN_FUNCTION(arg.pio_mask);
+        SCAN_FUNCTION(arg.mwdma_mask);
+        SCAN_FUNCTION(arg.udma_mask);
+        SCAN_RECURSIVE_PTR(arg.port_ops);
+        SCAN_FUNCTION(arg.private_data);
     }
 })
 #endif
 
 
-#define SCANNER_FOR_struct_idr_layer
 #ifndef SCANNER_FOR_struct_idr_layer
 #define SCANNER_FOR_struct_idr_layer
 TYPE_SCAN_WRAPPER(struct idr_layer, {
@@ -10133,7 +9750,6 @@ TYPE_SCAN_WRAPPER(struct idr_layer, {
 #endif
 
 
-#define SCANNER_FOR_struct_idr
 #ifndef SCANNER_FOR_struct_idr
 #define SCANNER_FOR_struct_idr
 TYPE_SCAN_WRAPPER(struct idr, {
@@ -10154,7 +9770,6 @@ TYPE_SCAN_WRAPPER(struct idr, {
 #endif
 
 
-#define SCANNER_FOR_struct_cftype
 #ifndef SCANNER_FOR_struct_cftype
 #define SCANNER_FOR_struct_cftype
 TYPE_SCAN_WRAPPER(struct cftype, {
@@ -10190,7 +9805,6 @@ TYPE_SCAN_WRAPPER(struct cftype, {
 #endif
 
 
-#define SCANNER_FOR_struct_cftype_set
 #ifndef SCANNER_FOR_struct_cftype_set
 #define SCANNER_FOR_struct_cftype_set
 TYPE_SCAN_WRAPPER(struct cftype_set, {
@@ -10208,7 +9822,6 @@ TYPE_SCAN_WRAPPER(struct cftype_set, {
 #endif
 
 
-#define SCANNER_FOR_struct_cgroup_subsys
 #ifndef SCANNER_FOR_struct_cgroup_subsys
 #define SCANNER_FOR_struct_cgroup_subsys
 TYPE_SCAN_WRAPPER(struct cgroup_subsys, {
@@ -10250,7 +9863,6 @@ TYPE_SCAN_WRAPPER(struct cgroup_subsys, {
 #endif
 
 
-#define SCANNER_FOR_struct_acpi_device_ops
 #ifndef SCANNER_FOR_struct_acpi_device_ops
 #define SCANNER_FOR_struct_acpi_device_ops
 TYPE_SCAN_WRAPPER(struct acpi_device_ops, {
@@ -10272,7 +9884,6 @@ TYPE_SCAN_WRAPPER(struct acpi_device_ops, {
 #endif
 
 
-#define SCANNER_FOR_struct_acpi_driver
 #ifndef SCANNER_FOR_struct_acpi_driver
 #define SCANNER_FOR_struct_acpi_driver
 TYPE_SCAN_WRAPPER(struct acpi_driver, {
@@ -10295,7 +9906,6 @@ TYPE_SCAN_WRAPPER(struct acpi_driver, {
 #endif
 
 
-#define SCANNER_FOR_struct_acpi_device
 #ifndef SCANNER_FOR_struct_acpi_device
 #define SCANNER_FOR_struct_acpi_device
 TYPE_SCAN_WRAPPER(struct acpi_device, {
@@ -10334,7 +9944,6 @@ TYPE_SCAN_WRAPPER(struct acpi_device, {
 #endif
 
 
-#define SCANNER_FOR_struct_acpi_pci_root
 #ifndef SCANNER_FOR_struct_acpi_pci_root
 #define SCANNER_FOR_struct_acpi_pci_root
 TYPE_SCAN_WRAPPER(struct acpi_pci_root, {
@@ -10359,7 +9968,6 @@ TYPE_SCAN_WRAPPER(struct acpi_pci_root, {
 #endif
 
 
-#define SCANNER_FOR_struct_ip_options_data
 #ifndef SCANNER_FOR_struct_ip_options_data
 #define SCANNER_FOR_struct_ip_options_data
 TYPE_SCAN_WRAPPER(struct ip_options_data, {
@@ -10377,7 +9985,6 @@ TYPE_SCAN_WRAPPER(struct ip_options_data, {
 #endif
 
 
-//#define SCANNER_FOR_struct_napi_struct
 #ifndef SCANNER_FOR_struct_napi_struct
 #define SCANNER_FOR_struct_napi_struct
 TYPE_SCAN_WRAPPER(struct napi_struct, {
@@ -10404,7 +10011,6 @@ TYPE_SCAN_WRAPPER(struct napi_struct, {
 #endif
 
 
-//#define SCANNER_FOR_struct_pv_lock_ops
 #ifndef SCANNER_FOR_struct_pv_lock_ops
 #define SCANNER_FOR_struct_pv_lock_ops
 TYPE_SCAN_WRAPPER(struct pv_lock_ops, {
@@ -10426,7 +10032,6 @@ TYPE_SCAN_WRAPPER(struct pv_lock_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_pci_host_bridge
 #ifndef SCANNER_FOR_struct_pci_host_bridge
 #define SCANNER_FOR_struct_pci_host_bridge
 TYPE_SCAN_WRAPPER(struct pci_host_bridge, {
@@ -10447,7 +10052,6 @@ TYPE_SCAN_WRAPPER(struct pci_host_bridge, {
 #endif
 
 
-//#define SCANNER_FOR_struct_x86_init_paging
 #ifndef SCANNER_FOR_struct_x86_init_paging
 #define SCANNER_FOR_struct_x86_init_paging
 TYPE_SCAN_WRAPPER(struct x86_init_paging, {
@@ -10464,7 +10068,6 @@ TYPE_SCAN_WRAPPER(struct x86_init_paging, {
 #endif
 
 
-//#define SCANNER_FOR_struct_class_interface
 #ifndef SCANNER_FOR_struct_class_interface
 #define SCANNER_FOR_struct_class_interface
 TYPE_SCAN_WRAPPER(struct class_interface, {
@@ -10484,7 +10087,6 @@ TYPE_SCAN_WRAPPER(struct class_interface, {
 #endif
 
 
-//#define SCANNER_FOR_struct_softirq_action
 #ifndef SCANNER_FOR_struct_softirq_action
 #define SCANNER_FOR_struct_softirq_action
 TYPE_SCAN_WRAPPER(struct softirq_action, {
@@ -10501,7 +10103,6 @@ TYPE_SCAN_WRAPPER(struct softirq_action, {
 #endif
 
 
-//#define SCANNER_FOR_struct_mb_cache
 #ifndef SCANNER_FOR_struct_mb_cache
 #define SCANNER_FOR_struct_mb_cache
 TYPE_SCAN_WRAPPER(struct mb_cache, {
@@ -10525,7 +10126,6 @@ TYPE_SCAN_WRAPPER(struct mb_cache, {
 #endif
 
 
-//#define SCANNER_FOR_struct_nf_sockopt_ops
 #ifndef SCANNER_FOR_struct_nf_sockopt_ops
 #define SCANNER_FOR_struct_nf_sockopt_ops
 TYPE_SCAN_WRAPPER(struct nf_sockopt_ops, {
@@ -10552,7 +10152,6 @@ TYPE_SCAN_WRAPPER(struct nf_sockopt_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ts_config
 #ifndef SCANNER_FOR_struct_ts_config
 #define SCANNER_FOR_struct_ts_config
 TYPE_SCAN_WRAPPER(struct ts_config, {
@@ -10572,7 +10171,6 @@ TYPE_SCAN_WRAPPER(struct ts_config, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ts_ops
 #ifndef SCANNER_FOR_struct_ts_ops
 #define SCANNER_FOR_struct_ts_ops
 TYPE_SCAN_WRAPPER(struct ts_ops, {
@@ -10596,7 +10194,6 @@ TYPE_SCAN_WRAPPER(struct ts_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_pnp_fixup
 #ifndef SCANNER_FOR_struct_pnp_fixup
 #define SCANNER_FOR_struct_pnp_fixup
 TYPE_SCAN_WRAPPER(struct pnp_fixup, {
@@ -10614,7 +10211,6 @@ TYPE_SCAN_WRAPPER(struct pnp_fixup, {
 #endif
 
 
-//#define SCANNER_FOR_struct_pv_init_ops
 #ifndef SCANNER_FOR_struct_pv_init_ops
 #define SCANNER_FOR_struct_pv_init_ops
 TYPE_SCAN_WRAPPER(struct pv_init_ops, {
@@ -10631,43 +10227,6 @@ TYPE_SCAN_WRAPPER(struct pv_init_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_preempt_ops
-#ifndef SCANNER_FOR_struct_preempt_ops
-#define SCANNER_FOR_struct_preempt_ops
-TYPE_SCAN_WRAPPER(struct preempt_ops, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct preempt_ops);
-    }
-    SCAN {
-        S(kern_printk( "struct preempt_ops\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_FUNCTION(arg.sched_in);
-        SCAN_FUNCTION(arg.sched_out);
-    }
-})
-#endif
-
-
-//#define SCANNER_FOR_struct_preempt_notifier
-#ifndef SCANNER_FOR_struct_preempt_notifier
-#define SCANNER_FOR_struct_preempt_notifier
-TYPE_SCAN_WRAPPER(struct preempt_notifier, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct preempt_notifier);
-    }
-    SCAN {
-        S(kern_printk( "struct preempt_notifier\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE(arg.link);
-        SCAN_RECURSIVE_PTR(arg.ops);
-    }
-})
-#endif
-
-
-//#define SCANNER_FOR_struct_qtree_fmt_operations
 #ifndef SCANNER_FOR_struct_qtree_fmt_operations
 #define SCANNER_FOR_struct_qtree_fmt_operations
 TYPE_SCAN_WRAPPER(struct qtree_fmt_operations, {
@@ -10686,7 +10245,6 @@ TYPE_SCAN_WRAPPER(struct qtree_fmt_operations, {
 #endif
 
 
-//#define SCANNER_FOR_struct_qtree_mem_dqinfo
 #ifndef SCANNER_FOR_struct_qtree_mem_dqinfo
 #define SCANNER_FOR_struct_qtree_mem_dqinfo
 TYPE_SCAN_WRAPPER(struct qtree_mem_dqinfo, {
@@ -10712,7 +10270,6 @@ TYPE_SCAN_WRAPPER(struct qtree_mem_dqinfo, {
 #endif
 
 
-//#define SCANNER_FOR_struct_tcp6_request_sock
 #ifndef SCANNER_FOR_struct_tcp6_request_sock
 #define SCANNER_FOR_struct_tcp6_request_sock
 TYPE_SCAN_WRAPPER(struct tcp6_request_sock, {
@@ -10730,7 +10287,6 @@ TYPE_SCAN_WRAPPER(struct tcp6_request_sock, {
 #endif
 
 
-//#define SCANNER_FOR_struct_x86_init_timers
 #ifndef SCANNER_FOR_struct_x86_init_timers
 #define SCANNER_FOR_struct_x86_init_timers
 TYPE_SCAN_WRAPPER(struct x86_init_timers, {
@@ -10750,7 +10306,6 @@ TYPE_SCAN_WRAPPER(struct x86_init_timers, {
 #endif
 
 
-//#define SCANNER_FOR_struct_cyclecounter
 #ifndef SCANNER_FOR_struct_cyclecounter
 #define SCANNER_FOR_struct_cyclecounter
 TYPE_SCAN_WRAPPER(struct cyclecounter, {
@@ -10770,7 +10325,6 @@ TYPE_SCAN_WRAPPER(struct cyclecounter, {
 #endif
 
 
-#define SCANNER_FOR_struct_timecounter
 #ifndef SCANNER_FOR_struct_timecounter
 #define SCANNER_FOR_struct_timecounter
 TYPE_SCAN_WRAPPER(struct timecounter, {
@@ -10789,7 +10343,6 @@ TYPE_SCAN_WRAPPER(struct timecounter, {
 #endif
 
 
-//#define SCANNER_FOR_struct_x86_init_oem
 #ifndef SCANNER_FOR_struct_x86_init_oem
 #define SCANNER_FOR_struct_x86_init_oem
 TYPE_SCAN_WRAPPER(struct x86_init_oem, {
@@ -10807,7 +10360,6 @@ TYPE_SCAN_WRAPPER(struct x86_init_oem, {
 #endif
 
 
-//#define SCANNER_FOR_struct_hash_alg_common
 #ifndef SCANNER_FOR_struct_hash_alg_common
 #define SCANNER_FOR_struct_hash_alg_common
 TYPE_SCAN_WRAPPER(struct hash_alg_common, {
@@ -10826,7 +10378,65 @@ TYPE_SCAN_WRAPPER(struct hash_alg_common, {
 #endif
 
 
-//#define SCANNER_FOR_struct_tp_module
+#ifndef SCANNER_FOR_struct_rcu_batch
+#define SCANNER_FOR_struct_rcu_batch
+TYPE_SCAN_WRAPPER(struct rcu_batch, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct rcu_batch);
+    }
+    SCAN {
+        S(kern_printk( "struct rcu_batch\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE_PTR(arg.head);
+//  Pointer(Pointer(Use(Struct(struct callback_head)))) arg.tail
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_srcu_struct
+#define SCANNER_FOR_struct_srcu_struct
+TYPE_SCAN_WRAPPER(struct srcu_struct, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct srcu_struct);
+    }
+    SCAN {
+        S(kern_printk( "struct srcu_struct\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_FUNCTION(arg.completed);
+        SCAN_RECURSIVE_PTR(arg.per_cpu_ref);
+        SCAN_RECURSIVE(arg.queue_lock);
+        SCAN_FUNCTION(arg.running);
+        SCAN_RECURSIVE(arg.batch_queue);
+        SCAN_RECURSIVE(arg.batch_check0);
+        SCAN_RECURSIVE(arg.batch_check1);
+        SCAN_RECURSIVE(arg.batch_done);
+        SCAN_RECURSIVE(arg.work);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_srcu_notifier_head
+#define SCANNER_FOR_struct_srcu_notifier_head
+TYPE_SCAN_WRAPPER(struct srcu_notifier_head, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct srcu_notifier_head);
+    }
+    SCAN {
+        S(kern_printk( "struct srcu_notifier_head\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE(arg.mutex);
+        SCAN_RECURSIVE(arg.srcu);
+        SCAN_RECURSIVE_PTR(arg.head);
+    }
+})
+#endif
+
+
 #ifndef SCANNER_FOR_struct_tp_module
 #define SCANNER_FOR_struct_tp_module
 TYPE_SCAN_WRAPPER(struct tp_module, {
@@ -10845,7 +10455,6 @@ TYPE_SCAN_WRAPPER(struct tp_module, {
 #endif
 
 
-//#define SCANNER_FOR_struct_tracepoint_iter
 #ifndef SCANNER_FOR_struct_tracepoint_iter
 #define SCANNER_FOR_struct_tracepoint_iter
 TYPE_SCAN_WRAPPER(struct tracepoint_iter, {
@@ -10863,7 +10472,6 @@ TYPE_SCAN_WRAPPER(struct tracepoint_iter, {
 #endif
 
 
-//#define SCANNER_FOR_struct_phy_fixup
 #ifndef SCANNER_FOR_struct_phy_fixup
 #define SCANNER_FOR_struct_phy_fixup
 TYPE_SCAN_WRAPPER(struct phy_fixup, {
@@ -10884,7 +10492,6 @@ TYPE_SCAN_WRAPPER(struct phy_fixup, {
 #endif
 
 
-//#define SCANNER_FOR_struct_acpi_sleep_functions
 #ifndef SCANNER_FOR_struct_acpi_sleep_functions
 #define SCANNER_FOR_struct_acpi_sleep_functions
 TYPE_SCAN_WRAPPER(struct acpi_sleep_functions, {
@@ -10902,7 +10509,6 @@ TYPE_SCAN_WRAPPER(struct acpi_sleep_functions, {
 #endif
 
 
-//#define SCANNER_FOR_struct_smp_ops
 #ifndef SCANNER_FOR_struct_smp_ops
 #define SCANNER_FOR_struct_smp_ops
 TYPE_SCAN_WRAPPER(struct smp_ops, {
@@ -10929,45 +10535,23 @@ TYPE_SCAN_WRAPPER(struct smp_ops, {
 #endif
 
 
-#ifndef SCANNER_FOR_struct_kthread_work
-#define SCANNER_FOR_struct_kthread_work
-TYPE_SCAN_WRAPPER(struct kthread_work, {
+#ifndef SCANNER_FOR_struct_tcp6_sock
+#define SCANNER_FOR_struct_tcp6_sock
+TYPE_SCAN_WRAPPER(struct tcp6_sock, {
     SCAN_HEAD{
         DECLARE_HASH(htable);
-        SCANNER(struct kthread_work);
+        SCANNER(struct tcp6_sock);
     }
     SCAN {
-        S(kern_printk( "struct kthread_work\n");)
+        S(kern_printk( "struct tcp6_sock\n");)
         S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE(arg.node);
-        SCAN_FUNCTION(arg.func);
-        SCAN_RECURSIVE(arg.done);
-        SCAN_RECURSIVE_PTR(arg.worker);
+        SCAN_RECURSIVE(arg.tcp);
+        SCAN_RECURSIVE(arg.inet6);
     }
 })
 #endif
 
 
-#ifndef SCANNER_FOR_struct_kthread_worker
-#define SCANNER_FOR_struct_kthread_worker
-TYPE_SCAN_WRAPPER(struct kthread_worker, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct kthread_worker);
-    }
-    SCAN {
-        S(kern_printk( "struct kthread_worker\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE(arg.lock);
-        SCAN_RECURSIVE(arg.work_list);
-        SCAN_RECURSIVE_PTR(arg.task);
-        SCAN_RECURSIVE_PTR(arg.current_work);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_x86_init_resources
 #ifndef SCANNER_FOR_struct_x86_init_resources
 #define SCANNER_FOR_struct_x86_init_resources
 TYPE_SCAN_WRAPPER(struct x86_init_resources, {
@@ -10986,7 +10570,6 @@ TYPE_SCAN_WRAPPER(struct x86_init_resources, {
 #endif
 
 
-#define SCANNER_FOR_struct_acpi_bus_type
 #ifndef SCANNER_FOR_struct_acpi_bus_type
 #define SCANNER_FOR_struct_acpi_bus_type
 TYPE_SCAN_WRAPPER(struct acpi_bus_type, {
@@ -11006,7 +10589,6 @@ TYPE_SCAN_WRAPPER(struct acpi_bus_type, {
 #endif
 
 
-#define SCANNER_FOR_struct_crypto_comp
 #ifndef SCANNER_FOR_struct_crypto_comp
 #define SCANNER_FOR_struct_crypto_comp
 TYPE_SCAN_WRAPPER(struct crypto_comp, {
@@ -11021,7 +10603,6 @@ TYPE_SCAN_WRAPPER(struct crypto_comp, {
     }
 })
 #endif
-
 
 
 #ifndef SCANNER_FOR_struct_dmi_system_id
@@ -11043,26 +10624,6 @@ TYPE_SCAN_WRAPPER(struct dmi_system_id, {
 #endif
 
 
-#define SCANNER_FOR_struct_biovec_slab
-#ifndef SCANNER_FOR_struct_biovec_slab
-#define SCANNER_FOR_struct_biovec_slab
-TYPE_SCAN_WRAPPER(struct biovec_slab, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct biovec_slab);
-    }
-    SCAN {
-        S(kern_printk( "struct biovec_slab\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_FUNCTION(arg.nr_vecs);
-        SCAN_FUNCTION(arg.name);
-        SCAN_RECURSIVE_PTR(arg.slab);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_target_type
 #ifndef SCANNER_FOR_struct_target_type
 #define SCANNER_FOR_struct_target_type
 TYPE_SCAN_WRAPPER(struct target_type, {
@@ -11100,7 +10661,6 @@ TYPE_SCAN_WRAPPER(struct target_type, {
 #endif
 
 
-#define SCANNER_FOR_struct_dm_target
 #ifndef SCANNER_FOR_struct_dm_target
 #define SCANNER_FOR_struct_dm_target
 TYPE_SCAN_WRAPPER(struct dm_target, {
@@ -11122,16 +10682,15 @@ TYPE_SCAN_WRAPPER(struct dm_target, {
         SCAN_FUNCTION(arg.per_bio_data_size);
         SCAN_FUNCTION(arg.private_);
         SCAN_FUNCTION(arg.error);
-//  Bitfield(Use(TypeDef(bool, Use(TypeDef(K_Bool, BuiltIn(int)))))) arg.flush_supported
-//  Bitfield(Use(TypeDef(bool, Use(TypeDef(K_Bool, BuiltIn(int)))))) arg.discards_supported
-//  Bitfield(Use(TypeDef(bool, Use(TypeDef(K_Bool, BuiltIn(int)))))) arg.split_discard_requests
-//  Bitfield(Use(TypeDef(bool, Use(TypeDef(K_Bool, BuiltIn(int)))))) arg.discard_zeroes_data_unsupported
+//  Bitfield(Use(TypeDef(bool, BuiltIn(_Bool)))) arg.flush_supported
+//  Bitfield(Use(TypeDef(bool, BuiltIn(_Bool)))) arg.discards_supported
+//  Bitfield(Use(TypeDef(bool, BuiltIn(_Bool)))) arg.split_discard_requests
+//  Bitfield(Use(TypeDef(bool, BuiltIn(_Bool)))) arg.discard_zeroes_data_unsupported
     }
 })
 #endif
 
 
-#define SCANNER_FOR_struct_apic
 #ifndef SCANNER_FOR_struct_apic
 #define SCANNER_FOR_struct_apic
 TYPE_SCAN_WRAPPER(struct apic, {
@@ -11193,7 +10752,62 @@ TYPE_SCAN_WRAPPER(struct apic, {
 #endif
 
 
-#define SCANNER_FOR_struct_pv_mmu_ops
+#ifndef SCANNER_FOR_struct_pv_cpu_ops
+#define SCANNER_FOR_struct_pv_cpu_ops
+TYPE_SCAN_WRAPPER(struct pv_cpu_ops, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct pv_cpu_ops);
+    }
+    SCAN {
+        S(kern_printk( "struct pv_cpu_ops\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_FUNCTION(arg.get_debugreg);
+        SCAN_FUNCTION(arg.set_debugreg);
+        SCAN_FUNCTION(arg.clts);
+        SCAN_FUNCTION(arg.read_cr0);
+        SCAN_FUNCTION(arg.write_cr0);
+        SCAN_FUNCTION(arg.read_cr4_safe);
+        SCAN_FUNCTION(arg.read_cr4);
+        SCAN_FUNCTION(arg.write_cr4);
+        SCAN_FUNCTION(arg.read_cr8);
+        SCAN_FUNCTION(arg.write_cr8);
+        SCAN_FUNCTION(arg.load_tr_desc);
+        SCAN_FUNCTION(arg.load_gdt);
+        SCAN_FUNCTION(arg.load_idt);
+        SCAN_FUNCTION(arg.store_gdt);
+        SCAN_FUNCTION(arg.store_idt);
+        SCAN_FUNCTION(arg.set_ldt);
+        SCAN_FUNCTION(arg.store_tr);
+        SCAN_FUNCTION(arg.load_tls);
+        SCAN_FUNCTION(arg.load_gs_index);
+        SCAN_FUNCTION(arg.write_ldt_entry);
+        SCAN_FUNCTION(arg.write_gdt_entry);
+        SCAN_FUNCTION(arg.write_idt_entry);
+        SCAN_FUNCTION(arg.alloc_ldt);
+        SCAN_FUNCTION(arg.free_ldt);
+        SCAN_FUNCTION(arg.load_sp0);
+        SCAN_FUNCTION(arg.set_iopl_mask);
+        SCAN_FUNCTION(arg.wbinvd);
+        SCAN_FUNCTION(arg.io_delay);
+        SCAN_FUNCTION(arg.cpuid);
+        SCAN_FUNCTION(arg.read_msr);
+        SCAN_FUNCTION(arg.write_msr);
+        SCAN_FUNCTION(arg.read_tsc);
+        SCAN_FUNCTION(arg.read_pmc);
+        SCAN_FUNCTION(arg.read_tscp);
+        SCAN_FUNCTION(arg.irq_enable_sysexit);
+        SCAN_FUNCTION(arg.usergs_sysret64);
+        SCAN_FUNCTION(arg.usergs_sysret32);
+        SCAN_FUNCTION(arg.iret);
+        SCAN_FUNCTION(arg.swapgs);
+        SCAN_FUNCTION(arg.start_context_switch);
+        SCAN_FUNCTION(arg.end_context_switch);
+    }
+})
+#endif
+
+
 #ifndef SCANNER_FOR_struct_pv_mmu_ops
 #define SCANNER_FOR_struct_pv_mmu_ops
 TYPE_SCAN_WRAPPER(struct pv_mmu_ops, {
@@ -11250,7 +10864,6 @@ TYPE_SCAN_WRAPPER(struct pv_mmu_ops, {
 #endif
 
 
-#define SCANNER_FOR_struct_proc_inode
 #ifndef SCANNER_FOR_struct_proc_inode
 #define SCANNER_FOR_struct_proc_inode
 TYPE_SCAN_WRAPPER(struct proc_inode, {
@@ -11275,7 +10888,6 @@ TYPE_SCAN_WRAPPER(struct proc_inode, {
 #endif
 
 
-#define SCANNER_FOR_struct_ptr_heap
 #ifndef SCANNER_FOR_struct_ptr_heap
 #define SCANNER_FOR_struct_ptr_heap
 TYPE_SCAN_WRAPPER(struct ptr_heap, {
@@ -11295,34 +10907,26 @@ TYPE_SCAN_WRAPPER(struct ptr_heap, {
 #endif
 
 
-#define SCANNER_FOR_struct_skb_shared_info
-#ifndef SCANNER_FOR_struct_skb_shared_info
-#define SCANNER_FOR_struct_skb_shared_info
-TYPE_SCAN_WRAPPER(struct skb_shared_info, {
+#ifndef SCANNER_FOR_struct_pci_fixup
+#define SCANNER_FOR_struct_pci_fixup
+TYPE_SCAN_WRAPPER(struct pci_fixup, {
     SCAN_HEAD{
         DECLARE_HASH(htable);
-        SCANNER(struct skb_shared_info);
+        SCANNER(struct pci_fixup);
     }
     SCAN {
-        S(kern_printk( "struct skb_shared_info\n");)
+        S(kern_printk( "struct pci_fixup\n");)
         S(SCAN_OBJECT(arg);)
-        SCAN_FUNCTION(arg.nr_frags);
-        SCAN_FUNCTION(arg.tx_flags);
-        SCAN_FUNCTION(arg.gso_size);
-        SCAN_FUNCTION(arg.gso_segs);
-        SCAN_FUNCTION(arg.gso_type);
-        SCAN_RECURSIVE_PTR(arg.frag_list);
-        SCAN_RECURSIVE(arg.hwtstamps);
-        SCAN_FUNCTION(arg.ip6_frag_id);
-        SCAN_RECURSIVE(arg.dataref);
-        SCAN_FUNCTION(arg.destructor_arg);
-//  Array(Use(TypeDef(skb_frag_t, Use(Struct(struct skb_frag_struct))))) arg.frags
+        SCAN_FUNCTION(arg.vendor);
+        SCAN_FUNCTION(arg.device);
+        SCAN_FUNCTION(arg.class_);
+        SCAN_FUNCTION(arg.class_shift);
+        SCAN_FUNCTION(arg.hook);
     }
 })
 #endif
 
 
-#define SCANNER_FOR_struct_dm_target_callbacks
 #ifndef SCANNER_FOR_struct_dm_target_callbacks
 #define SCANNER_FOR_struct_dm_target_callbacks
 TYPE_SCAN_WRAPPER(struct dm_target_callbacks, {
@@ -11340,7 +10944,6 @@ TYPE_SCAN_WRAPPER(struct dm_target_callbacks, {
 #endif
 
 
-#define SCANNER_FOR_struct_netlink_notify
 #ifndef SCANNER_FOR_struct_netlink_notify
 #define SCANNER_FOR_struct_netlink_notify
 TYPE_SCAN_WRAPPER(struct netlink_notify, {
@@ -11359,7 +10962,6 @@ TYPE_SCAN_WRAPPER(struct netlink_notify, {
 #endif
 
 
-#define SCANNER_FOR_struct_inet_timewait_sock
 #ifndef SCANNER_FOR_struct_inet_timewait_sock
 #define SCANNER_FOR_struct_inet_timewait_sock
 TYPE_SCAN_WRAPPER(struct inet_timewait_sock, {
@@ -11388,7 +10990,6 @@ TYPE_SCAN_WRAPPER(struct inet_timewait_sock, {
 #endif
 
 
-#define SCANNER_FOR_struct_shash_desc
 #ifndef SCANNER_FOR_struct_shash_desc
 #define SCANNER_FOR_struct_shash_desc
 TYPE_SCAN_WRAPPER(struct shash_desc, {
@@ -11407,7 +11008,6 @@ TYPE_SCAN_WRAPPER(struct shash_desc, {
 #endif
 
 
-//#define SCANNER_FOR_struct_shash_alg
 #ifndef SCANNER_FOR_struct_shash_alg
 #define SCANNER_FOR_struct_shash_alg
 TYPE_SCAN_WRAPPER(struct shash_alg, {
@@ -11435,7 +11035,23 @@ TYPE_SCAN_WRAPPER(struct shash_alg, {
 #endif
 
 
-//#define SCANNER_FOR_struct_acpi_dock_ops
+#ifndef SCANNER_FOR_struct_hrtimer_sleeper
+#define SCANNER_FOR_struct_hrtimer_sleeper
+TYPE_SCAN_WRAPPER(struct hrtimer_sleeper, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct hrtimer_sleeper);
+    }
+    SCAN {
+        S(kern_printk( "struct hrtimer_sleeper\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE(arg.timer);
+        SCAN_RECURSIVE_PTR(arg.task);
+    }
+})
+#endif
+
+
 #ifndef SCANNER_FOR_struct_acpi_dock_ops
 #define SCANNER_FOR_struct_acpi_dock_ops
 TYPE_SCAN_WRAPPER(struct acpi_dock_ops, {
@@ -11453,7 +11069,6 @@ TYPE_SCAN_WRAPPER(struct acpi_dock_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_tcp_timewait_sock
 #ifndef SCANNER_FOR_struct_tcp_timewait_sock
 #define SCANNER_FOR_struct_tcp_timewait_sock
 TYPE_SCAN_WRAPPER(struct tcp_timewait_sock, {
@@ -11477,7 +11092,6 @@ TYPE_SCAN_WRAPPER(struct tcp_timewait_sock, {
 #endif
 
 
-//#define SCANNER_FOR_struct_tcp6_timewait_sock
 #ifndef SCANNER_FOR_struct_tcp6_timewait_sock
 #define SCANNER_FOR_struct_tcp6_timewait_sock
 TYPE_SCAN_WRAPPER(struct tcp6_timewait_sock, {
@@ -11495,7 +11109,6 @@ TYPE_SCAN_WRAPPER(struct tcp6_timewait_sock, {
 #endif
 
 
-//#define SCANNER_FOR_struct_klist_iter
 #ifndef SCANNER_FOR_struct_klist_iter
 #define SCANNER_FOR_struct_klist_iter
 TYPE_SCAN_WRAPPER(struct klist_iter, {
@@ -11513,7 +11126,6 @@ TYPE_SCAN_WRAPPER(struct klist_iter, {
 #endif
 
 
-//#define SCANNER_FOR_struct_inet_timewait_death_row
 #ifndef SCANNER_FOR_struct_inet_timewait_death_row
 #define SCANNER_FOR_struct_inet_timewait_death_row
 TYPE_SCAN_WRAPPER(struct inet_timewait_death_row, {
@@ -11544,25 +11156,6 @@ TYPE_SCAN_WRAPPER(struct inet_timewait_death_row, {
 #endif
 
 
-//#define SCANNER_FOR_struct_rcu_batch
-#ifndef SCANNER_FOR_struct_rcu_batch
-#define SCANNER_FOR_struct_rcu_batch
-TYPE_SCAN_WRAPPER(struct rcu_batch, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct rcu_batch);
-    }
-    SCAN {
-        S(kern_printk( "struct rcu_batch\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE_PTR(arg.head);
-//  Pointer(Pointer(Use(Struct(struct callback_head)))) arg.tail
-    }
-})
-#endif
-
-
-//#define SCANNER_FOR_struct_wait_bit_queue
 #ifndef SCANNER_FOR_struct_wait_bit_queue
 #define SCANNER_FOR_struct_wait_bit_queue
 TYPE_SCAN_WRAPPER(struct wait_bit_queue, {
@@ -11580,7 +11173,6 @@ TYPE_SCAN_WRAPPER(struct wait_bit_queue, {
 #endif
 
 
-//#define SCANNER_FOR_struct_skb_seq_state
 #ifndef SCANNER_FOR_struct_skb_seq_state
 #define SCANNER_FOR_struct_skb_seq_state
 TYPE_SCAN_WRAPPER(struct skb_seq_state, {
@@ -11603,7 +11195,6 @@ TYPE_SCAN_WRAPPER(struct skb_seq_state, {
 #endif
 
 
-//#define SCANNER_FOR_struct_acpi_pci_driver
 #ifndef SCANNER_FOR_struct_acpi_pci_driver
 #define SCANNER_FOR_struct_acpi_pci_driver
 TYPE_SCAN_WRAPPER(struct acpi_pci_driver, {
@@ -11622,7 +11213,6 @@ TYPE_SCAN_WRAPPER(struct acpi_pci_driver, {
 #endif
 
 
-//#define SCANNER_FOR_struct_mii_if_info
 #ifndef SCANNER_FOR_struct_mii_if_info
 #define SCANNER_FOR_struct_mii_if_info
 TYPE_SCAN_WRAPPER(struct mii_if_info, {
@@ -11648,7 +11238,6 @@ TYPE_SCAN_WRAPPER(struct mii_if_info, {
 #endif
 
 
-//#define SCANNER_FOR_struct_subsys_dev_iter
 #ifndef SCANNER_FOR_struct_subsys_dev_iter
 #define SCANNER_FOR_struct_subsys_dev_iter
 TYPE_SCAN_WRAPPER(struct subsys_dev_iter, {
@@ -11666,25 +11255,6 @@ TYPE_SCAN_WRAPPER(struct subsys_dev_iter, {
 #endif
 
 
-//#define SCANNER_FOR_struct_tcp6_sock
-#ifndef SCANNER_FOR_struct_tcp6_sock
-#define SCANNER_FOR_struct_tcp6_sock
-TYPE_SCAN_WRAPPER(struct tcp6_sock, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct tcp6_sock);
-    }
-    SCAN {
-        S(kern_printk( "struct tcp6_sock\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE(arg.tcp);
-        SCAN_RECURSIVE(arg.inet6);
-    }
-})
-#endif
-
-
-//#define SCANNER_FOR_struct_netlink_kernel_cfg
 #ifndef SCANNER_FOR_struct_netlink_kernel_cfg
 #define SCANNER_FOR_struct_netlink_kernel_cfg
 TYPE_SCAN_WRAPPER(struct netlink_kernel_cfg, {
@@ -11705,32 +11275,6 @@ TYPE_SCAN_WRAPPER(struct netlink_kernel_cfg, {
 #endif
 
 
-//#define SCANNER_FOR_struct_srcu_struct
-#ifndef SCANNER_FOR_struct_srcu_struct
-#define SCANNER_FOR_struct_srcu_struct
-TYPE_SCAN_WRAPPER(struct srcu_struct, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct srcu_struct);
-    }
-    SCAN {
-        S(kern_printk( "struct srcu_struct\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_FUNCTION(arg.completed);
-        SCAN_RECURSIVE_PTR(arg.per_cpu_ref);
-        SCAN_RECURSIVE(arg.queue_lock);
-        SCAN_FUNCTION(arg.running);
-        SCAN_RECURSIVE(arg.batch_queue);
-        SCAN_RECURSIVE(arg.batch_check0);
-        SCAN_RECURSIVE(arg.batch_check1);
-        SCAN_RECURSIVE(arg.batch_done);
-        SCAN_RECURSIVE(arg.work);
-    }
-})
-#endif
-
-
-//#define SCANNER_FOR_struct_module_version_attribute
 #ifndef SCANNER_FOR_struct_module_version_attribute
 #define SCANNER_FOR_struct_module_version_attribute
 TYPE_SCAN_WRAPPER(struct module_version_attribute, {
@@ -11749,7 +11293,6 @@ TYPE_SCAN_WRAPPER(struct module_version_attribute, {
 #endif
 
 
-//#define SCANNER_FOR_struct_prop_descriptor
 #ifndef SCANNER_FOR_struct_prop_descriptor
 #define SCANNER_FOR_struct_prop_descriptor
 TYPE_SCAN_WRAPPER(struct prop_descriptor, {
@@ -11768,7 +11311,6 @@ TYPE_SCAN_WRAPPER(struct prop_descriptor, {
 #endif
 
 
-//#define SCANNER_FOR_struct_tasklet_struct
 #ifndef SCANNER_FOR_struct_tasklet_struct
 #define SCANNER_FOR_struct_tasklet_struct
 TYPE_SCAN_WRAPPER(struct tasklet_struct, {
@@ -11789,7 +11331,6 @@ TYPE_SCAN_WRAPPER(struct tasklet_struct, {
 #endif
 
 
-//#define SCANNER_FOR_struct_softnet_data
 #ifndef SCANNER_FOR_struct_softnet_data
 #define SCANNER_FOR_struct_softnet_data
 TYPE_SCAN_WRAPPER(struct softnet_data, {
@@ -11823,7 +11364,6 @@ TYPE_SCAN_WRAPPER(struct softnet_data, {
 #endif
 
 
-//#define SCANNER_FOR_struct_rtnl_af_ops
 #ifndef SCANNER_FOR_struct_rtnl_af_ops
 #define SCANNER_FOR_struct_rtnl_af_ops
 TYPE_SCAN_WRAPPER(struct rtnl_af_ops, {
@@ -11845,7 +11385,6 @@ TYPE_SCAN_WRAPPER(struct rtnl_af_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_pv_time_ops
 #ifndef SCANNER_FOR_struct_pv_time_ops
 #define SCANNER_FOR_struct_pv_time_ops
 TYPE_SCAN_WRAPPER(struct pv_time_ops, {
@@ -11864,7 +11403,44 @@ TYPE_SCAN_WRAPPER(struct pv_time_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_x86_init_mpparse
+#ifndef SCANNER_FOR_struct_kthread_work
+#define SCANNER_FOR_struct_kthread_work
+TYPE_SCAN_WRAPPER(struct kthread_work, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct kthread_work);
+    }
+    SCAN {
+        S(kern_printk( "struct kthread_work\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE(arg.node);
+        SCAN_FUNCTION(arg.func);
+        SCAN_RECURSIVE(arg.done);
+        SCAN_RECURSIVE_PTR(arg.worker);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_kthread_worker
+#define SCANNER_FOR_struct_kthread_worker
+TYPE_SCAN_WRAPPER(struct kthread_worker, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct kthread_worker);
+    }
+    SCAN {
+        S(kern_printk( "struct kthread_worker\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE(arg.lock);
+        SCAN_RECURSIVE(arg.work_list);
+        SCAN_RECURSIVE_PTR(arg.task);
+        SCAN_RECURSIVE_PTR(arg.current_work);
+    }
+})
+#endif
+
+
 #ifndef SCANNER_FOR_struct_x86_init_mpparse
 #define SCANNER_FOR_struct_x86_init_mpparse
 TYPE_SCAN_WRAPPER(struct x86_init_mpparse, {
@@ -11888,7 +11464,26 @@ TYPE_SCAN_WRAPPER(struct x86_init_mpparse, {
 #endif
 
 
-//#define SCANNER_FOR_struct_obs_kernel_param
+#ifndef SCANNER_FOR_struct_dm_target_io
+#define SCANNER_FOR_struct_dm_target_io
+TYPE_SCAN_WRAPPER(struct dm_target_io, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct dm_target_io);
+    }
+    SCAN {
+        S(kern_printk( "struct dm_target_io\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE_PTR(arg.io);
+        SCAN_RECURSIVE_PTR(arg.ti);
+//  Union(union map_info) arg.info
+        SCAN_FUNCTION(arg.target_request_nr);
+        SCAN_RECURSIVE(arg.clone);
+    }
+})
+#endif
+
+
 #ifndef SCANNER_FOR_struct_obs_kernel_param
 #define SCANNER_FOR_struct_obs_kernel_param
 TYPE_SCAN_WRAPPER(struct obs_kernel_param, {
@@ -11907,25 +11502,6 @@ TYPE_SCAN_WRAPPER(struct obs_kernel_param, {
 #endif
 
 
-//#define SCANNER_FOR_struct_pm_domain_data
-#ifndef SCANNER_FOR_struct_pm_domain_data
-#define SCANNER_FOR_struct_pm_domain_data
-TYPE_SCAN_WRAPPER(struct pm_domain_data, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct pm_domain_data);
-    }
-    SCAN {
-        S(kern_printk( "struct pm_domain_data\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE(arg.list_node);
-        SCAN_RECURSIVE_PTR(arg.dev);
-    }
-})
-#endif
-
-
-//#define SCANNER_FOR_struct_vm_struct
 #ifndef SCANNER_FOR_struct_vm_struct
 #define SCANNER_FOR_struct_vm_struct
 TYPE_SCAN_WRAPPER(struct vm_struct, {
@@ -11949,7 +11525,6 @@ TYPE_SCAN_WRAPPER(struct vm_struct, {
 #endif
 
 
-//#define SCANNER_FOR_struct_miscdevice
 #ifndef SCANNER_FOR_struct_miscdevice
 #define SCANNER_FOR_struct_miscdevice
 TYPE_SCAN_WRAPPER(struct miscdevice, {
@@ -11973,9 +11548,8 @@ TYPE_SCAN_WRAPPER(struct miscdevice, {
 #endif
 
 
-//#define SCANNER_FOR_struct_pv_irq_ops
 #ifndef SCANNER_FOR_struct_pv_irq_ops
-//#define SCANNER_FOR_struct_pv_irq_ops
+#define SCANNER_FOR_struct_pv_irq_ops
 TYPE_SCAN_WRAPPER(struct pv_irq_ops, {
     SCAN_HEAD{
         DECLARE_HASH(htable);
@@ -11996,7 +11570,6 @@ TYPE_SCAN_WRAPPER(struct pv_irq_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_cleancache_ops
 #ifndef SCANNER_FOR_struct_cleancache_ops
 #define SCANNER_FOR_struct_cleancache_ops
 TYPE_SCAN_WRAPPER(struct cleancache_ops, {
@@ -12019,7 +11592,6 @@ TYPE_SCAN_WRAPPER(struct cleancache_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_client_extension
 #ifndef SCANNER_FOR_struct_client_extension
 #define SCANNER_FOR_struct_client_extension
 TYPE_SCAN_WRAPPER(struct client_extension, {
@@ -12040,7 +11612,6 @@ TYPE_SCAN_WRAPPER(struct client_extension, {
 #endif
 
 
-//#define SCANNER_FOR_struct_thread_info
 #ifndef SCANNER_FOR_struct_thread_info
 #define SCANNER_FOR_struct_thread_info
 TYPE_SCAN_WRAPPER(struct thread_info, {
@@ -12069,7 +11640,6 @@ TYPE_SCAN_WRAPPER(struct thread_info, {
 #endif
 
 
-//#define SCANNER_FOR_struct_mem_cgroup_reclaim_cookie
 #ifndef SCANNER_FOR_struct_mem_cgroup_reclaim_cookie
 #define SCANNER_FOR_struct_mem_cgroup_reclaim_cookie
 TYPE_SCAN_WRAPPER(struct mem_cgroup_reclaim_cookie, {
@@ -12088,33 +11658,6 @@ TYPE_SCAN_WRAPPER(struct mem_cgroup_reclaim_cookie, {
 #endif
 
 
-//#define SCANNER_FOR_struct_jbd2_journal_handle
-#ifndef SCANNER_FOR_struct_jbd2_journal_handle
-#define SCANNER_FOR_struct_jbd2_journal_handle
-TYPE_SCAN_WRAPPER(struct jbd2_journal_handle, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct jbd2_journal_handle);
-    }
-    SCAN {
-        S(kern_printk( "struct jbd2_journal_handle\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE_PTR(arg.h_transaction);
-        SCAN_FUNCTION(arg.h_buffer_credits);
-        SCAN_FUNCTION(arg.h_ref);
-        SCAN_FUNCTION(arg.h_err);
-//  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.h_sync
-//  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.h_jdata
-//  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.h_aborted
-//  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.h_cowing
-//  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.h_base_credits
-//  Bitfield(Attributed(unsigned , BuiltIn(int))) arg.h_user_credits
-    }
-})
-#endif
-
-
-//#define SCANNER_FOR_struct_acpi_device_physical_node
 #ifndef SCANNER_FOR_struct_acpi_device_physical_node
 #define SCANNER_FOR_struct_acpi_device_physical_node
 TYPE_SCAN_WRAPPER(struct acpi_device_physical_node, {
@@ -12133,7 +11676,6 @@ TYPE_SCAN_WRAPPER(struct acpi_device_physical_node, {
 #endif
 
 
-//#define SCANNER_FOR_struct_debug_obj_descr
 #ifndef SCANNER_FOR_struct_debug_obj_descr
 #define SCANNER_FOR_struct_debug_obj_descr
 TYPE_SCAN_WRAPPER(struct debug_obj_descr, {
@@ -12156,7 +11698,6 @@ TYPE_SCAN_WRAPPER(struct debug_obj_descr, {
 #endif
 
 
-//#define SCANNER_FOR_struct_nl_info
 #ifndef SCANNER_FOR_struct_nl_info
 #define SCANNER_FOR_struct_nl_info
 TYPE_SCAN_WRAPPER(struct nl_info, {
@@ -12175,30 +11716,25 @@ TYPE_SCAN_WRAPPER(struct nl_info, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ata_port_info
-#ifndef SCANNER_FOR_struct_ata_port_info
-#define SCANNER_FOR_struct_ata_port_info
-TYPE_SCAN_WRAPPER(struct ata_port_info, {
+#ifndef SCANNER_FOR_struct_disk_part_iter
+#define SCANNER_FOR_struct_disk_part_iter
+TYPE_SCAN_WRAPPER(struct disk_part_iter, {
     SCAN_HEAD{
         DECLARE_HASH(htable);
-        SCANNER(struct ata_port_info);
+        SCANNER(struct disk_part_iter);
     }
     SCAN {
-        S(kern_printk( "struct ata_port_info\n");)
+        S(kern_printk( "struct disk_part_iter\n");)
         S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE_PTR(arg.disk);
+        SCAN_RECURSIVE_PTR(arg.part);
+        SCAN_FUNCTION(arg.idx);
         SCAN_FUNCTION(arg.flags);
-        SCAN_FUNCTION(arg.link_flags);
-        SCAN_FUNCTION(arg.pio_mask);
-        SCAN_FUNCTION(arg.mwdma_mask);
-        SCAN_FUNCTION(arg.udma_mask);
-        SCAN_RECURSIVE_PTR(arg.port_ops);
-        SCAN_FUNCTION(arg.private_data);
     }
 })
 #endif
 
 
-//#define SCANNER_FOR_struct_module_use
 #ifndef SCANNER_FOR_struct_module_use
 #define SCANNER_FOR_struct_module_use
 TYPE_SCAN_WRAPPER(struct module_use, {
@@ -12218,7 +11754,6 @@ TYPE_SCAN_WRAPPER(struct module_use, {
 #endif
 
 
-//#define SCANNER_FOR_struct_firmware
 #ifndef SCANNER_FOR_struct_firmware
 #define SCANNER_FOR_struct_firmware
 TYPE_SCAN_WRAPPER(struct firmware, {
@@ -12238,7 +11773,6 @@ TYPE_SCAN_WRAPPER(struct firmware, {
 #endif
 
 
-#define SCANNER_FOR_struct_blk_plug_cb
 #ifndef SCANNER_FOR_struct_blk_plug_cb
 #define SCANNER_FOR_struct_blk_plug_cb
 TYPE_SCAN_WRAPPER(struct blk_plug_cb, {
@@ -12257,7 +11791,6 @@ TYPE_SCAN_WRAPPER(struct blk_plug_cb, {
 #endif
 
 
-//#define SCANNER_FOR_struct_debug_obj
 #ifndef SCANNER_FOR_struct_debug_obj
 #define SCANNER_FOR_struct_debug_obj
 TYPE_SCAN_WRAPPER(struct debug_obj, {
@@ -12278,7 +11811,6 @@ TYPE_SCAN_WRAPPER(struct debug_obj, {
 #endif
 
 
-#define SCANNER_FOR_struct_x86_init_iommu
 #ifndef SCANNER_FOR_struct_x86_init_iommu
 #define SCANNER_FOR_struct_x86_init_iommu
 TYPE_SCAN_WRAPPER(struct x86_init_iommu, {
@@ -12295,7 +11827,6 @@ TYPE_SCAN_WRAPPER(struct x86_init_iommu, {
 #endif
 
 
-//#define SCANNER_FOR_struct_cgroup_scanner
 #ifndef SCANNER_FOR_struct_cgroup_scanner
 #define SCANNER_FOR_struct_cgroup_scanner
 TYPE_SCAN_WRAPPER(struct cgroup_scanner, {
@@ -12316,7 +11847,32 @@ TYPE_SCAN_WRAPPER(struct cgroup_scanner, {
 #endif
 
 
-#define SCANNER_FOR_struct_ida
+#ifndef SCANNER_FOR_struct_skb_shared_info
+#define SCANNER_FOR_struct_skb_shared_info
+TYPE_SCAN_WRAPPER(struct skb_shared_info, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct skb_shared_info);
+    }
+    SCAN {
+        S(kern_printk( "struct skb_shared_info\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_FUNCTION(arg.nr_frags);
+        SCAN_FUNCTION(arg.tx_flags);
+        SCAN_FUNCTION(arg.gso_size);
+        SCAN_FUNCTION(arg.gso_segs);
+        SCAN_FUNCTION(arg.gso_type);
+        SCAN_RECURSIVE_PTR(arg.frag_list);
+        SCAN_RECURSIVE(arg.hwtstamps);
+        SCAN_FUNCTION(arg.ip6_frag_id);
+        SCAN_RECURSIVE(arg.dataref);
+        SCAN_FUNCTION(arg.destructor_arg);
+//  Array(Use(TypeDef(skb_frag_t, Use(Struct(struct skb_frag_struct))))) arg.frags
+    }
+})
+#endif
+
+
 #ifndef SCANNER_FOR_struct_ida
 #define SCANNER_FOR_struct_ida
 TYPE_SCAN_WRAPPER(struct ida, {
@@ -12334,203 +11890,6 @@ TYPE_SCAN_WRAPPER(struct ida, {
 #endif
 
 
-//#define SCANNER_FOR_struct_security_operations
-#ifndef SCANNER_FOR_struct_security_operations
-#define SCANNER_FOR_struct_security_operations
-TYPE_SCAN_WRAPPER(struct security_operations, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct security_operations);
-    }
-    SCAN {
-        S(kern_printk( "struct security_operations\n");)
-        S(SCAN_OBJECT(arg);)
-//  Array(BuiltIn(char)) arg.name
-        SCAN_FUNCTION(arg.ptrace_access_check);
-        SCAN_FUNCTION(arg.ptrace_traceme);
-        SCAN_FUNCTION(arg.capget);
-        SCAN_FUNCTION(arg.capset);
-        SCAN_FUNCTION(arg.capable);
-        SCAN_FUNCTION(arg.quotactl);
-        SCAN_FUNCTION(arg.quota_on);
-        SCAN_FUNCTION(arg.syslog);
-        SCAN_FUNCTION(arg.settime);
-        SCAN_FUNCTION(arg.vm_enough_memory);
-        SCAN_FUNCTION(arg.bprm_set_creds);
-        SCAN_FUNCTION(arg.bprm_check_security);
-        SCAN_FUNCTION(arg.bprm_secureexec);
-        SCAN_FUNCTION(arg.bprm_committing_creds);
-        SCAN_FUNCTION(arg.bprm_committed_creds);
-        SCAN_FUNCTION(arg.sb_alloc_security);
-        SCAN_FUNCTION(arg.sb_free_security);
-        SCAN_FUNCTION(arg.sb_copy_data);
-        SCAN_FUNCTION(arg.sb_remount);
-        SCAN_FUNCTION(arg.sb_kern_mount);
-        SCAN_FUNCTION(arg.sb_show_options);
-        SCAN_FUNCTION(arg.sb_statfs);
-        SCAN_FUNCTION(arg.sb_mount);
-        SCAN_FUNCTION(arg.sb_umount);
-        SCAN_FUNCTION(arg.sb_pivotroot);
-        SCAN_FUNCTION(arg.sb_set_mnt_opts);
-        SCAN_FUNCTION(arg.sb_clone_mnt_opts);
-        SCAN_FUNCTION(arg.sb_parse_opts_str);
-        SCAN_FUNCTION(arg.path_unlink);
-        SCAN_FUNCTION(arg.path_mkdir);
-        SCAN_FUNCTION(arg.path_rmdir);
-        SCAN_FUNCTION(arg.path_mknod);
-        SCAN_FUNCTION(arg.path_truncate);
-        SCAN_FUNCTION(arg.path_symlink);
-        SCAN_FUNCTION(arg.path_link);
-        SCAN_FUNCTION(arg.path_rename);
-        SCAN_FUNCTION(arg.path_chmod);
-        SCAN_FUNCTION(arg.path_chown);
-        SCAN_FUNCTION(arg.path_chroot);
-        SCAN_FUNCTION(arg.inode_alloc_security);
-        SCAN_FUNCTION(arg.inode_free_security);
-        SCAN_FUNCTION(arg.inode_init_security);
-        SCAN_FUNCTION(arg.inode_create);
-        SCAN_FUNCTION(arg.inode_link);
-        SCAN_FUNCTION(arg.inode_unlink);
-        SCAN_FUNCTION(arg.inode_symlink);
-        SCAN_FUNCTION(arg.inode_mkdir);
-        SCAN_FUNCTION(arg.inode_rmdir);
-        SCAN_FUNCTION(arg.inode_mknod);
-        SCAN_FUNCTION(arg.inode_rename);
-        SCAN_FUNCTION(arg.inode_readlink);
-        SCAN_FUNCTION(arg.inode_follow_link);
-        SCAN_FUNCTION(arg.inode_permission);
-        SCAN_FUNCTION(arg.inode_setattr);
-        SCAN_FUNCTION(arg.inode_getattr);
-        SCAN_FUNCTION(arg.inode_setxattr);
-        SCAN_FUNCTION(arg.inode_post_setxattr);
-        SCAN_FUNCTION(arg.inode_getxattr);
-        SCAN_FUNCTION(arg.inode_listxattr);
-        SCAN_FUNCTION(arg.inode_removexattr);
-        SCAN_FUNCTION(arg.inode_need_killpriv);
-        SCAN_FUNCTION(arg.inode_killpriv);
-        SCAN_FUNCTION(arg.inode_getsecurity);
-        SCAN_FUNCTION(arg.inode_setsecurity);
-        SCAN_FUNCTION(arg.inode_listsecurity);
-        SCAN_FUNCTION(arg.inode_getsecid);
-        SCAN_FUNCTION(arg.file_permission);
-        SCAN_FUNCTION(arg.file_alloc_security);
-        SCAN_FUNCTION(arg.file_free_security);
-        SCAN_FUNCTION(arg.file_ioctl);
-        SCAN_FUNCTION(arg.mmap_addr);
-        SCAN_FUNCTION(arg.mmap_file);
-        SCAN_FUNCTION(arg.file_mprotect);
-        SCAN_FUNCTION(arg.file_lock);
-        SCAN_FUNCTION(arg.file_fcntl);
-        SCAN_FUNCTION(arg.file_set_fowner);
-        SCAN_FUNCTION(arg.file_send_sigiotask);
-        SCAN_FUNCTION(arg.file_receive);
-        SCAN_FUNCTION(arg.file_open);
-        SCAN_FUNCTION(arg.task_create);
-        SCAN_FUNCTION(arg.task_free);
-        SCAN_FUNCTION(arg.cred_alloc_blank);
-        SCAN_FUNCTION(arg.cred_free);
-        SCAN_FUNCTION(arg.cred_prepare);
-        SCAN_FUNCTION(arg.cred_transfer);
-        SCAN_FUNCTION(arg.kernel_act_as);
-        SCAN_FUNCTION(arg.kernel_create_files_as);
-        SCAN_FUNCTION(arg.kernel_module_request);
-        SCAN_FUNCTION(arg.kernel_module_from_file);
-        SCAN_FUNCTION(arg.task_fix_setuid);
-        SCAN_FUNCTION(arg.task_setpgid);
-        SCAN_FUNCTION(arg.task_getpgid);
-        SCAN_FUNCTION(arg.task_getsid);
-        SCAN_FUNCTION(arg.task_getsecid);
-        SCAN_FUNCTION(arg.task_setnice);
-        SCAN_FUNCTION(arg.task_setioprio);
-        SCAN_FUNCTION(arg.task_getioprio);
-        SCAN_FUNCTION(arg.task_setrlimit);
-        SCAN_FUNCTION(arg.task_setscheduler);
-        SCAN_FUNCTION(arg.task_getscheduler);
-        SCAN_FUNCTION(arg.task_movememory);
-        SCAN_FUNCTION(arg.task_kill);
-        SCAN_FUNCTION(arg.task_wait);
-        SCAN_FUNCTION(arg.task_prctl);
-        SCAN_FUNCTION(arg.task_to_inode);
-        SCAN_FUNCTION(arg.ipc_permission);
-        SCAN_FUNCTION(arg.ipc_getsecid);
-        SCAN_FUNCTION(arg.msg_msg_alloc_security);
-        SCAN_FUNCTION(arg.msg_msg_free_security);
-        SCAN_FUNCTION(arg.msg_queue_alloc_security);
-        SCAN_FUNCTION(arg.msg_queue_free_security);
-        SCAN_FUNCTION(arg.msg_queue_associate);
-        SCAN_FUNCTION(arg.msg_queue_msgctl);
-        SCAN_FUNCTION(arg.msg_queue_msgsnd);
-        SCAN_FUNCTION(arg.msg_queue_msgrcv);
-        SCAN_FUNCTION(arg.shm_alloc_security);
-        SCAN_FUNCTION(arg.shm_free_security);
-        SCAN_FUNCTION(arg.shm_associate);
-        SCAN_FUNCTION(arg.shm_shmctl);
-        SCAN_FUNCTION(arg.shm_shmat);
-        SCAN_FUNCTION(arg.sem_alloc_security);
-        SCAN_FUNCTION(arg.sem_free_security);
-        SCAN_FUNCTION(arg.sem_associate);
-        SCAN_FUNCTION(arg.sem_semctl);
-        SCAN_FUNCTION(arg.sem_semop);
-        SCAN_FUNCTION(arg.netlink_send);
-        SCAN_FUNCTION(arg.d_instantiate);
-        SCAN_FUNCTION(arg.getprocattr);
-        SCAN_FUNCTION(arg.setprocattr);
-        SCAN_FUNCTION(arg.secid_to_secctx);
-        SCAN_FUNCTION(arg.secctx_to_secid);
-        SCAN_FUNCTION(arg.release_secctx);
-        SCAN_FUNCTION(arg.inode_notifysecctx);
-        SCAN_FUNCTION(arg.inode_setsecctx);
-        SCAN_FUNCTION(arg.inode_getsecctx);
-        SCAN_FUNCTION(arg.unix_stream_connect);
-        SCAN_FUNCTION(arg.unix_may_send);
-        SCAN_FUNCTION(arg.socket_create);
-        SCAN_FUNCTION(arg.socket_post_create);
-        SCAN_FUNCTION(arg.socket_bind);
-        SCAN_FUNCTION(arg.socket_connect);
-        SCAN_FUNCTION(arg.socket_listen);
-        SCAN_FUNCTION(arg.socket_accept);
-        SCAN_FUNCTION(arg.socket_sendmsg);
-        SCAN_FUNCTION(arg.socket_recvmsg);
-        SCAN_FUNCTION(arg.socket_getsockname);
-        SCAN_FUNCTION(arg.socket_getpeername);
-        SCAN_FUNCTION(arg.socket_getsockopt);
-        SCAN_FUNCTION(arg.socket_setsockopt);
-        SCAN_FUNCTION(arg.socket_shutdown);
-        SCAN_FUNCTION(arg.socket_sock_rcv_skb);
-        SCAN_FUNCTION(arg.socket_getpeersec_stream);
-        SCAN_FUNCTION(arg.socket_getpeersec_dgram);
-        SCAN_FUNCTION(arg.sk_alloc_security);
-        SCAN_FUNCTION(arg.sk_free_security);
-        SCAN_FUNCTION(arg.sk_clone_security);
-        SCAN_FUNCTION(arg.sk_getsecid);
-        SCAN_FUNCTION(arg.sock_graft);
-        SCAN_FUNCTION(arg.inet_conn_request);
-        SCAN_FUNCTION(arg.inet_csk_clone);
-        SCAN_FUNCTION(arg.inet_conn_established);
-        SCAN_FUNCTION(arg.secmark_relabel_packet);
-        SCAN_FUNCTION(arg.secmark_refcount_inc);
-        SCAN_FUNCTION(arg.secmark_refcount_dec);
-        SCAN_FUNCTION(arg.req_classify_flow);
-        SCAN_FUNCTION(arg.tun_dev_alloc_security);
-        SCAN_FUNCTION(arg.tun_dev_free_security);
-        SCAN_FUNCTION(arg.tun_dev_create);
-        SCAN_FUNCTION(arg.tun_dev_attach_queue);
-        SCAN_FUNCTION(arg.tun_dev_attach);
-        SCAN_FUNCTION(arg.tun_dev_open);
-        SCAN_FUNCTION(arg.key_alloc);
-        SCAN_FUNCTION(arg.key_free);
-        SCAN_FUNCTION(arg.key_permission);
-        SCAN_FUNCTION(arg.key_getsecurity);
-        SCAN_FUNCTION(arg.audit_rule_init);
-        SCAN_FUNCTION(arg.audit_rule_known);
-        SCAN_FUNCTION(arg.audit_rule_match);
-        SCAN_FUNCTION(arg.audit_rule_free);
-    }
-})
-#endif
-
-
-//#define SCANNER_FOR_struct_execute_work
 #ifndef SCANNER_FOR_struct_execute_work
 #define SCANNER_FOR_struct_execute_work
 TYPE_SCAN_WRAPPER(struct execute_work, {
@@ -12547,26 +11906,6 @@ TYPE_SCAN_WRAPPER(struct execute_work, {
 #endif
 
 
-//#define SCANNER_FOR_struct_srcu_notifier_head
-#ifndef SCANNER_FOR_struct_srcu_notifier_head
-#define SCANNER_FOR_struct_srcu_notifier_head
-TYPE_SCAN_WRAPPER(struct srcu_notifier_head, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct srcu_notifier_head);
-    }
-    SCAN {
-        S(kern_printk( "struct srcu_notifier_head\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE(arg.mutex);
-        SCAN_RECURSIVE(arg.srcu);
-        SCAN_RECURSIVE_PTR(arg.head);
-    }
-})
-#endif
-
-
-//#define SCANNER_FOR_struct_x86_msi_ops
 #ifndef SCANNER_FOR_struct_x86_msi_ops
 #define SCANNER_FOR_struct_x86_msi_ops
 TYPE_SCAN_WRAPPER(struct x86_msi_ops, {
@@ -12586,7 +11925,6 @@ TYPE_SCAN_WRAPPER(struct x86_msi_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_raw6_sock
 #ifndef SCANNER_FOR_struct_raw6_sock
 #define SCANNER_FOR_struct_raw6_sock
 TYPE_SCAN_WRAPPER(struct raw6_sock, {
@@ -12608,28 +11946,24 @@ TYPE_SCAN_WRAPPER(struct raw6_sock, {
 #endif
 
 
-//#define SCANNER_FOR_struct_pci_fixup
-#ifndef SCANNER_FOR_struct_pci_fixup
-#define SCANNER_FOR_struct_pci_fixup
-TYPE_SCAN_WRAPPER(struct pci_fixup, {
+#ifndef SCANNER_FOR_struct_biovec_slab
+#define SCANNER_FOR_struct_biovec_slab
+TYPE_SCAN_WRAPPER(struct biovec_slab, {
     SCAN_HEAD{
         DECLARE_HASH(htable);
-        SCANNER(struct pci_fixup);
+        SCANNER(struct biovec_slab);
     }
     SCAN {
-        S(kern_printk( "struct pci_fixup\n");)
+        S(kern_printk( "struct biovec_slab\n");)
         S(SCAN_OBJECT(arg);)
-        SCAN_FUNCTION(arg.vendor);
-        SCAN_FUNCTION(arg.device);
-        SCAN_FUNCTION(arg.class_);
-        SCAN_FUNCTION(arg.class_shift);
-        SCAN_FUNCTION(arg.hook);
+        SCAN_FUNCTION(arg.nr_vecs);
+        SCAN_FUNCTION(arg.name);
+        SCAN_RECURSIVE_PTR(arg.slab);
     }
 })
 #endif
 
 
-//#define SCANNER_FOR_struct_packet_offload
 #ifndef SCANNER_FOR_struct_packet_offload
 #define SCANNER_FOR_struct_packet_offload
 TYPE_SCAN_WRAPPER(struct packet_offload, {
@@ -12648,7 +11982,6 @@ TYPE_SCAN_WRAPPER(struct packet_offload, {
 #endif
 
 
-//#define SCANNER_FOR_struct_tasklet_hrtimer
 #ifndef SCANNER_FOR_struct_tasklet_hrtimer
 #define SCANNER_FOR_struct_tasklet_hrtimer
 TYPE_SCAN_WRAPPER(struct tasklet_hrtimer, {
@@ -12667,7 +12000,6 @@ TYPE_SCAN_WRAPPER(struct tasklet_hrtimer, {
 #endif
 
 
-//#define SCANNER_FOR_struct_bio_pair
 #ifndef SCANNER_FOR_struct_bio_pair
 #define SCANNER_FOR_struct_bio_pair
 TYPE_SCAN_WRAPPER(struct bio_pair, {
@@ -12693,7 +12025,6 @@ TYPE_SCAN_WRAPPER(struct bio_pair, {
 #endif
 
 
-//#define SCANNER_FOR_struct_rt_mutex
 #ifndef SCANNER_FOR_struct_rt_mutex
 #define SCANNER_FOR_struct_rt_mutex
 TYPE_SCAN_WRAPPER(struct rt_mutex, {
@@ -12712,28 +12043,6 @@ TYPE_SCAN_WRAPPER(struct rt_mutex, {
 #endif
 
 
-//#define SCANNER_FOR_struct_dm_target_io
-#ifndef SCANNER_FOR_struct_dm_target_io
-#define SCANNER_FOR_struct_dm_target_io
-TYPE_SCAN_WRAPPER(struct dm_target_io, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct dm_target_io);
-    }
-    SCAN {
-        S(kern_printk( "struct dm_target_io\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_RECURSIVE_PTR(arg.io);
-        SCAN_RECURSIVE_PTR(arg.ti);
-//  Union(union map_info) arg.info
-        SCAN_FUNCTION(arg.target_request_nr);
-        SCAN_RECURSIVE(arg.clone);
-    }
-})
-#endif
-
-
-#define SCANNER_FOR_struct_class_dev_iter
 #ifndef SCANNER_FOR_struct_class_dev_iter
 #define SCANNER_FOR_struct_class_dev_iter
 TYPE_SCAN_WRAPPER(struct class_dev_iter, {
@@ -12751,7 +12060,6 @@ TYPE_SCAN_WRAPPER(struct class_dev_iter, {
 #endif
 
 
-#define SCANNER_FOR_struct_qdisc_watchdog
 #ifndef SCANNER_FOR_struct_qdisc_watchdog
 #define SCANNER_FOR_struct_qdisc_watchdog
 TYPE_SCAN_WRAPPER(struct qdisc_watchdog, {
@@ -12769,7 +12077,6 @@ TYPE_SCAN_WRAPPER(struct qdisc_watchdog, {
 #endif
 
 
-#define SCANNER_FOR_struct_netlink_skb_parms
 #ifndef SCANNER_FOR_struct_netlink_skb_parms
 #define SCANNER_FOR_struct_netlink_skb_parms
 TYPE_SCAN_WRAPPER(struct netlink_skb_parms, {
@@ -12789,7 +12096,6 @@ TYPE_SCAN_WRAPPER(struct netlink_skb_parms, {
 #endif
 
 
-#define SCANNER_FOR_struct_nf_hook_ops
 #ifndef SCANNER_FOR_struct_nf_hook_ops
 #define SCANNER_FOR_struct_nf_hook_ops
 TYPE_SCAN_WRAPPER(struct nf_hook_ops, {
@@ -12811,7 +12117,41 @@ TYPE_SCAN_WRAPPER(struct nf_hook_ops, {
 #endif
 
 
-#define SCANNER_FOR_struct_cipher_desc
+#ifndef SCANNER_FOR_struct_uprobe_consumer
+#define SCANNER_FOR_struct_uprobe_consumer
+TYPE_SCAN_WRAPPER(struct uprobe_consumer, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct uprobe_consumer);
+    }
+    SCAN {
+        S(kern_printk( "struct uprobe_consumer\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_FUNCTION(arg.handler);
+        SCAN_FUNCTION(arg.filter);
+        SCAN_RECURSIVE_PTR(arg.next);
+    }
+})
+#endif
+
+
+#ifndef SCANNER_FOR_struct_pm_domain_data
+#define SCANNER_FOR_struct_pm_domain_data
+TYPE_SCAN_WRAPPER(struct pm_domain_data, {
+    SCAN_HEAD{
+        DECLARE_HASH(htable);
+        SCANNER(struct pm_domain_data);
+    }
+    SCAN {
+        S(kern_printk( "struct pm_domain_data\n");)
+        S(SCAN_OBJECT(arg);)
+        SCAN_RECURSIVE(arg.list_node);
+        SCAN_RECURSIVE_PTR(arg.dev);
+    }
+})
+#endif
+
+
 #ifndef SCANNER_FOR_struct_cipher_desc
 #define SCANNER_FOR_struct_cipher_desc
 TYPE_SCAN_WRAPPER(struct cipher_desc, {
@@ -12831,7 +12171,6 @@ TYPE_SCAN_WRAPPER(struct cipher_desc, {
 #endif
 
 
-#define SCANNER_FOR_struct_netlink_dump_control
 #ifndef SCANNER_FOR_struct_netlink_dump_control
 #define SCANNER_FOR_struct_netlink_dump_control
 TYPE_SCAN_WRAPPER(struct netlink_dump_control, {
@@ -12852,7 +12191,6 @@ TYPE_SCAN_WRAPPER(struct netlink_dump_control, {
 #endif
 
 
-#define SCANNER_FOR_struct_x86_io_apic_ops
 #ifndef SCANNER_FOR_struct_x86_io_apic_ops
 #define SCANNER_FOR_struct_x86_io_apic_ops
 TYPE_SCAN_WRAPPER(struct x86_io_apic_ops, {
@@ -12872,7 +12210,6 @@ TYPE_SCAN_WRAPPER(struct x86_io_apic_ops, {
 #endif
 
 
-#define SCANNER_FOR_struct_packet_type
 #ifndef SCANNER_FOR_struct_packet_type
 #define SCANNER_FOR_struct_packet_type
 TYPE_SCAN_WRAPPER(struct packet_type, {
@@ -12894,7 +12231,6 @@ TYPE_SCAN_WRAPPER(struct packet_type, {
 #endif
 
 
-#define SCANNER_FOR_struct_subprocess_info
 #ifndef SCANNER_FOR_struct_subprocess_info
 #define SCANNER_FOR_struct_subprocess_info
 TYPE_SCAN_WRAPPER(struct subprocess_info, {
@@ -12920,7 +12256,6 @@ TYPE_SCAN_WRAPPER(struct subprocess_info, {
 #endif
 
 
-#define SCANNER_FOR_struct_x86_init_ops
 #ifndef SCANNER_FOR_struct_x86_init_ops
 #define SCANNER_FOR_struct_x86_init_ops
 TYPE_SCAN_WRAPPER(struct x86_init_ops, {
@@ -12945,7 +12280,6 @@ TYPE_SCAN_WRAPPER(struct x86_init_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_crypto_cipher
 #ifndef SCANNER_FOR_struct_crypto_cipher
 #define SCANNER_FOR_struct_crypto_cipher
 TYPE_SCAN_WRAPPER(struct crypto_cipher, {
@@ -12962,7 +12296,6 @@ TYPE_SCAN_WRAPPER(struct crypto_cipher, {
 #endif
 
 
-//#define SCANNER_FOR_struct_zap_details
 #ifndef SCANNER_FOR_struct_zap_details
 #define SCANNER_FOR_struct_zap_details
 TYPE_SCAN_WRAPPER(struct zap_details, {
@@ -12982,7 +12315,6 @@ TYPE_SCAN_WRAPPER(struct zap_details, {
 #endif
 
 
-//#define SCANNER_FOR_struct_x86_cpuinit_ops
 #ifndef SCANNER_FOR_struct_x86_cpuinit_ops
 #define SCANNER_FOR_struct_x86_cpuinit_ops
 TYPE_SCAN_WRAPPER(struct x86_cpuinit_ops, {
@@ -13001,7 +12333,6 @@ TYPE_SCAN_WRAPPER(struct x86_cpuinit_ops, {
 #endif
 
 
-//#define SCANNER_FOR_struct_mb_cache_entry
 #ifndef SCANNER_FOR_struct_mb_cache_entry
 #define SCANNER_FOR_struct_mb_cache_entry
 TYPE_SCAN_WRAPPER(struct mb_cache_entry, {
@@ -13025,7 +12356,6 @@ TYPE_SCAN_WRAPPER(struct mb_cache_entry, {
 #endif
 
 
-//#define SCANNER_FOR_struct_kobj_attribute
 #ifndef SCANNER_FOR_struct_kobj_attribute
 #define SCANNER_FOR_struct_kobj_attribute
 TYPE_SCAN_WRAPPER(struct kobj_attribute, {
@@ -13044,7 +12374,6 @@ TYPE_SCAN_WRAPPER(struct kobj_attribute, {
 #endif
 
 
-//#define SCANNER_FOR_struct_ahash_alg
 #ifndef SCANNER_FOR_struct_ahash_alg
 #define SCANNER_FOR_struct_ahash_alg
 TYPE_SCAN_WRAPPER(struct ahash_alg, {
@@ -13069,26 +12398,6 @@ TYPE_SCAN_WRAPPER(struct ahash_alg, {
 #endif
 
 
-//#define SCANNER_FOR_struct_uprobe_consumer
-#ifndef SCANNER_FOR_struct_uprobe_consumer
-#define SCANNER_FOR_struct_uprobe_consumer
-TYPE_SCAN_WRAPPER(struct uprobe_consumer, {
-    SCAN_HEAD{
-        DECLARE_HASH(htable);
-        SCANNER(struct uprobe_consumer);
-    }
-    SCAN {
-        S(kern_printk( "struct uprobe_consumer\n");)
-        S(SCAN_OBJECT(arg);)
-        SCAN_FUNCTION(arg.handler);
-        SCAN_FUNCTION(arg.filter);
-        SCAN_RECURSIVE_PTR(arg.next);
-    }
-})
-#endif
-
-
-//#define SCANNER_FOR_struct_tick_sched
 #ifndef SCANNER_FOR_struct_tick_sched
 #define SCANNER_FOR_struct_tick_sched
 TYPE_SCAN_WRAPPER(struct tick_sched, {
@@ -13124,7 +12433,6 @@ TYPE_SCAN_WRAPPER(struct tick_sched, {
 #endif
 
 
-//#define SCANNER_FOR_struct_paravirt_patch_template
 #ifndef SCANNER_FOR_struct_paravirt_patch_template
 #define SCANNER_FOR_struct_paravirt_patch_template
 TYPE_SCAN_WRAPPER(struct paravirt_patch_template, {

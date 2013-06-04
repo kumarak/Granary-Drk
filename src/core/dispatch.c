@@ -292,7 +292,7 @@ dispatch(dcontext_t *dcontext)
                  * code to be instrumented if Granary code calls dr_app_start. */
             } else if(dcontext->app_start_next_tag != dcontext->next_tag && dr_is_granary_code(dcontext->next_tag)) {
                 null_next_tag_curiosity(dcontext);
-                dispatch_exit_module(dcontext);
+                dispatch_enter_native(dcontext);
                 ASSERT_NOT_REACHED();
             }
 #endif

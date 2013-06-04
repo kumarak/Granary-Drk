@@ -28,7 +28,7 @@ HOTPATCH_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
 #ifdef CONFIG_USING_WATCHPOINT
     state = (enum section_state)get_section_state();
     if(state & KERNEL_WRAPPER_SET){
-  //      retval = cfi_dump_stack();
+        retval = cfi_dump_stack();
        P( kern_printk("ADD_WATCHPOINT with this pointer\n");)
         ADD_WATCHPOINT(watchpoint_addr, size);
         descriptor *meta_info = NULL;
@@ -140,7 +140,7 @@ HOTPATCH_WRAPPER(kmem_cache_alloc, (struct kmem_cache *s, gfp_t gfpflags), {
     if(state & KERNEL_WRAPPER_SET){
         //uint64_t counter((uint64_t)__sync_fetch_and_add(&(watchpoint_counter), 0x1));
         //if (counter < 10) {
-      //      retval = cfi_dump_stack();
+            retval = cfi_dump_stack();
             ADD_WATCHPOINT(watch_ptr, s->size);
             if(s->ctor != NULL)
                 s->ctor(watch_ptr);
@@ -335,9 +335,12 @@ HOTPATCH_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
             }
         }
         void *addr = __alloc_percpu(size, align);
+
+        //addr = (void*)((uint64_t)addr | 0xffff000000000000ULL);
 #ifdef CONFIG_USING_WATCHPOINT
         state = (enum section_state)get_section_state();
         if(state & KERNEL_WRAPPER_SET){
+            handle_alloc_percpu(addr, size);
          //   retval = cfi_dump_stack();
             ADD_WATCHPOINT(addr, size);
             descriptor *meta_info = NULL;
@@ -353,6 +356,7 @@ HOTPATCH_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
             P(kern_printk("__kmalloc wrapper  : %lx, %lx\n", watchpoint_addr, size);)
         }
 #endif
+        kern_printk("__alloc_percpu wrapper  : %lx, %lx\n", addr, size);
         return addr;
 })
 
@@ -370,6 +374,7 @@ HOTPATCH_WRAPPER_VOID(free_percpu, ( void* __pdata), {
             }
         }
 #ifdef CONFIG_USING_WATCHPOINT
+        handle_free_percpu(__pdata);
         descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(__pdata);
         if(NULL != meta_info) {

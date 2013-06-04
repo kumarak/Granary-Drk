@@ -41,6 +41,7 @@ DEFINE_HASHTABLE(alloc_pointer_hash);
 
 DEFINE_HASHTABLE(kernel_pointer_hash);
 DEFINE_HASHTABLE(kernel_variable_hash);
+DEFINE_HASHTABLE(hash_percpu_pointers);
 
 DEFINE_HASHTABLE(dynamic_wrapper_table);
 
@@ -138,8 +139,13 @@ typedef void* (vmodule_alloc)(unsigned long);
 
 void *module_page_alloc(unsigned long size) {
     vmodule_alloc *module_alloc = (vmodule_alloc *) MODULE_ALLOC;
+    void *start_address = NULL;
     size = PAGE_ALIGN(size);
-    void *start_address = module_alloc(size);
+    start_address = module_alloc(size);
+    if(!start_address){
+        granary_fault();
+        return NULL;
+    }
     shadow_module_start = (unsigned long long)start_address;
     shadow_module_end = (unsigned long long)start_address + size;
     return start_address;
@@ -183,6 +189,11 @@ cfi_module_init(void) {
    	if(ret != 0) {
         printk("kernel objects hash is not initialized\n");
    	}
+
+    ret = hashmap_init(DEFAULT_HASHTABLE_SIZE, &hash_percpu_pointers);
+    if(ret != 0) {
+        printk("kernel objects hash is not initialized\n");
+    }
 
 
    	/* list of allocated pointers by the module*/

@@ -53,10 +53,10 @@ def avoid_wrap_fields(ctype, O, pred):
   if num_wrappable_fields < 2:
     return
 
-  for field_ctype, field_name in ctype.fields():
-    if is_function_pointer(field_ctype):
-      O("        ABORT_IF_FUNCTION_IS_WRAPPED(arg.", field_name, ");")
-      break
+  #for field_ctype, field_name in ctype.fields():
+  #  if is_function_pointer(field_ctype):
+  #    O("        ABORT_IF_FUNCTION_IS_WRAPPED(arg.", field_name, ");")
+  #    break
 
 def pre_wrap_fields(ctype, O):
   avoid_wrap_fields(ctype, O, will_pre_wrap_type)
@@ -121,14 +121,13 @@ def wrap_struct(ctype):
   O("#ifndef WRAPPER_FOR_", ifdef_name(name))
   O("#define WRAPPER_FOR_", ifdef_name(name))
   O("TYPE_WRAPPER(", name, "*, ", "{")
-  O("    PRE{")
-  O("        if(!is_alias_address((uint64_t)arg)){")
-  O("           D(kern_printk( \"added to hash table ",name, "\\n\");)")
-  O("           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(", name, "));")
-  O("        }")
+  O("   PRE{")
+  O("	     PRE_WRAPPER_KERNEL(arg);")
+  O("	     D(kern_printk( \"kernel wrapper",name, "\\n\");)")
+  O("	     ADD_TO_HASH( arg, SCAN_HEAD_FUNC(", name, "));")
   pre_wrap_fields(ctype, O)
   O("    }")
-  O("    NO_POST")
+  O("   NO_POST")
   
 #  if will_pre:
 #    O("    NO_PRE_IN")

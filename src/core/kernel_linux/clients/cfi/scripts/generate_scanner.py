@@ -129,13 +129,13 @@ def wrap_struct(ctype):
 
   O =  OUT or NULL
 
-  O("#define SCANNER_FOR_", ifdef_name(name))
+  #O("#define SCANNER_FOR_", ifdef_name(name))
   O("#ifndef SCANNER_FOR_", ifdef_name(name))
   O("#define SCANNER_FOR_", ifdef_name(name))
   O("TYPE_SCAN_WRAPPER(", name, ", ", "{")
   O("    SCAN_HEAD{")
   O("        DECLARE_HASH(htable);")
-  O("        SCANNER(", name, ")(htable, arg);")
+  O("        SCANNER(", name, ");")
   O("    }")
   O("    SCAN {")
   O("        S(kern_printk( \"",name, "\\n\");)")

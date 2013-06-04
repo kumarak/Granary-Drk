@@ -32,7 +32,7 @@
 //#define uint64_t K_uint64_t
 
 //#define bool K_bool
-#define _Bool K_Bool
+//#define _Bool K_Bool
 
 /* Big hack: clang complains when a (named) struct is declared inside of an
  * anonymous union. There is one such case: __raw_tickets, and it's not

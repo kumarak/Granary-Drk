@@ -18,6 +18,7 @@
 #include <linux/param.h>
 #include <linux/sched.h>
 #include <linux/stop_machine.h>
+#include <linux/percpu.h>
 #include "cfi_notifier.h"
 
 #include <asm/stacktrace.h>
@@ -65,6 +66,7 @@ extern void *get_descriptor_at_index(uint64_t index);
 
 
 extern struct hashtable_t *kernel_pointer_hash;
+extern struct hashtable_t *hash_percpu_pointers;
 extern struct cfi_list_head module_alloc_list[2];
 extern struct cfi_list_head module_global_list;
 extern struct cfi_list_head watchpoint_scan_list;
@@ -288,8 +290,8 @@ cfi_update_descriptor_state(void *ptr, uint64_t state){
     uint64_t value;
     struct watchpoint_descriptor *meta_info = (struct watchpoint_descriptor *)get_watchpoint_meta((void*)ptr);
     if((meta_info != NULL)
-            && (meta_info >= MODULE_SHADOW_END )
-            && (meta_info < MODULE_SHADOW_END_EXTENDED)
+           /* && (meta_info >= MODULE_SHADOW_END )
+            && (meta_info < MODULE_SHADOW_END_EXTENDED)*/
             && (meta_info->state & WP_MEMORY_ALLOCATED)) {
 
         uint64_t newval = 0x0ULL;
@@ -618,6 +620,29 @@ int htable_callback(void *data, void *key, void *value){
     return 0;
 }
 
+int htable_callback_percpu(void *data, void *key, void *value){
+    uint64_t *base_ptr  = NULL;
+    uint64_t size = 0;
+    uint64_t value_ptr = 0;
+    printk("hash item : key(%lx) value(%lx)\n ", key, value);
+
+    base_ptr = (uint64_t*)key;
+    while(((uint64_t)size <= value)) {
+        value_ptr = (uint64_t)(*base_ptr);
+        if(is_watchpoint(value_ptr)){
+            void *base = cfi_update_descriptor_state(value_ptr, WP_MEMORY_REACHABLE);
+            if(NULL != base){
+                printk("stack : src (%lx) \t dest(%lx)\n", base_ptr, value_ptr);
+                cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
+            }
+         }
+        base_ptr++;
+        size += 8;
+    }
+
+    return 0;
+}
+
 bool module_tasklist(void *addr, void *data){
     struct thread_private_info *info = (struct thread_private_info*)addr;
     struct task_struct *tsk = (struct thread_struct*)info->tsk;
@@ -633,7 +658,7 @@ void copy_stack_callback(void){
 
 #define DEBUG
 
-unsigned int
+int
 sweep_thread_init(void *arg)
 {
     int ret;
@@ -646,7 +671,7 @@ sweep_thread_init(void *arg)
 
     while (!kthread_should_stop()){
         dr_printf("*******************************************************inside sweep_thread_init\n");
-#if 0
+#if 1
         stop_machine(copy_stack_callback, 0, 0);
 
         preempt_disable();
@@ -658,6 +683,7 @@ sweep_thread_init(void *arg)
         printk("\nkernel objects hashtable count : %lu\n", hashmap_get_item_count(kernel_pointer_hash));
         hashmap_iter(kernel_pointer_hash, htable_callback, NULL);
         cfi_scan_rootsets();
+        hashmap_iter(hash_percpu_pointers, htable_callback_percpu, NULL);
 
         count  = get_descriptors_count();
         printk("descriptors count : %lu\n", count);
@@ -752,5 +778,20 @@ void cfi_return_to_kernel(void *ptr){
 
 void *cfi_get_free_pages(unsigned long count){
     return __get_free_pages(GFP_KERNEL | __GFP_ZERO, count);
+}
+
+
+void
+handle_alloc_percpu(const void *addr, unsigned long size){
+    void *ptr = this_cpu_ptr(addr);
+    hashmap_put(hash_percpu_pointers, ptr, size);
+   // printk("percpu allocation : %llx, size : %%lx\n", ptr, size);
+}
+
+void
+handle_free_percpu(const void *addr){
+    void *ptr = this_cpu_ptr(addr);
+    hashmap_delete(hash_percpu_pointers, ptr);
+   // printk("percpu free : %llx\n", ptr);
 }
 

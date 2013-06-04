@@ -45,6 +45,7 @@ FUNCTION_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
         }
         void *watchpoint_addr = __kmalloc(size, flags);
 #ifdef CONFIG_USING_WATCHPOINT
+        //cfi_dump_stack();
         ADD_WATCHPOINT(watchpoint_addr, size);
         descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(watchpoint_addr);
@@ -56,7 +57,6 @@ FUNCTION_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
                 newval = meta_info->state | WP_MEMORY_ALLOCATED;
             }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
         }
-        //cfi_handler_alloc(target_module, watchpoint_addr, size, NULL);
         P(kern_printk("__kmalloc wrapper  : %lx, %lx\n", watchpoint_addr, size);)
 #endif
        // debug___kmalloc(watchpoint_addr, size);
@@ -145,6 +145,7 @@ FUNC_WRAPPER(kmem_cache_alloc, (struct kmem_cache *s, gfp_t gfpflags), {
         }
         void *watch_ptr = kmem_cache_alloc(s, gfpflags);
 #ifdef CONFIG_USING_WATCHPOINT
+        //cfi_dump_stack();
         ADD_WATCHPOINT(watch_ptr, s->size);
         if(s->ctor != NULL)
             s->ctor(watch_ptr);
@@ -327,6 +328,7 @@ FUNCTION_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
         }
 
         void *watchpoint_addr = __alloc_percpu(size, align);
+        handle_alloc_percpu(watchpoint_addr, size);
 #ifdef CONFIG_USING_WATCHPOINT
         ADD_WATCHPOINT(watchpoint_addr, size);
         descriptor *meta_info = NULL;
@@ -339,7 +341,6 @@ FUNCTION_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
                 newval = meta_info->state | WP_MEMORY_ALLOCATED;
             }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
         }
-        ///cfi_handler_alloc(target_module, watchpoint_addr, size, NULL);
         P(kern_printk("__kmalloc wrapper  : %lx, %lx\n", watchpoint_addr, size);)
 #endif
         return watchpoint_addr;
@@ -356,6 +357,7 @@ FUNC_WRAPPER_VOID(free_percpu, ( void* __pdata), {
                 break;
             }
         }
+        handle_free_percpu(__pdata);
 
 #ifdef CONFIG_USING_WATCHPOINT
         descriptor *meta_info = NULL;
