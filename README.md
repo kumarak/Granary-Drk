@@ -23,7 +23,7 @@ Compiling
 ---------
 For compiling granary source : `core/build.sh`
 
-To run granary on native system use `core/load.py --run-locally`. It provides differnt options to loading granary in VM also. This inserts the granary modules and run core/kernel_linux/controller init with your options from core/dr_options. For granary the default client is set as cfi.
+To run granary on native system use `core/load.py --run-locally`. It provides differnt options for loading granary in VM. This inserts granary modules and run core/kernel_linux/controller init with options from core/dr_options. For granary the default client is set as cfi.
 
 load.py does following things :
 
