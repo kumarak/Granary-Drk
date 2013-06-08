@@ -147,6 +147,15 @@ unsigned pagevec_lookup(struct pagevec *pvec, struct address_space *mapping,
     if((uint64_t)x < 4096)  \
     {   return; }
 
+#define KERNEL_ADDRESS_MASK 0xffff800000000000ULL
+
+#define IS_VALID_ADDRESS(arg)  \
+    uint64_t value = (uint64_t)(&arg) & KERNEL_ADDRESS_MASK;    \
+    if(value != KERNEL_ADDRESS_MASK){  \
+        return; \
+    }
+
+#include "wrapper_scanner.h"
 #include "kernel_scanners.h"
 #include "wrapper_filesystem.h"
 #include "wrapper_allocators.h"

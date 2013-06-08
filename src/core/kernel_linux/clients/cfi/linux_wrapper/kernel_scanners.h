@@ -1,5 +1,5 @@
 /* Auto-generated scanning functions. */
-#define S(...) __VA_ARGS__ 
+#define S(...) __VA_ARGS__
 
 #ifndef SCANNER_FOR_struct_callback_head
 #define SCANNER_FOR_struct_callback_head
@@ -395,6 +395,11 @@ TYPE_SCAN_WRAPPER(struct attribute_group, {
         S(SCAN_OBJECT(arg);)
         SCAN_FUNCTION(arg.name);
         SCAN_FUNCTION(arg.is_visible);
+        struct attribute *attr = (struct attribute*)*(arg.attrs);
+        while(attr != NULL){
+            SCAN_RECURSIVE_PTR(attr);
+            attr++;
+        }
 //  Pointer(Pointer(Use(Struct(struct attribute)))) arg.attrs
     }
 })
@@ -450,6 +455,11 @@ TYPE_SCAN_WRAPPER(struct device_type, {
         S(kern_printk( "struct device_type\n");)
         S(SCAN_OBJECT(arg);)
         SCAN_FUNCTION(arg.name);
+        struct attribute_group *attr_group = (struct attribute_group*)*(arg.groups);
+        while(attr_group != NULL){
+            SCAN_RECURSIVE_PTR(attr_group);
+            attr_group++;
+        }
 //  Pointer(Pointer(Attributed(const , Use(Struct(struct attribute_group))))) arg.groups
         SCAN_FUNCTION(arg.uevent);
         SCAN_FUNCTION(arg.devnode);
@@ -518,6 +528,11 @@ TYPE_SCAN_WRAPPER(struct device_driver, {
         SCAN_FUNCTION(arg.shutdown);
         SCAN_FUNCTION(arg.suspend);
         SCAN_FUNCTION(arg.resume);
+        struct attribute_group *attr_group = (struct attribute_group*)*(arg.groups);
+        while(attr_group != NULL){
+            SCAN_RECURSIVE_PTR(attr_group);
+            attr_group++;
+        }
 //  Pointer(Pointer(Attributed(const , Use(Struct(struct attribute_group))))) arg.groups
         SCAN_RECURSIVE_PTR(arg.pm);
         SCAN_RECURSIVE_PTR(arg.p);
@@ -1926,6 +1941,7 @@ TYPE_SCAN_WRAPPER(struct address_space, {
     }
     SCAN {
         S(kern_printk( "struct address_space\n");)
+        IS_VALID_ADDRESS(arg);
         S(SCAN_OBJECT(arg);)
         SCAN_RECURSIVE_PTR(arg.host);
         SCAN_RECURSIVE(arg.page_tree);
@@ -4183,6 +4199,15 @@ TYPE_SCAN_WRAPPER(struct super_block, {
         SCAN_RECURSIVE(arg.s_umount);
         SCAN_FUNCTION(arg.s_count);
         SCAN_RECURSIVE(arg.s_active);
+ /*       const struct xattr_handler **handlers(arg.s_xattr);
+        const struct xattr_handler *handler(nullptr);
+        if(handlers != nullptr){
+            for((handler) = *(handlers)++;
+                    handler;
+                    (handler) = *(handlers)++) {
+                SCAN_RECURSIVE_PTR(handler);
+            }
+        }*/
 //  Pointer(Pointer(Attributed(const , Use(Struct(struct xattr_handler))))) arg.s_xattr
         SCAN_RECURSIVE(arg.s_inodes);
         SCAN_RECURSIVE(arg.s_anon);
@@ -4264,6 +4289,8 @@ TYPE_SCAN_WRAPPER(struct inode, {
         SCAN_RECURSIVE_PTR(arg.i_fop);
         SCAN_RECURSIVE_PTR(arg.i_flock);
         SCAN_RECURSIVE(arg.i_data);
+        SCAN_RECURSIVE_PTR(arg.i_dquot[0]);
+        SCAN_RECURSIVE_PTR(arg.i_dquot[1]);
 //  Array(Pointer(Use(Struct(struct dquot)))) arg.i_dquot
         SCAN_RECURSIVE(arg.i_devices);
 //  Union(union anon_union_123) None

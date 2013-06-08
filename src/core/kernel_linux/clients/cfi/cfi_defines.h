@@ -14,6 +14,7 @@
 #define CONFIG_USING_WATCHPOINT
 #define CLIENT_MEMORY_LEAK
 #define CFI_DEBUG
+#define USING_HASHMAP
 
 enum {
 	CFI_ALIAS_ADDRESS_NOT_ENABLED               = 0x8000000000000000ULL,
@@ -55,6 +56,16 @@ typedef struct {
     void    *post_wrapper;
 } function_t;
 
+typedef unsigned gfp_t;
+
+#define WRAP_FUNCTION(fn_name, ret_type, nargs, ...) \
+        ret_type (*fn_name)(__VA_ARGS__);
+
+typedef struct mem_allocator {
+#include "slubx.h"
+}mem_allocator_t;
+
+#undef WRAP_FUNCTION
 
 #define DISPLAY_STRING(msg) dr_printf("%s\n", msg);
 #define NULL_TERMINATE(buf) buf[(sizeof(buf)/sizeof(buf[0])) - 1] = '\0'

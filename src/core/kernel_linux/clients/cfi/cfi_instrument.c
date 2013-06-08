@@ -10,8 +10,9 @@
 
 #define CC(...)
 
-#include "cfi_defines.h"
 #include <linux/slab.h>
+
+#include "cfi_defines.h"
 #include "cfi_module.h"
 #include "cfi_wrapper.h"
 #include "cfi_address_logger.h"

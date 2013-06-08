@@ -25,6 +25,8 @@
 extern struct module *target_module;
 struct kernsym;
 
+extern struct mem_allocator slub_allocator;
+
 extern struct hashtable_t *alloc_pointer_hash;
 
 extern struct hashtable_t *kernel_pointer_hash;
@@ -83,6 +85,9 @@ handle_alloc_percpu(const void *addr, unsigned long size);
 
 extern void
 handle_free_percpu(const void *addr);
+
+extern void
+handle_free_object(const void *addr);
 
 extern unsigned int cfi_dump_stack();
 

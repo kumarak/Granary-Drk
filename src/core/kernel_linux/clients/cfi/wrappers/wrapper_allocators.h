@@ -34,6 +34,8 @@ static volatile uint64_t watchpoint_counter = 0;
 FUNCTION_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
         function_t *wrap_func;
         unsigned int retval = 0;
+        __kmalloc = (decltype(__kmalloc))(slub_allocator.__kmalloc);
+#if 0
         uint i = 0;
         wrap_func = wrapped_functions[i];
         for( i = 0; wrap_func != NULL; wrap_func = wrapped_functions[++i]){
@@ -43,6 +45,7 @@ FUNCTION_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
                 break;
             }
         }
+#endif
         void *watchpoint_addr = __kmalloc(size, flags);
 #ifdef CONFIG_USING_WATCHPOINT
         ADD_WATCHPOINT(watchpoint_addr, size);
@@ -66,6 +69,8 @@ FUNCTION_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
 
 FUNC_WRAPPER_VOID(kfree, ( void* addr), {
         P(kern_printk("kfree wrapper : %lx\n", addr);)
+        kfree = (decltype(kfree))(slub_allocator.kfree);
+#if 0
         function_t *wrap_func;
         uint i = 0;
         wrap_func = wrapped_functions[i];
@@ -76,6 +81,7 @@ FUNC_WRAPPER_VOID(kfree, ( void* addr), {
                 break;
             }
         }
+#endif
 #ifdef CONFIG_USING_WATCHPOINT
         descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(addr);
@@ -134,6 +140,8 @@ FUNC_WRAPPER(__kmalloc_node_track_caller, (size_t size, gfp_t flags, int node, u
 FUNC_WRAPPER(kmem_cache_alloc, (struct kmem_cache *s, gfp_t gfpflags), {
         function_t *wrap_func;
         unsigned int retval = 0;
+        kmem_cache_alloc = (decltype(kmem_cache_alloc))(slub_allocator.kmem_cache_alloc);
+#if 0
         uint i = 0;
         wrap_func = wrapped_functions[i];
         for(i = 0; wrap_func != NULL; wrap_func = wrapped_functions[++i]){
@@ -143,6 +151,7 @@ FUNC_WRAPPER(kmem_cache_alloc, (struct kmem_cache *s, gfp_t gfpflags), {
                 break;
             }
         }
+#endif
         void *watch_ptr = kmem_cache_alloc(s, gfpflags);
 #ifdef CONFIG_USING_WATCHPOINT
         ADD_WATCHPOINT(watch_ptr, s->size);
@@ -211,6 +220,8 @@ FUNC_WRAPPER(kmem_cache_alloc_node, (struct kmem_cache *cachep, gfp_t flags, int
 
 //void kmem_cache_free(struct kmem_cache *, void *);
 FUNC_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
+        kmem_cache_free = (decltype(kmem_cache_free))(slub_allocator.kmem_cache_free);
+#if 0
         function_t *wrap_func;
         uint i = 0;
         wrap_func = wrapped_functions[i];
@@ -221,6 +232,7 @@ FUNC_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
                 break;
             }
         }
+#endif
 #ifdef CONFIG_USING_WATCHPOINT
         descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(ptr);
@@ -315,6 +327,8 @@ FUNC_WRAPPER_VOID(__free_pages, (struct page *page, unsigned int order), {
 
 
 FUNCTION_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
+        __alloc_percpu = (decltype(__alloc_percpu))(slub_allocator.__alloc_percpu);
+#if 0
         function_t *wrap_func;
         uint i = 0;
         wrap_func = wrapped_functions[i];
@@ -325,6 +339,7 @@ FUNCTION_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
                 break;
             }
         }
+#endif
 
         void *watchpoint_addr = __alloc_percpu(size, align);
 #ifdef CONFIG_USING_WATCHPOINT
@@ -346,6 +361,8 @@ FUNCTION_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
 })
 
 FUNC_WRAPPER_VOID(free_percpu, ( void* __pdata), {
+        free_percpu = (decltype(free_percpu))(slub_allocator.free_percpu);
+#if 0
         function_t *wrap_func;
         uint i = 0;
         wrap_func = wrapped_functions[i];
@@ -356,7 +373,7 @@ FUNC_WRAPPER_VOID(free_percpu, ( void* __pdata), {
                 break;
             }
         }
-
+#endif
 #ifdef CONFIG_USING_WATCHPOINT
         descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(__pdata);

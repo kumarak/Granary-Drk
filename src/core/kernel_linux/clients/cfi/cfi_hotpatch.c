@@ -10,37 +10,17 @@
 #include "cfi_hashtable.h"
 #include "cfi_defines.h"
 #include "cfi_wrapper.h"
+#include "slub_interface.h"
 
 client_cache_info_t *cpu_client_cache;
+
+extern mem_allocator_t slub_allocator;
 
 #define FUNCTION_WRAPPER(fn_name, ret_type, args, body) \
     typedef ret_type (fn_name ##_type) args;    \
     ret_type wrapper_ ##fn_name args    \
     body
 
-
-static inline void
-pre_kfree(dr_mcontext_t *mc, const void *x)
-{
-
-}
-
-static inline void
-post_kfree(dr_mcontext_t *mc, bool args_valid, reg_t void_ret, const void *x)
-{
-}
-
-static inline void
-pre___kmalloc(dr_mcontext_t *mc, size_t size, gfp_t flags)
-{
-}
-
-
-static inline void
-post___kmalloc(dr_mcontext_t *mc, bool args_valid, void *ret, size_t size, gfp_t flags)
-{
-    //track_allocation(args_valid, ret, size, flags, false);
-}
 
 
 byte*
@@ -93,6 +73,16 @@ void update_function_bounds(void){
     }
 }
 
+void update_slub_interface(void){
+    unsigned int count = NUM_WRAPPED_FUNCTIONS;
+    slub_allocator.kfree = wrapped_functions[INTERFACE_KFREE]->replace_func;
+    slub_allocator.__kmalloc = wrapped_functions[INTERFACE___KMALLOC]->replace_func;
+    slub_allocator.free_percpu = wrapped_functions[INTERFACE_FREE_PERCPU]->replace_func;
+    slub_allocator.__alloc_percpu = wrapped_functions[INTERFACE___ALLOC_PERCPU]->replace_func;
+    slub_allocator.kmem_cache_alloc = wrapped_functions[INTERFACE_KMEM_CACHE_ALLOC]->replace_func;
+    slub_allocator.kmem_cache_free = wrapped_functions[INTERFACE_KMEM_CACHE_FREE]->replace_func;
+}
+
 
 void cfi_hotpatch_init(void *drcontext){
     client_cache_info_t * client = (client_cache_info_t*) dr_thread_alloc(drcontext, sizeof(client_cache_info_t));
@@ -106,10 +96,12 @@ void cfi_hotpatch_init(void *drcontext){
 
     for (i = 0; i < NUM_WRAPPED_FUNCTIONS; i++) {
         if(wrapped_functions[i] == NULL){
-            return;
+            break;
         }
         client->cache_ptr = emit_hotpatch_code(drcontext, client->cache_ptr, wrapped_functions[i]);
     }
+
+    update_slub_interface();
 }
 
 #define POST instrlist_meta_postinsert
@@ -125,34 +117,6 @@ struct hotpatch_data {
     unsigned long long newval;
 };
 
-noinline void break_kernel_object(void *addr){
-
-}
-
-void cfi_kfree(void *addr){
-    void *value;
-    //if(hashmap_get(kernel_pointer_hash, (void*)addr, &value)){
-      //  break_kernel_object(addr);
-    //}
-}
-
-void cfi_vfree(void *addr){
-    void *value;
-   // if(hashmap_get(kernel_pointer_hash, (void*)addr, &value)){
-     //   break_kernel_object(addr);
-   // }
-}
-
-void cfi_kmem_cache_free(struct kmem_cache *s, void *ptr){
-    void *value;
-    //if(hashmap_get(kernel_pointer_hash, (void*)ptr, &value)){
-      //  break_kernel_object(ptr);
-    //}
-}
-
-void cfi_delayed_work_timer_fn(unsigned long __data){
-    return;
-}
 
 byte*
 emit_hotpatch_code(void *drcontext, byte *cache_pc, function_t *func)
@@ -296,6 +260,7 @@ emit_hotpatch_code(void *drcontext, byte *cache_pc, function_t *func)
 
 }
 
+#if 0
 
 byte*
 emit_hotpatch_code_(void *drcontext, client_cache_info_t *client, byte *pc, app_pc *addr)
@@ -391,6 +356,7 @@ emit_hotpatch_code_(void *drcontext, client_cache_info_t *client, byte *pc, app_
     /*make a call to instrumentation function*/
     return pc_end;
 }
+#endif
 
 byte*
 hijack_kernel_function(void *drcontext, client_cache_info_t *client,

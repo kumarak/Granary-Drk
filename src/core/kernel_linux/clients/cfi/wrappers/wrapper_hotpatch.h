@@ -15,6 +15,8 @@ HOTPATCH_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
     function_t *wrap_func;
     unsigned int retval = 0;
     enum section_state state;
+    __kmalloc = (decltype(__kmalloc))(slub_allocator.__kmalloc);
+#if 0
     uint i = 0;
     wrap_func = wrapped_functions[i];
     for(i = 0; wrap_func != NULL; wrap_func = wrapped_functions[++i]){
@@ -24,6 +26,7 @@ HOTPATCH_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
               break;
           }
     }
+#endif
     void *watchpoint_addr = __kmalloc(size, flags);
 #ifdef CONFIG_USING_WATCHPOINT
     state = (enum section_state)get_section_state();
@@ -49,6 +52,8 @@ HOTPATCH_WRAPPER(__kmalloc, (size_t size, gfp_t flags), {
 
 
 HOTPATCH_WRAPPER_VOID(kfree, ( void* addr), {
+        kfree = (decltype(kfree))(slub_allocator.kfree);
+#if 0
     function_t *wrap_func;
     uint i = 0;
     wrap_func = wrapped_functions[i];
@@ -59,6 +64,7 @@ HOTPATCH_WRAPPER_VOID(kfree, ( void* addr), {
             break;
         }
     }
+#endif
 #ifdef CONFIG_USING_WATCHPOINT
         descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(addr);
@@ -123,6 +129,8 @@ HOTPATCH_WRAPPER(kmem_cache_alloc, (struct kmem_cache *s, gfp_t gfpflags), {
     function_t *wrap_func;
     unsigned int retval = 0;
     enum section_state state;
+    kmem_cache_alloc = (decltype(kmem_cache_alloc))(slub_allocator.kmem_cache_alloc);
+#if 0
     uint i = 0;
     wrap_func = wrapped_functions[i];
     for(i = 0; wrap_func != NULL; wrap_func = wrapped_functions[++i]){
@@ -132,6 +140,7 @@ HOTPATCH_WRAPPER(kmem_cache_alloc, (struct kmem_cache *s, gfp_t gfpflags), {
             break;
         }
     }
+#endif
     void *watch_ptr = kmem_cache_alloc(s, gfpflags);
 
 #ifdef CONFIG_USING_WATCHPOINT
@@ -220,6 +229,8 @@ HOTPATCH_WRAPPER(kmem_cache_alloc_node, (struct kmem_cache *cachep, gfp_t flags,
 //void kmem_cache_free(struct kmem_cache *, void *);
 HOTPATCH_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
     P(kern_printk("kmem_cache_free wrapper : %lx\n", ptr);)
+    kmem_cache_free = (decltype(kmem_cache_alloc))(slub_allocator.kmem_cache_free);
+#if 0
     function_t *wrap_func;
     uint i = 0;
     wrap_func = wrapped_functions[i];
@@ -230,6 +241,7 @@ HOTPATCH_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
             break;
         }
     }
+#endif
 #ifdef CONFIG_USING_WATCHPOINT
 #if 1
         descriptor *meta_info = NULL;
@@ -326,6 +338,8 @@ HOTPATCH_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
         uint i = 0;
         unsigned int retval = 0;
         enum section_state state;
+        __alloc_percpu = (decltype(__alloc_percpu))(slub_allocator.__alloc_percpu);
+#if 0
         wrap_func = wrapped_functions[i];
         for(i = 0; wrap_func != NULL; wrap_func = wrapped_functions[++i]){
             if(wrap_func->start == (void*)__alloc_percpu){
@@ -334,6 +348,7 @@ HOTPATCH_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
                 break;
             }
         }
+#endif
         void *addr = __alloc_percpu(size, align);
 #ifdef CONFIG_USING_WATCHPOINT
         state = (enum section_state)get_section_state();
@@ -358,6 +373,8 @@ HOTPATCH_WRAPPER(__alloc_percpu, (size_t size, size_t align), {
 
 
 HOTPATCH_WRAPPER_VOID(free_percpu, ( void* __pdata), {
+        free_percpu = (decltype(free_percpu))(slub_allocator.free_percpu);
+#if 0
         function_t *wrap_func;
         uint i = 0;
         wrap_func = wrapped_functions[i];
@@ -369,6 +386,7 @@ HOTPATCH_WRAPPER_VOID(free_percpu, ( void* __pdata), {
                 break;
             }
         }
+#endif
 #ifdef CONFIG_USING_WATCHPOINT
         descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(__pdata);

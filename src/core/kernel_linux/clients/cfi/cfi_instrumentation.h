@@ -8,8 +8,9 @@
 #ifndef CFI_INSTRUMENTATION_H_
 #define CFI_INSTRUMENTATION_H_
 
-#include "cfi_defines.h"
+
 #include "cfi_module.h"
+#include "cfi_defines.h"
 
 
 #define MAX_INSTR_REGISTER 8

@@ -604,7 +604,13 @@ TYPE_WRAPPER(struct page*, {
 /***********************************************
  * FUNCTION WRAPPER
  */
-//void unlock_page(struct page *page)
+//void *vm_map_ram(struct page **pages, unsigned int count, int node, pgprot_t prot)
+FUNC_WRAPPER(vm_map_ram, (struct page **pages, unsigned int count, int node, pgprot_t prot), {
+        set_section_state(KERNEL_WRAPPER_SET);
+        vm_map_ram(pages, count, node, prot);
+        unset_section_state(KERNEL_WRAPPER_SET);
+})
+
 
 FUNC_WRAPPER_VOID(unlock_page, (struct page *page), {
         set_section_state(KERNEL_WRAPPER_SET);

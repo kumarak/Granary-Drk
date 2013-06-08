@@ -125,8 +125,8 @@ public:
     static atomic_region_allocator<shadow_region> shadow_module;
 
     static void init(){
-        void *start_address = module_page_alloc(16*PAGE_SIZE);
-        void *end_address = start_address + 16*PAGE_SIZE;
+        void *start_address = module_page_alloc(64*PAGE_SIZE);
+        void *end_address = start_address + 64*PAGE_SIZE;
         kern_printk("shadow_allocator : %llx - %llx\n", start_address, end_address);
         shadow_module.init((void*)start_address, (void*)end_address);
     }

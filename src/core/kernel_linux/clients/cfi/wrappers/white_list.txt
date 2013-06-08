@@ -562,9 +562,9 @@ up_write
 user_path_at
 vfree
 vmalloc_to_page
-vm_map_ram
+--vm_map_ram
 vm_unmap_aliases
-vm_unmap_ram
+--vm_unmap_ram
 vzalloc
 wait_for_completion
 __wait_on_buffer

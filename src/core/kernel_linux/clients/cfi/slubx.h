@@ -6,7 +6,7 @@
  */
 
 #define WRAP_FUNCTION_NORET(name, nargs, ...)\
-    WRAP_FUNCTION(name, reg_t, nargs, __VA_ARGS__)
+    WRAP_FUNCTION(name, void, nargs, __VA_ARGS__)
 
     WRAP_FUNCTION_NORET(kfree, 1, const void *)
     WRAP_FUNCTION(__kmalloc, void *, 2, size_t, gfp_t)

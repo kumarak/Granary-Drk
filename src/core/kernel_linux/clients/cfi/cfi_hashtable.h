@@ -11,7 +11,9 @@
 #include "cfi_module.h"
 
 
-#define LC_HASH_BITS 10
+#define HASH_TABLE_COUNT 256
+
+#define LC_HASH_BITS 12
 
 #define MAX_CAPACITY 0.75
 #define DEFAULT_CAPACITY (1<<LC_HASH_BITS)

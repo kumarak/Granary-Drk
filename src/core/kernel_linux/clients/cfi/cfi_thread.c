@@ -5,12 +5,6 @@
  *      Author: akshayk
  */
 
-#include "cfi_defines.h"
-#include "cfi_thread.h"
-#include "cfi_atomic_list.h"
-#include "cfi_hashtable.h"
-#include "dr_kernel_utils.h"
-#include "symbols/symbol_get_addr.h"
 
 #include <linux/kthread.h>
 #include <linux/fs.h>
@@ -19,10 +13,19 @@
 #include <linux/sched.h>
 #include <linux/stop_machine.h>
 #include <linux/percpu.h>
-#include "cfi_notifier.h"
-
 #include <asm/stacktrace.h>
 #include <linux/nmi.h>
+
+#include "cfi_defines.h"
+#include "cfi_thread.h"
+#include "cfi_atomic_list.h"
+#include "cfi_hashtable.h"
+#include "dr_kernel_utils.h"
+#include "symbols/symbol_get_addr.h"
+
+#include "cfi_notifier.h"
+
+
 
 
 #define KERNEL_ADDRESS_OFFSET       0xffff000000000000
@@ -189,6 +192,7 @@ print_stack_context(struct thread_info *tinfo,
     return bp;
 }
 
+#ifdef DUMP_STACK
 unsigned int cfi_dump_stack(){
     unsigned long bp;
     unsigned long stack;
@@ -229,6 +233,11 @@ unsigned int cfi_dump_stack(){
     //dump_trace(NULL, NULL, &stack, bp, &print_trace_ops, log_lvl);
     return retval;
 }
+#else
+unsigned int cfi_dump_stack(){
+    return 0;
+}
+#endif
 
 unsigned long get_section_state(void){
     unsigned long section_count = 0;
@@ -340,11 +349,6 @@ bool func_module_print_greylist(void *addr, void *data){
 }
 
 bool is_watchpoint(uint64_t value){
-#if 0
-    if((value & WATCHPOINT_ADDRESS_MASK) == WATCHPOINT){
-        return true;
-    }
-#endif
 #if 1
     if(!(value & ALIAS_ADDRESS_NOT_ENABLED) &&
             ((uint64_t)value > USER_ADDRESS_OFFSET)){
@@ -404,13 +408,6 @@ cfi_scan_rootsets(void){
                         printk("scanning data section src(%lx) : dest(%lx)\n", scan_ptr, base);
                         cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base);
                     }
-#if 0
-                void *base_ptr = cfi_item_update_base(value);
-                if(NULL != base_ptr) {
-                    printk("scanning data section src(%lx) : dest(%lx)\n", scan_ptr, base_ptr);
-                    cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
-                }
-#endif
                 }
                 scan_ptr++;
             }
@@ -427,13 +424,6 @@ cfi_scan_rootsets(void){
                         printk("scanning bss section src(%lx) : dest(%lx)\n", scan_ptr, base);
                         cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base);
                     }
-#if 0
-                void *base_ptr = cfi_item_update_base(value);
-                if(NULL != base_ptr) {
-                    printk("scanning bss section src(%lx) : dest(%lx)\n", scan_ptr, base_ptr);
-                    cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
-                };
-#endif
                 }
                 scan_ptr++;
             }
@@ -452,13 +442,6 @@ cfi_scan_rootsets(void){
                 printk("scanning global objects : %lx\n", base);
                 cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base);
             }
-#if 0
-            void *base_ptr = cfi_item_update_base(value);
-            if(NULL != base_ptr) {
-                printk("scanning global objects : %lx\n", base_ptr);
-                cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
-            }
-#endif
         }
         global_list = global_list->next;
     }
@@ -484,13 +467,6 @@ cfi_scan_rootsets(void){
                             printk("stack : src (%lx) \t dest(%lx)\n", ptr, base);
                             cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base);
                         }
-#if 0
-                        void *base_ptr = cfi_item_update_base(value);
-                        if(NULL != base_ptr) {
-                            printk("stack : src (%lx) \t dest(%lx)\n", ptr, base_ptr);
-                            cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
-                        }
-#endif
                      }
                     ptr++;
                 }
@@ -742,11 +718,6 @@ sweep_thread_init(void *arg)
         cfi_for_each_item(&kernel_leaked_watchpoints, &func_module_alloclist, NULL);
         printk("\n");
 
-        //printk("collect watchpoints: %lu\n", cfi_get_list_count(&module_alloc_list[CFI_COLLECT_LIST]));
-        //cfi_for_each_item(&module_alloc_list[CFI_COLLECT_LIST], &func_module_collectlist, NULL);
-        //printk("\n");
-
-      //  cfi_list_delete_all(&list_collected_watchpoint);
         cfi_list_delete_all(&kernel_leaked_watchpoints);
         cfi_list_delete_all(&module_alloc_list[CFI_COLLECT_LIST]);
 #endif
@@ -793,5 +764,11 @@ handle_free_percpu(const void *addr){
     void *ptr = this_cpu_ptr(addr);
     hashmap_delete(hash_percpu_pointers, ptr);
    // printk("percpu free : %llx\n", ptr);
+}
+
+void
+handle_free_object(const void *addr){
+    unsigned int ret;
+   // ret = hashmap_delete(kernel_pointer_hash, addr);
 }
 

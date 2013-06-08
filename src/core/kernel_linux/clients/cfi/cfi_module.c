@@ -7,6 +7,10 @@
  */
 
 
+#include <linux/kthread.h>
+#include <linux/fs.h>
+#include <asm/thread_info.h>
+
 #include "cfi_defines.h"
 #include "cfi_module.h"
 #include "symbols/symbol_get_addr.h"
@@ -19,9 +23,6 @@
 #include "cfi_hotpatch.h"
 
 
-#include <linux/kthread.h>
-#include <linux/fs.h>
-#include <asm/thread_info.h>
 
 extern unsigned long long shadow_module_start;
 extern unsigned long long shadow_module_end;
@@ -185,7 +186,7 @@ cfi_module_init(void) {
    	    return -1;
    	}
 
-   	ret = hashmap_init(DEFAULT_HASHTABLE_SIZE, &kernel_pointer_hash);
+   	ret = hashmap_init(/*2*DEFAULT_HASHTABLE_SIZE*/128, &kernel_pointer_hash);
    	if(ret != 0) {
         printk("kernel objects hash is not initialized\n");
    	}

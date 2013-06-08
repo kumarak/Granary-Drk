@@ -38,13 +38,13 @@ inline uint64_t rotl64 ( uint64_t x, int8_t r )
 // Block read - if your platform needs to do endian-swapping or can only
 // handle aligned reads, do the conversion here
 
-/*FORCE_INLINE*/
+FORCE_INLINE
 uint32_t getblock ( const uint32_t * p, int i )
 {
   return p[i];
 }
 
-/*FORCE_INLINE*/
+FORCE_INLINE
 uint64_t getblock ( const uint64_t * p, int i )
 {
   return p[i];
@@ -67,7 +67,7 @@ uint32_t fmix ( uint32_t h )
 
 //----------
 
-//FORCE_INLINE
+FORCE_INLINE
 uint64_t fmix ( uint64_t k )
 {
   k ^= k >> 33;
@@ -81,7 +81,7 @@ uint64_t fmix ( uint64_t k )
 
 //-----------------------------------------------------------------------------
 
-//FORCE_INLINE
+FORCE_INLINE
 void MurmurHash3_x86_32 ( const void * key, int len,
                           uint32_t seed, void * out )
 {
