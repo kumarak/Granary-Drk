@@ -29,6 +29,7 @@ typedef unsigned char byte;
 extern "C" {
     extern void *cfi_get_free_pages(unsigned long count);
     extern void *module_descriptor_table_alloc(unsigned long size);
+    extern void *cfi_kmalloc(size_t size, gfp_t flags);
 
     extern function_t *wrapped_functions[];
 
@@ -48,8 +49,12 @@ enum {
     WP_ADDRESS_BASE                      = 0x00007fffffffffffULL
 };
 
+
+#define GFP_ATOMIC 0x20U
+
 #include "cfi_region_allocator.hpp"
 
+#ifndef CONFIG_TRACER
 struct descriptor {
     union {
         uint64_t base_address;
@@ -60,7 +65,22 @@ struct descriptor {
     volatile struct descriptor *next;
 
 } __attribute__((packed));
+#else
+struct descriptor {
+    union {
+        uint64_t base_address;
+        uint64_t index;
+    };
+    uint64_t limit;
+    uint64_t type_id;
+    uint64_t state;
+    uint64_t read_shadow;
+    uint64_t write_shadow;
+    uint64_t shadow_size;
+    volatile struct descriptor *next;
 
+} __attribute__((packed));
+#endif
 
 struct destriptor_table_info{
     volatile struct descriptor *allocated_head;
@@ -254,6 +274,14 @@ public:
             descriptors->limit = (uint64_t)address + size;
             descriptors->next = NULL;
             descriptors->state |= WP_DESCRIPTOR_ACTIVE;
+            descriptors->type_id = 0;
+            descriptors->shadow_size = (size/8)+1;
+            descriptors->write_shadow = (uint64_t)cfi_kmalloc(descriptors->shadow_size, GFP_ATOMIC);
+            memset((void*)descriptors->write_shadow, 0x0, descriptors->shadow_size);
+
+            descriptors->read_shadow = (uint64_t)cfi_kmalloc(descriptors->shadow_size, GFP_ATOMIC);
+            memset((void*)descriptors->read_shadow, 0x0, descriptors->shadow_size);
+
             return descriptors;
         }else {
             return NULL;

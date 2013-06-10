@@ -27,6 +27,8 @@
 extern unsigned long long shadow_module_start;
 extern unsigned long long shadow_module_end;
 
+unsigned long long descriptor_table_start;
+
 /*Memleak declaration*/
 
 #define DEFAULT_HASHTABLE_SIZE 0
@@ -153,9 +155,12 @@ void *module_page_alloc(unsigned long size) {
 }
 
 void *module_descriptor_table_alloc(unsigned long size) {
+    void *start_address;
     vmodule_alloc *module_alloc = (vmodule_alloc *) MODULE_ALLOC;
     size = PAGE_ALIGN(size);
-    return module_alloc(size);
+    start_address = module_alloc(size);
+    descriptor_table_start = (unsigned long long)start_address;
+    return start_address;
 }
 
 
