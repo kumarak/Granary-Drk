@@ -225,6 +225,10 @@ public:
         uint64_t newval = 0x0ULL;
         entry->index = index;
         entry->next = NULL;
+        cfi_kfree(entry->read_shadow);
+        entry->read_shadow = NULL;
+        cfi_kfree(entry->write_shadow);
+        entry->write_shadow = NULL;
         do {
             oldval = entry->state;
             newval = entry->state & (~WP_DESCRIPTOR_ACTIVE);
