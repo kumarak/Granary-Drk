@@ -81,6 +81,13 @@ void update_slub_interface(void){
     slub_allocator.__alloc_percpu = wrapped_functions[INTERFACE___ALLOC_PERCPU]->replace_func;
     slub_allocator.kmem_cache_alloc = wrapped_functions[INTERFACE_KMEM_CACHE_ALLOC]->replace_func;
     slub_allocator.kmem_cache_free = wrapped_functions[INTERFACE_KMEM_CACHE_FREE]->replace_func;
+    slub_allocator.__kmalloc_node =  wrapped_functions[INTERFACE___KMALLOC_NODE]->replace_func;
+    slub_allocator.__kmalloc_track_caller =  wrapped_functions[INTERFACE___KMALLOC_TRACK_CALLER]->replace_func;
+    slub_allocator.__kmalloc_node_track_caller =  wrapped_functions[INTERFACE___KMALLOC_NODE_TRACK_CALLER]->replace_func;
+    slub_allocator.__kmalloc_track_caller =  wrapped_functions[INTERFACE___KMALLOC_TRACK_CALLER]->replace_func;
+    slub_allocator.kmem_cache_alloc_node = wrapped_functions[INTERFACE_KMEM_CACHE_ALLOC_NODE]->replace_func;
+    slub_allocator.__get_free_pages = wrapped_functions[INTERFACE___GET_FREE_PAGES]->replace_func;
+    slub_allocator.__free_pages = wrapped_functions[INTERFACE___FREE_PAGES]->replace_func;
 }
 
 

@@ -1,12 +1,5 @@
 /* Auto-generated scanning functions. */
-#define DW(...) /*__VA_ARGS__*/
-
-#define PRE pre
-#define POST post
-#define RETURN wrap_return
-#define NO_POST no_post
-#define NO_PRE no_pre
-#define NO_RETURN no_return
+#define DW(...) //__VA_ARGS__
 
 #ifndef DynamicWRAPPER_FOR_struct_callback_head
 #define DynamicWRAPPER_FOR_struct_callback_head
@@ -18,9 +11,6 @@ MODULE_TYPE_WRAPPER(struct callback_head*, {
         }
     }
     NO_POST
-    RETURN {
-
-    }
 })
 #endif
 
@@ -35,7 +25,6 @@ MODULE_TYPE_WRAPPER(struct nameidata*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -50,7 +39,6 @@ MODULE_TYPE_WRAPPER(struct iattr*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -65,7 +53,6 @@ MODULE_TYPE_WRAPPER(struct inode_operations*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -80,7 +67,6 @@ MODULE_TYPE_WRAPPER(struct kset_uevent_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -95,7 +81,6 @@ MODULE_TYPE_WRAPPER(struct kset*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -110,7 +95,6 @@ MODULE_TYPE_WRAPPER(struct sysfs_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -125,7 +109,6 @@ MODULE_TYPE_WRAPPER(struct kobj_ns_type_operations*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -140,7 +123,6 @@ MODULE_TYPE_WRAPPER(struct kobj_type*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -155,7 +137,6 @@ MODULE_TYPE_WRAPPER(struct kobject*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -170,7 +151,6 @@ MODULE_TYPE_WRAPPER(struct module_kobject*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -185,7 +165,6 @@ MODULE_TYPE_WRAPPER(struct module_attribute*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -200,7 +179,6 @@ MODULE_TYPE_WRAPPER(struct kernel_param_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -215,7 +193,6 @@ MODULE_TYPE_WRAPPER(struct kparam_array*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -230,22 +207,6 @@ MODULE_TYPE_WRAPPER(struct kernel_param*, {
         }
     }
     NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_tracepoint
-#define DynamicWRAPPER_FOR_struct_tracepoint
-MODULE_TYPE_WRAPPER(struct tracepoint*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct tracepoint\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tracepoint));
-        }
-    }
-    NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -260,7 +221,6 @@ MODULE_TYPE_WRAPPER(struct sched_class*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -275,7 +235,6 @@ MODULE_TYPE_WRAPPER(struct mutex*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -290,7 +249,6 @@ MODULE_TYPE_WRAPPER(struct attribute_group*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -305,7 +263,6 @@ MODULE_TYPE_WRAPPER(struct dev_pm_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -320,7 +277,6 @@ MODULE_TYPE_WRAPPER(struct device_type*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -335,7 +291,6 @@ MODULE_TYPE_WRAPPER(struct bus_attribute*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -350,7 +305,6 @@ MODULE_TYPE_WRAPPER(struct device_attribute*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -365,7 +319,6 @@ MODULE_TYPE_WRAPPER(struct device_driver*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -380,7 +333,6 @@ MODULE_TYPE_WRAPPER(struct driver_attribute*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -395,7 +347,6 @@ MODULE_TYPE_WRAPPER(struct bus_type*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -410,7 +361,6 @@ MODULE_TYPE_WRAPPER(struct timer_list*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -425,7 +375,6 @@ MODULE_TYPE_WRAPPER(struct wakeup_source*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -440,7 +389,6 @@ MODULE_TYPE_WRAPPER(struct work_struct*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -455,7 +403,6 @@ MODULE_TYPE_WRAPPER(struct notifier_block*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -470,7 +417,6 @@ MODULE_TYPE_WRAPPER(struct blocking_notifier_head*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -485,7 +431,6 @@ MODULE_TYPE_WRAPPER(struct pm_qos_constraints*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -500,7 +445,6 @@ MODULE_TYPE_WRAPPER(struct dev_pm_qos_request*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -515,7 +459,6 @@ MODULE_TYPE_WRAPPER(struct dev_pm_qos*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -530,7 +473,6 @@ MODULE_TYPE_WRAPPER(struct dev_pm_info*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -545,7 +487,6 @@ MODULE_TYPE_WRAPPER(struct dev_pm_domain*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -560,7 +501,6 @@ MODULE_TYPE_WRAPPER(struct dma_map_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -575,7 +515,6 @@ MODULE_TYPE_WRAPPER(struct dev_archdata*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -590,7 +529,6 @@ MODULE_TYPE_WRAPPER(struct class_attribute*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -605,7 +543,6 @@ MODULE_TYPE_WRAPPER(struct bin_attribute*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -620,7 +557,6 @@ MODULE_TYPE_WRAPPER(struct class_*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -635,7 +571,6 @@ MODULE_TYPE_WRAPPER(struct device*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -650,7 +585,6 @@ MODULE_TYPE_WRAPPER(struct hd_struct*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -665,7 +599,6 @@ MODULE_TYPE_WRAPPER(struct disk_part_tbl*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -680,7 +613,6 @@ MODULE_TYPE_WRAPPER(struct block_device_operations*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -695,7 +627,6 @@ MODULE_TYPE_WRAPPER(struct call_single_data*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -710,7 +641,6 @@ MODULE_TYPE_WRAPPER(struct kmem_cache_cpu*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -725,7 +655,6 @@ MODULE_TYPE_WRAPPER(struct kmem_cache*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -740,7 +669,6 @@ MODULE_TYPE_WRAPPER(struct io_cq*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -755,7 +683,6 @@ MODULE_TYPE_WRAPPER(struct io_context*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -770,7 +697,6 @@ MODULE_TYPE_WRAPPER(struct cgroup*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -785,7 +711,6 @@ MODULE_TYPE_WRAPPER(struct cgroup_subsys_state*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -800,7 +725,6 @@ MODULE_TYPE_WRAPPER(struct bio_vec*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -815,7 +739,6 @@ MODULE_TYPE_WRAPPER(struct bio_integrity_payload*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -830,7 +753,6 @@ MODULE_TYPE_WRAPPER(struct mempool_s*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -845,7 +767,6 @@ MODULE_TYPE_WRAPPER(struct bio_set*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -860,7 +781,6 @@ MODULE_TYPE_WRAPPER(struct bio*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -875,7 +795,6 @@ MODULE_TYPE_WRAPPER(struct request_list*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -890,7 +809,6 @@ MODULE_TYPE_WRAPPER(struct request*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -905,7 +823,6 @@ MODULE_TYPE_WRAPPER(struct elevator_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -920,7 +837,6 @@ MODULE_TYPE_WRAPPER(struct elv_fs_entry*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -935,7 +851,6 @@ MODULE_TYPE_WRAPPER(struct elevator_type*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -950,7 +865,6 @@ MODULE_TYPE_WRAPPER(struct elevator_queue*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -965,7 +879,6 @@ MODULE_TYPE_WRAPPER(struct bvec_merge_data*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -980,7 +893,6 @@ MODULE_TYPE_WRAPPER(struct delayed_work*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -995,7 +907,6 @@ MODULE_TYPE_WRAPPER(struct bdi_writeback*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1010,7 +921,6 @@ MODULE_TYPE_WRAPPER(struct backing_dev_info*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1025,7 +935,6 @@ MODULE_TYPE_WRAPPER(struct blk_queue_tag*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1040,7 +949,6 @@ MODULE_TYPE_WRAPPER(struct bsg_class_device*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1055,7 +963,6 @@ MODULE_TYPE_WRAPPER(struct request_queue*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1070,7 +977,6 @@ MODULE_TYPE_WRAPPER(struct blk_integrity*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1085,7 +991,6 @@ MODULE_TYPE_WRAPPER(struct gendisk*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1100,7 +1005,6 @@ MODULE_TYPE_WRAPPER(struct block_device*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1115,7 +1019,6 @@ MODULE_TYPE_WRAPPER(struct swap_info_struct*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1130,7 +1033,6 @@ MODULE_TYPE_WRAPPER(struct address_space_operations*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1145,7 +1047,6 @@ MODULE_TYPE_WRAPPER(struct address_space*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1160,7 +1061,6 @@ MODULE_TYPE_WRAPPER(struct page*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1175,7 +1075,6 @@ MODULE_TYPE_WRAPPER(struct vm_fault*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1190,7 +1089,6 @@ MODULE_TYPE_WRAPPER(struct vm_operations_struct*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1205,7 +1103,6 @@ MODULE_TYPE_WRAPPER(struct vm_area_struct*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1220,7 +1117,6 @@ MODULE_TYPE_WRAPPER(mm_context_t*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1235,7 +1131,6 @@ MODULE_TYPE_WRAPPER(struct core_thread*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1250,7 +1145,6 @@ MODULE_TYPE_WRAPPER(struct core_state*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1265,7 +1159,6 @@ MODULE_TYPE_WRAPPER(struct mm_struct*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1280,7 +1173,6 @@ MODULE_TYPE_WRAPPER(struct pid*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1295,7 +1187,6 @@ MODULE_TYPE_WRAPPER(struct pid_link*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1310,7 +1201,6 @@ MODULE_TYPE_WRAPPER(struct cred*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1325,7 +1215,6 @@ MODULE_TYPE_WRAPPER(struct poll_table_struct*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1340,7 +1229,6 @@ MODULE_TYPE_WRAPPER(struct fasync_struct*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1355,7 +1243,6 @@ MODULE_TYPE_WRAPPER(struct file_lock_operations*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1370,7 +1257,6 @@ MODULE_TYPE_WRAPPER(struct lock_manager_operations*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1385,7 +1271,6 @@ MODULE_TYPE_WRAPPER(struct file_lock*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1400,7 +1285,6 @@ MODULE_TYPE_WRAPPER(struct seq_operations*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1415,7 +1299,6 @@ MODULE_TYPE_WRAPPER(struct seq_file*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1430,7 +1313,6 @@ MODULE_TYPE_WRAPPER(struct file_operations*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1445,7 +1327,6 @@ MODULE_TYPE_WRAPPER(struct proc_dir_entry*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1460,7 +1341,6 @@ MODULE_TYPE_WRAPPER(struct ctl_table*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1475,7 +1355,6 @@ MODULE_TYPE_WRAPPER(struct ctl_table_root*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1490,7 +1369,6 @@ MODULE_TYPE_WRAPPER(struct ctl_node*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1505,7 +1383,6 @@ MODULE_TYPE_WRAPPER(struct ctl_table_header*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1520,7 +1397,6 @@ MODULE_TYPE_WRAPPER(struct ctl_dir*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1535,7 +1411,6 @@ MODULE_TYPE_WRAPPER(struct ctl_table_set*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1550,7 +1425,6 @@ MODULE_TYPE_WRAPPER(struct netns_core*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1565,7 +1439,6 @@ MODULE_TYPE_WRAPPER(struct netns_mib*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1580,7 +1453,6 @@ MODULE_TYPE_WRAPPER(struct netns_packet*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1595,7 +1467,6 @@ MODULE_TYPE_WRAPPER(struct netns_unix*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1610,7 +1481,6 @@ MODULE_TYPE_WRAPPER(struct netns_ipv4*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1625,7 +1495,6 @@ MODULE_TYPE_WRAPPER(struct netns_sysctl_ipv6*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1640,7 +1509,6 @@ MODULE_TYPE_WRAPPER(struct dst_entry*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1655,7 +1523,6 @@ MODULE_TYPE_WRAPPER(struct pneigh_entry*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1670,7 +1537,6 @@ MODULE_TYPE_WRAPPER(struct neigh_parms*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1685,7 +1551,6 @@ MODULE_TYPE_WRAPPER(struct sk_buff_head*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1700,7 +1565,6 @@ MODULE_TYPE_WRAPPER(struct neigh_hash_table*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1715,7 +1579,6 @@ MODULE_TYPE_WRAPPER(struct neigh_table*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1730,7 +1593,6 @@ MODULE_TYPE_WRAPPER(struct neigh_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1745,7 +1607,6 @@ MODULE_TYPE_WRAPPER(struct neighbour*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1760,7 +1621,6 @@ MODULE_TYPE_WRAPPER(struct dst_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1775,7 +1635,6 @@ MODULE_TYPE_WRAPPER(struct netns_ipv6*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1790,7 +1649,6 @@ MODULE_TYPE_WRAPPER(struct netns_sctp*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1805,7 +1663,6 @@ MODULE_TYPE_WRAPPER(struct netns_dccp*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1820,7 +1677,6 @@ MODULE_TYPE_WRAPPER(struct nf_proto_net*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1835,7 +1691,6 @@ MODULE_TYPE_WRAPPER(struct nf_generic_net*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1850,7 +1705,6 @@ MODULE_TYPE_WRAPPER(struct nf_tcp_net*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1865,7 +1719,6 @@ MODULE_TYPE_WRAPPER(struct nf_udp_net*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1880,7 +1733,6 @@ MODULE_TYPE_WRAPPER(struct nf_icmp_net*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1895,7 +1747,6 @@ MODULE_TYPE_WRAPPER(struct nf_ip_net*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1910,7 +1761,6 @@ MODULE_TYPE_WRAPPER(struct netns_ct*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1925,7 +1775,6 @@ MODULE_TYPE_WRAPPER(struct netns_nf_frag*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1940,7 +1789,6 @@ MODULE_TYPE_WRAPPER(struct netns_xfrm*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1955,7 +1803,6 @@ MODULE_TYPE_WRAPPER(struct net*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1970,7 +1817,6 @@ MODULE_TYPE_WRAPPER(struct nsproxy*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -1985,7 +1831,6 @@ MODULE_TYPE_WRAPPER(struct hrtimer_clock_base*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2000,7 +1845,6 @@ MODULE_TYPE_WRAPPER(struct hrtimer*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2015,7 +1859,6 @@ MODULE_TYPE_WRAPPER(struct signal_struct*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2030,7 +1873,6 @@ MODULE_TYPE_WRAPPER(struct sigaction*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2045,7 +1887,6 @@ MODULE_TYPE_WRAPPER(struct k_sigaction*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2060,7 +1901,6 @@ MODULE_TYPE_WRAPPER(struct bio_list*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2075,7 +1915,6 @@ MODULE_TYPE_WRAPPER(struct css_set*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2090,7 +1929,6 @@ MODULE_TYPE_WRAPPER(struct page_frag*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2105,7 +1943,6 @@ MODULE_TYPE_WRAPPER(struct task_struct*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2120,7 +1957,6 @@ MODULE_TYPE_WRAPPER(struct module*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2135,7 +1971,6 @@ MODULE_TYPE_WRAPPER(struct file_system_type*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2150,7 +1985,6 @@ MODULE_TYPE_WRAPPER(struct super_operations*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2165,7 +1999,6 @@ MODULE_TYPE_WRAPPER(struct dquot*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2180,7 +2013,6 @@ MODULE_TYPE_WRAPPER(struct dquot_operations*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2195,7 +2027,6 @@ MODULE_TYPE_WRAPPER(struct quotactl_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2210,7 +2041,6 @@ MODULE_TYPE_WRAPPER(struct export_operations*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2225,7 +2055,6 @@ MODULE_TYPE_WRAPPER(struct xattr_handler*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2240,7 +2069,6 @@ MODULE_TYPE_WRAPPER(struct quota_format_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2255,7 +2083,6 @@ MODULE_TYPE_WRAPPER(struct quota_format_type*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2270,7 +2097,6 @@ MODULE_TYPE_WRAPPER(struct mem_dqinfo*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2285,7 +2111,6 @@ MODULE_TYPE_WRAPPER(struct quota_info*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2300,7 +2125,6 @@ MODULE_TYPE_WRAPPER(struct dentry_operations*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2315,7 +2139,6 @@ MODULE_TYPE_WRAPPER(struct shrinker*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2330,7 +2153,6 @@ MODULE_TYPE_WRAPPER(struct super_block*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2345,9 +2167,6 @@ MODULE_TYPE_WRAPPER(struct inode*, {
         }
     }
     NO_POST
-    RETURN{
-        kern_printk("-------------------return wrapping inode------------------------ : %lx\n", arg);
-    }
 })
 #endif
 
@@ -2362,22 +2181,9 @@ MODULE_TYPE_WRAPPER(struct dentry*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
-#if 0
-MODULE_TYPE_WRAPPER(struct dentry* , {
-    pre {
-        void *value;
-        if(!is_alias_address((uint64_t)arg)){
-                kern_printk("struct dentry\n");
-                ADD_TO_HASH(arg, SCAN_HEAD_FUNC(struct dentry))
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
+
 
 #ifndef DynamicWRAPPER_FOR_struct_vfsmount
 #define DynamicWRAPPER_FOR_struct_vfsmount
@@ -2389,7 +2195,6 @@ MODULE_TYPE_WRAPPER(struct vfsmount*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2404,7 +2209,6 @@ MODULE_TYPE_WRAPPER(struct path*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2419,7 +2223,6 @@ MODULE_TYPE_WRAPPER(struct fown_struct*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2434,7 +2237,6 @@ MODULE_TYPE_WRAPPER(struct file*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2449,7 +2251,6 @@ MODULE_TYPE_WRAPPER(struct aio_ring_info*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2464,7 +2265,6 @@ MODULE_TYPE_WRAPPER(struct kioctx*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2479,7 +2279,6 @@ MODULE_TYPE_WRAPPER(struct kiocb*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2494,7 +2293,6 @@ MODULE_TYPE_WRAPPER(struct request_sock*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2509,7 +2307,6 @@ MODULE_TYPE_WRAPPER(struct request_sock_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2524,7 +2321,6 @@ MODULE_TYPE_WRAPPER(struct timewait_sock_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2539,7 +2335,6 @@ MODULE_TYPE_WRAPPER(struct proto*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2554,7 +2349,6 @@ MODULE_TYPE_WRAPPER(struct sock_common*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2569,7 +2363,6 @@ MODULE_TYPE_WRAPPER(struct sk_filter*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2584,7 +2377,6 @@ MODULE_TYPE_WRAPPER(struct socket_wq*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2599,7 +2391,6 @@ MODULE_TYPE_WRAPPER(struct proto_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2614,7 +2405,6 @@ MODULE_TYPE_WRAPPER(struct socket*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2629,7 +2419,6 @@ MODULE_TYPE_WRAPPER(struct cg_proto*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2644,7 +2433,6 @@ MODULE_TYPE_WRAPPER(struct sock*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2659,7 +2447,6 @@ MODULE_TYPE_WRAPPER(struct nf_bridge_info*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2674,7 +2461,6 @@ MODULE_TYPE_WRAPPER(struct sk_buff*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2689,7 +2475,6 @@ MODULE_TYPE_WRAPPER(struct netlink_callback*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2704,7 +2489,6 @@ MODULE_TYPE_WRAPPER(struct net_device_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2719,7 +2503,6 @@ MODULE_TYPE_WRAPPER(struct ethtool_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2734,7 +2517,6 @@ MODULE_TYPE_WRAPPER(struct header_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2749,7 +2531,6 @@ MODULE_TYPE_WRAPPER(struct dsa_chip_data*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2764,7 +2545,6 @@ MODULE_TYPE_WRAPPER(struct dsa_platform_data*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2779,7 +2559,6 @@ MODULE_TYPE_WRAPPER(struct phy_driver*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2794,7 +2573,6 @@ MODULE_TYPE_WRAPPER(struct phy_device*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2809,7 +2587,6 @@ MODULE_TYPE_WRAPPER(struct mii_bus*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2824,7 +2601,6 @@ MODULE_TYPE_WRAPPER(struct dsa_switch_driver*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2839,7 +2615,6 @@ MODULE_TYPE_WRAPPER(struct dsa_switch*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2854,7 +2629,6 @@ MODULE_TYPE_WRAPPER(struct dsa_switch_tree*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2869,7 +2643,6 @@ MODULE_TYPE_WRAPPER(struct rps_map*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2884,7 +2657,6 @@ MODULE_TYPE_WRAPPER(struct rps_dev_flow_table*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2899,7 +2671,6 @@ MODULE_TYPE_WRAPPER(struct netdev_rx_queue*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2914,7 +2685,6 @@ MODULE_TYPE_WRAPPER(struct qdisc_walker*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2929,7 +2699,6 @@ MODULE_TYPE_WRAPPER(struct tcf_proto_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2944,7 +2713,6 @@ MODULE_TYPE_WRAPPER(struct tcf_proto*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2959,7 +2727,6 @@ MODULE_TYPE_WRAPPER(struct gnet_dump*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2974,7 +2741,6 @@ MODULE_TYPE_WRAPPER(struct Qdisc_class_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -2989,7 +2755,6 @@ MODULE_TYPE_WRAPPER(struct Qdisc_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -3004,7 +2769,6 @@ MODULE_TYPE_WRAPPER(struct qdisc_size_table*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -3019,7 +2783,6 @@ MODULE_TYPE_WRAPPER(struct Qdisc*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -3034,7 +2797,6 @@ MODULE_TYPE_WRAPPER(struct netdev_queue*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -3049,7 +2811,6 @@ MODULE_TYPE_WRAPPER(struct xps_map*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -3064,7 +2825,6 @@ MODULE_TYPE_WRAPPER(struct xps_dev_maps*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -3079,7 +2839,6 @@ MODULE_TYPE_WRAPPER(struct dcbnl_rtnl_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -3094,7 +2853,6 @@ MODULE_TYPE_WRAPPER(struct pm_qos_request*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -3109,7 +2867,6 @@ MODULE_TYPE_WRAPPER(struct net_device*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -3124,7 +2881,6 @@ MODULE_TYPE_WRAPPER(struct rtnl_link_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -3139,2512 +2895,6 @@ MODULE_TYPE_WRAPPER(struct ptr_heap*, {
         }
     }
     NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_scsi_host_template
-#define DynamicWRAPPER_FOR_struct_scsi_host_template
-MODULE_TYPE_WRAPPER(struct scsi_host_template*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct scsi_host_template\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct scsi_host_template));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_Scsi_Host
-#define DynamicWRAPPER_FOR_struct_Scsi_Host
-MODULE_TYPE_WRAPPER(struct Scsi_Host*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct Scsi_Host\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct Scsi_Host));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ata_device
-#define DynamicWRAPPER_FOR_struct_ata_device
-MODULE_TYPE_WRAPPER(struct ata_device*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ata_device\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_device));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ata_eh_info
-#define DynamicWRAPPER_FOR_struct_ata_eh_info
-MODULE_TYPE_WRAPPER(struct ata_eh_info*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ata_eh_info\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_eh_info));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ata_eh_context
-#define DynamicWRAPPER_FOR_struct_ata_eh_context
-MODULE_TYPE_WRAPPER(struct ata_eh_context*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ata_eh_context\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_eh_context));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ata_link
-#define DynamicWRAPPER_FOR_struct_ata_link
-MODULE_TYPE_WRAPPER(struct ata_link*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ata_link\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_link));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ata_port
-#define DynamicWRAPPER_FOR_struct_ata_port
-MODULE_TYPE_WRAPPER(struct ata_port*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ata_port\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_port));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ata_queued_cmd
-#define DynamicWRAPPER_FOR_struct_ata_queued_cmd
-MODULE_TYPE_WRAPPER(struct ata_queued_cmd*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ata_queued_cmd\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_queued_cmd));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ata_port_operations
-#define DynamicWRAPPER_FOR_struct_ata_port_operations
-MODULE_TYPE_WRAPPER(struct ata_port_operations*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ata_port_operations\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_port_operations));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ata_host
-#define DynamicWRAPPER_FOR_struct_ata_host
-MODULE_TYPE_WRAPPER(struct ata_host*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ata_host\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_host));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_irq_data
-#define DynamicWRAPPER_FOR_struct_irq_data
-MODULE_TYPE_WRAPPER(struct irq_data*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct irq_data\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct irq_data));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_irq_chip
-#define DynamicWRAPPER_FOR_struct_irq_chip
-MODULE_TYPE_WRAPPER(struct irq_chip*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct irq_chip\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct irq_chip));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_irqaction
-#define DynamicWRAPPER_FOR_struct_irqaction
-MODULE_TYPE_WRAPPER(struct irqaction*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct irqaction\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct irqaction));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_irq_affinity_notify
-#define DynamicWRAPPER_FOR_struct_irq_affinity_notify
-MODULE_TYPE_WRAPPER(struct irq_affinity_notify*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct irq_affinity_notify\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct irq_affinity_notify));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_irq_desc
-#define DynamicWRAPPER_FOR_struct_irq_desc
-MODULE_TYPE_WRAPPER(struct irq_desc*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct irq_desc\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct irq_desc));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_irq_chip_type
-#define DynamicWRAPPER_FOR_struct_irq_chip_type
-MODULE_TYPE_WRAPPER(struct irq_chip_type*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct irq_chip_type\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct irq_chip_type));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_nfq_ct_hook
-#define DynamicWRAPPER_FOR_struct_nfq_ct_hook
-MODULE_TYPE_WRAPPER(struct nfq_ct_hook*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct nfq_ct_hook\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct nfq_ct_hook));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pv_lazy_ops
-#define DynamicWRAPPER_FOR_struct_pv_lazy_ops
-MODULE_TYPE_WRAPPER(struct pv_lazy_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pv_lazy_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pv_lazy_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_crypto_ablkcipher
-#define DynamicWRAPPER_FOR_struct_crypto_ablkcipher
-MODULE_TYPE_WRAPPER(struct crypto_ablkcipher*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct crypto_ablkcipher\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_ablkcipher));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_crypto_async_request
-#define DynamicWRAPPER_FOR_struct_crypto_async_request
-MODULE_TYPE_WRAPPER(struct crypto_async_request*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct crypto_async_request\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_async_request));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ablkcipher_request
-#define DynamicWRAPPER_FOR_struct_ablkcipher_request
-MODULE_TYPE_WRAPPER(struct ablkcipher_request*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ablkcipher_request\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ablkcipher_request));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ablkcipher_tfm
-#define DynamicWRAPPER_FOR_struct_ablkcipher_tfm
-MODULE_TYPE_WRAPPER(struct ablkcipher_tfm*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ablkcipher_tfm\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ablkcipher_tfm));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_crypto_aead
-#define DynamicWRAPPER_FOR_struct_crypto_aead
-MODULE_TYPE_WRAPPER(struct crypto_aead*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct crypto_aead\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_aead));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_aead_request
-#define DynamicWRAPPER_FOR_struct_aead_request
-MODULE_TYPE_WRAPPER(struct aead_request*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct aead_request\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct aead_request));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_aead_tfm
-#define DynamicWRAPPER_FOR_struct_aead_tfm
-MODULE_TYPE_WRAPPER(struct aead_tfm*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct aead_tfm\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct aead_tfm));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_crypto_blkcipher
-#define DynamicWRAPPER_FOR_struct_crypto_blkcipher
-MODULE_TYPE_WRAPPER(struct crypto_blkcipher*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct crypto_blkcipher\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_blkcipher));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_blkcipher_desc
-#define DynamicWRAPPER_FOR_struct_blkcipher_desc
-MODULE_TYPE_WRAPPER(struct blkcipher_desc*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct blkcipher_desc\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct blkcipher_desc));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_blkcipher_tfm
-#define DynamicWRAPPER_FOR_struct_blkcipher_tfm
-MODULE_TYPE_WRAPPER(struct blkcipher_tfm*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct blkcipher_tfm\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct blkcipher_tfm));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_cipher_tfm
-#define DynamicWRAPPER_FOR_struct_cipher_tfm
-MODULE_TYPE_WRAPPER(struct cipher_tfm*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct cipher_tfm\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cipher_tfm));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_crypto_hash
-#define DynamicWRAPPER_FOR_struct_crypto_hash
-MODULE_TYPE_WRAPPER(struct crypto_hash*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct crypto_hash\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_hash));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_hash_desc
-#define DynamicWRAPPER_FOR_struct_hash_desc
-MODULE_TYPE_WRAPPER(struct hash_desc*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct hash_desc\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct hash_desc));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_hash_tfm
-#define DynamicWRAPPER_FOR_struct_hash_tfm
-MODULE_TYPE_WRAPPER(struct hash_tfm*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct hash_tfm\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct hash_tfm));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_compress_tfm
-#define DynamicWRAPPER_FOR_struct_compress_tfm
-MODULE_TYPE_WRAPPER(struct compress_tfm*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct compress_tfm\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct compress_tfm));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_crypto_rng
-#define DynamicWRAPPER_FOR_struct_crypto_rng
-MODULE_TYPE_WRAPPER(struct crypto_rng*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct crypto_rng\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_rng));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_rng_tfm
-#define DynamicWRAPPER_FOR_struct_rng_tfm
-MODULE_TYPE_WRAPPER(struct rng_tfm*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct rng_tfm\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct rng_tfm));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ablkcipher_alg
-#define DynamicWRAPPER_FOR_struct_ablkcipher_alg
-MODULE_TYPE_WRAPPER(struct ablkcipher_alg*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ablkcipher_alg\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ablkcipher_alg));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_aead_alg
-#define DynamicWRAPPER_FOR_struct_aead_alg
-MODULE_TYPE_WRAPPER(struct aead_alg*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct aead_alg\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct aead_alg));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_blkcipher_alg
-#define DynamicWRAPPER_FOR_struct_blkcipher_alg
-MODULE_TYPE_WRAPPER(struct blkcipher_alg*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct blkcipher_alg\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct blkcipher_alg));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_cipher_alg
-#define DynamicWRAPPER_FOR_struct_cipher_alg
-MODULE_TYPE_WRAPPER(struct cipher_alg*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct cipher_alg\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cipher_alg));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_compress_alg
-#define DynamicWRAPPER_FOR_struct_compress_alg
-MODULE_TYPE_WRAPPER(struct compress_alg*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct compress_alg\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct compress_alg));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_rng_alg
-#define DynamicWRAPPER_FOR_struct_rng_alg
-MODULE_TYPE_WRAPPER(struct rng_alg*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct rng_alg\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct rng_alg));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_crypto_alg
-#define DynamicWRAPPER_FOR_struct_crypto_alg
-MODULE_TYPE_WRAPPER(struct crypto_alg*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct crypto_alg\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_alg));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_crypto_tfm
-#define DynamicWRAPPER_FOR_struct_crypto_tfm
-MODULE_TYPE_WRAPPER(struct crypto_tfm*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct crypto_tfm\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_tfm));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_crypto_cipher
-#define DynamicWRAPPER_FOR_struct_crypto_cipher
-MODULE_TYPE_WRAPPER(struct crypto_cipher*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct crypto_cipher\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_cipher));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ipv6_pinfo
-#define DynamicWRAPPER_FOR_struct_ipv6_pinfo
-MODULE_TYPE_WRAPPER(struct ipv6_pinfo*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ipv6_pinfo\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ipv6_pinfo));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ip_options_rcu
-#define DynamicWRAPPER_FOR_struct_ip_options_rcu
-MODULE_TYPE_WRAPPER(struct ip_options_rcu*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ip_options_rcu\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ip_options_rcu));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_inet_cork
-#define DynamicWRAPPER_FOR_struct_inet_cork
-MODULE_TYPE_WRAPPER(struct inet_cork*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct inet_cork\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_cork));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_inet_cork_full
-#define DynamicWRAPPER_FOR_struct_inet_cork_full
-MODULE_TYPE_WRAPPER(struct inet_cork_full*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct inet_cork_full\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_cork_full));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_inet_sock
-#define DynamicWRAPPER_FOR_struct_inet_sock
-MODULE_TYPE_WRAPPER(struct inet_sock*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct inet_sock\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_sock));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_udp_sock
-#define DynamicWRAPPER_FOR_struct_udp_sock
-MODULE_TYPE_WRAPPER(struct udp_sock*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct udp_sock\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct udp_sock));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_udp6_sock
-#define DynamicWRAPPER_FOR_struct_udp6_sock
-MODULE_TYPE_WRAPPER(struct udp6_sock*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct udp6_sock\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct udp6_sock));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_x86_init_irqs
-#define DynamicWRAPPER_FOR_struct_x86_init_irqs
-MODULE_TYPE_WRAPPER(struct x86_init_irqs*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct x86_init_irqs\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_irqs));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_seq_net_private
-#define DynamicWRAPPER_FOR_struct_seq_net_private
-MODULE_TYPE_WRAPPER(struct seq_net_private*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct seq_net_private\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct seq_net_private));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_neigh_seq_state
-#define DynamicWRAPPER_FOR_struct_neigh_seq_state
-MODULE_TYPE_WRAPPER(struct neigh_seq_state*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct neigh_seq_state\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct neigh_seq_state));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_zone
-#define DynamicWRAPPER_FOR_struct_zone
-MODULE_TYPE_WRAPPER(struct zone*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct zone\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct zone));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_zoneref
-#define DynamicWRAPPER_FOR_struct_zoneref
-MODULE_TYPE_WRAPPER(struct zoneref*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct zoneref\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct zoneref));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pglist_data
-#define DynamicWRAPPER_FOR_struct_pglist_data
-MODULE_TYPE_WRAPPER(struct pglist_data*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pglist_data\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pglist_data));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_vm_region
-#define DynamicWRAPPER_FOR_struct_vm_region
-MODULE_TYPE_WRAPPER(struct vm_region*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct vm_region\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct vm_region));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pnp_driver
-#define DynamicWRAPPER_FOR_struct_pnp_driver
-MODULE_TYPE_WRAPPER(struct pnp_driver*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pnp_driver\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pnp_driver));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pnp_dev
-#define DynamicWRAPPER_FOR_struct_pnp_dev
-MODULE_TYPE_WRAPPER(struct pnp_dev*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pnp_dev\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pnp_dev));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pnp_protocol
-#define DynamicWRAPPER_FOR_struct_pnp_protocol
-MODULE_TYPE_WRAPPER(struct pnp_protocol*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pnp_protocol\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pnp_protocol));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pnp_card
-#define DynamicWRAPPER_FOR_struct_pnp_card
-MODULE_TYPE_WRAPPER(struct pnp_card*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pnp_card\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pnp_card));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pnp_card_link
-#define DynamicWRAPPER_FOR_struct_pnp_card_link
-MODULE_TYPE_WRAPPER(struct pnp_card_link*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pnp_card_link\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pnp_card_link));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pnp_card_driver
-#define DynamicWRAPPER_FOR_struct_pnp_card_driver
-MODULE_TYPE_WRAPPER(struct pnp_card_driver*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pnp_card_driver\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pnp_card_driver));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_netdev_hw_addr
-#define DynamicWRAPPER_FOR_struct_netdev_hw_addr
-MODULE_TYPE_WRAPPER(struct netdev_hw_addr*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct netdev_hw_addr\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct netdev_hw_addr));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_rq_map_data
-#define DynamicWRAPPER_FOR_struct_rq_map_data
-MODULE_TYPE_WRAPPER(struct rq_map_data*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct rq_map_data\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct rq_map_data));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_scm_cookie
-#define DynamicWRAPPER_FOR_struct_scm_cookie
-MODULE_TYPE_WRAPPER(struct scm_cookie*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct scm_cookie\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct scm_cookie));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_sock_iocb
-#define DynamicWRAPPER_FOR_struct_sock_iocb
-MODULE_TYPE_WRAPPER(struct sock_iocb*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct sock_iocb\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct sock_iocb));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_exec_domain
-#define DynamicWRAPPER_FOR_struct_exec_domain
-MODULE_TYPE_WRAPPER(struct exec_domain*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct exec_domain\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct exec_domain));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_buffer_head
-#define DynamicWRAPPER_FOR_struct_buffer_head
-MODULE_TYPE_WRAPPER(struct buffer_head*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct buffer_head\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct buffer_head));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_crypto_shash
-#define DynamicWRAPPER_FOR_struct_crypto_shash
-MODULE_TYPE_WRAPPER(struct crypto_shash*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct crypto_shash\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_shash));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_journal_s
-#define DynamicWRAPPER_FOR_struct_journal_s
-MODULE_TYPE_WRAPPER(struct journal_s*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct journal_s\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct journal_s));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_transaction_s
-#define DynamicWRAPPER_FOR_struct_transaction_s
-MODULE_TYPE_WRAPPER(struct transaction_s*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct transaction_s\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct transaction_s));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_jbd2_buffer_trigger_type
-#define DynamicWRAPPER_FOR_struct_jbd2_buffer_trigger_type
-MODULE_TYPE_WRAPPER(struct jbd2_buffer_trigger_type*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct jbd2_buffer_trigger_type\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct jbd2_buffer_trigger_type));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_journal_head
-#define DynamicWRAPPER_FOR_struct_journal_head
-MODULE_TYPE_WRAPPER(struct journal_head*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct journal_head\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct journal_head));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_x86_init_pci
-#define DynamicWRAPPER_FOR_struct_x86_init_pci
-MODULE_TYPE_WRAPPER(struct x86_init_pci*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct x86_init_pci\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_pci));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pv_cpu_ops
-#define DynamicWRAPPER_FOR_struct_pv_cpu_ops
-MODULE_TYPE_WRAPPER(struct pv_cpu_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pv_cpu_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pv_cpu_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_socket_alloc
-#define DynamicWRAPPER_FOR_struct_socket_alloc
-MODULE_TYPE_WRAPPER(struct socket_alloc*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct socket_alloc\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct socket_alloc));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_klist
-#define DynamicWRAPPER_FOR_struct_klist
-MODULE_TYPE_WRAPPER(struct klist*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct klist\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct klist));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_inet6_request_sock
-#define DynamicWRAPPER_FOR_struct_inet6_request_sock
-MODULE_TYPE_WRAPPER(struct inet6_request_sock*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct inet6_request_sock\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet6_request_sock));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pci_slot
-#define DynamicWRAPPER_FOR_struct_pci_slot
-MODULE_TYPE_WRAPPER(struct pci_slot*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pci_slot\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_slot));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pci_error_handlers
-#define DynamicWRAPPER_FOR_struct_pci_error_handlers
-MODULE_TYPE_WRAPPER(struct pci_error_handlers*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pci_error_handlers\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_error_handlers));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pci_driver
-#define DynamicWRAPPER_FOR_struct_pci_driver
-MODULE_TYPE_WRAPPER(struct pci_driver*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pci_driver\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_driver));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pci_dev
-#define DynamicWRAPPER_FOR_struct_pci_dev
-MODULE_TYPE_WRAPPER(struct pci_dev*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pci_dev\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_dev));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pci_bus
-#define DynamicWRAPPER_FOR_struct_pci_bus
-MODULE_TYPE_WRAPPER(struct pci_bus*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pci_bus\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_bus));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pci_ops
-#define DynamicWRAPPER_FOR_struct_pci_ops
-MODULE_TYPE_WRAPPER(struct pci_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pci_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_proc_ns_operations
-#define DynamicWRAPPER_FOR_struct_proc_ns_operations
-MODULE_TYPE_WRAPPER(struct proc_ns_operations*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct proc_ns_operations\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct proc_ns_operations));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_nfq_ct_nat_hook
-#define DynamicWRAPPER_FOR_struct_nfq_ct_nat_hook
-MODULE_TYPE_WRAPPER(struct nfq_ct_nat_hook*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct nfq_ct_nat_hook\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct nfq_ct_nat_hook));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_jbd2_inode
-#define DynamicWRAPPER_FOR_struct_jbd2_inode
-MODULE_TYPE_WRAPPER(struct jbd2_inode*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct jbd2_inode\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct jbd2_inode));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pernet_operations
-#define DynamicWRAPPER_FOR_struct_pernet_operations
-MODULE_TYPE_WRAPPER(struct pernet_operations*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pernet_operations\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pernet_operations));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_mm_walk
-#define DynamicWRAPPER_FOR_struct_mm_walk
-MODULE_TYPE_WRAPPER(struct mm_walk*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct mm_walk\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct mm_walk));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_firmware
-#define DynamicWRAPPER_FOR_struct_firmware
-MODULE_TYPE_WRAPPER(struct firmware*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct firmware\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct firmware));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_dm_dev
-#define DynamicWRAPPER_FOR_struct_dm_dev
-MODULE_TYPE_WRAPPER(struct dm_dev*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct dm_dev\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dm_dev));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_x86_platform_ops
-#define DynamicWRAPPER_FOR_struct_x86_platform_ops
-MODULE_TYPE_WRAPPER(struct x86_platform_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct x86_platform_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_platform_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_nf_afinfo
-#define DynamicWRAPPER_FOR_struct_nf_afinfo
-MODULE_TYPE_WRAPPER(struct nf_afinfo*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct nf_afinfo\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct nf_afinfo));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct___wait_queue
-#define DynamicWRAPPER_FOR_struct___wait_queue
-MODULE_TYPE_WRAPPER(struct __wait_queue*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct __wait_queue\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct __wait_queue));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_poll_table_entry
-#define DynamicWRAPPER_FOR_struct_poll_table_entry
-MODULE_TYPE_WRAPPER(struct poll_table_entry*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct poll_table_entry\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct poll_table_entry));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_poll_wqueues
-#define DynamicWRAPPER_FOR_struct_poll_wqueues
-MODULE_TYPE_WRAPPER(struct poll_wqueues*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct poll_wqueues\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct poll_wqueues));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_dev_ext_attribute
-#define DynamicWRAPPER_FOR_struct_dev_ext_attribute
-MODULE_TYPE_WRAPPER(struct dev_ext_attribute*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct dev_ext_attribute\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dev_ext_attribute));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pv_apic_ops
-#define DynamicWRAPPER_FOR_struct_pv_apic_ops
-MODULE_TYPE_WRAPPER(struct pv_apic_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pv_apic_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pv_apic_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_atomic_notifier_head
-#define DynamicWRAPPER_FOR_struct_atomic_notifier_head
-MODULE_TYPE_WRAPPER(struct atomic_notifier_head*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct atomic_notifier_head\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct atomic_notifier_head));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_inet_connection_sock_af_ops
-#define DynamicWRAPPER_FOR_struct_inet_connection_sock_af_ops
-MODULE_TYPE_WRAPPER(struct inet_connection_sock_af_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct inet_connection_sock_af_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_connection_sock_af_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_tree_descr
-#define DynamicWRAPPER_FOR_struct_tree_descr
-MODULE_TYPE_WRAPPER(struct tree_descr*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct tree_descr\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tree_descr));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_restart_block
-#define DynamicWRAPPER_FOR_struct_restart_block
-MODULE_TYPE_WRAPPER(struct restart_block*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct restart_block\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct restart_block));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_napi_gro_cb
-#define DynamicWRAPPER_FOR_struct_napi_gro_cb
-MODULE_TYPE_WRAPPER(struct napi_gro_cb*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct napi_gro_cb\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct napi_gro_cb));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_inet_request_sock
-#define DynamicWRAPPER_FOR_struct_inet_request_sock
-MODULE_TYPE_WRAPPER(struct inet_request_sock*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct inet_request_sock\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_request_sock));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_tcp_request_sock
-#define DynamicWRAPPER_FOR_struct_tcp_request_sock
-MODULE_TYPE_WRAPPER(struct tcp_request_sock*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct tcp_request_sock\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tcp_request_sock));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_fastopen_queue
-#define DynamicWRAPPER_FOR_struct_fastopen_queue
-MODULE_TYPE_WRAPPER(struct fastopen_queue*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct fastopen_queue\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct fastopen_queue));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_request_sock_queue
-#define DynamicWRAPPER_FOR_struct_request_sock_queue
-MODULE_TYPE_WRAPPER(struct request_sock_queue*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct request_sock_queue\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct request_sock_queue));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_inet_connection_sock
-#define DynamicWRAPPER_FOR_struct_inet_connection_sock
-MODULE_TYPE_WRAPPER(struct inet_connection_sock*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct inet_connection_sock\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_connection_sock));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_dma_async_tx_descriptor
-#define DynamicWRAPPER_FOR_struct_dma_async_tx_descriptor
-MODULE_TYPE_WRAPPER(struct dma_async_tx_descriptor*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct dma_async_tx_descriptor\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dma_async_tx_descriptor));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_dma_device
-#define DynamicWRAPPER_FOR_struct_dma_device
-MODULE_TYPE_WRAPPER(struct dma_device*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct dma_device\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dma_device));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_dma_chan_dev
-#define DynamicWRAPPER_FOR_struct_dma_chan_dev
-MODULE_TYPE_WRAPPER(struct dma_chan_dev*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct dma_chan_dev\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dma_chan_dev));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_dma_chan
-#define DynamicWRAPPER_FOR_struct_dma_chan
-MODULE_TYPE_WRAPPER(struct dma_chan*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct dma_chan\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dma_chan));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_dma_page_list
-#define DynamicWRAPPER_FOR_struct_dma_page_list
-MODULE_TYPE_WRAPPER(struct dma_page_list*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct dma_page_list\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dma_page_list));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_tcp_sock
-#define DynamicWRAPPER_FOR_struct_tcp_sock
-MODULE_TYPE_WRAPPER(struct tcp_sock*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct tcp_sock\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tcp_sock));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_inet_frag_queue
-#define DynamicWRAPPER_FOR_struct_inet_frag_queue
-MODULE_TYPE_WRAPPER(struct inet_frag_queue*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct inet_frag_queue\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_frag_queue));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_inet_frags
-#define DynamicWRAPPER_FOR_struct_inet_frags
-MODULE_TYPE_WRAPPER(struct inet_frags*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct inet_frags\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_frags));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ff_device
-#define DynamicWRAPPER_FOR_struct_ff_device
-MODULE_TYPE_WRAPPER(struct ff_device*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ff_device\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ff_device));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_input_handler
-#define DynamicWRAPPER_FOR_struct_input_handler
-MODULE_TYPE_WRAPPER(struct input_handler*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct input_handler\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct input_handler));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_input_handle
-#define DynamicWRAPPER_FOR_struct_input_handle
-MODULE_TYPE_WRAPPER(struct input_handle*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct input_handle\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct input_handle));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_input_dev
-#define DynamicWRAPPER_FOR_struct_input_dev
-MODULE_TYPE_WRAPPER(struct input_dev*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct input_dev\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct input_dev));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_sg_mapping_iter
-#define DynamicWRAPPER_FOR_struct_sg_mapping_iter
-MODULE_TYPE_WRAPPER(struct sg_mapping_iter*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct sg_mapping_iter\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct sg_mapping_iter));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_mutex_waiter
-#define DynamicWRAPPER_FOR_struct_mutex_waiter
-MODULE_TYPE_WRAPPER(struct mutex_waiter*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct mutex_waiter\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct mutex_waiter));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_clocksource
-#define DynamicWRAPPER_FOR_struct_clocksource
-MODULE_TYPE_WRAPPER(struct clocksource*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct clocksource\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct clocksource));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_task_migration_notifier
-#define DynamicWRAPPER_FOR_struct_task_migration_notifier
-MODULE_TYPE_WRAPPER(struct task_migration_notifier*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct task_migration_notifier\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct task_migration_notifier));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_flow_cache_object
-#define DynamicWRAPPER_FOR_struct_flow_cache_object
-MODULE_TYPE_WRAPPER(struct flow_cache_object*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct flow_cache_object\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct flow_cache_object));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_flow_cache_ops
-#define DynamicWRAPPER_FOR_struct_flow_cache_ops
-MODULE_TYPE_WRAPPER(struct flow_cache_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct flow_cache_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct flow_cache_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_blk_scsi_cmd_filter
-#define DynamicWRAPPER_FOR_struct_blk_scsi_cmd_filter
-MODULE_TYPE_WRAPPER(struct blk_scsi_cmd_filter*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct blk_scsi_cmd_filter\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct blk_scsi_cmd_filter));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_req_iterator
-#define DynamicWRAPPER_FOR_struct_req_iterator
-MODULE_TYPE_WRAPPER(struct req_iterator*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct req_iterator\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct req_iterator));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_acpi_device_dir
-#define DynamicWRAPPER_FOR_struct_acpi_device_dir
-MODULE_TYPE_WRAPPER(struct acpi_device_dir*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct acpi_device_dir\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_device_dir));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_cgroup_map_cb
-#define DynamicWRAPPER_FOR_struct_cgroup_map_cb
-MODULE_TYPE_WRAPPER(struct cgroup_map_cb*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct cgroup_map_cb\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cgroup_map_cb));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_node
-#define DynamicWRAPPER_FOR_struct_node
-MODULE_TYPE_WRAPPER(struct node*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct node\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct node));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_clock_event_device
-#define DynamicWRAPPER_FOR_struct_clock_event_device
-MODULE_TYPE_WRAPPER(struct clock_event_device*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct clock_event_device\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct clock_event_device));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_tick_device
-#define DynamicWRAPPER_FOR_struct_tick_device
-MODULE_TYPE_WRAPPER(struct tick_device*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct tick_device\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tick_device));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ahash_request
-#define DynamicWRAPPER_FOR_struct_ahash_request
-MODULE_TYPE_WRAPPER(struct ahash_request*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ahash_request\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ahash_request));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_crypto_ahash
-#define DynamicWRAPPER_FOR_struct_crypto_ahash
-MODULE_TYPE_WRAPPER(struct crypto_ahash*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct crypto_ahash\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_ahash));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_raw_notifier_head
-#define DynamicWRAPPER_FOR_struct_raw_notifier_head
-MODULE_TYPE_WRAPPER(struct raw_notifier_head*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct raw_notifier_head\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct raw_notifier_head));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_net_proto_family
-#define DynamicWRAPPER_FOR_struct_net_proto_family
-MODULE_TYPE_WRAPPER(struct net_proto_family*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct net_proto_family\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct net_proto_family));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_offload_callbacks
-#define DynamicWRAPPER_FOR_struct_offload_callbacks
-MODULE_TYPE_WRAPPER(struct offload_callbacks*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct offload_callbacks\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct offload_callbacks));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_class_attribute_string
-#define DynamicWRAPPER_FOR_struct_class_attribute_string
-MODULE_TYPE_WRAPPER(struct class_attribute_string*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct class_attribute_string\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct class_attribute_string));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_subsys_interface
-#define DynamicWRAPPER_FOR_struct_subsys_interface
-MODULE_TYPE_WRAPPER(struct subsys_interface*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct subsys_interface\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct subsys_interface));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ubuf_info
-#define DynamicWRAPPER_FOR_struct_ubuf_info
-MODULE_TYPE_WRAPPER(struct ubuf_info*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ubuf_info\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ubuf_info));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_disk_part_iter
-#define DynamicWRAPPER_FOR_struct_disk_part_iter
-MODULE_TYPE_WRAPPER(struct disk_part_iter*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct disk_part_iter\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct disk_part_iter));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_idr_layer
-#define DynamicWRAPPER_FOR_struct_idr_layer
-MODULE_TYPE_WRAPPER(struct idr_layer*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct idr_layer\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct idr_layer));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_idr
-#define DynamicWRAPPER_FOR_struct_idr
-MODULE_TYPE_WRAPPER(struct idr*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct idr\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct idr));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_cftype
-#define DynamicWRAPPER_FOR_struct_cftype
-MODULE_TYPE_WRAPPER(struct cftype*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct cftype\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cftype));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_cftype_set
-#define DynamicWRAPPER_FOR_struct_cftype_set
-MODULE_TYPE_WRAPPER(struct cftype_set*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct cftype_set\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cftype_set));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_cgroup_subsys
-#define DynamicWRAPPER_FOR_struct_cgroup_subsys
-MODULE_TYPE_WRAPPER(struct cgroup_subsys*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct cgroup_subsys\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cgroup_subsys));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_acpi_device_ops
-#define DynamicWRAPPER_FOR_struct_acpi_device_ops
-MODULE_TYPE_WRAPPER(struct acpi_device_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct acpi_device_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_device_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_acpi_driver
-#define DynamicWRAPPER_FOR_struct_acpi_driver
-MODULE_TYPE_WRAPPER(struct acpi_driver*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct acpi_driver\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_driver));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_acpi_device
-#define DynamicWRAPPER_FOR_struct_acpi_device
-MODULE_TYPE_WRAPPER(struct acpi_device*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct acpi_device\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_device));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_acpi_pci_root
-#define DynamicWRAPPER_FOR_struct_acpi_pci_root
-MODULE_TYPE_WRAPPER(struct acpi_pci_root*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct acpi_pci_root\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_pci_root));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ip_options_data
-#define DynamicWRAPPER_FOR_struct_ip_options_data
-MODULE_TYPE_WRAPPER(struct ip_options_data*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ip_options_data\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ip_options_data));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_security_operations
-#define DynamicWRAPPER_FOR_struct_security_operations
-MODULE_TYPE_WRAPPER(struct security_operations*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct security_operations\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct security_operations));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_napi_struct
-#define DynamicWRAPPER_FOR_struct_napi_struct
-MODULE_TYPE_WRAPPER(struct napi_struct*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct napi_struct\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct napi_struct));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pv_lock_ops
-#define DynamicWRAPPER_FOR_struct_pv_lock_ops
-MODULE_TYPE_WRAPPER(struct pv_lock_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pv_lock_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pv_lock_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pci_host_bridge
-#define DynamicWRAPPER_FOR_struct_pci_host_bridge
-MODULE_TYPE_WRAPPER(struct pci_host_bridge*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pci_host_bridge\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_host_bridge));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_x86_init_paging
-#define DynamicWRAPPER_FOR_struct_x86_init_paging
-MODULE_TYPE_WRAPPER(struct x86_init_paging*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct x86_init_paging\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_paging));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_softirq_action
-#define DynamicWRAPPER_FOR_struct_softirq_action
-MODULE_TYPE_WRAPPER(struct softirq_action*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct softirq_action\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct softirq_action));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_mb_cache
-#define DynamicWRAPPER_FOR_struct_mb_cache
-MODULE_TYPE_WRAPPER(struct mb_cache*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct mb_cache\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct mb_cache));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_nf_sockopt_ops
-#define DynamicWRAPPER_FOR_struct_nf_sockopt_ops
-MODULE_TYPE_WRAPPER(struct nf_sockopt_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct nf_sockopt_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct nf_sockopt_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ts_config
-#define DynamicWRAPPER_FOR_struct_ts_config
-MODULE_TYPE_WRAPPER(struct ts_config*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ts_config\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ts_config));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_ts_ops
-#define DynamicWRAPPER_FOR_struct_ts_ops
-MODULE_TYPE_WRAPPER(struct ts_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ts_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ts_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pnp_fixup
-#define DynamicWRAPPER_FOR_struct_pnp_fixup
-MODULE_TYPE_WRAPPER(struct pnp_fixup*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pnp_fixup\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pnp_fixup));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pv_init_ops
-#define DynamicWRAPPER_FOR_struct_pv_init_ops
-MODULE_TYPE_WRAPPER(struct pv_init_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pv_init_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pv_init_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_preempt_ops
-#define DynamicWRAPPER_FOR_struct_preempt_ops
-MODULE_TYPE_WRAPPER(struct preempt_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct preempt_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct preempt_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -5659,97 +2909,818 @@ MODULE_TYPE_WRAPPER(struct preempt_notifier*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_qtree_fmt_operations
-#define DynamicWRAPPER_FOR_struct_qtree_fmt_operations
-MODULE_TYPE_WRAPPER(struct qtree_fmt_operations*, {
+#ifndef DynamicWRAPPER_FOR_struct_preempt_ops
+#define DynamicWRAPPER_FOR_struct_preempt_ops
+MODULE_TYPE_WRAPPER(struct preempt_ops*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct qtree_fmt_operations\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct qtree_fmt_operations));
+           DW(kern_printk( "dynamic wrapper struct preempt_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct preempt_ops));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_qtree_mem_dqinfo
-#define DynamicWRAPPER_FOR_struct_qtree_mem_dqinfo
-MODULE_TYPE_WRAPPER(struct qtree_mem_dqinfo*, {
+#ifndef DynamicWRAPPER_FOR_struct_irq_data
+#define DynamicWRAPPER_FOR_struct_irq_data
+MODULE_TYPE_WRAPPER(struct irq_data*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct qtree_mem_dqinfo\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct qtree_mem_dqinfo));
+           DW(kern_printk( "dynamic wrapper struct irq_data\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct irq_data));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_tcp6_request_sock
-#define DynamicWRAPPER_FOR_struct_tcp6_request_sock
-MODULE_TYPE_WRAPPER(struct tcp6_request_sock*, {
+#ifndef DynamicWRAPPER_FOR_struct_irq_chip
+#define DynamicWRAPPER_FOR_struct_irq_chip
+MODULE_TYPE_WRAPPER(struct irq_chip*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct tcp6_request_sock\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tcp6_request_sock));
+           DW(kern_printk( "dynamic wrapper struct irq_chip\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct irq_chip));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_x86_init_timers
-#define DynamicWRAPPER_FOR_struct_x86_init_timers
-MODULE_TYPE_WRAPPER(struct x86_init_timers*, {
+#ifndef DynamicWRAPPER_FOR_struct_irqaction
+#define DynamicWRAPPER_FOR_struct_irqaction
+MODULE_TYPE_WRAPPER(struct irqaction*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct x86_init_timers\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_timers));
+           DW(kern_printk( "dynamic wrapper struct irqaction\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct irqaction));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_cyclecounter
-#define DynamicWRAPPER_FOR_struct_cyclecounter
-MODULE_TYPE_WRAPPER(struct cyclecounter*, {
+#ifndef DynamicWRAPPER_FOR_struct_irq_affinity_notify
+#define DynamicWRAPPER_FOR_struct_irq_affinity_notify
+MODULE_TYPE_WRAPPER(struct irq_affinity_notify*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct cyclecounter\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cyclecounter));
+           DW(kern_printk( "dynamic wrapper struct irq_affinity_notify\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct irq_affinity_notify));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_timecounter
-#define DynamicWRAPPER_FOR_struct_timecounter
-MODULE_TYPE_WRAPPER(struct timecounter*, {
+#ifndef DynamicWRAPPER_FOR_struct_irq_desc
+#define DynamicWRAPPER_FOR_struct_irq_desc
+MODULE_TYPE_WRAPPER(struct irq_desc*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct timecounter\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct timecounter));
+           DW(kern_printk( "dynamic wrapper struct irq_desc\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct irq_desc));
         }
     }
     NO_POST
-    NO_RETURN
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_irq_chip_type
+#define DynamicWRAPPER_FOR_struct_irq_chip_type
+MODULE_TYPE_WRAPPER(struct irq_chip_type*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct irq_chip_type\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct irq_chip_type));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_nfq_ct_hook
+#define DynamicWRAPPER_FOR_struct_nfq_ct_hook
+MODULE_TYPE_WRAPPER(struct nfq_ct_hook*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct nfq_ct_hook\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct nfq_ct_hook));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pv_lazy_ops
+#define DynamicWRAPPER_FOR_struct_pv_lazy_ops
+MODULE_TYPE_WRAPPER(struct pv_lazy_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pv_lazy_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pv_lazy_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_ipv6_pinfo
+#define DynamicWRAPPER_FOR_struct_ipv6_pinfo
+MODULE_TYPE_WRAPPER(struct ipv6_pinfo*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct ipv6_pinfo\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ipv6_pinfo));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_ip_options_rcu
+#define DynamicWRAPPER_FOR_struct_ip_options_rcu
+MODULE_TYPE_WRAPPER(struct ip_options_rcu*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct ip_options_rcu\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ip_options_rcu));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_inet_cork
+#define DynamicWRAPPER_FOR_struct_inet_cork
+MODULE_TYPE_WRAPPER(struct inet_cork*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct inet_cork\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_cork));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_inet_cork_full
+#define DynamicWRAPPER_FOR_struct_inet_cork_full
+MODULE_TYPE_WRAPPER(struct inet_cork_full*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct inet_cork_full\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_cork_full));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_inet_sock
+#define DynamicWRAPPER_FOR_struct_inet_sock
+MODULE_TYPE_WRAPPER(struct inet_sock*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct inet_sock\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_sock));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_udp_sock
+#define DynamicWRAPPER_FOR_struct_udp_sock
+MODULE_TYPE_WRAPPER(struct udp_sock*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct udp_sock\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct udp_sock));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_udp6_sock
+#define DynamicWRAPPER_FOR_struct_udp6_sock
+MODULE_TYPE_WRAPPER(struct udp6_sock*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct udp6_sock\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct udp6_sock));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_x86_init_irqs
+#define DynamicWRAPPER_FOR_struct_x86_init_irqs
+MODULE_TYPE_WRAPPER(struct x86_init_irqs*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct x86_init_irqs\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_irqs));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_seq_net_private
+#define DynamicWRAPPER_FOR_struct_seq_net_private
+MODULE_TYPE_WRAPPER(struct seq_net_private*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct seq_net_private\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct seq_net_private));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_neigh_seq_state
+#define DynamicWRAPPER_FOR_struct_neigh_seq_state
+MODULE_TYPE_WRAPPER(struct neigh_seq_state*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct neigh_seq_state\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct neigh_seq_state));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_zone
+#define DynamicWRAPPER_FOR_struct_zone
+MODULE_TYPE_WRAPPER(struct zone*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct zone\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct zone));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_zoneref
+#define DynamicWRAPPER_FOR_struct_zoneref
+MODULE_TYPE_WRAPPER(struct zoneref*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct zoneref\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct zoneref));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pglist_data
+#define DynamicWRAPPER_FOR_struct_pglist_data
+MODULE_TYPE_WRAPPER(struct pglist_data*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pglist_data\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pglist_data));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_vm_region
+#define DynamicWRAPPER_FOR_struct_vm_region
+MODULE_TYPE_WRAPPER(struct vm_region*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct vm_region\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct vm_region));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pnp_driver
+#define DynamicWRAPPER_FOR_struct_pnp_driver
+MODULE_TYPE_WRAPPER(struct pnp_driver*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pnp_driver\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pnp_driver));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pnp_dev
+#define DynamicWRAPPER_FOR_struct_pnp_dev
+MODULE_TYPE_WRAPPER(struct pnp_dev*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pnp_dev\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pnp_dev));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pnp_protocol
+#define DynamicWRAPPER_FOR_struct_pnp_protocol
+MODULE_TYPE_WRAPPER(struct pnp_protocol*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pnp_protocol\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pnp_protocol));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pnp_card
+#define DynamicWRAPPER_FOR_struct_pnp_card
+MODULE_TYPE_WRAPPER(struct pnp_card*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pnp_card\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pnp_card));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pnp_card_link
+#define DynamicWRAPPER_FOR_struct_pnp_card_link
+MODULE_TYPE_WRAPPER(struct pnp_card_link*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pnp_card_link\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pnp_card_link));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pnp_card_driver
+#define DynamicWRAPPER_FOR_struct_pnp_card_driver
+MODULE_TYPE_WRAPPER(struct pnp_card_driver*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pnp_card_driver\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pnp_card_driver));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_netdev_hw_addr
+#define DynamicWRAPPER_FOR_struct_netdev_hw_addr
+MODULE_TYPE_WRAPPER(struct netdev_hw_addr*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct netdev_hw_addr\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct netdev_hw_addr));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_rq_map_data
+#define DynamicWRAPPER_FOR_struct_rq_map_data
+MODULE_TYPE_WRAPPER(struct rq_map_data*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct rq_map_data\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct rq_map_data));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_crypto_ablkcipher
+#define DynamicWRAPPER_FOR_struct_crypto_ablkcipher
+MODULE_TYPE_WRAPPER(struct crypto_ablkcipher*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct crypto_ablkcipher\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_ablkcipher));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_crypto_async_request
+#define DynamicWRAPPER_FOR_struct_crypto_async_request
+MODULE_TYPE_WRAPPER(struct crypto_async_request*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct crypto_async_request\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_async_request));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_ablkcipher_request
+#define DynamicWRAPPER_FOR_struct_ablkcipher_request
+MODULE_TYPE_WRAPPER(struct ablkcipher_request*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct ablkcipher_request\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ablkcipher_request));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_ablkcipher_tfm
+#define DynamicWRAPPER_FOR_struct_ablkcipher_tfm
+MODULE_TYPE_WRAPPER(struct ablkcipher_tfm*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct ablkcipher_tfm\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ablkcipher_tfm));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_crypto_aead
+#define DynamicWRAPPER_FOR_struct_crypto_aead
+MODULE_TYPE_WRAPPER(struct crypto_aead*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct crypto_aead\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_aead));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_aead_request
+#define DynamicWRAPPER_FOR_struct_aead_request
+MODULE_TYPE_WRAPPER(struct aead_request*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct aead_request\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct aead_request));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_aead_tfm
+#define DynamicWRAPPER_FOR_struct_aead_tfm
+MODULE_TYPE_WRAPPER(struct aead_tfm*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct aead_tfm\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct aead_tfm));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_crypto_blkcipher
+#define DynamicWRAPPER_FOR_struct_crypto_blkcipher
+MODULE_TYPE_WRAPPER(struct crypto_blkcipher*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct crypto_blkcipher\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_blkcipher));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_blkcipher_desc
+#define DynamicWRAPPER_FOR_struct_blkcipher_desc
+MODULE_TYPE_WRAPPER(struct blkcipher_desc*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct blkcipher_desc\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct blkcipher_desc));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_blkcipher_tfm
+#define DynamicWRAPPER_FOR_struct_blkcipher_tfm
+MODULE_TYPE_WRAPPER(struct blkcipher_tfm*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct blkcipher_tfm\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct blkcipher_tfm));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_cipher_tfm
+#define DynamicWRAPPER_FOR_struct_cipher_tfm
+MODULE_TYPE_WRAPPER(struct cipher_tfm*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct cipher_tfm\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cipher_tfm));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_crypto_hash
+#define DynamicWRAPPER_FOR_struct_crypto_hash
+MODULE_TYPE_WRAPPER(struct crypto_hash*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct crypto_hash\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_hash));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_hash_desc
+#define DynamicWRAPPER_FOR_struct_hash_desc
+MODULE_TYPE_WRAPPER(struct hash_desc*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct hash_desc\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct hash_desc));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_hash_tfm
+#define DynamicWRAPPER_FOR_struct_hash_tfm
+MODULE_TYPE_WRAPPER(struct hash_tfm*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct hash_tfm\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct hash_tfm));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_compress_tfm
+#define DynamicWRAPPER_FOR_struct_compress_tfm
+MODULE_TYPE_WRAPPER(struct compress_tfm*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct compress_tfm\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct compress_tfm));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_crypto_rng
+#define DynamicWRAPPER_FOR_struct_crypto_rng
+MODULE_TYPE_WRAPPER(struct crypto_rng*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct crypto_rng\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_rng));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_rng_tfm
+#define DynamicWRAPPER_FOR_struct_rng_tfm
+MODULE_TYPE_WRAPPER(struct rng_tfm*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct rng_tfm\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct rng_tfm));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_ablkcipher_alg
+#define DynamicWRAPPER_FOR_struct_ablkcipher_alg
+MODULE_TYPE_WRAPPER(struct ablkcipher_alg*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct ablkcipher_alg\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ablkcipher_alg));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_aead_alg
+#define DynamicWRAPPER_FOR_struct_aead_alg
+MODULE_TYPE_WRAPPER(struct aead_alg*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct aead_alg\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct aead_alg));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_cipher_alg
+#define DynamicWRAPPER_FOR_struct_cipher_alg
+MODULE_TYPE_WRAPPER(struct cipher_alg*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct cipher_alg\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cipher_alg));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_compress_alg
+#define DynamicWRAPPER_FOR_struct_compress_alg
+MODULE_TYPE_WRAPPER(struct compress_alg*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct compress_alg\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct compress_alg));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_rng_alg
+#define DynamicWRAPPER_FOR_struct_rng_alg
+MODULE_TYPE_WRAPPER(struct rng_alg*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct rng_alg\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct rng_alg));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_crypto_alg
+#define DynamicWRAPPER_FOR_struct_crypto_alg
+MODULE_TYPE_WRAPPER(struct crypto_alg*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct crypto_alg\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_alg));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_crypto_tfm
+#define DynamicWRAPPER_FOR_struct_crypto_tfm
+MODULE_TYPE_WRAPPER(struct crypto_tfm*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct crypto_tfm\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_tfm));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_blkcipher_alg
+#define DynamicWRAPPER_FOR_struct_blkcipher_alg
+MODULE_TYPE_WRAPPER(struct blkcipher_alg*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct blkcipher_alg\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct blkcipher_alg));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_scm_cookie
+#define DynamicWRAPPER_FOR_struct_scm_cookie
+MODULE_TYPE_WRAPPER(struct scm_cookie*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct scm_cookie\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct scm_cookie));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_sock_iocb
+#define DynamicWRAPPER_FOR_struct_sock_iocb
+MODULE_TYPE_WRAPPER(struct sock_iocb*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct sock_iocb\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct sock_iocb));
+        }
+    }
+    NO_POST
 })
 #endif
 
@@ -5764,832 +3735,328 @@ MODULE_TYPE_WRAPPER(struct x86_init_mapping*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_x86_init_oem
-#define DynamicWRAPPER_FOR_struct_x86_init_oem
-MODULE_TYPE_WRAPPER(struct x86_init_oem*, {
+#ifndef DynamicWRAPPER_FOR_struct_exec_domain
+#define DynamicWRAPPER_FOR_struct_exec_domain
+MODULE_TYPE_WRAPPER(struct exec_domain*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct x86_init_oem\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_oem));
+           DW(kern_printk( "dynamic wrapper struct exec_domain\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct exec_domain));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_hash_alg_common
-#define DynamicWRAPPER_FOR_struct_hash_alg_common
-MODULE_TYPE_WRAPPER(struct hash_alg_common*, {
+#ifndef DynamicWRAPPER_FOR_struct_buffer_head
+#define DynamicWRAPPER_FOR_struct_buffer_head
+MODULE_TYPE_WRAPPER(struct buffer_head*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct hash_alg_common\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct hash_alg_common));
+           DW(kern_printk( "dynamic wrapper struct buffer_head\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct buffer_head));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_rcu_batch
-#define DynamicWRAPPER_FOR_struct_rcu_batch
-MODULE_TYPE_WRAPPER(struct rcu_batch*, {
+#ifndef DynamicWRAPPER_FOR_struct_crypto_shash
+#define DynamicWRAPPER_FOR_struct_crypto_shash
+MODULE_TYPE_WRAPPER(struct crypto_shash*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct rcu_batch\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct rcu_batch));
+           DW(kern_printk( "dynamic wrapper struct crypto_shash\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_shash));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_srcu_struct
-#define DynamicWRAPPER_FOR_struct_srcu_struct
-MODULE_TYPE_WRAPPER(struct srcu_struct*, {
+#ifndef DynamicWRAPPER_FOR_struct_journal_s
+#define DynamicWRAPPER_FOR_struct_journal_s
+MODULE_TYPE_WRAPPER(struct journal_s*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct srcu_struct\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct srcu_struct));
+           DW(kern_printk( "dynamic wrapper struct journal_s\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct journal_s));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_srcu_notifier_head
-#define DynamicWRAPPER_FOR_struct_srcu_notifier_head
-MODULE_TYPE_WRAPPER(struct srcu_notifier_head*, {
+#ifndef DynamicWRAPPER_FOR_struct_transaction_s
+#define DynamicWRAPPER_FOR_struct_transaction_s
+MODULE_TYPE_WRAPPER(struct transaction_s*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct srcu_notifier_head\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct srcu_notifier_head));
+           DW(kern_printk( "dynamic wrapper struct transaction_s\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct transaction_s));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_tp_module
-#define DynamicWRAPPER_FOR_struct_tp_module
-MODULE_TYPE_WRAPPER(struct tp_module*, {
+#ifndef DynamicWRAPPER_FOR_struct_jbd2_buffer_trigger_type
+#define DynamicWRAPPER_FOR_struct_jbd2_buffer_trigger_type
+MODULE_TYPE_WRAPPER(struct jbd2_buffer_trigger_type*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct tp_module\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tp_module));
+           DW(kern_printk( "dynamic wrapper struct jbd2_buffer_trigger_type\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct jbd2_buffer_trigger_type));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_tracepoint_iter
-#define DynamicWRAPPER_FOR_struct_tracepoint_iter
-MODULE_TYPE_WRAPPER(struct tracepoint_iter*, {
+#ifndef DynamicWRAPPER_FOR_struct_journal_head
+#define DynamicWRAPPER_FOR_struct_journal_head
+MODULE_TYPE_WRAPPER(struct journal_head*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct tracepoint_iter\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tracepoint_iter));
+           DW(kern_printk( "dynamic wrapper struct journal_head\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct journal_head));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_phy_fixup
-#define DynamicWRAPPER_FOR_struct_phy_fixup
-MODULE_TYPE_WRAPPER(struct phy_fixup*, {
+#ifndef DynamicWRAPPER_FOR_struct_x86_init_pci
+#define DynamicWRAPPER_FOR_struct_x86_init_pci
+MODULE_TYPE_WRAPPER(struct x86_init_pci*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct phy_fixup\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct phy_fixup));
+           DW(kern_printk( "dynamic wrapper struct x86_init_pci\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_pci));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_acpi_sleep_functions
-#define DynamicWRAPPER_FOR_struct_acpi_sleep_functions
-MODULE_TYPE_WRAPPER(struct acpi_sleep_functions*, {
+#ifndef DynamicWRAPPER_FOR_struct_pv_cpu_ops
+#define DynamicWRAPPER_FOR_struct_pv_cpu_ops
+MODULE_TYPE_WRAPPER(struct pv_cpu_ops*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct acpi_sleep_functions\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_sleep_functions));
+           DW(kern_printk( "dynamic wrapper struct pv_cpu_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pv_cpu_ops));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_smp_ops
-#define DynamicWRAPPER_FOR_struct_smp_ops
-MODULE_TYPE_WRAPPER(struct smp_ops*, {
+#ifndef DynamicWRAPPER_FOR_struct_socket_alloc
+#define DynamicWRAPPER_FOR_struct_socket_alloc
+MODULE_TYPE_WRAPPER(struct socket_alloc*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct smp_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct smp_ops));
+           DW(kern_printk( "dynamic wrapper struct socket_alloc\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct socket_alloc));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_tcp6_sock
-#define DynamicWRAPPER_FOR_struct_tcp6_sock
-MODULE_TYPE_WRAPPER(struct tcp6_sock*, {
+#ifndef DynamicWRAPPER_FOR_struct_klist
+#define DynamicWRAPPER_FOR_struct_klist
+MODULE_TYPE_WRAPPER(struct klist*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct tcp6_sock\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tcp6_sock));
+           DW(kern_printk( "dynamic wrapper struct klist\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct klist));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_x86_init_resources
-#define DynamicWRAPPER_FOR_struct_x86_init_resources
-MODULE_TYPE_WRAPPER(struct x86_init_resources*, {
+#ifndef DynamicWRAPPER_FOR_struct_inet6_request_sock
+#define DynamicWRAPPER_FOR_struct_inet6_request_sock
+MODULE_TYPE_WRAPPER(struct inet6_request_sock*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct x86_init_resources\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_resources));
+           DW(kern_printk( "dynamic wrapper struct inet6_request_sock\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet6_request_sock));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_acpi_bus_type
-#define DynamicWRAPPER_FOR_struct_acpi_bus_type
-MODULE_TYPE_WRAPPER(struct acpi_bus_type*, {
+#ifndef DynamicWRAPPER_FOR_struct_pci_slot
+#define DynamicWRAPPER_FOR_struct_pci_slot
+MODULE_TYPE_WRAPPER(struct pci_slot*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct acpi_bus_type\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_bus_type));
+           DW(kern_printk( "dynamic wrapper struct pci_slot\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_slot));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_crypto_comp
-#define DynamicWRAPPER_FOR_struct_crypto_comp
-MODULE_TYPE_WRAPPER(struct crypto_comp*, {
+#ifndef DynamicWRAPPER_FOR_struct_pci_error_handlers
+#define DynamicWRAPPER_FOR_struct_pci_error_handlers
+MODULE_TYPE_WRAPPER(struct pci_error_handlers*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct crypto_comp\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_comp));
+           DW(kern_printk( "dynamic wrapper struct pci_error_handlers\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_error_handlers));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_dmi_system_id
-#define DynamicWRAPPER_FOR_struct_dmi_system_id
-MODULE_TYPE_WRAPPER(struct dmi_system_id*, {
+#ifndef DynamicWRAPPER_FOR_struct_pci_driver
+#define DynamicWRAPPER_FOR_struct_pci_driver
+MODULE_TYPE_WRAPPER(struct pci_driver*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct dmi_system_id\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dmi_system_id));
+           DW(kern_printk( "dynamic wrapper struct pci_driver\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_driver));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_biovec_slab
-#define DynamicWRAPPER_FOR_struct_biovec_slab
-MODULE_TYPE_WRAPPER(struct biovec_slab*, {
+#ifndef DynamicWRAPPER_FOR_struct_pci_dev
+#define DynamicWRAPPER_FOR_struct_pci_dev
+MODULE_TYPE_WRAPPER(struct pci_dev*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct biovec_slab\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct biovec_slab));
+           DW(kern_printk( "dynamic wrapper struct pci_dev\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_dev));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_target_type
-#define DynamicWRAPPER_FOR_struct_target_type
-MODULE_TYPE_WRAPPER(struct target_type*, {
+#ifndef DynamicWRAPPER_FOR_struct_pci_bus
+#define DynamicWRAPPER_FOR_struct_pci_bus
+MODULE_TYPE_WRAPPER(struct pci_bus*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct target_type\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct target_type));
+           DW(kern_printk( "dynamic wrapper struct pci_bus\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_bus));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_dm_target
-#define DynamicWRAPPER_FOR_struct_dm_target
-MODULE_TYPE_WRAPPER(struct dm_target*, {
+#ifndef DynamicWRAPPER_FOR_struct_pci_ops
+#define DynamicWRAPPER_FOR_struct_pci_ops
+MODULE_TYPE_WRAPPER(struct pci_ops*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct dm_target\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dm_target));
+           DW(kern_printk( "dynamic wrapper struct pci_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_ops));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_apic
-#define DynamicWRAPPER_FOR_struct_apic
-MODULE_TYPE_WRAPPER(struct apic*, {
+#ifndef DynamicWRAPPER_FOR_struct_proc_ns_operations
+#define DynamicWRAPPER_FOR_struct_proc_ns_operations
+MODULE_TYPE_WRAPPER(struct proc_ns_operations*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct apic\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct apic));
+           DW(kern_printk( "dynamic wrapper struct proc_ns_operations\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct proc_ns_operations));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_ahash_alg
-#define DynamicWRAPPER_FOR_struct_ahash_alg
-MODULE_TYPE_WRAPPER(struct ahash_alg*, {
+#ifndef DynamicWRAPPER_FOR_struct_nfq_ct_nat_hook
+#define DynamicWRAPPER_FOR_struct_nfq_ct_nat_hook
+MODULE_TYPE_WRAPPER(struct nfq_ct_nat_hook*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ahash_alg\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ahash_alg));
+           DW(kern_printk( "dynamic wrapper struct nfq_ct_nat_hook\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct nfq_ct_nat_hook));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_proc_inode
-#define DynamicWRAPPER_FOR_struct_proc_inode
-MODULE_TYPE_WRAPPER(struct proc_inode*, {
+#ifndef DynamicWRAPPER_FOR_struct_jbd2_inode
+#define DynamicWRAPPER_FOR_struct_jbd2_inode
+MODULE_TYPE_WRAPPER(struct jbd2_inode*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct proc_inode\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct proc_inode));
+           DW(kern_printk( "dynamic wrapper struct jbd2_inode\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct jbd2_inode));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_pci_fixup
-#define DynamicWRAPPER_FOR_struct_pci_fixup
-MODULE_TYPE_WRAPPER(struct pci_fixup*, {
+#ifndef DynamicWRAPPER_FOR_struct_pernet_operations
+#define DynamicWRAPPER_FOR_struct_pernet_operations
+MODULE_TYPE_WRAPPER(struct pernet_operations*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pci_fixup\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_fixup));
+           DW(kern_printk( "dynamic wrapper struct pernet_operations\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pernet_operations));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_skb_shared_info
-#define DynamicWRAPPER_FOR_struct_skb_shared_info
-MODULE_TYPE_WRAPPER(struct skb_shared_info*, {
+#ifndef DynamicWRAPPER_FOR_struct_mm_walk
+#define DynamicWRAPPER_FOR_struct_mm_walk
+MODULE_TYPE_WRAPPER(struct mm_walk*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct skb_shared_info\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct skb_shared_info));
+           DW(kern_printk( "dynamic wrapper struct mm_walk\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct mm_walk));
         }
     }
     NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_dm_target_callbacks
-#define DynamicWRAPPER_FOR_struct_dm_target_callbacks
-MODULE_TYPE_WRAPPER(struct dm_target_callbacks*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct dm_target_callbacks\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dm_target_callbacks));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_netlink_notify
-#define DynamicWRAPPER_FOR_struct_netlink_notify
-MODULE_TYPE_WRAPPER(struct netlink_notify*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct netlink_notify\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct netlink_notify));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_inet_timewait_sock
-#define DynamicWRAPPER_FOR_struct_inet_timewait_sock
-MODULE_TYPE_WRAPPER(struct inet_timewait_sock*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct inet_timewait_sock\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_timewait_sock));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_shash_desc
-#define DynamicWRAPPER_FOR_struct_shash_desc
-MODULE_TYPE_WRAPPER(struct shash_desc*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct shash_desc\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct shash_desc));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_shash_alg
-#define DynamicWRAPPER_FOR_struct_shash_alg
-MODULE_TYPE_WRAPPER(struct shash_alg*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct shash_alg\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct shash_alg));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_hrtimer_sleeper
-#define DynamicWRAPPER_FOR_struct_hrtimer_sleeper
-MODULE_TYPE_WRAPPER(struct hrtimer_sleeper*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct hrtimer_sleeper\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct hrtimer_sleeper));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_acpi_dock_ops
-#define DynamicWRAPPER_FOR_struct_acpi_dock_ops
-MODULE_TYPE_WRAPPER(struct acpi_dock_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct acpi_dock_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_dock_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_tcp_timewait_sock
-#define DynamicWRAPPER_FOR_struct_tcp_timewait_sock
-MODULE_TYPE_WRAPPER(struct tcp_timewait_sock*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct tcp_timewait_sock\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tcp_timewait_sock));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_tcp6_timewait_sock
-#define DynamicWRAPPER_FOR_struct_tcp6_timewait_sock
-MODULE_TYPE_WRAPPER(struct tcp6_timewait_sock*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct tcp6_timewait_sock\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tcp6_timewait_sock));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_klist_iter
-#define DynamicWRAPPER_FOR_struct_klist_iter
-MODULE_TYPE_WRAPPER(struct klist_iter*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct klist_iter\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct klist_iter));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_inet_timewait_death_row
-#define DynamicWRAPPER_FOR_struct_inet_timewait_death_row
-MODULE_TYPE_WRAPPER(struct inet_timewait_death_row*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct inet_timewait_death_row\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_timewait_death_row));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_class_interface
-#define DynamicWRAPPER_FOR_struct_class_interface
-MODULE_TYPE_WRAPPER(struct class_interface*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct class_interface\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct class_interface));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_wait_bit_queue
-#define DynamicWRAPPER_FOR_struct_wait_bit_queue
-MODULE_TYPE_WRAPPER(struct wait_bit_queue*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct wait_bit_queue\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct wait_bit_queue));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_skb_seq_state
-#define DynamicWRAPPER_FOR_struct_skb_seq_state
-MODULE_TYPE_WRAPPER(struct skb_seq_state*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct skb_seq_state\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct skb_seq_state));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_acpi_pci_driver
-#define DynamicWRAPPER_FOR_struct_acpi_pci_driver
-MODULE_TYPE_WRAPPER(struct acpi_pci_driver*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct acpi_pci_driver\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_pci_driver));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_mii_if_info
-#define DynamicWRAPPER_FOR_struct_mii_if_info
-MODULE_TYPE_WRAPPER(struct mii_if_info*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct mii_if_info\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct mii_if_info));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_subsys_dev_iter
-#define DynamicWRAPPER_FOR_struct_subsys_dev_iter
-MODULE_TYPE_WRAPPER(struct subsys_dev_iter*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct subsys_dev_iter\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct subsys_dev_iter));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_netlink_kernel_cfg
-#define DynamicWRAPPER_FOR_struct_netlink_kernel_cfg
-MODULE_TYPE_WRAPPER(struct netlink_kernel_cfg*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct netlink_kernel_cfg\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct netlink_kernel_cfg));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_module_version_attribute
-#define DynamicWRAPPER_FOR_struct_module_version_attribute
-MODULE_TYPE_WRAPPER(struct module_version_attribute*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct module_version_attribute\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct module_version_attribute));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_prop_descriptor
-#define DynamicWRAPPER_FOR_struct_prop_descriptor
-MODULE_TYPE_WRAPPER(struct prop_descriptor*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct prop_descriptor\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct prop_descriptor));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_tasklet_struct
-#define DynamicWRAPPER_FOR_struct_tasklet_struct
-MODULE_TYPE_WRAPPER(struct tasklet_struct*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct tasklet_struct\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tasklet_struct));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_rtnl_af_ops
-#define DynamicWRAPPER_FOR_struct_rtnl_af_ops
-MODULE_TYPE_WRAPPER(struct rtnl_af_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct rtnl_af_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct rtnl_af_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pv_time_ops
-#define DynamicWRAPPER_FOR_struct_pv_time_ops
-MODULE_TYPE_WRAPPER(struct pv_time_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pv_time_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pv_time_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_kthread_work
-#define DynamicWRAPPER_FOR_struct_kthread_work
-MODULE_TYPE_WRAPPER(struct kthread_work*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct kthread_work\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct kthread_work));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_kthread_worker
-#define DynamicWRAPPER_FOR_struct_kthread_worker
-MODULE_TYPE_WRAPPER(struct kthread_worker*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct kthread_worker\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct kthread_worker));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_x86_init_mpparse
-#define DynamicWRAPPER_FOR_struct_x86_init_mpparse
-MODULE_TYPE_WRAPPER(struct x86_init_mpparse*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct x86_init_mpparse\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_mpparse));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_obs_kernel_param
-#define DynamicWRAPPER_FOR_struct_obs_kernel_param
-MODULE_TYPE_WRAPPER(struct obs_kernel_param*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct obs_kernel_param\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct obs_kernel_param));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pm_domain_data
-#define DynamicWRAPPER_FOR_struct_pm_domain_data
-MODULE_TYPE_WRAPPER(struct pm_domain_data*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pm_domain_data\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pm_domain_data));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_vm_struct
-#define DynamicWRAPPER_FOR_struct_vm_struct
-MODULE_TYPE_WRAPPER(struct vm_struct*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct vm_struct\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct vm_struct));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_miscdevice
-#define DynamicWRAPPER_FOR_struct_miscdevice
-MODULE_TYPE_WRAPPER(struct miscdevice*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct miscdevice\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct miscdevice));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_pv_irq_ops
-#define DynamicWRAPPER_FOR_struct_pv_irq_ops
-MODULE_TYPE_WRAPPER(struct pv_irq_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct pv_irq_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pv_irq_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
-})
-#endif
-
-
-#ifndef DynamicWRAPPER_FOR_struct_cdrom_device_ops
-#define DynamicWRAPPER_FOR_struct_cdrom_device_ops
-MODULE_TYPE_WRAPPER(struct cdrom_device_ops*, {
-    PRE{
-        if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct cdrom_device_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cdrom_device_ops));
-        }
-    }
-    NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -6604,277 +4071,1868 @@ MODULE_TYPE_WRAPPER(struct cdrom_device_info*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_cleancache_ops
-#define DynamicWRAPPER_FOR_struct_cleancache_ops
-MODULE_TYPE_WRAPPER(struct cleancache_ops*, {
+#ifndef DynamicWRAPPER_FOR_struct_cdrom_device_ops
+#define DynamicWRAPPER_FOR_struct_cdrom_device_ops
+MODULE_TYPE_WRAPPER(struct cdrom_device_ops*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct cleancache_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cleancache_ops));
+           DW(kern_printk( "dynamic wrapper struct cdrom_device_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cdrom_device_ops));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_client_extension
-#define DynamicWRAPPER_FOR_struct_client_extension
-MODULE_TYPE_WRAPPER(struct client_extension*, {
+#ifndef DynamicWRAPPER_FOR_struct_dm_dev
+#define DynamicWRAPPER_FOR_struct_dm_dev
+MODULE_TYPE_WRAPPER(struct dm_dev*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct client_extension\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct client_extension));
+           DW(kern_printk( "dynamic wrapper struct dm_dev\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dm_dev));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_thread_info
-#define DynamicWRAPPER_FOR_struct_thread_info
-MODULE_TYPE_WRAPPER(struct thread_info*, {
+#ifndef DynamicWRAPPER_FOR_struct_x86_platform_ops
+#define DynamicWRAPPER_FOR_struct_x86_platform_ops
+MODULE_TYPE_WRAPPER(struct x86_platform_ops*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct thread_info\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct thread_info));
+           DW(kern_printk( "dynamic wrapper struct x86_platform_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_platform_ops));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_mem_cgroup_reclaim_cookie
-#define DynamicWRAPPER_FOR_struct_mem_cgroup_reclaim_cookie
-MODULE_TYPE_WRAPPER(struct mem_cgroup_reclaim_cookie*, {
+#ifndef DynamicWRAPPER_FOR_struct_scsi_host_template
+#define DynamicWRAPPER_FOR_struct_scsi_host_template
+MODULE_TYPE_WRAPPER(struct scsi_host_template*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct mem_cgroup_reclaim_cookie\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct mem_cgroup_reclaim_cookie));
+           DW(kern_printk( "dynamic wrapper struct scsi_host_template\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct scsi_host_template));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_jbd2_journal_handle
-#define DynamicWRAPPER_FOR_struct_jbd2_journal_handle
-MODULE_TYPE_WRAPPER(struct jbd2_journal_handle*, {
+#ifndef DynamicWRAPPER_FOR_struct_Scsi_Host
+#define DynamicWRAPPER_FOR_struct_Scsi_Host
+MODULE_TYPE_WRAPPER(struct Scsi_Host*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct jbd2_journal_handle\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct jbd2_journal_handle));
+           DW(kern_printk( "dynamic wrapper struct Scsi_Host\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct Scsi_Host));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_acpi_device_physical_node
-#define DynamicWRAPPER_FOR_struct_acpi_device_physical_node
-MODULE_TYPE_WRAPPER(struct acpi_device_physical_node*, {
+#ifndef DynamicWRAPPER_FOR_struct_ata_queued_cmd
+#define DynamicWRAPPER_FOR_struct_ata_queued_cmd
+MODULE_TYPE_WRAPPER(struct ata_queued_cmd*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct acpi_device_physical_node\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_device_physical_node));
+           DW(kern_printk( "dynamic wrapper struct ata_queued_cmd\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_queued_cmd));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_debug_obj_descr
-#define DynamicWRAPPER_FOR_struct_debug_obj_descr
-MODULE_TYPE_WRAPPER(struct debug_obj_descr*, {
+#ifndef DynamicWRAPPER_FOR_struct_ata_host
+#define DynamicWRAPPER_FOR_struct_ata_host
+MODULE_TYPE_WRAPPER(struct ata_host*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct debug_obj_descr\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct debug_obj_descr));
+           DW(kern_printk( "dynamic wrapper struct ata_host\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_host));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_nl_info
-#define DynamicWRAPPER_FOR_struct_nl_info
-MODULE_TYPE_WRAPPER(struct nl_info*, {
+#ifndef DynamicWRAPPER_FOR_struct_ata_port_operations
+#define DynamicWRAPPER_FOR_struct_ata_port_operations
+MODULE_TYPE_WRAPPER(struct ata_port_operations*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct nl_info\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct nl_info));
+           DW(kern_printk( "dynamic wrapper struct ata_port_operations\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_port_operations));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_ata_port_info
-#define DynamicWRAPPER_FOR_struct_ata_port_info
-MODULE_TYPE_WRAPPER(struct ata_port_info*, {
+#ifndef DynamicWRAPPER_FOR_struct_ata_port
+#define DynamicWRAPPER_FOR_struct_ata_port
+MODULE_TYPE_WRAPPER(struct ata_port*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ata_port_info\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_port_info));
+           DW(kern_printk( "dynamic wrapper struct ata_port\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_port));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_module_use
-#define DynamicWRAPPER_FOR_struct_module_use
-MODULE_TYPE_WRAPPER(struct module_use*, {
+#ifndef DynamicWRAPPER_FOR_struct_ata_eh_context
+#define DynamicWRAPPER_FOR_struct_ata_eh_context
+MODULE_TYPE_WRAPPER(struct ata_eh_context*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct module_use\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct module_use));
+           DW(kern_printk( "dynamic wrapper struct ata_eh_context\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_eh_context));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_blk_plug_cb
-#define DynamicWRAPPER_FOR_struct_blk_plug_cb
-MODULE_TYPE_WRAPPER(struct blk_plug_cb*, {
+#ifndef DynamicWRAPPER_FOR_struct_ata_link
+#define DynamicWRAPPER_FOR_struct_ata_link
+MODULE_TYPE_WRAPPER(struct ata_link*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct blk_plug_cb\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct blk_plug_cb));
+           DW(kern_printk( "dynamic wrapper struct ata_link\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_link));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_debug_obj
-#define DynamicWRAPPER_FOR_struct_debug_obj
-MODULE_TYPE_WRAPPER(struct debug_obj*, {
+#ifndef DynamicWRAPPER_FOR_struct_ata_device
+#define DynamicWRAPPER_FOR_struct_ata_device
+MODULE_TYPE_WRAPPER(struct ata_device*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct debug_obj\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct debug_obj));
+           DW(kern_printk( "dynamic wrapper struct ata_device\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_device));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_x86_init_iommu
-#define DynamicWRAPPER_FOR_struct_x86_init_iommu
-MODULE_TYPE_WRAPPER(struct x86_init_iommu*, {
+#ifndef DynamicWRAPPER_FOR_struct_ata_eh_info
+#define DynamicWRAPPER_FOR_struct_ata_eh_info
+MODULE_TYPE_WRAPPER(struct ata_eh_info*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct x86_init_iommu\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_iommu));
+           DW(kern_printk( "dynamic wrapper struct ata_eh_info\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_eh_info));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_cgroup_scanner
-#define DynamicWRAPPER_FOR_struct_cgroup_scanner
-MODULE_TYPE_WRAPPER(struct cgroup_scanner*, {
+#ifndef DynamicWRAPPER_FOR_struct_nf_afinfo
+#define DynamicWRAPPER_FOR_struct_nf_afinfo
+MODULE_TYPE_WRAPPER(struct nf_afinfo*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct cgroup_scanner\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cgroup_scanner));
+           DW(kern_printk( "dynamic wrapper struct nf_afinfo\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct nf_afinfo));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_ida
-#define DynamicWRAPPER_FOR_struct_ida
-MODULE_TYPE_WRAPPER(struct ida*, {
+#ifndef DynamicWRAPPER_FOR_struct_hrtimer_sleeper
+#define DynamicWRAPPER_FOR_struct_hrtimer_sleeper
+MODULE_TYPE_WRAPPER(struct hrtimer_sleeper*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct ida\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ida));
+           DW(kern_printk( "dynamic wrapper struct hrtimer_sleeper\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct hrtimer_sleeper));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_execute_work
-#define DynamicWRAPPER_FOR_struct_execute_work
-MODULE_TYPE_WRAPPER(struct execute_work*, {
+#ifndef DynamicWRAPPER_FOR_struct___wait_queue
+#define DynamicWRAPPER_FOR_struct___wait_queue
+MODULE_TYPE_WRAPPER(struct __wait_queue*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct execute_work\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct execute_work));
+           DW(kern_printk( "dynamic wrapper struct __wait_queue\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct __wait_queue));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_x86_msi_ops
-#define DynamicWRAPPER_FOR_struct_x86_msi_ops
-MODULE_TYPE_WRAPPER(struct x86_msi_ops*, {
+#ifndef DynamicWRAPPER_FOR_struct_poll_table_entry
+#define DynamicWRAPPER_FOR_struct_poll_table_entry
+MODULE_TYPE_WRAPPER(struct poll_table_entry*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct x86_msi_ops\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_msi_ops));
+           DW(kern_printk( "dynamic wrapper struct poll_table_entry\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct poll_table_entry));
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
 
-#ifndef DynamicWRAPPER_FOR_struct_raw6_sock
-#define DynamicWRAPPER_FOR_struct_raw6_sock
-MODULE_TYPE_WRAPPER(struct raw6_sock*, {
+#ifndef DynamicWRAPPER_FOR_struct_poll_wqueues
+#define DynamicWRAPPER_FOR_struct_poll_wqueues
+MODULE_TYPE_WRAPPER(struct poll_wqueues*, {
     PRE{
         if(!is_alias_address((uint64_t)arg)){
-           DW(kern_printk( "dynamic wrapper struct raw6_sock\n");)
-           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct raw6_sock));
+           DW(kern_printk( "dynamic wrapper struct poll_wqueues\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct poll_wqueues));
         }
     }
     NO_POST
-    NO_RETURN
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_dev_ext_attribute
+#define DynamicWRAPPER_FOR_struct_dev_ext_attribute
+MODULE_TYPE_WRAPPER(struct dev_ext_attribute*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct dev_ext_attribute\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dev_ext_attribute));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pv_apic_ops
+#define DynamicWRAPPER_FOR_struct_pv_apic_ops
+MODULE_TYPE_WRAPPER(struct pv_apic_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pv_apic_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pv_apic_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_atomic_notifier_head
+#define DynamicWRAPPER_FOR_struct_atomic_notifier_head
+MODULE_TYPE_WRAPPER(struct atomic_notifier_head*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct atomic_notifier_head\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct atomic_notifier_head));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_inet_connection_sock_af_ops
+#define DynamicWRAPPER_FOR_struct_inet_connection_sock_af_ops
+MODULE_TYPE_WRAPPER(struct inet_connection_sock_af_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct inet_connection_sock_af_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_connection_sock_af_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_tree_descr
+#define DynamicWRAPPER_FOR_struct_tree_descr
+MODULE_TYPE_WRAPPER(struct tree_descr*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct tree_descr\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tree_descr));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_restart_block
+#define DynamicWRAPPER_FOR_struct_restart_block
+MODULE_TYPE_WRAPPER(struct restart_block*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct restart_block\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct restart_block));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_napi_gro_cb
+#define DynamicWRAPPER_FOR_struct_napi_gro_cb
+MODULE_TYPE_WRAPPER(struct napi_gro_cb*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct napi_gro_cb\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct napi_gro_cb));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_inet_request_sock
+#define DynamicWRAPPER_FOR_struct_inet_request_sock
+MODULE_TYPE_WRAPPER(struct inet_request_sock*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct inet_request_sock\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_request_sock));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_tcp_request_sock
+#define DynamicWRAPPER_FOR_struct_tcp_request_sock
+MODULE_TYPE_WRAPPER(struct tcp_request_sock*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct tcp_request_sock\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tcp_request_sock));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_fastopen_queue
+#define DynamicWRAPPER_FOR_struct_fastopen_queue
+MODULE_TYPE_WRAPPER(struct fastopen_queue*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct fastopen_queue\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct fastopen_queue));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_request_sock_queue
+#define DynamicWRAPPER_FOR_struct_request_sock_queue
+MODULE_TYPE_WRAPPER(struct request_sock_queue*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct request_sock_queue\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct request_sock_queue));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_inet_connection_sock
+#define DynamicWRAPPER_FOR_struct_inet_connection_sock
+MODULE_TYPE_WRAPPER(struct inet_connection_sock*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct inet_connection_sock\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_connection_sock));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_dma_async_tx_descriptor
+#define DynamicWRAPPER_FOR_struct_dma_async_tx_descriptor
+MODULE_TYPE_WRAPPER(struct dma_async_tx_descriptor*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct dma_async_tx_descriptor\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dma_async_tx_descriptor));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_dma_device
+#define DynamicWRAPPER_FOR_struct_dma_device
+MODULE_TYPE_WRAPPER(struct dma_device*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct dma_device\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dma_device));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_dma_chan_dev
+#define DynamicWRAPPER_FOR_struct_dma_chan_dev
+MODULE_TYPE_WRAPPER(struct dma_chan_dev*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct dma_chan_dev\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dma_chan_dev));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_dma_chan
+#define DynamicWRAPPER_FOR_struct_dma_chan
+MODULE_TYPE_WRAPPER(struct dma_chan*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct dma_chan\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dma_chan));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_dma_page_list
+#define DynamicWRAPPER_FOR_struct_dma_page_list
+MODULE_TYPE_WRAPPER(struct dma_page_list*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct dma_page_list\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dma_page_list));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_tcp_sock
+#define DynamicWRAPPER_FOR_struct_tcp_sock
+MODULE_TYPE_WRAPPER(struct tcp_sock*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct tcp_sock\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tcp_sock));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_inet_frag_queue
+#define DynamicWRAPPER_FOR_struct_inet_frag_queue
+MODULE_TYPE_WRAPPER(struct inet_frag_queue*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct inet_frag_queue\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_frag_queue));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_inet_frags
+#define DynamicWRAPPER_FOR_struct_inet_frags
+MODULE_TYPE_WRAPPER(struct inet_frags*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct inet_frags\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_frags));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_ff_device
+#define DynamicWRAPPER_FOR_struct_ff_device
+MODULE_TYPE_WRAPPER(struct ff_device*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct ff_device\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ff_device));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_input_handler
+#define DynamicWRAPPER_FOR_struct_input_handler
+MODULE_TYPE_WRAPPER(struct input_handler*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct input_handler\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct input_handler));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_input_handle
+#define DynamicWRAPPER_FOR_struct_input_handle
+MODULE_TYPE_WRAPPER(struct input_handle*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct input_handle\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct input_handle));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_input_dev
+#define DynamicWRAPPER_FOR_struct_input_dev
+MODULE_TYPE_WRAPPER(struct input_dev*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct input_dev\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct input_dev));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_sg_mapping_iter
+#define DynamicWRAPPER_FOR_struct_sg_mapping_iter
+MODULE_TYPE_WRAPPER(struct sg_mapping_iter*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct sg_mapping_iter\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct sg_mapping_iter));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_mutex_waiter
+#define DynamicWRAPPER_FOR_struct_mutex_waiter
+MODULE_TYPE_WRAPPER(struct mutex_waiter*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct mutex_waiter\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct mutex_waiter));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_tracepoint
+#define DynamicWRAPPER_FOR_struct_tracepoint
+MODULE_TYPE_WRAPPER(struct tracepoint*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct tracepoint\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tracepoint));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_clocksource
+#define DynamicWRAPPER_FOR_struct_clocksource
+MODULE_TYPE_WRAPPER(struct clocksource*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct clocksource\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct clocksource));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_task_migration_notifier
+#define DynamicWRAPPER_FOR_struct_task_migration_notifier
+MODULE_TYPE_WRAPPER(struct task_migration_notifier*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct task_migration_notifier\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct task_migration_notifier));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_flow_cache_object
+#define DynamicWRAPPER_FOR_struct_flow_cache_object
+MODULE_TYPE_WRAPPER(struct flow_cache_object*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct flow_cache_object\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct flow_cache_object));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_flow_cache_ops
+#define DynamicWRAPPER_FOR_struct_flow_cache_ops
+MODULE_TYPE_WRAPPER(struct flow_cache_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct flow_cache_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct flow_cache_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_blk_scsi_cmd_filter
+#define DynamicWRAPPER_FOR_struct_blk_scsi_cmd_filter
+MODULE_TYPE_WRAPPER(struct blk_scsi_cmd_filter*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct blk_scsi_cmd_filter\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct blk_scsi_cmd_filter));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_req_iterator
+#define DynamicWRAPPER_FOR_struct_req_iterator
+MODULE_TYPE_WRAPPER(struct req_iterator*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct req_iterator\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct req_iterator));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_acpi_device_dir
+#define DynamicWRAPPER_FOR_struct_acpi_device_dir
+MODULE_TYPE_WRAPPER(struct acpi_device_dir*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct acpi_device_dir\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_device_dir));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_cgroup_map_cb
+#define DynamicWRAPPER_FOR_struct_cgroup_map_cb
+MODULE_TYPE_WRAPPER(struct cgroup_map_cb*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct cgroup_map_cb\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cgroup_map_cb));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_node
+#define DynamicWRAPPER_FOR_struct_node
+MODULE_TYPE_WRAPPER(struct node*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct node\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct node));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_clock_event_device
+#define DynamicWRAPPER_FOR_struct_clock_event_device
+MODULE_TYPE_WRAPPER(struct clock_event_device*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct clock_event_device\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct clock_event_device));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_tick_device
+#define DynamicWRAPPER_FOR_struct_tick_device
+MODULE_TYPE_WRAPPER(struct tick_device*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct tick_device\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tick_device));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_ahash_request
+#define DynamicWRAPPER_FOR_struct_ahash_request
+MODULE_TYPE_WRAPPER(struct ahash_request*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct ahash_request\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ahash_request));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_crypto_ahash
+#define DynamicWRAPPER_FOR_struct_crypto_ahash
+MODULE_TYPE_WRAPPER(struct crypto_ahash*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct crypto_ahash\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_ahash));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_raw_notifier_head
+#define DynamicWRAPPER_FOR_struct_raw_notifier_head
+MODULE_TYPE_WRAPPER(struct raw_notifier_head*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct raw_notifier_head\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct raw_notifier_head));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_net_proto_family
+#define DynamicWRAPPER_FOR_struct_net_proto_family
+MODULE_TYPE_WRAPPER(struct net_proto_family*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct net_proto_family\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct net_proto_family));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_offload_callbacks
+#define DynamicWRAPPER_FOR_struct_offload_callbacks
+MODULE_TYPE_WRAPPER(struct offload_callbacks*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct offload_callbacks\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct offload_callbacks));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_class_attribute_string
+#define DynamicWRAPPER_FOR_struct_class_attribute_string
+MODULE_TYPE_WRAPPER(struct class_attribute_string*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct class_attribute_string\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct class_attribute_string));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_subsys_interface
+#define DynamicWRAPPER_FOR_struct_subsys_interface
+MODULE_TYPE_WRAPPER(struct subsys_interface*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct subsys_interface\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct subsys_interface));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_ubuf_info
+#define DynamicWRAPPER_FOR_struct_ubuf_info
+MODULE_TYPE_WRAPPER(struct ubuf_info*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct ubuf_info\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ubuf_info));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_disk_part_iter
+#define DynamicWRAPPER_FOR_struct_disk_part_iter
+MODULE_TYPE_WRAPPER(struct disk_part_iter*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct disk_part_iter\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct disk_part_iter));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_idr_layer
+#define DynamicWRAPPER_FOR_struct_idr_layer
+MODULE_TYPE_WRAPPER(struct idr_layer*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct idr_layer\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct idr_layer));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_idr
+#define DynamicWRAPPER_FOR_struct_idr
+MODULE_TYPE_WRAPPER(struct idr*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct idr\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct idr));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_cftype
+#define DynamicWRAPPER_FOR_struct_cftype
+MODULE_TYPE_WRAPPER(struct cftype*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct cftype\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cftype));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_cftype_set
+#define DynamicWRAPPER_FOR_struct_cftype_set
+MODULE_TYPE_WRAPPER(struct cftype_set*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct cftype_set\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cftype_set));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_cgroup_subsys
+#define DynamicWRAPPER_FOR_struct_cgroup_subsys
+MODULE_TYPE_WRAPPER(struct cgroup_subsys*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct cgroup_subsys\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cgroup_subsys));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_acpi_device_ops
+#define DynamicWRAPPER_FOR_struct_acpi_device_ops
+MODULE_TYPE_WRAPPER(struct acpi_device_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct acpi_device_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_device_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_acpi_driver
+#define DynamicWRAPPER_FOR_struct_acpi_driver
+MODULE_TYPE_WRAPPER(struct acpi_driver*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct acpi_driver\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_driver));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_acpi_device
+#define DynamicWRAPPER_FOR_struct_acpi_device
+MODULE_TYPE_WRAPPER(struct acpi_device*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct acpi_device\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_device));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_acpi_pci_root
+#define DynamicWRAPPER_FOR_struct_acpi_pci_root
+MODULE_TYPE_WRAPPER(struct acpi_pci_root*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct acpi_pci_root\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_pci_root));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_ip_options_data
+#define DynamicWRAPPER_FOR_struct_ip_options_data
+MODULE_TYPE_WRAPPER(struct ip_options_data*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct ip_options_data\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ip_options_data));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_napi_struct
+#define DynamicWRAPPER_FOR_struct_napi_struct
+MODULE_TYPE_WRAPPER(struct napi_struct*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct napi_struct\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct napi_struct));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pv_lock_ops
+#define DynamicWRAPPER_FOR_struct_pv_lock_ops
+MODULE_TYPE_WRAPPER(struct pv_lock_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pv_lock_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pv_lock_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pci_host_bridge
+#define DynamicWRAPPER_FOR_struct_pci_host_bridge
+MODULE_TYPE_WRAPPER(struct pci_host_bridge*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pci_host_bridge\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_host_bridge));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_x86_init_paging
+#define DynamicWRAPPER_FOR_struct_x86_init_paging
+MODULE_TYPE_WRAPPER(struct x86_init_paging*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct x86_init_paging\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_paging));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_softirq_action
+#define DynamicWRAPPER_FOR_struct_softirq_action
+MODULE_TYPE_WRAPPER(struct softirq_action*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct softirq_action\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct softirq_action));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_crypto_cipher
+#define DynamicWRAPPER_FOR_struct_crypto_cipher
+MODULE_TYPE_WRAPPER(struct crypto_cipher*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct crypto_cipher\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_cipher));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_mb_cache
+#define DynamicWRAPPER_FOR_struct_mb_cache
+MODULE_TYPE_WRAPPER(struct mb_cache*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct mb_cache\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct mb_cache));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_nf_sockopt_ops
+#define DynamicWRAPPER_FOR_struct_nf_sockopt_ops
+MODULE_TYPE_WRAPPER(struct nf_sockopt_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct nf_sockopt_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct nf_sockopt_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_ts_config
+#define DynamicWRAPPER_FOR_struct_ts_config
+MODULE_TYPE_WRAPPER(struct ts_config*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct ts_config\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ts_config));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_ts_ops
+#define DynamicWRAPPER_FOR_struct_ts_ops
+MODULE_TYPE_WRAPPER(struct ts_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct ts_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ts_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pnp_fixup
+#define DynamicWRAPPER_FOR_struct_pnp_fixup
+MODULE_TYPE_WRAPPER(struct pnp_fixup*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pnp_fixup\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pnp_fixup));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pv_init_ops
+#define DynamicWRAPPER_FOR_struct_pv_init_ops
+MODULE_TYPE_WRAPPER(struct pv_init_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pv_init_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pv_init_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_qtree_fmt_operations
+#define DynamicWRAPPER_FOR_struct_qtree_fmt_operations
+MODULE_TYPE_WRAPPER(struct qtree_fmt_operations*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct qtree_fmt_operations\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct qtree_fmt_operations));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_qtree_mem_dqinfo
+#define DynamicWRAPPER_FOR_struct_qtree_mem_dqinfo
+MODULE_TYPE_WRAPPER(struct qtree_mem_dqinfo*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct qtree_mem_dqinfo\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct qtree_mem_dqinfo));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_tcp6_request_sock
+#define DynamicWRAPPER_FOR_struct_tcp6_request_sock
+MODULE_TYPE_WRAPPER(struct tcp6_request_sock*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct tcp6_request_sock\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tcp6_request_sock));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_x86_init_timers
+#define DynamicWRAPPER_FOR_struct_x86_init_timers
+MODULE_TYPE_WRAPPER(struct x86_init_timers*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct x86_init_timers\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_timers));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_cyclecounter
+#define DynamicWRAPPER_FOR_struct_cyclecounter
+MODULE_TYPE_WRAPPER(struct cyclecounter*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct cyclecounter\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cyclecounter));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_timecounter
+#define DynamicWRAPPER_FOR_struct_timecounter
+MODULE_TYPE_WRAPPER(struct timecounter*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct timecounter\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct timecounter));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_x86_init_oem
+#define DynamicWRAPPER_FOR_struct_x86_init_oem
+MODULE_TYPE_WRAPPER(struct x86_init_oem*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct x86_init_oem\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_oem));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_hash_alg_common
+#define DynamicWRAPPER_FOR_struct_hash_alg_common
+MODULE_TYPE_WRAPPER(struct hash_alg_common*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct hash_alg_common\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct hash_alg_common));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_rcu_batch
+#define DynamicWRAPPER_FOR_struct_rcu_batch
+MODULE_TYPE_WRAPPER(struct rcu_batch*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct rcu_batch\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct rcu_batch));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_srcu_struct
+#define DynamicWRAPPER_FOR_struct_srcu_struct
+MODULE_TYPE_WRAPPER(struct srcu_struct*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct srcu_struct\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct srcu_struct));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_srcu_notifier_head
+#define DynamicWRAPPER_FOR_struct_srcu_notifier_head
+MODULE_TYPE_WRAPPER(struct srcu_notifier_head*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct srcu_notifier_head\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct srcu_notifier_head));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_tp_module
+#define DynamicWRAPPER_FOR_struct_tp_module
+MODULE_TYPE_WRAPPER(struct tp_module*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct tp_module\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tp_module));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_tracepoint_iter
+#define DynamicWRAPPER_FOR_struct_tracepoint_iter
+MODULE_TYPE_WRAPPER(struct tracepoint_iter*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct tracepoint_iter\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tracepoint_iter));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_phy_fixup
+#define DynamicWRAPPER_FOR_struct_phy_fixup
+MODULE_TYPE_WRAPPER(struct phy_fixup*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct phy_fixup\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct phy_fixup));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_acpi_sleep_functions
+#define DynamicWRAPPER_FOR_struct_acpi_sleep_functions
+MODULE_TYPE_WRAPPER(struct acpi_sleep_functions*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct acpi_sleep_functions\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_sleep_functions));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_smp_ops
+#define DynamicWRAPPER_FOR_struct_smp_ops
+MODULE_TYPE_WRAPPER(struct smp_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct smp_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct smp_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_tcp6_sock
+#define DynamicWRAPPER_FOR_struct_tcp6_sock
+MODULE_TYPE_WRAPPER(struct tcp6_sock*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct tcp6_sock\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tcp6_sock));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_x86_init_resources
+#define DynamicWRAPPER_FOR_struct_x86_init_resources
+MODULE_TYPE_WRAPPER(struct x86_init_resources*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct x86_init_resources\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_resources));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_acpi_bus_type
+#define DynamicWRAPPER_FOR_struct_acpi_bus_type
+MODULE_TYPE_WRAPPER(struct acpi_bus_type*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct acpi_bus_type\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_bus_type));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_crypto_comp
+#define DynamicWRAPPER_FOR_struct_crypto_comp
+MODULE_TYPE_WRAPPER(struct crypto_comp*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct crypto_comp\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct crypto_comp));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_dmi_system_id
+#define DynamicWRAPPER_FOR_struct_dmi_system_id
+MODULE_TYPE_WRAPPER(struct dmi_system_id*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct dmi_system_id\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dmi_system_id));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_target_type
+#define DynamicWRAPPER_FOR_struct_target_type
+MODULE_TYPE_WRAPPER(struct target_type*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct target_type\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct target_type));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_dm_target
+#define DynamicWRAPPER_FOR_struct_dm_target
+MODULE_TYPE_WRAPPER(struct dm_target*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct dm_target\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dm_target));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_apic
+#define DynamicWRAPPER_FOR_struct_apic
+MODULE_TYPE_WRAPPER(struct apic*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct apic\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct apic));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_ahash_alg
+#define DynamicWRAPPER_FOR_struct_ahash_alg
+MODULE_TYPE_WRAPPER(struct ahash_alg*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct ahash_alg\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ahash_alg));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_proc_inode
+#define DynamicWRAPPER_FOR_struct_proc_inode
+MODULE_TYPE_WRAPPER(struct proc_inode*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct proc_inode\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct proc_inode));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_dm_target_callbacks
+#define DynamicWRAPPER_FOR_struct_dm_target_callbacks
+MODULE_TYPE_WRAPPER(struct dm_target_callbacks*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct dm_target_callbacks\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct dm_target_callbacks));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_netlink_notify
+#define DynamicWRAPPER_FOR_struct_netlink_notify
+MODULE_TYPE_WRAPPER(struct netlink_notify*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct netlink_notify\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct netlink_notify));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_inet_timewait_sock
+#define DynamicWRAPPER_FOR_struct_inet_timewait_sock
+MODULE_TYPE_WRAPPER(struct inet_timewait_sock*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct inet_timewait_sock\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_timewait_sock));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_shash_desc
+#define DynamicWRAPPER_FOR_struct_shash_desc
+MODULE_TYPE_WRAPPER(struct shash_desc*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct shash_desc\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct shash_desc));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_shash_alg
+#define DynamicWRAPPER_FOR_struct_shash_alg
+MODULE_TYPE_WRAPPER(struct shash_alg*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct shash_alg\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct shash_alg));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_acpi_dock_ops
+#define DynamicWRAPPER_FOR_struct_acpi_dock_ops
+MODULE_TYPE_WRAPPER(struct acpi_dock_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct acpi_dock_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_dock_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_tcp_timewait_sock
+#define DynamicWRAPPER_FOR_struct_tcp_timewait_sock
+MODULE_TYPE_WRAPPER(struct tcp_timewait_sock*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct tcp_timewait_sock\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tcp_timewait_sock));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_tcp6_timewait_sock
+#define DynamicWRAPPER_FOR_struct_tcp6_timewait_sock
+MODULE_TYPE_WRAPPER(struct tcp6_timewait_sock*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct tcp6_timewait_sock\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tcp6_timewait_sock));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_klist_iter
+#define DynamicWRAPPER_FOR_struct_klist_iter
+MODULE_TYPE_WRAPPER(struct klist_iter*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct klist_iter\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct klist_iter));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_inet_timewait_death_row
+#define DynamicWRAPPER_FOR_struct_inet_timewait_death_row
+MODULE_TYPE_WRAPPER(struct inet_timewait_death_row*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct inet_timewait_death_row\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct inet_timewait_death_row));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_class_interface
+#define DynamicWRAPPER_FOR_struct_class_interface
+MODULE_TYPE_WRAPPER(struct class_interface*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct class_interface\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct class_interface));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_wait_bit_queue
+#define DynamicWRAPPER_FOR_struct_wait_bit_queue
+MODULE_TYPE_WRAPPER(struct wait_bit_queue*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct wait_bit_queue\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct wait_bit_queue));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_skb_seq_state
+#define DynamicWRAPPER_FOR_struct_skb_seq_state
+MODULE_TYPE_WRAPPER(struct skb_seq_state*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct skb_seq_state\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct skb_seq_state));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_acpi_pci_driver
+#define DynamicWRAPPER_FOR_struct_acpi_pci_driver
+MODULE_TYPE_WRAPPER(struct acpi_pci_driver*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct acpi_pci_driver\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_pci_driver));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_mii_if_info
+#define DynamicWRAPPER_FOR_struct_mii_if_info
+MODULE_TYPE_WRAPPER(struct mii_if_info*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct mii_if_info\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct mii_if_info));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_subsys_dev_iter
+#define DynamicWRAPPER_FOR_struct_subsys_dev_iter
+MODULE_TYPE_WRAPPER(struct subsys_dev_iter*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct subsys_dev_iter\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct subsys_dev_iter));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_netlink_kernel_cfg
+#define DynamicWRAPPER_FOR_struct_netlink_kernel_cfg
+MODULE_TYPE_WRAPPER(struct netlink_kernel_cfg*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct netlink_kernel_cfg\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct netlink_kernel_cfg));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_module_version_attribute
+#define DynamicWRAPPER_FOR_struct_module_version_attribute
+MODULE_TYPE_WRAPPER(struct module_version_attribute*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct module_version_attribute\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct module_version_attribute));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_prop_descriptor
+#define DynamicWRAPPER_FOR_struct_prop_descriptor
+MODULE_TYPE_WRAPPER(struct prop_descriptor*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct prop_descriptor\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct prop_descriptor));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_tasklet_struct
+#define DynamicWRAPPER_FOR_struct_tasklet_struct
+MODULE_TYPE_WRAPPER(struct tasklet_struct*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct tasklet_struct\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct tasklet_struct));
+        }
+    }
+    NO_POST
 })
 #endif
 
@@ -6889,7 +5947,440 @@ MODULE_TYPE_WRAPPER(struct softnet_data*, {
         }
     }
     NO_POST
-    NO_RETURN
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_rtnl_af_ops
+#define DynamicWRAPPER_FOR_struct_rtnl_af_ops
+MODULE_TYPE_WRAPPER(struct rtnl_af_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct rtnl_af_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct rtnl_af_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pv_time_ops
+#define DynamicWRAPPER_FOR_struct_pv_time_ops
+MODULE_TYPE_WRAPPER(struct pv_time_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pv_time_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pv_time_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_kthread_work
+#define DynamicWRAPPER_FOR_struct_kthread_work
+MODULE_TYPE_WRAPPER(struct kthread_work*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct kthread_work\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct kthread_work));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_kthread_worker
+#define DynamicWRAPPER_FOR_struct_kthread_worker
+MODULE_TYPE_WRAPPER(struct kthread_worker*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct kthread_worker\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct kthread_worker));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_x86_init_mpparse
+#define DynamicWRAPPER_FOR_struct_x86_init_mpparse
+MODULE_TYPE_WRAPPER(struct x86_init_mpparse*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct x86_init_mpparse\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_mpparse));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_obs_kernel_param
+#define DynamicWRAPPER_FOR_struct_obs_kernel_param
+MODULE_TYPE_WRAPPER(struct obs_kernel_param*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct obs_kernel_param\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct obs_kernel_param));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_vm_struct
+#define DynamicWRAPPER_FOR_struct_vm_struct
+MODULE_TYPE_WRAPPER(struct vm_struct*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct vm_struct\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct vm_struct));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_miscdevice
+#define DynamicWRAPPER_FOR_struct_miscdevice
+MODULE_TYPE_WRAPPER(struct miscdevice*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct miscdevice\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct miscdevice));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pv_irq_ops
+#define DynamicWRAPPER_FOR_struct_pv_irq_ops
+MODULE_TYPE_WRAPPER(struct pv_irq_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pv_irq_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pv_irq_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_cleancache_ops
+#define DynamicWRAPPER_FOR_struct_cleancache_ops
+MODULE_TYPE_WRAPPER(struct cleancache_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct cleancache_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cleancache_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_client_extension
+#define DynamicWRAPPER_FOR_struct_client_extension
+MODULE_TYPE_WRAPPER(struct client_extension*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct client_extension\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct client_extension));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_thread_info
+#define DynamicWRAPPER_FOR_struct_thread_info
+MODULE_TYPE_WRAPPER(struct thread_info*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct thread_info\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct thread_info));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_mem_cgroup_reclaim_cookie
+#define DynamicWRAPPER_FOR_struct_mem_cgroup_reclaim_cookie
+MODULE_TYPE_WRAPPER(struct mem_cgroup_reclaim_cookie*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct mem_cgroup_reclaim_cookie\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct mem_cgroup_reclaim_cookie));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_jbd2_journal_handle
+#define DynamicWRAPPER_FOR_struct_jbd2_journal_handle
+MODULE_TYPE_WRAPPER(struct jbd2_journal_handle*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct jbd2_journal_handle\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct jbd2_journal_handle));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_acpi_device_physical_node
+#define DynamicWRAPPER_FOR_struct_acpi_device_physical_node
+MODULE_TYPE_WRAPPER(struct acpi_device_physical_node*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct acpi_device_physical_node\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct acpi_device_physical_node));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_debug_obj_descr
+#define DynamicWRAPPER_FOR_struct_debug_obj_descr
+MODULE_TYPE_WRAPPER(struct debug_obj_descr*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct debug_obj_descr\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct debug_obj_descr));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_nl_info
+#define DynamicWRAPPER_FOR_struct_nl_info
+MODULE_TYPE_WRAPPER(struct nl_info*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct nl_info\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct nl_info));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_ata_port_info
+#define DynamicWRAPPER_FOR_struct_ata_port_info
+MODULE_TYPE_WRAPPER(struct ata_port_info*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct ata_port_info\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ata_port_info));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_module_use
+#define DynamicWRAPPER_FOR_struct_module_use
+MODULE_TYPE_WRAPPER(struct module_use*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct module_use\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct module_use));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_firmware
+#define DynamicWRAPPER_FOR_struct_firmware
+MODULE_TYPE_WRAPPER(struct firmware*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct firmware\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct firmware));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_blk_plug_cb
+#define DynamicWRAPPER_FOR_struct_blk_plug_cb
+MODULE_TYPE_WRAPPER(struct blk_plug_cb*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct blk_plug_cb\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct blk_plug_cb));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_debug_obj
+#define DynamicWRAPPER_FOR_struct_debug_obj
+MODULE_TYPE_WRAPPER(struct debug_obj*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct debug_obj\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct debug_obj));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_x86_init_iommu
+#define DynamicWRAPPER_FOR_struct_x86_init_iommu
+MODULE_TYPE_WRAPPER(struct x86_init_iommu*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct x86_init_iommu\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_init_iommu));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_cgroup_scanner
+#define DynamicWRAPPER_FOR_struct_cgroup_scanner
+MODULE_TYPE_WRAPPER(struct cgroup_scanner*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct cgroup_scanner\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct cgroup_scanner));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_skb_shared_info
+#define DynamicWRAPPER_FOR_struct_skb_shared_info
+MODULE_TYPE_WRAPPER(struct skb_shared_info*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct skb_shared_info\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct skb_shared_info));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_ida
+#define DynamicWRAPPER_FOR_struct_ida
+MODULE_TYPE_WRAPPER(struct ida*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct ida\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct ida));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_execute_work
+#define DynamicWRAPPER_FOR_struct_execute_work
+MODULE_TYPE_WRAPPER(struct execute_work*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct execute_work\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct execute_work));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_x86_msi_ops
+#define DynamicWRAPPER_FOR_struct_x86_msi_ops
+MODULE_TYPE_WRAPPER(struct x86_msi_ops*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct x86_msi_ops\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct x86_msi_ops));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_raw6_sock
+#define DynamicWRAPPER_FOR_struct_raw6_sock
+MODULE_TYPE_WRAPPER(struct raw6_sock*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct raw6_sock\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct raw6_sock));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_biovec_slab
+#define DynamicWRAPPER_FOR_struct_biovec_slab
+MODULE_TYPE_WRAPPER(struct biovec_slab*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct biovec_slab\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct biovec_slab));
+        }
+    }
+    NO_POST
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pci_fixup
+#define DynamicWRAPPER_FOR_struct_pci_fixup
+MODULE_TYPE_WRAPPER(struct pci_fixup*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pci_fixup\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pci_fixup));
+        }
+    }
+    NO_POST
 })
 #endif
 
@@ -6904,7 +6395,6 @@ MODULE_TYPE_WRAPPER(struct packet_offload*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -6919,7 +6409,6 @@ MODULE_TYPE_WRAPPER(struct tasklet_hrtimer*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -6934,7 +6423,6 @@ MODULE_TYPE_WRAPPER(struct bio_pair*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -6949,7 +6437,6 @@ MODULE_TYPE_WRAPPER(struct rt_mutex*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -6964,7 +6451,6 @@ MODULE_TYPE_WRAPPER(struct dm_target_io*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -6979,7 +6465,6 @@ MODULE_TYPE_WRAPPER(struct class_dev_iter*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -6994,7 +6479,6 @@ MODULE_TYPE_WRAPPER(struct qdisc_watchdog*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7009,7 +6493,6 @@ MODULE_TYPE_WRAPPER(struct netlink_skb_parms*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7024,7 +6507,6 @@ MODULE_TYPE_WRAPPER(struct nf_hook_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7039,7 +6521,20 @@ MODULE_TYPE_WRAPPER(struct uprobe_consumer*, {
         }
     }
     NO_POST
-    NO_RETURN
+})
+#endif
+
+
+#ifndef DynamicWRAPPER_FOR_struct_pm_domain_data
+#define DynamicWRAPPER_FOR_struct_pm_domain_data
+MODULE_TYPE_WRAPPER(struct pm_domain_data*, {
+    PRE{
+        if(!is_alias_address((uint64_t)arg)){
+           DW(kern_printk( "dynamic wrapper struct pm_domain_data\n");)
+           ADD_TO_HASH( arg, SCAN_HEAD_FUNC(struct pm_domain_data));
+        }
+    }
+    NO_POST
 })
 #endif
 
@@ -7054,7 +6549,6 @@ MODULE_TYPE_WRAPPER(struct cipher_desc*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7069,7 +6563,6 @@ MODULE_TYPE_WRAPPER(struct netlink_dump_control*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7084,7 +6577,6 @@ MODULE_TYPE_WRAPPER(struct x86_io_apic_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7099,7 +6591,6 @@ MODULE_TYPE_WRAPPER(struct packet_type*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7114,7 +6605,6 @@ MODULE_TYPE_WRAPPER(struct subprocess_info*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7129,7 +6619,6 @@ MODULE_TYPE_WRAPPER(struct x86_init_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7144,7 +6633,6 @@ MODULE_TYPE_WRAPPER(struct zap_details*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7159,7 +6647,6 @@ MODULE_TYPE_WRAPPER(struct x86_cpuinit_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7174,7 +6661,6 @@ MODULE_TYPE_WRAPPER(struct mb_cache_entry*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7189,7 +6675,6 @@ MODULE_TYPE_WRAPPER(struct kobj_attribute*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7204,7 +6689,6 @@ MODULE_TYPE_WRAPPER(struct pv_mmu_ops*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7219,7 +6703,6 @@ MODULE_TYPE_WRAPPER(struct tick_sched*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
 
@@ -7234,7 +6717,7 @@ MODULE_TYPE_WRAPPER(struct paravirt_patch_template*, {
         }
     }
     NO_POST
-    NO_RETURN
 })
 #endif
+
 

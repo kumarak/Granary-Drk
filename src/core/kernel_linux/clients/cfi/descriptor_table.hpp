@@ -29,6 +29,8 @@ typedef unsigned char byte;
 extern "C" {
     extern void *cfi_get_free_pages(unsigned long count);
     extern void *module_descriptor_table_alloc(unsigned long size);
+    extern void *cfi_kmalloc(size_t size, gfp_t flags);
+    extern void *cfi_kfree(void *ptr);
 
     extern function_t *wrapped_functions[];
 
@@ -45,7 +47,8 @@ enum {
     WP_ADDRESS_INDEX_MASK                = 0xffff000000000000ULL,
     WP_ADDRESS_INDEX_OFFSET              = (12 * 4),
     WP_ADDRESS_DISPLACEMENT_MASK         = 0x0000ffffffffffffULL,
-    WP_ADDRESS_BASE                      = 0x00007fffffffffffULL
+    WP_ADDRESS_BASE                      = 0x0000800000000000ULL,
+    WP_ADDRESS_MASK                      = 0x8000800000000000ULL,
 };
 
 #include "cfi_region_allocator.hpp"
@@ -272,14 +275,14 @@ atomic_region_allocator<descriptor> descriptor_table::entries(
 );
 
 inline static bool is_watchpoint_address(uint64_t addr) {
-    if(addr > WP_ADDRESS_BASE)
+    if((addr & WP_ADDRESS_MASK) == WP_ADDRESS_BASE)
         return !(addr & WP_ADDRESS_NOT_ENABLED);
     else
         return false;
 }
 
 inline static bool is_alias_address(uint64_t addr) {
-    if(addr > WP_ADDRESS_BASE)
+    if((addr & WP_ADDRESS_MASK) == WP_ADDRESS_BASE)
         return !(addr & WP_ADDRESS_NOT_ENABLED);
     else
         return false;
@@ -385,6 +388,18 @@ bool COLLECT_DESCRIPTOR(uint64_t index) throw() {
     return 1;
 }
 
+template <typename T>
+unsigned int GET_DESCRIPTOR_INDEX(T *ptr) throw() {
+    unsigned index(0);
+    uint64_t displacement(0);
+    if(likely(ptr && decode_watchpoint_address((uint64_t) ptr, index, displacement))) {
+        if(descriptor_table::is_active_index(index)) {
+            return index;
+        }
+    }
+    return 0;
+}
+
 
 uint64_t DESCRIPTORS_COUNT(void) throw() {
     return descriptor_table::max_active_index;
@@ -414,6 +429,43 @@ template <typename T>
 void ADD_WATCHPOINT(T *&ptr, unsigned long size) throw() {
     if(descriptor_table::max_active_index < MAX_DESCRIPTOR_INDEX) {
         ptr = to_watched_heap_address(ptr, size);
+    }
+}
+
+
+template <typename T>
+inline T *to_watched_percpu_address(T *ptr, unsigned long size) throw() {
+    if(!ptr) {
+        return ptr;
+    }
+
+ /*   if(likely(is_watchpoint_address((uint64_t) ptr))) {
+        return ptr;
+    } else*/ {
+        descriptor *entry(descriptor_table::allocate<T>(ptr, size));
+        if(entry != NULL) {
+            const uint64_t index(descriptor_table::entries.offset_of(entry));
+            const uint64_t displacement_part(WP_ADDRESS_DISPLACEMENT_MASK & ((uint64_t) ptr));
+            uint64_t index_part(index << WP_ADDRESS_INDEX_OFFSET);
+            index_part++;
+            return (T *) ((index_part | displacement_part) & WP_ADDRESS_ENABLED);
+        } else {
+            return ptr;
+        }
+    }
+}
+
+template <typename T>
+void ADD_PERCPU_WATCHPOINT(T *&ptr, unsigned long size) throw() {
+    if(descriptor_table::max_active_index < MAX_DESCRIPTOR_INDEX) {
+        ptr = to_watched_percpu_address(ptr, size);
+    }
+}
+
+template <typename T>
+void REMOVE_PERCPU_WATCHPOINT(T *&ptr) throw() {
+    if(descriptor_table::max_active_index < MAX_DESCRIPTOR_INDEX) {
+        ptr = (T*)(0xffffffffffffULL & ((uint64_t) ptr));
     }
 }
 

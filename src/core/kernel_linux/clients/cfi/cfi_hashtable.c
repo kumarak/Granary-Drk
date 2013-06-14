@@ -209,7 +209,7 @@ hashmap_destroy(struct hashtable_t *htable) {
     if(htable == NULL){
         return 0;
     }
-#if 0
+
     for (idx=0; idx < htable->table_size; idx++) {
         bucket = htable->bucket_table+idx;
 
@@ -223,7 +223,6 @@ hashmap_destroy(struct hashtable_t *htable) {
         }
         spin_unlock(&(bucket->bucket_lock));
     }
-#endif
 
     cfi_kfree(htable->bucket_table);
     cfi_kfree(htable);
@@ -351,25 +350,28 @@ hashmap_insert(struct hashtable_t *htable, void *key, void *value, int should_du
     hentry = bucket->head;
     while (hentry) {
         if(hentry->key == key){
-            spin_unlock(&(bucket->bucket_lock));
-            new_entry->key = NULL;
-            new_entry->value = NULL;
-            new_entry->next = NULL;
-            cfi_kfree(new_entry);
-            return 0;
+            found = 1;
+            break;
         }
         last_entry = hentry;
         hentry = hentry->next;
     }
-
-    if(last_entry == NULL){
-        bucket->head = new_entry;
-    } else {
-        last_entry->next = new_entry;
+    if(!found){
+        if(last_entry == NULL){
+            bucket->head = new_entry;
+        } else {
+            last_entry->next = new_entry;
+        }
+        bucket->bucket_count += 1;
     }
-    bucket->bucket_count += 1;
     spin_unlock(&(bucket->bucket_lock));
 
+    if(found) {
+        new_entry->key = NULL;
+        new_entry->value = NULL;
+        new_entry->next = NULL;
+        cfi_kfree(new_entry);
+    }
     return 1;
 }
 
@@ -472,26 +474,24 @@ hashmap_delete(struct hashtable_t *htable, void *key) {
     // scan the table
     spin_lock(&(bucket->bucket_lock));
     hentry = bucket->head;
-    if(bucket->bucket_count != 0) {
-        while (hentry) {
-            if(hentry->key == key){
-                d_entry = hentry;
-                if(last_entry == NULL){
-                    hentry = hentry->next;
-                } else {
-                    last_entry->next = hentry->next;
-                }
-                break;
+
+    while(hentry){
+        if(hentry->key == key){
+            d_entry = hentry;
+            if(last_entry == NULL){
+                hentry = hentry->next;
+                bucket->head = hentry;
+            } else {
+                last_entry->next = hentry->next;
             }
-            last_entry = hentry;
-            hentry = hentry->next;
+            break;
         }
-        if(d_entry != NULL){
-            bucket->bucket_count -= 1;
-            if(bucket->bucket_count == 0){
-                bucket->head = NULL;
-            }
-        }
+        last_entry = hentry;
+        hentry = hentry->next;
+    }
+
+    if(d_entry != NULL){
+        bucket->bucket_count -= 1;
     }
 
     spin_unlock(&(bucket->bucket_lock));
@@ -555,22 +555,20 @@ hashmap_iter(struct hashtable_t *htable, hashtable_callback cb, void *data) {
     unsigned int i =0;
     int should_break = 0;
 
-    if(!htable->count){
-        return should_break;
-    }
-#if 0
     for (i=0; i < htable->table_size && !should_break; i++) {
         bucket = htable->bucket_table+i;
 
         spin_lock(&(bucket->bucket_lock));
-        hentry = bucket->head;
-        while (hentry && !should_break) {
-            should_break = cb(data, hentry->key, hentry->value);
-            hentry = hentry->next;
+        if(bucket->bucket_count != 0) {
+            hentry = bucket->head;
+            while (hentry && !should_break) {
+                should_break = cb(data, hentry->key, hentry->value);
+                hentry = hentry->next;
+            }
         }
         spin_unlock(&(bucket->bucket_lock));
     }
-#endif
+
     return should_break;
 }
 

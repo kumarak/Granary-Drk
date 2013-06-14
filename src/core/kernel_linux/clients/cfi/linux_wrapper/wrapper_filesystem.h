@@ -85,22 +85,6 @@ TYPE_WRAPPER(struct address_space_operations, {
         no_return
 })
 
-#if 0
-TYPE_WRAPPER(struct inode*, {
-        pre {
-            D( kern_printk("    wrapping inode\n"); )
-            if(!is_alias_address((uint64_t)arg)){
-                 ADD_TO_HASH(arg, SCAN_HEAD_FUNC(struct inode));
-            }
-            WRAP_RECURSIVE_KERNEL(arg->i_sb);
-            WRAP_RECURSIVE_KERNEL(arg->i_op);
-            WRAP_RECURSIVE_KERNEL(arg->i_fop);
-            WRAP_RECURSIVE_KERNEL(arg->i_mapping);
-        }
-                no_post
-        no_return
-})
-#endif
 #ifndef WRAPPER_FOR_struct_inode
 #define WRAPPER_FOR_struct_inode
 TYPE_WRAPPER(struct inode*, {

@@ -4,7 +4,7 @@
 #include <type_traits>
 
 extern "C" {
-#   include "types/kernel_types.hpp"
+#   include "linux_kernel/kernel_types.h"
 }
 
 enum {

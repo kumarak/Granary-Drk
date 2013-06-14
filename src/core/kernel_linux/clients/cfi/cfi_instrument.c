@@ -2400,32 +2400,6 @@ void cfi_update_thread_metainfo(struct task_struct *ptr)
 
 }
 
-static inline void
-at_direct_call(app_pc instr_addr, app_pc target_addr)
-{
-    //cfi_update_thread_metainfo(current);
-    //wake_up_process(sweep_task);
-    //cfi_fprintf(logfile, "DIRECT @ %lx to %lx\n", instr_addr, target_addr);
-   // granary_print_ld_stat(target_module);
-}
-
-static inline void
-at_indirect_call(app_pc instr_addr, app_pc target_addr)
-{
-    wake_up_process(sweep_task);
-   // cfi_fprintf(logfile, "INDIRECT @ %lx to %lx\n", instr_addr, target_addr);
-  //  granary_print_ld_stat(target_module);
-}
-
-static inline void
-at_return(app_pc instr_addr, app_pc target_addr)
-{
-    wake_up_process(sweep_task);
-  //  cfi_fprintf(logfile, "RETURN @ %lx to %lx\n", instr_addr, target_addr);
-   // granary_print_ld_stat(target_module);
-}
-
-//#include "linux_wrapper/linux_wrapper.h"
 
 #define PTR_UINT_0       ((ptr_uint_t)0U)
 #define PTR_UINT_1       ((ptr_uint_t)1U)
@@ -2437,11 +2411,6 @@ extern client_cache_info_t *cpu_client_cache;
 
 extern void cfi_hotpatch_init(void *drcontext);
 
-extern byte*
-emit_hotpatch_code_(void *drcontext, client_cache_info_t *client, byte *pc, app_pc *addr);
-
-uint64_t flag = 0x0;
-static DEFINE_MUTEX(hotpatch_lock);
 
 void cfi_hotpatch_kernel(void *drcontext){
     client_cache_info_t * client = (client_cache_info_t*) dr_thread_alloc(drcontext, sizeof(client_cache_info_t));
@@ -2449,40 +2418,21 @@ void cfi_hotpatch_kernel(void *drcontext){
     printk("%s\n", __FUNCTION__);
     client->cache_start = dr_thread_alloc(drcontext, CLIENT_CACHE_SIZE);
 
-//#ifdef CONFIG_USING_WATCHPOINT
+#ifdef CONFIG_USING_WATCHPOINT
     cfi_hotpatch_init(GLOBAL_DCONTEXT);
-//#endif
-   //
-    //
-    //client->cache_ptr = hijack_kernel_function(drcontext, client, client->cache_start, (void*)__ticket_spin_is_locked, (void*)cfi__ticket_spin_is_locked);
-        //client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)vfree);
-    //client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)delayed_work_timer_fn);
-   // client->cache_ptr = emit_hotpatch_code(drcontext, client, client->cache_ptr, (void*)kmem_cache_free);
-
+#endif
 }
 
-static void event_thread_init(void *drcontext)
-{
-
-
+static void event_thread_init(void *drcontext){
     uint64_t local_flag;
-    mutex_lock(&hotpatch_lock);
-    if( flag == 0){
-        dr_printf("************************************%s***********************************",__FUNCTION__);
-        do {
-            local_flag = flag;
-        }while(!__sync_bool_compare_and_swap(&flag, local_flag, 0x1));
-    }
-    mutex_unlock(&hotpatch_lock);
-
-
+    (void)local_flag;
+    (void)drcontext;
 }
 
 
-static void event_thread_exit(void *drcontext)
-{
+static void event_thread_exit(void *drcontext){
     dr_printf("************************************%s***********************************",__FUNCTION__);
-
+    (void)drcontext;
 }
 
 
@@ -2496,6 +2446,10 @@ void client_memoryleak_init(void){
 
 }
 
+static inline
+void client_tracer_init(void){
+
+}
 
 /**
  * Initialize the CFI extension.
@@ -2526,7 +2480,5 @@ drinit(client_id_t id)
 #endif
     	dr_register_thread_init_event(event_thread_init);
     	dr_register_thread_exit_event(event_thread_exit);
-    	//cfi_fprintf(logfile, "dr_init \n");
-    	//printk("dr_init : %lx\n", logfile);
 #endif
 }

@@ -22,6 +22,8 @@
 #define VOID(name) (void)name
 #define HASHMAP_PUT //hashmap_put
 
+extern mem_allocator_t slub_allocator;
+
 extern struct module *target_module;
 struct kernsym;
 

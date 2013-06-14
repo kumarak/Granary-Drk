@@ -15,12 +15,14 @@
     WRAP_FUNCTION(kmem_cache_alloc, void *, 2, struct kmem_cache*, gfp_t)
   //  WRAP_FUNCTION(kmem_cache_alloc_trace, void *, 3, struct kmem_cache*, gfp_t, size_t)
     WRAP_FUNCTION_NORET(kmem_cache_free, 2, struct kmem_cache *, void *)
-    /*WRAP_FUNCTION(__kmalloc_node, void *, 3, size_t, gfp_t, int)
+    WRAP_FUNCTION(__kmalloc_node, void *, 3, size_t, gfp_t, int)
     WRAP_FUNCTION(__kmalloc_track_caller, void *, 3, size_t, gfp_t, unsigned long)
     WRAP_FUNCTION(__kmalloc_node_track_caller, void *, 4, size_t, gfp_t, int, unsigned long)
-    *///WRAP_FUNCTION(kmem_cache_alloc, void *, 2, struct kmem_cache*, gfp_t)
-    /*WRAP_FUNCTION(kmem_cache_alloc_node, void *, 3, struct kmem_cache *, gfp_t, int)
-    *///WRAP_FUNCTION_NORET(kmem_cache_free, 2, struct kmem_cache *, void *)
+    WRAP_FUNCTION(kmem_cache_alloc_node, void *, 3, struct kmem_cache *, gfp_t, int)
+    //extern unsigned long __get_free_pages(gfp_t gfp_mask, unsigned int order);
+    WRAP_FUNCTION(__get_free_pages, unsigned long, 2, gfp_t, int)
+    WRAP_FUNCTION_NORET(__free_pages, 2, struct page*, unsigned int)
+
     /*WRAP_FUNCTION(new_slab, struct page *, 3, struct kmem_cache *, gfp_t, int)
     WRAP_FUNCTION_NORET(__free_slab, 2, struct kmem_cache *, struct page *)
     *//*SLUB_FUNCTION_NORET(schedule, 0)

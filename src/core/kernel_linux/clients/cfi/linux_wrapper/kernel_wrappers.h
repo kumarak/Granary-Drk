@@ -1,5 +1,5 @@
 /* Auto-generated wrappers. */
-#define D(...) __VA_ARGS__
+#define D(...) //__VA_ARGS__
 
 #ifndef WRAPPER_FOR_struct_callback_head
 #define WRAPPER_FOR_struct_callback_head

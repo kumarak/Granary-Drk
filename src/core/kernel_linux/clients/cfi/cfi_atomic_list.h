@@ -10,6 +10,7 @@
 
 #include <linux/slab.h>
 #include "cfi_module.h"
+#include "slub_interface.h"
 
 
 struct list_item {
@@ -42,7 +43,7 @@ cfi_list_append(struct cfi_list_head *list_head, void *node){
     struct list_item *ptr;
     unsigned int exist = 0;
     struct list_item *temp;
-    struct list_item *list = kmalloc(sizeof(struct list_item), GFP_ATOMIC);
+    struct list_item *list = cfi_kmalloc(sizeof(struct list_item), GFP_ATOMIC);
    // printk("adding items to list : %lx\n", node);
     if(list == NULL){
         return;
@@ -78,7 +79,7 @@ cfi_list_append(struct cfi_list_head *list_head, void *node){
         list->next = temp;
         list_head->count++;
     } else {
-        kfree(list);
+        cfi_kfree(list);
     }
     spin_unlock(&(list_head->list_lock));
 }
@@ -141,7 +142,7 @@ static __inline__ void
 cfi_list_prepend(volatile struct cfi_list_head *list_head, void *node){
 	//struct list_item *ptr;
 	struct list_item *head;
-	struct list_item *list = kmalloc(sizeof(struct list_item), GFP_ATOMIC);
+	struct list_item *list = cfi_kmalloc(sizeof(struct list_item), GFP_ATOMIC);
 
 	if(list == NULL){
 		return;
@@ -226,12 +227,12 @@ cfi_list_delete_all(struct cfi_list_head *list_head)
     ptr = list_head->head;
     while(ptr->next != NULL){
         next_ptr = ptr->next;
-        kfree(ptr);
+      //  cfi_kfree(ptr);
         ptr = next_ptr;
     }
 
     if(ptr->next == NULL){
-        kfree(ptr);
+       // cfi_kfree(ptr);
     }
 
     list_head->head = NULL;

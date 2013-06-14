@@ -769,6 +769,6 @@ handle_free_percpu(const void *addr){
 void
 handle_free_object(const void *addr){
     unsigned int ret;
-   // ret = hashmap_delete(kernel_pointer_hash, addr);
+    ret = hashmap_delete(kernel_pointer_hash, addr);
 }
 
