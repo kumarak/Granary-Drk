@@ -155,7 +155,7 @@ unsigned pagevec_lookup(struct pagevec *pvec, struct address_space *mapping,
         return; \
     }
 
-#include "wrapper_scanner.h"
+
 #include "kernel_scanners.h"
 #include "wrapper_filesystem.h"
 #include "wrapper_allocators.h"
