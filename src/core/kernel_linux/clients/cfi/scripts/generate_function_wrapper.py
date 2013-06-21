@@ -275,11 +275,11 @@ def wrap_function(ctype, orig_ctype, func):
       O("    // TODO: variadic arguments")
     #O("    D( granary_fault(); )")
 
+    O("    kern_printk(\"", func, " is invoked.\\n\");" )
     O("    PRE_WRAPPER_FUNC(", ", ".join(param_names), ");")
-    O("    kern_printk(\"", "\\\"" ,func, "\\\"", " is invoked.\\n", "\");" )
     O("    ", a, func, "(", ", ".join(param_names), ");")
-    O("    kern_printk(\"", "\\\"", func, "\\\"", " returned.\\n", "\");" )
     O("    POST_WRAPPER_FUNC(", ", ".join(param_names), ");")
+    O("    kern_printk(\"", func, " returned.\\n\");" )
 
   if ctype.is_variadic:
     O("    va_end(args__);")
@@ -437,10 +437,10 @@ if "__main__" == __name__:
     OUT("/* Auto-generated wrappers. */")
     OUT("#define D(...) __VA_ARGS__ ")
     OUT("")
-    #for var, ctype in parser.vars():
-    #  visit_var_def(var, ctype)
+    for var, ctype in parser.vars():
+      visit_var_def(var, ctype)
       #if not should_ignore(var) and var.startswith("v"):
         #visit_possible_variadic_def(var, ctype.base_type(), va_list)
 
-    for type, ctype in parser.types():
-      	visit_type_def(type, ctype)
+    #for type, ctype in parser.types():
+    #  	visit_type_def(type, ctype)

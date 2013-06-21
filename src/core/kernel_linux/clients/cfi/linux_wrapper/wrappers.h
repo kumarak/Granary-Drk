@@ -16,6 +16,9 @@
 #define NO_RETURN no_return
 
 #define WRAP_FUNCTION WRAP_FUNC
+#define FUNCTION_WRAPPER FUNC_WRAPPER
+#define RETURN_IN_WRAP(x)
+#define FUNCTION_WRAPPER_VOID FUNC_WRAPPER_VOID
 #define PRE_OUT_WRAP(x) WRAP_RECURSIVE(x)
 #define POST_OUT_WRAP(x) WRAP_RECURSIVE(x)
 /*
@@ -34,9 +37,6 @@ TYPE_WRAPPER(struct inode, {
 
 #define WRAP_RECURSIVE_KERNEL(arg) \
     if(is_kernel_virtual_address_space((void*)arg)) { \
-        if(IS_WATCHPOINT(arg)){ \
-            REMOVE_WATCHPOINT(arg);  \
-        }   \
         WRAP_RECURSIVE(arg);    \
       }
 
@@ -164,7 +164,89 @@ unsigned pagevec_lookup(struct pagevec *pvec, struct address_space *mapping,
 #define WRAPPER_FOR_struct_callback_head
 #define WRAPPER_FOR_struct_mutex
 
+
+
+#define APP_WRAPPER_FOR_mount_bdev
+#define APP_WRAPPER_FOR___free_pages
+#define APP_WRAPPER_FOR_radix_tree_gang_lookup
+#define APP_WRAPPER_FOR_vfree
+#define APP_WRAPPER_FOR__copy_to_user
+#define APP_WRAPPER_FOR___kmalloc
+#define APP_WRAPPER_FOR___alloc_percpu
+#define APP_WRAPPER_FOR_free_percpu
+#define APP_WRAPPER_FOR_kmem_cache_alloc
+#define APP_WRAPPER_FOR_kmem_cache_free
+#define APP_WRAPPER_FOR_clocksource_mmio_init
+#define APP_WRAPPER_FOR_flush_work
+#define APP_WRAPPER_FOR_block_write_begin
+#define APP_WRAPPER_FOR_generic_block_fiemap
+#define APP_WRAPPER_FOR__raw_spin_lock
+#define APP_WRAPPER_FOR_sb_set_blocksize
+#define APP_WRAPPER_FOR_kthread_create_on_node
+#define APP_WRAPPER_FOR_jbd2_journal_blocks_per_page
+#define APP_WRAPPER_FOR___breadahead
+#define APP_WRAPPER_FOR_d_obtain_alias
+#define APP_WRAPPER_FOR_iget_failed
+#define APP_WRAPPER_FOR_radix_tree_tag_set
+#define APP_WRAPPER_FOR_flush_delayed_work
+#define APP_WRAPPER_FOR_kmem_cache_alloc_node
+#define APP_WRAPPER_FOR_delayed_work_timer_fn
+#define APP_WRAPPER_FOR___mark_inode_dirty
+#define APP_WRAPPER_FOR_vmalloc_node
+#define APP_WRAPPER_FOR___bread
+#define APP_WRAPPER_FOR_kfree
+#define APP_WRAPPER_FOR___alloc_workqueue_key
+#define APP_WRAPPER_FOR_submit_bh
+#define APP_WRAPPER_FOR_posix_acl_alloc
+#define APP_WRAPPER_FOR_iget_locked
+#define APP_WRAPPER_FOR___get_free_pages
+#define APP_WRAPPER_FOR_krealloc
+#define APP_WRAPPER_FOR_unlock_new_inode
+#define APP_WRAPPER_FOR_vm_map_ram
+#define APP_WRAPPER_FOR_jbd2_journal_init_jbd_inode
+#define APP_WRAPPER_FOR_mpage_readpage
+#define APP_WRAPPER_FOR___block_write_begin
+#define APP_WRAPPER_FOR___kmalloc_track_caller
+#define APP_WRAPPER_FOR_cancel_work_sync
+#define APP_WRAPPER_FOR_kmem_cache_create
+#define APP_WRAPPER_FOR_register_filesystem
+#define APP_WRAPPER_FOR_register_shrinker
+#define APP_WRAPPER_FOR_call_rcu_sched
+#define APP_WRAPPER_FOR_vmalloc
+#define APP_WRAPPER_FOR___kmalloc_node_track_caller
+#define APP_WRAPPER_FOR_d_splice_alias
+#define APP_WRAPPER_FOR___dev_remove_pack
+#define APP_WRAPPER_FOR_mpage_readpages
+#define APP_WRAPPER_FOR_bio_add_page
+#define APP_WRAPPER_FOR_make_bad_inode
+#define APP_WRAPPER_FOR__copy_from_user
+#define APP_WRAPPER_FOR_unlock_page
+#define APP_WRAPPER_FOR_destroy_workqueue
+#define APP_WRAPPER_FOR_kmem_cache_destroy
+#define APP_WRAPPER_FOR_mpage_writepages
+#define APP_WRAPPER_FOR_queue_work
+#define APP_WRAPPER_FOR_dquot_initialize
+#define APP_WRAPPER_FOR___kmalloc_node
+#define APP_WRAPPER_FOR_inode_permission
+#define APP_WRAPPER_FOR_unregister_shrinker
+#define APP_WRAPPER_FOR_vfs_unlink
+#define APP_WRAPPER_FOR___krealloc
+#define APP_WRAPPER_FOR_inode_init_once
+#define APP_WRAPPER_FOR_queue_delayed_work
+#define APP_WRAPPER_FOR_rb_first
+#define APP_WRAPPER_FOR_mb_cache_create
+
+
+
 #include "kernel_wrappers.h"
+
+#define PRE_WRAPPER_FUNC(...)   \
+        set_section_state(KERNEL_WRAPPER_SET);
+
+#define POST_WRAPPER_FUNC(...)  \
+        unset_section_state(KERNEL_WRAPPER_SET);
+
+#include "function_wrapper.h"
 #include "dynamic_wrappers.h"
 
 

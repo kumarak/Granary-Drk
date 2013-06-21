@@ -582,6 +582,9 @@ dr_emit_flags_t
 memleak_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bool translating);
 
 dr_emit_flags_t
+tracer_bb_event(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bool translating);
+
+dr_emit_flags_t
 buffer_overflow_policy(void *drcontext, void *tag, instrlist_t *bb, bool for_trace, bool translating);
 
 #endif /* CFI_INSTRUMENTATION_H_ */
