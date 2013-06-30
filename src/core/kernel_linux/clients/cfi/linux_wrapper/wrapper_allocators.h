@@ -216,10 +216,6 @@ FUNC_WRAPPER_VOID(kmem_cache_free, (struct kmem_cache *s, void *ptr), {
 
 })
 
-//struct kmem_cache *kmem_cache_create(const char *, size_t, size_t,
-//                         unsigned long,
-//                         void (*)(void *));
-
 FUNC_WRAPPER(kmem_cache_create, (const char *name , size_t size, size_t align, unsigned long flags,  void(*ctor)(void*) ), {
     kern_printk("kmem_cache_create wrapper\n");
     WRAP_FUNC(ctor);
@@ -243,15 +239,40 @@ FUNC_WRAPPER_VOID(kmem_cache_destroy, (struct kmem_cache *s), {
 FUNC_WRAPPER(vmalloc, (unsigned long size), {
     kern_printk("vmalloc wrapper\n");
     void *ptr = vmalloc(size);
-    //ADD_WATCHPOINT(ptr);
+#ifdef CONFIG_USING_WATCHPOINT
+        ADD_WATCHPOINT(ptr, size);
+        descriptor *meta_info = NULL;
+        meta_info = WATCHPOINT_META(ptr);
+        if(NULL != meta_info) {
+            uint64_t newval = 0x0ULL;
+            uint64_t oldval = 0x0ULL;
+            do {
+                oldval = meta_info->state;
+                newval = meta_info->state | WP_MEMORY_ALLOCATED;
+            }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
+        }
+#endif
     return ptr;
 })
 
 //extern void vfree ( void * addr ) ;
-FUNC_WRAPPER_VOID(vfree, ( void * addr ), {
-    kern_printk("vfree wrapper\n");
-    //REMOVE_WATCHPOINT(addr);
-    vfree(addr);
+FUNC_WRAPPER_VOID(vfree, ( void * ptr), {
+        kern_printk("vfree wrapper\n");
+#ifdef CONFIG_USING_WATCHPOINT
+        descriptor *meta_info = NULL;
+        meta_info = WATCHPOINT_META(ptr);
+        if(NULL != meta_info) {
+            uint64_t newval = 0x0ULL;
+            uint64_t oldval = 0x0ULL;
+            do {
+                oldval = meta_info->state;
+                newval = (meta_info->state & (~WP_MEMORY_ALLOCATED)/*| WP_MEMORY_FREED*/);
+            }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
+        }
+
+        REMOVE_WATCHPOINT(ptr);
+#endif
+        vfree(ptr);
 })
 
 //void *vmalloc_node(unsigned long size, int node)
@@ -281,7 +302,7 @@ FUNC_WRAPPER(__get_free_pages, (gfp_t gfp_mask, unsigned int order), {
         }
         void* addr= (void*)__get_free_pages(gfp_mask, order);
 #ifdef CONFIG_USING_WATCHPOINT
-        ADD_WATCHPOINT(addr, 4096);
+        ADD_WATCHPOINT(addr, PAGE_SIZE<<order);
         descriptor *meta_info = NULL;
         meta_info = WATCHPOINT_META(addr);
         if(NULL != meta_info) {
@@ -380,23 +401,6 @@ FUNC_WRAPPER(__alloc_workqueue_key, (
 
 FUNC_WRAPPER_VOID(destroy_workqueue,  ( struct workqueue_struct * wq ), {
     kern_printk("destroy_workqueue wrapper : %lx\n", wq);
-#if 0
-    /*check if this is watchpoint*/
-    cfi_handler_free(target_module, wq, NULL);
-
-    descriptor *meta_info = NULL;
-    meta_info = WATCHPOINT_META(wq);
-    if(NULL != meta_info) {
-        uint64_t newval = 0x0ULL;
-        uint64_t oldval = 0x0ULL;
-        do {
-            oldval = meta_info->state;
-            newval = (meta_info->state & (~WP_MEMORY_ALLOCATED)/*| WP_MEMORY_FREED*/);
-        }while(!__sync_bool_compare_and_swap(&(meta_info->state), oldval, newval));
-    }
-
-    REMOVE_WATCHPOINT(wq);
-#endif
     return destroy_workqueue(wq);
 })
 

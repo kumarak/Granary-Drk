@@ -219,7 +219,7 @@ cfi_list_delete_all(struct cfi_list_head *list_head)
     struct list_item *next_ptr;
 
     spin_lock(&(list_head->list_lock));
-    if( !list_head->head) {
+    if(!list_head->head) {
         spin_unlock(&(list_head->list_lock));
         return;
     }

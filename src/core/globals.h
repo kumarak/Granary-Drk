@@ -769,6 +769,7 @@ struct _dcontext_t {
     void *         vm_areas_field;
     void *         os_field;
     void *         synch_field;
+    void *         kernel_fcache_field;
 #ifdef LINUX
     void *         signal_field;
     void *         pcprofile_field;

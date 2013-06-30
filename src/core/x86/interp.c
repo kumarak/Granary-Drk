@@ -7719,23 +7719,1051 @@ dr_emit_hotpatch_code(app_pc start_pc, size_t size, int (*callback) (void *drcon
 }
 
 
+/* Interprets the application's instructions until the end of a basic
+ * block is found, and prepares the resulting instrlist for creation of
+ * a fragment, but does not create the fragment, just returns the instrlist.
+ * Caller is responsible for freeing the list and its instrs!
+ *
+ * Input parameters in bb control aspects of creation:
+ *   If app_interp is true, this is considered real app code.
+ *   If pass_to_client is true,
+ *     calls instrument routine on bb->ilist before mangling
+ *   If mangle_ilist is true, mangles the ilist, else leaves it in app form
+ *   If for_cache is true, updates the vmareas data structures
+ *     Caller must set and later clear dcontext->bb_build_info.
+ *     For !for_cache, build_bb_ilist() sets and clears it, making the
+ *     assumption that the caller is doing no other reading from the region.
+ *   If record_translation is true, records translation for inserted instrs
+ *   If outf != NULL, does full disassembly with comments to outf
+ *   If overlap_info != NULL, records overlap information for the block in
+ *     the overlap_info (caller must fill in region_start and region_end).
+ *
+ * FIXME: now that we have better control over following direct ctis,
+ * should we have adaptive mechanism to decided whether to follow direct
+ * ctis, since some bmarks are better doing so (gap, vortex, wupwise)
+ * and others are worse (apsi, perlbmk)?
+ */
+static void
+build_bb_ilist_kernel(dcontext_t *dcontext, build_bb_t *bb)
+{
+    /* Design decision: we will not try to identify branches that target
+     * instructions in this basic block, when we take those branches we will
+     * just make a new basic block and duplicate part of this one
+     */
 
-fragment_t *
+    int total_branches = 0;
+    uint total_instrs = 0;
+    uint total_writes = 0; /* only used for selfmod */
+    instr_t *non_cti;              /* used if !full_decode */
+    byte *non_cti_start_pc; /* used if !full_decode */
+    uint eflags_6 = 0; /* holds arith eflags written so far (in read slots) */
+    /* indirect branch type as an IBL selector */
+    ibl_branch_type_t ibl_branch_type = IBL_GENERIC; /* initialization only */
+
+    app_pc page_start_pc = (app_pc) NULL;
+    bool bb_build_nested = false;
+    /* Caller will free objects allocated here so we must use the passed-in
+     * dcontext for allocation; we need separate var for non-global dcontext.
+     */
+    dcontext_t *my_dcontext = get_thread_private_dcontext();
+    DEBUG_DECLARE(bool regenerated = false;)
+
+    ASSERT(bb->initialized);
+    /* note that it's ok for bb->start_pc to be NULL as our check_new_page_start
+     * will catch it
+     */
+    /* vmlist must start out empty (or N/A) */
+    ASSERT(bb->vmlist == NULL || !bb->for_cache);
+
+    /* Support bb abort on decode fault */
+    if (my_dcontext != NULL) {
+        if (bb->for_cache) {
+            /* Caller should have set! */
+            ASSERT(bb == (build_bb_t *) my_dcontext->bb_build_info);
+        } else if (my_dcontext->bb_build_info == NULL) {
+            my_dcontext->bb_build_info = (void *) bb;
+        } else {
+            /* For nested we leave the original, which should be the only vmlist,
+             * and we give up on freeing dangling instr_t and instrlist_t from this decode.
+             * We need the original's for_cache so we know to free the bb_building_lock.
+             * FIXME: use TRY to handle decode exceptions locally?  Shouldn't have
+             * violation remediations on a !for_cache build.
+             */
+            ASSERT(bb->vmlist == NULL && !bb->for_cache &&
+                   ((build_bb_t *)my_dcontext->bb_build_info)->for_cache);
+            /* FIXME: add nested as a field so we can have stat on nested faults */
+            bb_build_nested = true;
+        }
+    } else
+        ASSERT(dynamo_exited);
+
+    if (bb->record_translation || !bb->for_cache ||
+        IF_CLIENT_INTERFACE_ELSE(INTERNAL_OPTION(full_decode), false))
+        bb->full_decode = true;
+    else {
+#if defined(STEAL_REGISTER) || defined(CHECK_RETURNS_SSE2)
+        bb->full_decode = true;
+#endif
+    }
+
+    LOG(THREAD, LOG_INTERP, 3, "\ninterp: ");
+    BBPRINT(bb, 3, "start_pc = "PFX"\n", bb->start_pc);
+
+    DOSTATS({
+        if (bb->app_interp) {
+            if (fragment_lookup_deleted(dcontext, bb->start_pc)) {
+                /* this will look up private 1st, so yes we will get
+                 * dup stats if multiple threads have regnerated the
+                 * same private tag, or if a shared tag is deleted and
+                 * multiple privates created
+                 */
+                regenerated = true;
+                STATS_INC(num_fragments_deja_vu);
+            }
+        }
+    });
+
+    /* start converting instructions into IR */
+    check_new_page_start(dcontext, bb);
+    bb->cur_pc = bb->start_pc;
+
+    /* for translation in case we break out of loop before decoding any
+     * instructions, (i.e. check_for_stopping_point()) */
+    bb->instr_start = bb->cur_pc;
+
+    /* create instrlist after check_new_page_start to avoid memory leak
+     * on unreadable memory -- though we now properly clean up and won't leak
+     * on unreadable on any check_thread_vm_area call
+     */
+    bb->ilist = instrlist_create(dcontext);
+    bb->instr = NULL;
+
+    /* avoid discrepancy in finding invalid instructions between fast decode
+     * and the full decode of sandboxing by doing full decode up front
+     */
+    if (TEST(FRAG_SELFMOD_SANDBOXED, bb->flags))
+        bb->full_decode = true;
+    if (TEST(FRAG_HAS_TRANSLATION_INFO, bb->flags)) {
+        bb->full_decode = true;
+        bb->record_translation = true;
+    }
+
+    KSTART(bb_decoding);
+    while (true) {
+        if (check_for_stopping_point(dcontext, bb)) {
+            BBPRINT(bb, 3, "interp: found DynamoRIO stopping point at "PFX"\n",
+                    bb->cur_pc);
+            break;
+        }
+
+        /* fill in a new instr structure and update bb->cur_pc */
+        bb->instr = instr_create(dcontext);
+        /* if !full_decode:
+         * All we need to decode are control-transfer instructions
+         * For efficiency, put all non-cti into a single instr_t structure
+         */
+        non_cti_start_pc = bb->cur_pc;
+        do {
+            /* If the thread's vmareas aren't being added to, indicate the
+             * page that's being decoded. */
+            if (!bb->for_cache
+                && page_start_pc != (app_pc) PAGE_START(bb->cur_pc)) {
+                page_start_pc = (app_pc) PAGE_START(bb->cur_pc);
+                set_thread_decode_page_start(my_dcontext == NULL ?
+                                             dcontext : my_dcontext, page_start_pc);
+            }
+
+            bb->instr_start = bb->cur_pc;
+            if (bb->full_decode) {
+                /* only going through this do loop once! */
+                bb->cur_pc = decode(dcontext, bb->cur_pc, bb->instr);
+                if (bb->record_translation)
+                    instr_set_translation(bb->instr, bb->instr_start);
+            } else {
+                /* must reset, may go through loop multiple times */
+                instr_reset(dcontext, bb->instr);
+                bb->cur_pc = decode_cti(dcontext, bb->cur_pc, bb->instr);
+            }
+
+            ASSERT(!bb->check_vm_area || bb->checked_end != NULL);
+            if (bb->check_vm_area &&
+                bb->cur_pc != NULL && bb->cur_pc-1 > bb->checked_end) {
+                /* We're beyond the vmarea allowed -- so check again.
+                 * Ideally we'd want to check BEFORE we decode from the
+                 * subsequent page, as it could be inaccessible, but not worth
+                 * the time estimating the size from a variable number of bytes
+                 * before the page boundary.  Instead we rely on other
+                 * mechanisms to handle faults while decoding, which we need
+                 * anyway to handle racy unmaps by the app.
+                 */
+                check_new_page_contig(dcontext, bb, bb->cur_pc-1);
+            }
+
+            total_instrs++;
+            DOELOG(3, LOG_INTERP, {
+                disassemble_with_bytes(dcontext, bb->instr_start, THREAD);
+            });
+
+#ifdef LINUX_KERNEL
+            ASSERT(instr_get_opcode(bb->instr) != OP_int);
+            ASSERT(instr_get_opcode(bb->instr) != OP_sysexit);
+            ASSERT(instr_get_opcode(bb->instr) != OP_jmp_far);
+            ASSERT(instr_get_opcode(bb->instr) != OP_jmp_far_ind);
+            ASSERT(instr_get_opcode(bb->instr) != OP_call_far);
+            ASSERT(instr_get_opcode(bb->instr) != OP_call_far_ind);
+            ASSERT(instr_get_opcode(bb->instr) != OP_int3);
+            /* TODO(peter): We can't check for all gs writes because
+             * load_gs_index needs to write to gs. We should whitelist it. */
+# if 1
+            DODEBUG({
+                uint i;
+                for (i = 0; i < instr_num_dsts(bb->instr); i++) {
+                    opnd_t dst = instr_get_dst(bb->instr, i);
+                    if (opnd_is_reg(dst) && opnd_get_reg(dst) == SEG_TLS) {
+                        ASSERT_MESSAGE("We rely on the Linux Kernel's per-CPU "
+                                       "storage. Instructions that modify gs "
+                                       "are not supported.", false);
+                    }
+                }
+            });
+# endif
+#endif
+
+#if defined(INTERNAL) || defined(CLIENT_INTERFACE)
+            if (bb->outf != INVALID_FILE)
+                disassemble_with_bytes(dcontext, bb->instr_start, bb->outf);
+#endif /* INTERNAL || CLIENT_INTERFACE */
+
+            if (!instr_valid(bb->instr))
+                break; /* before eflags analysis! */
+
+            /* Eflags analysis:
+             * We do this even if -unsafe_ignore_eflags_prefix b/c it doesn't cost that
+             * much and we can use the analysis to detect any bb that reads a flag
+             * prior to writing it.
+             */
+            if (bb->eflags != EFLAGS_WRITE_6 && bb->eflags != EFLAGS_READ_OF)
+                bb->eflags = eflags_analysis(bb->instr, bb->eflags, &eflags_6);
+
+            /* stop decoding at an invalid instr (tested above) or a cti
+             *(== opcode valid) or a possible SEH frame push (if
+             * -process_SEH_push). */
+
+#ifdef X64
+            if (instr_has_rel_addr_reference(bb->instr)) {
+                /* PR 215397: we need to split these out for re-relativization */
+                break;
+            }
+#endif
+        } while (!instr_opcode_valid(bb->instr) &&
+                 total_instrs <= DYNAMO_OPTION(max_bb_instrs));
+
+        if (bb->cur_pc == NULL) {
+            /* invalid instr: reset bb->cur_pc, will end bb after updating stats */
+            bb->cur_pc = bb->instr_start;
+        }
+
+        /* We need the translation when mangling calls and jecxz/loop*.
+         * May as well set it for all cti's since there's
+         * really no extra overhead in doing so.  Note that we go
+         * through the above loop only once for cti's, so it's safe
+         * to set the translation here.
+         */
+        if (instr_opcode_valid(bb->instr) && instr_is_cti(bb->instr))
+            instr_set_translation(bb->instr, bb->instr_start);
+
+
+        if (bb->full_decode) {
+            if (TEST(FRAG_SELFMOD_SANDBOXED, bb->flags) &&
+                instr_valid(bb->instr) && instr_writes_memory(bb->instr)) {
+                /* to allow tailing non-writes, end prior to the write beyond the max */
+                total_writes++;
+                if (total_writes > DYNAMO_OPTION(selfmod_max_writes)) {
+                    BBPRINT(bb, 3, "reached selfmod write limit %d, stopping\n",
+                            DYNAMO_OPTION(selfmod_max_writes));
+                    STATS_INC(num_max_selfmod_writes_enforced);
+                    bb_stop_prior_to_instr(dcontext, bb, false/*not added to bb->ilist*/);
+                    break;
+                }
+            }
+        } else if (bb->instr_start != non_cti_start_pc) {
+            /* instr now holds the cti, so create an instr_t for the non-cti */
+            non_cti = instr_create(dcontext);
+            IF_X64(ASSERT(CHECK_TRUNCATE_TYPE_uint(bb->instr_start - non_cti_start_pc)));
+            instr_set_raw_bits(non_cti, non_cti_start_pc,
+                               (uint)(bb->instr_start - non_cti_start_pc));
+            /* add non-cti instructions to instruction list */
+            instrlist_append(bb->ilist, non_cti);
+        }
+
+        DOSTATS({
+            /* This routine is also called for recreating state, we only want
+             * to count app code when we build new bbs, which is indicated by
+             * the bb->app_interp parameter
+             */
+            if (bb->app_interp && !regenerated) {
+                /* avoid double-counting for adaptive working set */
+                /* FIXME - ubr ellision leads to double couting.  We also
+                 * double count when we have multiple entry points into the
+                 * same block of cti free instructinos. */
+                STATS_ADD(app_code_seen, (bb->cur_pc - non_cti_start_pc));
+                LOG(THREAD, LOG_INTERP, 5, "adding %d bytes to total app code seen\n",
+                    bb->cur_pc - non_cti_start_pc);
+            }
+        });
+
+        if (!instr_valid(bb->instr)) {
+            bb_process_invalid_instr(dcontext, bb);
+            break;
+        }
+
+#  ifndef LINUX_KERNEL
+        if (instr_get_prefix_flag(bb->instr,
+                                  (SEG_TLS == SEG_GS) ? PREFIX_SEG_GS : PREFIX_SEG_FS)
+            /* __errno_location is interpreted when global, though it's hidden in TOT */
+            IF_LINUX(&& !is_in_dynamo_dll(bb->instr_start))) {
+            /* On linux we use a segment register and do not yet
+             * support the application using the same register!
+             */
+            CLIENT_ASSERT(false, "no support yet for application using non-NPTL segment");
+            ASSERT_BUG_NUM(205276, false);
+        }
+#  endif
+
+        if (instr_is_ubr(bb->instr)) {
+            if (bb_process_ubr(dcontext, bb))
+                continue;
+            else
+                break;
+        } else
+            instrlist_append(bb->ilist, bb->instr);
+
+#ifdef RETURN_AFTER_CALL
+        if (bb->app_interp && dynamo_options.ret_after_call) {
+            if (instr_is_call(bb->instr)) {
+                /* add after call instruction to valid return targets */
+                add_return_target(dcontext, bb->instr_start, bb->instr);
+            }
+        }
+#endif /* RETURN_AFTER_CALL */
+
+#ifdef LINUX_KERNEL
+        if (instr_may_return_to_user(bb->instr)) {
+            /* TODO(peter): Not sure if it is necessary to set
+             * FRAG_MUST_END_TRACE. My intent is to ensure that we return to the
+             * dispatcher when we encounter these instructions.
+             */
+            bb->flags |= FRAG_MUST_END_TRACE;
+            bb->exit_type = instr_branch_type(bb->instr);
+            /* TODO(peter): Handle sysexit. */
+            ASSERT(TESTANY(LINK_SYSRET | LINK_IRET, bb->exit_type));
+            LOG(THREAD, LOG_INTERP, 2, "Block has %s @ pc %p\n",
+                TEST(LINK_IRET, bb->exit_type) ?
+                    "iret" : "sysret", bb->instr->bytes);
+            bb->exit_target = (app_pc) fake_user_return_exit_target;
+            break;
+        }
+#endif
+        if (instr_is_call_direct(bb->instr)) {
+            if (!bb_process_call_direct(dcontext, bb)) {
+                if (bb->instr != NULL)
+                    bb->exit_type |= instr_branch_type(bb->instr);
+                break;
+            }
+        }
+        else if (instr_is_mbr(bb->instr)) { /* including indirect calls */
+
+            /* Manage the case where we don't need to perform 'normal'
+             * indirect branch processing.
+             */
+            bool normal_indirect_processing = true;
+            bool elide_and_continue_if_converted = true;
+
+            if (instr_is_return(bb->instr)) {
+                ibl_branch_type = IBL_RETURN;
+                STATS_INC(num_returns);
+            } else if (instr_is_call_indirect(bb->instr)) {
+                STATS_INC(num_all_calls);
+                STATS_INC(num_indirect_calls);
+
+                if (DYNAMO_OPTION(coarse_split_calls) && DYNAMO_OPTION(coarse_units) &&
+                    TEST(FRAG_COARSE_GRAIN, bb->flags)) {
+                    if (instrlist_first(bb->ilist) != bb->instr) {
+                        /* have call be in its own bb */
+                        bb_stop_prior_to_instr(dcontext, bb, true/*appended already*/);
+                        break; /* stop bb */
+                    } else {
+                        /* single-call fine-grained bb */
+                        bb->flags &= ~FRAG_COARSE_GRAIN;
+                        STATS_INC(coarse_prevent_cti);
+                    }
+                }
+
+                /* If the indirect call can be converted into a direct one,
+                 * bypass normal indirect call processing.
+                 */
+                if (DYNAMO_OPTION(indcall2direct)
+                    && bb_process_convertible_indcall(dcontext, bb)) {
+                    normal_indirect_processing = false;
+                    elide_and_continue_if_converted = true;
+                } else if (DYNAMO_OPTION(IAT_convert)
+                           && bb_process_IAT_convertible_indcall(dcontext, bb,
+                                                                 &elide_and_continue_if_converted)) {
+                    normal_indirect_processing = false;
+                }
+                else if (bb_process_indcall_syscall(dcontext, bb,
+                                                    &elide_and_continue_if_converted)) {
+                    normal_indirect_processing = false;
+                }
+                else
+                    ibl_branch_type = IBL_INDCALL;
+            } else {
+                /* indirect jump */
+                /* was prev instr a direct call? if so, this is a PLT-style ind call */
+                instr_t *prev = instr_get_prev(bb->instr);
+                if (prev != NULL && instr_opcode_valid(prev) && instr_is_call_direct(prev)) {
+                    bb->exit_type |= INSTR_IND_JMP_PLT_EXIT;
+                    /* just because we have a CALL to JMP* makes it
+                       only a _likely_ PLT call, we still have to make
+                       sure it goes through IAT - see case 4269
+                    */
+                    STATS_INC(num_indirect_jumps_likely_PLT);
+                }
+
+                elide_and_continue_if_converted = true;
+
+                if (DYNAMO_OPTION(IAT_convert)
+                    && bb_process_IAT_convertible_indjmp(dcontext, bb,
+                                                         &elide_and_continue_if_converted)) {
+                    /* Clear the IND_JMP_PLT_EXIT flag since we've converted
+                     * the PLT to a direct transition (and possibly elided).
+                     * Xref case 7867 for why leaving this flag in the eliding
+                     * case can cause later failures. */
+                    bb->exit_type &= ~INSTR_IND_JMP_PLT_EXIT;
+                    normal_indirect_processing = false;
+                } else          /* FIXME: this can always be set */
+                    ibl_branch_type = IBL_INDJMP;
+                STATS_INC(num_indirect_jumps);
+            }
+#ifdef CUSTOM_TRACES_RET_REMOVAL
+            if (instr_is_return(bb->instr))
+                my_dcontext->num_rets++;
+            else if (instr_is_call_indirect(bb->instr))
+                my_dcontext->num_calls++;
+#endif
+            /* set exit type since this instruction will get mangled */
+            if (normal_indirect_processing) {
+                bb->exit_type |= instr_branch_type(bb->instr);
+                bb->exit_target = get_ibl_routine(dcontext, IBL_LINKED, DEFAULT_IBL_BB(),
+                                                  ibl_branch_type);
+                break;
+            } else {
+                /* decide whether to stop bb here */
+                if (!elide_and_continue_if_converted)
+                    break;
+                /* fall through for -max_bb_instrs check */
+            }
+        }
+        else if (instr_is_cti(bb->instr) && !instr_is_call(bb->instr)) {
+            total_branches++;
+            if (total_branches >= BRANCH_LIMIT) {
+                /* set type of 1st exit cti for cbr (bb->exit_type is for fall-through) */
+                instr_exit_branch_set_type(bb->instr, instr_branch_type(bb->instr));
+                break;
+            }
+        }
+        else if (instr_is_syscall(bb->instr)) {
+#ifdef LINUX_KERNEL
+            CLIENT_ASSERT(false, "System call made within in the kernel.");
+#endif
+            if (!bb_process_syscall(dcontext, bb))
+                break;
+        } /* end syscall */
+        else if (instr_get_opcode(bb->instr) == OP_int) { /* non-syscall int */
+            if (!bb_process_interrupt(dcontext, bb))
+                break;
+        }
+#ifdef CHECK_RETURNS_SSE2
+        else if (instr_is_sse_or_sse2(bb->instr)) {
+            FATAL_USAGE_ERROR(CHECK_RETURNS_SSE2_XMM_USED, 2,
+                              get_application_name(), get_application_pid());
+        }
+#endif
+
+        if (total_instrs > DYNAMO_OPTION(max_bb_instrs)) {
+            /* this could be an enormous basic block, or it could
+             * be some degenerate infinite-loop case like a call
+             * to a function that calls exit() and then calls itself,
+             * so just end it here, we'll pick up where we left off
+             * if it's legit
+             */
+            BBPRINT(bb, 3, "reached -max_bb_instrs, stopping\n");
+            STATS_INC(num_max_bb_instrs_enforced);
+            break;
+        }
+
+    } /* end of while (true) */
+    KSTOP(bb_decoding);
+
+#ifdef DEBUG_MEMORY
+    /* make sure anyone who destroyed also set to NULL */
+    ASSERT(bb->instr == NULL ||
+           (bb->instr->bytes != (byte *) HEAP_UNALLOCATED_PTR_UINT &&
+            bb->instr->bytes != (byte *) HEAP_ALLOCATED_PTR_UINT &&
+            bb->instr->bytes != (byte *) HEAP_PAD_PTR_UINT));
+#endif
+
+    check_new_page_contig(dcontext, bb, bb->cur_pc-1);
+    bb->end_pc = bb->cur_pc;
+    BBPRINT(bb, 3, "end_pc = "PFX"\n\n", bb->end_pc);
+
+    /* We could put this in check_new_page_jmp where it already checks
+     * for native_exec overlap, but selfmod ubrs don't even call that routine
+     */
+    if (DYNAMO_OPTION(native_exec) &&
+        DYNAMO_OPTION(native_exec_callcall) &&
+        !vmvector_empty(native_exec_areas) &&
+        bb->app_interp && bb->instr != NULL &&
+        (instr_is_ubr(bb->instr) || instr_is_call_direct(bb->instr)) &&
+        instrlist_first(bb->ilist) == instrlist_last(bb->ilist)) {
+        /* Case 4564/3558: handle .NET COM method table where a call* targets
+         * a call to a native_exec dll -- we need to put the gateway at the
+         * call* to avoid retaddr mangling of the method table call.
+         * As a side effect we can also handle call*, jmp.
+         * We don't actually verify or care that it was specifically a call*,
+         * whatever at_native_exec_gateway() requires to assure itself that we're
+         * at a return-address-clobberable point.
+         */
+        app_pc tgt = opnd_get_pc(instr_get_target(bb->instr));
+        if (vmvector_overlap(native_exec_areas, tgt, tgt+1) &&
+            at_native_exec_gateway(dcontext, tgt _IF_DEBUG(true/*xfer tgt*/))) {
+            /* replace this ilist w/ a native exec one */
+            LOG(THREAD, LOG_INTERP, 2,
+                "direct xfer @gateway @"PFX" to native_exec module "PFX"\n",
+                bb->start_pc, tgt);
+            bb->native_exec = true;
+            /* add this ubr/call to the native_exec_list, both as an optimization
+             * for future entrances and b/c .NET changes its method table call
+             * from targeting a native_exec image to instead target DGC directly,
+             * thwarting our gateway!
+             * FIXME: if heap region de-allocated, we'll remove, but what if re-used
+             * w/o going through syscalls?  Just written over w/ something else?
+             * We'll keep it on native_exec_list...
+             */
+            ASSERT(bb->end_pc == bb->start_pc + DIRECT_XFER_LENGTH);
+            vmvector_add(native_exec_areas, bb->start_pc, bb->end_pc, NULL);
+            DODEBUG({ report_native_module(dcontext, tgt); });
+            STATS_INC(num_native_module_entrances_callcall);
+            return;
+        }
+    }
+
+    STATS_TRACK_MAX(max_instrs_in_a_bb, total_instrs);
+
+#ifdef LINUX
+    if (bb->invalid_instr_hack) {
+        /* turn off selfmod -- we assume bb will hit exception right away */
+        if (TEST(FRAG_SELFMOD_SANDBOXED, bb->flags))
+            bb->flags &= ~FRAG_SELFMOD_SANDBOXED;
+        /* decode_fragment() can't handle invalid instrs, so store translations */
+        bb->flags |= FRAG_HAS_TRANSLATION_INFO;
+    }
+#endif
+
+    if (TEST(FRAG_SELFMOD_SANDBOXED, bb->flags) &&
+        (TEST(FRAG_HAS_DIRECT_CTI, bb->flags) || !bb->full_decode)) {
+        /* Sandbox requires that bb have no direct cti followings, and
+         * had full decode from the start for -selfmod_max_writes!
+         * check_thread_vm_area should have ensured this for us, except
+         * there is a pathological case where a direct cti occurs, and
+         * then we walk over a page boundary onto a selfmod page -- no
+         * choice but to back out, which for now we do by rebuilding.
+         * FIXME: find better way
+         */
+        /* FIXME: a better assert is needed because this can trigger if
+         * hot patching turns off follow_direct, the current bb was elided
+         * earlier and is marked as selfmod.  hotp_num_frag_direct_cti will
+         * track this for now.
+         */
+        ASSERT(bb->follow_direct == true); /* else, infinite loop possible */
+        BBPRINT(bb, 2,
+                "*** must rebuild bb to avoid following direct cti for selfmod ***\n");
+        STATS_INC(num_bb_end_early);
+        instrlist_clear_and_destroy(dcontext, bb->ilist);
+        if (bb->vmlist != NULL) {
+            vm_area_destroy_list(dcontext, bb->vmlist);
+            bb->vmlist = NULL;
+        }
+        bb->flags = FRAG_SELFMOD_SANDBOXED; /* lose all other flags */
+        bb->full_decode = true; /* full decode -- see comment at top of routine */
+        bb->follow_direct = false;
+        /* overlap info will be reset by check_new_page_start */
+        build_bb_ilist_kernel(dcontext, bb);
+        return;
+    }
+
+#ifdef CLIENT_INTERFACE
+    client_process_bb(dcontext, bb, &ibl_branch_type);
+    if (bb->unmangled_ilist != NULL)
+        *bb->unmangled_ilist = instrlist_clone(dcontext, bb->ilist);
+#endif
+
+    /* create a final instruction that will jump to the exit stub
+     * corresponding to the fall-through of the conditional branch or
+     * the target of the final indirect branch (the indirect branch itself
+     * will get mangled into a non-cti)
+     */
+    if (bb->exit_target == NULL) { /* not set by ind branch, etc. */
+        bb->exit_target = (cache_pc) bb->cur_pc; /* fall-through pc */
+        if (bb->instr != NULL && instr_opcode_valid(bb->instr) &&
+            instr_is_cbr(bb->instr) &&
+            (int) (bb->exit_target - bb->start_pc) <= SHRT_MAX &&
+            (int) (bb->exit_target - bb->start_pc) >= SHRT_MIN &&
+            /* rule out jecxz, etc. */
+            !instr_is_cti_loop(bb->instr))
+            bb->flags |= FRAG_CBR_FALLTHROUGH_SHORT;
+    }
+    /* we share all basic blocks except selfmod (since want no-synch quick deletion)
+     * or syscall-containing ones (to bound delay on threads exiting shared cache,
+     * for cache management, both consistency and capacity)
+     * bbs injected with hot patches are also not shared (see case 5272).
+     */
+    if (DYNAMO_OPTION(shared_bbs) && !TEST(FRAG_SELFMOD_SANDBOXED, bb->flags) &&
+        !TEST(FRAG_TEMP_PRIVATE, bb->flags)
+       ) {
+#ifndef LINUX_KERNEL
+        /* If the fragment doesn't have a syscalls or contains a
+         * non-ignorable one -- meaning that the frag will exit the cache
+         * to execute the syscall -- it can be shared.
+         * We don't support ignorable syscalls in shared fragments, as they
+         * don't set at_syscall and so are incompatible w/ -syscalls_synch_flush.
+         */
+        if (!TEST(FRAG_HAS_SYSCALL, bb->flags) ||
+            TESTANY(LINK_NI_SYSCALL_ALL, bb->exit_type))
+            bb->flags |= FRAG_SHARED;
+#endif
+    }
+
+    if (TEST(FRAG_COARSE_GRAIN, bb->flags) &&
+        (!TEST(FRAG_SHARED, bb->flags) ||
+         /* Ignorable syscalls on linux are mangled w/ intra-fragment jmps, which
+          * decode_fragment() cannot handle -- and on win32 this overlaps w/
+          * FRAG_MUST_END_TRACE and LINK_NI_SYSCALL
+          */
+         TEST(FRAG_HAS_SYSCALL, bb->flags) ||
+         TEST(FRAG_CANNOT_BE_TRACE, bb->flags) ||
+         TEST(FRAG_SELFMOD_SANDBOXED, bb->flags) ||
+         /* PR 214142: coarse units does not support storing translations */
+         TEST(FRAG_HAS_TRANSLATION_INFO, bb->flags) ||
+         /* FRAG_HAS_DIRECT_CTI: we never elide (assert is below);
+          * not-inlined call/jmp: we turn off FRAG_COARSE_GRAIN up above
+          */
+#ifndef LINUX_KERNEL
+        TESTANY(LINK_NI_SYSCALL_ALL, bb->exit_type) ||
+#endif
+         TEST(FRAG_MUST_END_TRACE, bb->flags))) {
+
+        bb->flags &= ~FRAG_COARSE_GRAIN;
+    }
+    ASSERT(!TEST(FRAG_COARSE_GRAIN, bb->flags) || !TEST(FRAG_HAS_DIRECT_CTI, bb->flags));
+
+    /* now that we know whether shared, ensure we have the right ibl routine */
+    if (!TEST(FRAG_SHARED, bb->flags) && TEST(LINK_INDIRECT, bb->exit_type)) {
+        ASSERT(bb->exit_target == get_ibl_routine(dcontext, IBL_LINKED, DEFAULT_IBL_BB(),
+                                                  ibl_branch_type));
+        bb->exit_target = get_ibl_routine(dcontext, IBL_LINKED, IBL_BB_PRIVATE,
+                                          ibl_branch_type);
+    }
+    {
+
+        if (bb->mangle_ilist &&
+                (bb->instr == NULL || !instr_opcode_valid(bb->instr) ||
+                        !instr_is_ubr(bb->instr) || !instr_ok_to_mangle(bb->instr))) {
+            instr_t *exit_instr = INSTR_CREATE_jmp(dcontext, opnd_create_pc(bb->exit_target));
+            if (bb->record_translation) {
+                app_pc translation = NULL;
+                if (bb->instr == NULL) {
+                    /* we removed (or mangle will remove) the last instruction
+                     * for special handling (invalid/syscall/int 2b) or there were
+                     * no instructions added (i.e. check_stopping_point in which
+                     * case instr_start == cur_pc), use last instruction's start
+                     * address for the translation */
+                    translation = bb->instr_start;
+                } else if (instr_is_cti(bb->instr)) {
+                    /* last instruction is a cti, consider the exit jmp part of
+                     * the mangling of the cti (since we might not know the target
+                     * if, for ex., its indirect) */
+                    translation = instr_get_translation(bb->instr);
+                } else {
+                    /* target is the instr after the last instr in the list */
+                    translation = bb->cur_pc;
+                    ASSERT(bb->cur_pc == bb->exit_target);
+                }
+                ASSERT(translation != NULL);
+                instr_set_translation(exit_instr, translation);
+            }
+            /* PR 214962: we need this jmp to be marked as "our mangling" so that
+             * we won't relocate a thread there and re-do a ret pop or call push
+             */
+            instr_set_our_mangling(exit_instr, true);
+            /* here we need to set exit_type */
+            LOG(THREAD, LOG_EMIT, 3, "exit_branch_type=0x%x bb->exit_target="PFX"\n",
+                    bb->exit_type, bb->exit_target);
+            instr_exit_branch_set_type(exit_instr, bb->exit_type);
+
+            instrlist_append(bb->ilist, exit_instr);
+        }
+    }
+
+    /* set flags */
+#ifdef DGC_DIAGNOSTICS
+    /* no traces in dyngen code, that would mess up our exit tracking */
+    if (TEST(FRAG_DYNGEN, bb->flags))
+        bb->flags |= FRAG_CANNOT_BE_TRACE;
+#endif
+    if (!INTERNAL_OPTION(unsafe_ignore_eflags_prefix)
+        IF_X64(|| !INTERNAL_OPTION(unsafe_ignore_eflags_trace))) {
+        bb->flags |= instr_eflags_to_fragment_eflags(bb->eflags);
+        if (TEST(FRAG_WRITES_EFLAGS_OF, bb->flags)) {
+            LOG(THREAD, LOG_INTERP, 4, "fragment writes OF prior to reading it!\n");
+            STATS_INC(bbs_eflags_writes_of);
+        } else if (TEST(FRAG_WRITES_EFLAGS_6, bb->flags)) {
+            ASSERT(TEST(FRAG_WRITES_EFLAGS_OF, bb->flags));
+            LOG(THREAD, LOG_INTERP, 4,
+                "fragment writes all 6 flags prior to reading any\n");
+            STATS_INC(bbs_eflags_writes_6);
+        } else {
+            DOSTATS({
+                if (bb->eflags == EFLAGS_READ_6) {
+                    /* Reads a flag before writing any.  Won't get here if
+                     * reads one flag and later writes OF, or writes OF and
+                     * later reads one flag before writing that flag.
+                     */
+                    STATS_INC(bbs_eflags_reads);
+                } else {
+                    STATS_INC(bbs_eflags_writes_none);
+                    if (TEST(LINK_INDIRECT, bb->exit_type))
+                        STATS_INC(bbs_eflags_writes_none_ind);
+                }
+            });
+        }
+    }
+#ifdef RETURN_STACK
+    if (bb->exit_target == return_lookup_routine(dcontext))
+        bb->flags |= FRAG_ENDS_WITH_RETURN;
+#endif
+
+    /* can only have proactive translation info if flag was set from the beginning */
+    if (TEST(FRAG_HAS_TRANSLATION_INFO, bb->flags) &&
+        (!bb->record_translation || !bb->full_decode))
+        bb->flags &= ~FRAG_HAS_TRANSLATION_INFO;
+
+    /* if for_cache, caller must clear once done emitting (emitting can deref
+     * app memory so we wait until all done)
+     */
+    if (!bb_build_nested && !bb->for_cache && my_dcontext != NULL) {
+        ASSERT(my_dcontext->bb_build_info == (void *) bb);
+        my_dcontext->bb_build_info = NULL;
+    }
+    bb->instr = NULL;
+
+    /* mangle the instruction list */
+
+    if (!bb->mangle_ilist) {
+        /* do not mangle!
+         * caller must use full_decode to find invalid instrs and avoid
+         * a discrepancy w/ for_cache case that aborts b/c of selfmod sandbox
+         * returning false (in code below)
+         */
+        return;
+    }
+
+    if (!mangle_bb_ilist(dcontext, bb)) {
+        /* have to rebuild bb w/ new bb flags set by mangle_bb_ilist */
+        build_bb_ilist_kernel(dcontext, bb);
+        return;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+// watchpoint instrumentation
+
+#define ALIGN_TO(lval, const_align) \
+    (((lval) % (const_align)) ? ((const_align) - ((lval) % (const_align))) : 0)
+
+
+extern void indirect_call_stub_kernel(void target);
+
+/// Decode and translate a single basic block of application/module code.
+app_pc
+basic_block_translate(dcontext_t* drcontext, build_bb_t *bb){
+
+    app_pc local_pc = bb->start_pc;
+    app_pc *pc = &local_pc;
+    app_pc emit_pc = NULL;
+
+    uint8_t *generated_pc = NULL;
+    uint64_t emitflags;
+    bool fall_through_pc = false;
+    bool fall_through_stub = false;
+
+    bool fall_through_detach = false;
+    bool detach_tail_call = false;
+
+    bb->ilist = instrlist_create(drcontext);
+
+    unsigned byte_len = 0;
+
+    for(;;) {
+
+        // very big basic block; cut it short and connect it with a tail.
+        // we do this test *before* decoding the next instruction because
+        // `instruction::decode` modifies `pc`, and `pc` is used to
+        // determine the fall-through target.
+        if(byte_len > 1024) {
+            fall_through_pc = true;
+            break;
+        }
+
+
+        bb->instr = instr_create(drcontext);
+
+        bb->cur_pc = local_pc;
+        local_pc = decode(drcontext, local_pc, bb->instr);
+
+        instr_set_translation(bb->instr, bb->cur_pc);
+
+        // TODO: curiosity.
+        if(OP_INVALID == instr_get_opcode(bb->instr)
+        || OP_UNDECODED == instr_get_opcode(bb->instr)) {
+            break_on_fault();
+            break;
+        }
+
+        byte_len += bb->instr->length;
+
+        instrlist_append(bb->ilist, bb->instr);
+
+        if(instr_is_cti(bb->instr)) {
+            opnd_t target = instr_get_target(bb->instr);
+
+            // Unconditional JMP; ends the block, without possibility
+            // of falling through.
+            if(instr_is_jmp(bb->instr)) {
+                instr_being_modified(bb->instr, false);
+                instr_set_ok_to_mangle(bb->instr, false);
+                fall_through_pc = false;
+                break;
+
+            // CALL, if direct returns are supported then the basic
+            // block that can continue; however, if direct returns
+            // aren't supported then we need to support a fall-through
+            // JMP to the next basic block.
+            } else if(instr_is_call(bb->instr)) {
+                instr_being_modified(bb->instr, false);
+                instr_set_ok_to_mangle(bb->instr, false);
+                if(instr_is_call_indirect(bb->instr)){
+                    opnd_t target = instr_get_target(bb->instr);
+                    if(opnd_is_base_disp(target)){
+                        instr_t *return_address = INSTR_CREATE_label(drcontext);
+                        instrlist_meta_preinsert(bb->ilist, bb->instr, INSTR_CREATE_push_imm(drcontext, opnd_create_instr(return_address)));
+                        instrlist_meta_preinsert(bb->ilist, bb->instr, INSTR_CREATE_push(drcontext, opnd_create_reg(DR_REG_RCX)));
+                        instrlist_meta_preinsert(bb->ilist, bb->instr, INSTR_CREATE_push(drcontext, opnd_create_reg(DR_REG_RCX)));
+                        instrlist_meta_preinsert(bb->ilist, bb->instr, INSTR_CREATE_mov_ld(drcontext, opnd_create_reg(DR_REG_RCX),
+                                                                        target));
+
+                        /*instrlist_meta_preinsert(bb->ilist, bb->instr, INSTR_CREATE_lea(drcontext, opnd_create_reg(DR_REG_RCX),
+                                                                        opnd_create_base_disp(opnd_get_base(target),
+                                                                         opnd_get_index(target), opnd_get_scale(target),
+                                                                         opnd_get_disp(target), OPSZ_lea)));
+                        */
+                        instrlist_meta_preinsert(bb->ilist, bb->instr, INSTR_CREATE_jmp(drcontext, opnd_create_pc(indirect_call_stub_kernel)));
+                        instrlist_meta_preinsert(bb->ilist, bb->instr, return_address);
+                        instrlist_remove(bb->ilist, bb->instr);
+                        instr_destroy(drcontext, bb->instr);
+
+                        //instr_set_target(bb->instr, opnd_create_pc(indirect_call_stub_kernel));
+                    }
+                }
+
+            // RET instruction.
+            } else if(instr_is_return(bb->instr) || OP_iret == bb->instr->opcode) {
+                break;
+
+            // Conditional CTI, end the block with the ability to fall-
+            // through.
+            } else {
+                //instr_set_ok_to_mangle(bb->instr, false);
+                fall_through_stub = true;
+                break;
+            }
+
+
+        // some other instruction
+        } else {
+            if(OP_sysexit == bb->instr->opcode
+            || OP_sysret == bb->instr->opcode) {
+                break;
+            }
+        }
+    }
+
+    // Invoke client code instrumentation on the basic block; the client
+    // might return a different instrumentation policy to use. The effect
+    // of this is that if we are in policy P1, and the client returns policy
+    // P2, then we will emit a block to P1's code cache that jumps us into
+    // P2's code cache.
+
+    if (!instrument_basic_block(drcontext, (app_pc) bb->start_pc, bb->ilist,
+                                bb->for_trace, !bb->app_interp, &emitflags)) {
+        /* although no callback was called we must process syscalls/ints (PR 307284) */
+    }
+
+    //instrumentation_policy_watchpoint(drcontext, bb->ilist, instr);
+
+    // Add in a trailing jump if the last instruction in the basic
+    // block if we need to force a connection between this basic block
+    // and the next.
+    if(fall_through_pc) {
+        instrlist_append(bb->ilist, INSTR_CREATE_jmp(drcontext, opnd_create_pc(*pc)));
+
+    /// Add in a trailing (emulated) jmp or ret if we are detaching.
+    } else if(fall_through_stub) {
+        instr_t *label_stub_cbr = INSTR_CREATE_label(drcontext);
+        opnd_t target = instr_get_target(bb->instr);
+        instrlist_t* ilist = instrlist_create(drcontext);
+        APP(ilist, INSTR_CREATE_jmp(drcontext, opnd_create_pc(*pc)));
+        APP(ilist, label_stub_cbr);
+        if(opnd_is_pc(target)){
+            APP(ilist, INSTR_CREATE_jmp(drcontext, target));
+            instr_set_target(bb->instr, opnd_create_instr(label_stub_cbr));
+          //  APP(ilist, INSTR_CREATE_jmp(drcontext, target));
+        }
+
+        instrlist_append_instrlist(drcontext, bb->ilist, ilist);
+    }
+    /*else if(fall_through_detach) {
+        if(detach_tail_call) {
+            instrlist_append(ilist, INSTR_CREATE_ret(drcontext));
+        } else {
+            instrlist_meta_postinsert(ilist, instr, INSTR_CREATE_jmp(drcontext, OPND_CREATE_INT64(*pc)));
+        }
+    }*/
+
+//    emit_pc = drcontext->kernel_fcache_field;
+
+//    emit_pc += ALIGN_TO((uint64_t)emit_pc, 16);
+
+//    drcontext->kernel_fcache_field = instrlist_encode(drcontext, bb->ilist,
+  //                                  emit_pc, true);
+
+    // Translate loops and resolve local branches into jmps to instructions.
+    // done before mangling, as mangling removes the opportunity to do this
+    // type of transformation.
+   /* translate_loops(ls);
+
+    instruction bb_begin(ls.prepend(label_()));
+
+    // Prepare the instructions for final execution; this does instruction-
+    // specific translations needed to make the code sane/safe to run.
+    // mangling uses `client_policy` as opposed to `policy` so that CTIs
+    // are mangled to transfer control to the (potentially different) client
+    // policy.
+    instruction_list_mangler mangler(
+        cpu, thread, block_storage, client_policy);
+    mangler.mangle(ls);
+
+    // Re-calculate the size and re-allocate; if our earlier
+    // guess was too small then we need to re-instrument the
+    // instruction list
+    generated_pc = cpu->fragment_allocator.\
+        allocate_array<uint8_t>(basic_block::size(ls));
+*/
+ /*   app_pc =  basic_block_emit(ilist, bb_begin, block_storage,
+        start_pc, byte_len,
+        generated_pc);
+*/
+/*
+    // If this isn't the case, then there there was likely a buffer
+    // overflow. This assumes that the fragment allocator always aligns
+    // executable code on a 16 byte boundary.
+    ASSERT(generated_pc == emitted_pc);
+
+    // The generated pc is not necessarily the actual basic block beginning
+    // because direct jump patchers will be prepended to the basic block.
+    basic_block ret(bb_begin.pc());
+
+    // quick double check to make sure that we can properly resolve the
+    // basic block info later. If this isn't the case, then we likely need
+    // to choose different magic values, or make them longer.
+    ASSERT(bb_begin.pc() == ret.cache_pc_start);
+
+    //printf("%p -> %p\n", start_pc, bb_begin->pc());
+
+    IF_PERF( perf::visit_encoded(ret); )
+*/
+    return emit_pc;
+}
+
+
+/// Emit an instruction list as code into a byte array. This will also
+/// emit the basic block meta information.
+///
+/// Note: it is assumed that no field in *state points back to itself
+///       or any other temporary storage location.
+/*
+app_pc basic_block_emit(instrlist_t *ilist, instr_t* bb_begin,
+        app_pc generating_pc,
+        unsigned byte_len,
+        app_pc pc
+)
+{
+
+    pc += ALIGN_TO(reinterpret_cast<uint64_t>(pc), BB_ALIGN);
+
+    pc = instrlist_encode(dcontext, ilist, pc, false);
+
+    // add in the instructions
+    const app_pc start_pc = pc;
+    pc = ls.encode(pc);
+
+    uint64_t pc_uint(reinterpret_cast<uint64_t>(pc));
+    app_pc pc_aligned(pc + ALIGN_TO(pc_uint, BB_INFO_BYTE_ALIGNMENT));
+
+    // add in the padding
+    for(; pc < pc_aligned; ) {
+        *pc++ = BB_PADDING;
+    }
+
+    return start_pc;
+}
+*/
+app_pc
 build_basic_block(dcontext_t *dcontext, app_pc start, uint initial_flags,
                         bool link, bool visible _IF_CLIENT(bool for_trace)
                         _IF_CLIENT(instrlist_t **unmangled_ilist))
 {
     fragment_t *f;
     build_bb_t bb;
-   // app_pc lookup_tag = (app_pc)((uint64_t)start & KERNEL_POLICY_MASK);
+    app_pc pc;
+
+    if(!dcontext->kernel_fcache_field){
+        dcontext->kernel_fcache_field = dr_thread_alloc(dcontext, 64*PAGE_SIZE);
+    }
 
     init_interp_build_bb(dcontext, &bb, start, initial_flags
                          _IF_CLIENT(for_trace) _IF_CLIENT(unmangled_ilist));
-    build_bb_ilist(dcontext, &bb);
+    pc = basic_block_translate(dcontext, &bb);
+
+    f = emit_fragment_ilist(dcontext, start, 0, bb.ilist, bb.flags, false, true);
+/*
+    build_bb_ilist_kernel(dcontext, &bb);
+
 
     f = emit_fragment_ex(dcontext, start, bb.ilist, bb.flags, bb.vmlist, link, visible);
-    exit_interp_build_bb(dcontext, &bb);
-    return f;
+ */   exit_interp_build_bb(dcontext, &bb);
+    return f->start_pc;
 }
 
 
@@ -7743,12 +8771,12 @@ app_pc
 dr_get_basic_block(dcontext_t *dcontext, app_pc start_pc){
 
     fragment_t *f;
-  //  app_pc lookup_tag = (app_pc)((uint64_t)start_pc & KERNEL_POLICY_MASK);
+    app_pc instrumented_pc = NULL;
 
     f = fragment_lookup(dcontext, start_pc);
 
-    if(f == NULL) {
-        f = build_basic_block(dcontext, start_pc, 0, false, false, 0, 0);
+    if(instrumented_pc == NULL) {
+        instrumented_pc = build_basic_block(dcontext, start_pc, 0, false, false, 0, 1);
     }
-    return f->start_pc;
+    return instrumented_pc;
 }

@@ -1345,12 +1345,15 @@ set_linkstub_ilist(dcontext_t *dcontext, fragment_t *f, instrlist_t *ilist,
     bool frag_offs_at_end;
     linkstub_t *l;
     cache_pc pc;
+    cache_pc emit_pc;
     instr_t *inst;
     app_pc target;
     DEBUG_DECLARE(instr_t *prev_cti = NULL;)
 
     pc = FCACHE_ENTRY_PC(f);
 
+    emit_pc = instrlist_encode(dcontext, ilist, pc, true);
+/*
     for (inst = instrlist_first(ilist); inst; inst = instr_get_next(inst)) {
         if (instr_ok_to_emit(inst)) {
             if (emit) {
@@ -1360,7 +1363,7 @@ set_linkstub_ilist(dcontext_t *dcontext, fragment_t *f, instrlist_t *ilist,
                 pc += instr_length(dcontext, inst);
             }
         }
-    }
+    }*/
     return pc;
 }
 

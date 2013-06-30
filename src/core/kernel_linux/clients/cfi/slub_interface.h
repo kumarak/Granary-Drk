@@ -30,6 +30,8 @@ void *cfi_kmalloc(size_t size, gfp_t flags);
 
 void cfi_kfree(const void *x);
 
+void *cfi_kmem_cache_alloc(struct kmem_cache *s, gfp_t flags);
+
 void cfi_kmem_cache_free(struct kmem_cache *s, void *x);
 
 #endif /* SLUB_INTERFACE_H_ */

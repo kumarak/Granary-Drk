@@ -1427,10 +1427,7 @@ void returning_to_gencode()
 
 
 #define MODULE_START_ADDR 	0xffffffffa0000000
-#define MODULE_END_ADDR 	0xffffffffc0000000
-#define MODULE_SHADOW_END 	0xffffffffe0000000
-#define MODULE_SHADOW_END_EXTENDED 	0xffffffffff000000
-#define MODULE_SHADOW_START MODULE_END_ADDR
+#define MODULE_END_ADDR 	0xffffffffff000000
 
 noinline void
 general_fault_on_granary_code(void* addr){
@@ -1504,18 +1501,6 @@ reg_t is_watchpoint_address(reg_t addr){
 //*********************************************************************************************
 
 
-noinline void
-break_on_address(void* addr)
-{
-
-}
-
-noinline void
-fault_instr_mov_st(unsigned long count, void *addr){
-
-}
-
-
 
 noinline int
 granary_debug_gp_fault(interrupt_stack_frame_t* frame, dr_mcontext_t* mcontext, unsigned int vector)
@@ -1557,13 +1542,20 @@ handler_general_protection_fault(dcontext_t* drcontext, interrupt_stack_frame_t*
     if (local)
         SELF_PROTECT_LOCAL(dcontext, WRITABLE);
 #if 0
-
+    if(dcontext->whereami != WHERE_NATIVE){
+        granary_debug_gp_fault(frame, mcontext, 0);
+        dcontext->whereami = WHERE_NATIVE;
+    }
     instrumented_xip = dr_get_basic_block(dcontext, frame->xip);
 
     if(instrumented_xip)
         frame->xip = instrumented_xip;
 #endif
 #if 1
+    if(dcontext->whereami != WHERE_NATIVE){
+        granary_debug_gp_fault(frame, mcontext, 0);
+        dcontext->whereami = WHERE_NATIVE;
+    }
     	dcontext->next_tag = frame->xip;
     	dcontext->next_app_tag = frame->xip;
     	mcontext->xsp = frame->xsp;
@@ -1634,188 +1626,6 @@ handler_general_protection_fault(dcontext_t* drcontext, interrupt_stack_frame_t*
     			    ASSERT_NOT_REACHED();
     			}
 
- /*   } else if(instr->opcode == OP_rep_stos ||
-            instr->opcode == OP_rep_movs){
-
-        if(dcontext->gp_pc != frame->xip) {
-            if(dcontext->count >= 1){
-                general_fault_on_rep_stos(dcontext->count, frame->xip);
-            }
-            dcontext->count += 1;
-        }
-        mcontext->xip = frame->xip;
-        dcontext->next_tag = frame->xip;
-        dcontext->next_app_tag = frame->xip;
-        mcontext->xsp = frame->xsp;
-
-        dcontext->gp_xflags = frame->xflags;
-        mcontext->xflags = (frame->xflags *//*& ~(EFLAGS_IF)*//*) ;
-
-        dcontext->gp_pc = frame->xip;
-        dcontext->is_general_fault = true;
-
-        transfer_to_dispatch(dcontext, 0, mcontext);
-        ASSERT_NOT_REACHED();
-
-    }else if(instr->opcode == OP_xadd){
-
-        if(dcontext->gp_pc != frame->xip) {
-            if(dcontext->count >= 1){
-                general_fault_on_xadd(dcontext->count, frame->xip);
-            }
-            dcontext->count += 1;
-        }
-        mcontext->xip = frame->xip;
-        dcontext->next_tag = frame->xip;
-        dcontext->next_app_tag = frame->xip;
-        mcontext->xsp = frame->xsp;
-
-        dcontext->gp_xflags = frame->xflags;
-        mcontext->xflags = (frame->xflags ) ;
-
-        dcontext->gp_pc = frame->xip;
-        dcontext->is_general_fault = true;
-
-        transfer_to_dispatch(dcontext, 0, mcontext);
-        ASSERT_NOT_REACHED();
- //       mcontext->rax = is_watchpoint_address(mcontext->rax);
- //       mcontext->rbx = is_watchpoint_address(mcontext->rbx);
- //       mcontext->rcx = is_watchpoint_address(mcontext->rcx);
- //       mcontext->rdx = is_watchpoint_address(mcontext->rdx);
- //       mcontext->rdi = is_watchpoint_address(mcontext->rdi);
-  //      mcontext->rsi = is_watchpoint_address(mcontext->rsi);
- //       mcontext->r8 = is_watchpoint_address(mcontext->r8);
- //       mcontext->r9 = is_watchpoint_address(mcontext->r9);
- //       mcontext->r10 = is_watchpoint_address(mcontext->r10);
- //       mcontext->r11 = is_watchpoint_address(mcontext->r11);
- //       mcontext->r12 = is_watchpoint_address(mcontext->r12);
- //       mcontext->r13 = is_watchpoint_address(mcontext->r13);
- //       mcontext->r14 = is_watchpoint_address(mcontext->r14);
- //       mcontext->r15 = is_watchpoint_address(mcontext->r15);
-
-    }else  {
-        reg_id_t instr_reg;
-        opnd_t fault_addr_opnd;
-        struct memory_operand_modifier ops = {0};
-        memset(&ops, 0, sizeof(struct memory_operand_modifier));
-
-        if(dcontext->gp_pc != frame->xip) {
-            if(dcontext->count >= 1){
-                gp_fix_reg(dcontext->count, frame->xip);
-            }
-            dcontext->count += 1;
-        }
-
-        if(instr_writes_memory(instr)){
-            for_each_dsts_operand(instr, &ops, (opnd_callback_t *) memory_dsts_operand_finder);
-            fault_addr_opnd = ops.found_operand;
-            instr_reg = opnd_get_base(ops.found_operand);
-
-            switch(instr_reg){
-            case DR_REG_RAX:
-                mcontext->rax = is_watchpoint_address(mcontext->rax);
-                break;
-            case DR_REG_RBX:
-                mcontext->rbx = is_watchpoint_address(mcontext->rbx);
-                break;
-            case DR_REG_RCX:
-                mcontext->rcx = is_watchpoint_address(mcontext->rcx);
-                break;
-            case DR_REG_RDX:
-                mcontext->rdx = is_watchpoint_address(mcontext->rdx);
-                break;
-            case DR_REG_RDI:
-                mcontext->rdi = is_watchpoint_address(mcontext->rdi);
-                break;
-            case DR_REG_RSI:
-                mcontext->rsi = is_watchpoint_address(mcontext->rsi);
-                break;
-            case DR_REG_R8:
-                mcontext->r8 = is_watchpoint_address(mcontext->r8);
-                break;
-            case DR_REG_R9:
-                mcontext->r9 = is_watchpoint_address(mcontext->r9);
-                break;
-            case DR_REG_R10:
-                mcontext->r10 = is_watchpoint_address(mcontext->r10);
-                break;
-            case DR_REG_R11:
-                mcontext->r11 = is_watchpoint_address(mcontext->r11);
-                break;
-            case DR_REG_R12:
-                mcontext->r12 = is_watchpoint_address(mcontext->r12);
-                break;
-            case DR_REG_R13:
-                mcontext->r13 = is_watchpoint_address(mcontext->r13);
-                break;
-            case DR_REG_R14:
-                mcontext->r14 = is_watchpoint_address(mcontext->r14);
-                break;
-            case DR_REG_R15:
-                mcontext->r15 = is_watchpoint_address(mcontext->r15);
-                break;
-            default:
-                gp_unknown_reg(instr);
-                break;
-
-            }
-
-        } else if(instr_reads_memory(instr)){
-            for_each_src_operand(instr, &ops, (opnd_callback_t *) memory_src_operand_finder);
-            fault_addr_opnd = ops.found_operand;
-            instr_reg = opnd_get_base(ops.found_operand);
-            switch(instr_reg){
-            case DR_REG_RAX:
-                mcontext->rax = is_watchpoint_address(mcontext->rax);
-                break;
-            case DR_REG_RBX:
-                mcontext->rbx = is_watchpoint_address(mcontext->rbx);
-                break;
-            case DR_REG_RCX:
-                mcontext->rcx = is_watchpoint_address(mcontext->rcx);
-                break;
-            case DR_REG_RDX:
-                mcontext->rdx = is_watchpoint_address(mcontext->rdx);
-                break;
-            case DR_REG_RDI:
-                mcontext->rdi = is_watchpoint_address(mcontext->rdi);
-                break;
-            case DR_REG_RSI:
-                mcontext->rsi = is_watchpoint_address(mcontext->rsi);
-                break;
-            case DR_REG_R8:
-                mcontext->r8 = is_watchpoint_address(mcontext->r8);
-                break;
-            case DR_REG_R9:
-                mcontext->r9 = is_watchpoint_address(mcontext->r9);
-                break;
-            case DR_REG_R10:
-                mcontext->r10 = is_watchpoint_address(mcontext->r10);
-                break;
-            case DR_REG_R11:
-                mcontext->r11 = is_watchpoint_address(mcontext->r11);
-                break;
-            case DR_REG_R12:
-                mcontext->r12 = is_watchpoint_address(mcontext->r12);
-                break;
-            case DR_REG_R13:
-                mcontext->r13 = is_watchpoint_address(mcontext->r13);
-                break;
-            case DR_REG_R14:
-                mcontext->r14 = is_watchpoint_address(mcontext->r14);
-                break;
-            case DR_REG_R15:
-                mcontext->r15 = is_watchpoint_address(mcontext->r15);
-                break;
-            default:
-                gp_unknown_reg(instr);
-                break;
-            }
-        } else {
-            gp_fault_no_mem_op(frame->xip);
-        }
-*/
-        //instr_destroy(dcontext, instr);
 #else
         mcontext->rax = is_watchpoint_address(mcontext->rax);
         mcontext->rbx = is_watchpoint_address(mcontext->rbx);

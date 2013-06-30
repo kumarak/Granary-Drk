@@ -5,18 +5,18 @@
 /*
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * * Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
- * 
+ *
  * * Redistributions in binary form must reproduce the above copyright notice,
  *   this list of conditions and the following disclaimer in the documentation
  *   and/or other materials provided with the distribution.
- * 
+ *
  * * Neither the name of VMware, Inc. nor the names of its contributors may be
  *   used to endorse or promote products derived from this software without
  *   specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -54,9 +54,9 @@
  * it is passed in memory, but we have to pick registers that don't already
  * hold other arguments.  Typically, use this order:
  *   REG_XAX, REG_XBX, REG_XDI, REG_XSI, REG_XDX, REG_XCX
- * Note that REG_XBX is by convention used on linux for PIC base: if we want 
- * to try and avoid relocations (case 7852) we should avoid using it 
- * to avoid confusion (though we can always pick a different register, 
+ * Note that REG_XBX is by convention used on linux for PIC base: if we want
+ * to try and avoid relocations (case 7852) we should avoid using it
+ * to avoid confusion (though we can always pick a different register,
  * even varying by function).
  * FIXME: should we use virtual registers instead?
  * FIXME: should we have ARG1_IN_REG macro that is either nop or load from stack?
@@ -70,10 +70,10 @@ START_FILE
 #ifdef LINUX
 # include "syscall.h"
 #endif
-        
+
 #define RESTORE_FROM_DCONTEXT_VIA_REG(reg,offs,dest) mov dest, PTRSZ [offs + reg]
 #define SAVE_TO_DCONTEXT_VIA_REG(reg,offs,src) mov PTRSZ [offs + reg], src
-        
+
 /* For the few remaining dcontext_t offsets we need here: */
 #ifdef WINDOWS
 # ifdef X64
@@ -216,7 +216,7 @@ DECL_EXTERN(sig_should_swap_stack)
 DECL_EXTERN(fixup_rtframe_pointers)
 # define CLONE_AND_SWAP_STRUCT_SIZE 2*ARG_SZ
 #endif
-     
+
 /* non-functions: these make us non-PIC! (PR 212290) */
 DECL_EXTERN(exiting_thread_count)
 DECL_EXTERN(initstack)
@@ -232,7 +232,7 @@ DECL_EXTERN(wow64_syscall_stack)
 DECL_EXTERN(syscall_argsz)
 # endif
 #endif
-        
+
 
 #ifdef WINDOWS
 /* dynamo_auto_start: used for non-early follow children.
@@ -400,7 +400,7 @@ GLOBAL_LABEL(clone_and_swap_stack:)
         END_FUNC(clone_and_swap_stack)
 
 /*
- * dr_app_start - Causes application to run under Dynamo control 
+ * dr_app_start - Causes application to run under Dynamo control
  */
 #ifdef DR_APP_EXPORTS
         DECLARE_EXPORTED_FUNC(dr_app_start)
@@ -415,7 +415,7 @@ GLOBAL_LABEL(dr_app_start:)
 		cli
         CALLC1(dr_app_start_helper, REG_XAX)
 	    popfq
-        /* if we come back, then DR is not taking control so 
+        /* if we come back, then DR is not taking control so
          * clean up stack and return */
         add      REG_XSP, DR_MCONTEXT_SIZE
         ret
@@ -465,15 +465,15 @@ GLOBAL_LABEL(dr_app_start_on_return:)
 
 /*
  * dr_app_take_over - For the client interface, we'll export 'dr_app_take_over'
- * for consistency with the dr_ naming convention of all exported functions.  
+ * for consistency with the dr_ naming convention of all exported functions.
  * We'll keep 'dynamorio_app_take_over' for compatibility with the preinjector.
  */
         DECLARE_EXPORTED_FUNC(dr_app_take_over)
 GLOBAL_LABEL(dr_app_take_over:  )
-        jmp      dynamorio_app_take_over 
+        jmp      dynamorio_app_take_over
         END_FUNC(dr_app_take_over)
 #endif
-                
+
 /*
  * dynamorio_app_take_over - Causes application to run under Dynamo
  * control.  Dynamo never releases control.
@@ -490,13 +490,13 @@ GLOBAL_LABEL(dynamorio_app_take_over:)
 	cli
         CALLC1(dynamorio_app_take_over_helper, REG_XAX)
 
-        /* if we come back, then DR is not taking control so 
+        /* if we come back, then DR is not taking control so
          * clean up stack and return */
 	popfq
         add      REG_XSP, DR_MCONTEXT_SIZE
         ret
         END_FUNC(dynamorio_app_take_over)
-        
+
 /*
  * cleanup_and_terminate(dcontext_t *dcontext,     // 1*ARG_SZ+XBP
  *                       int sysnum,               // 2*ARG_SZ+XBP = syscall #
@@ -542,7 +542,7 @@ GLOBAL_LABEL(cleanup_and_terminate:)
 #else
         mov      REG_XBP, REG_XSP
 #endif
-        /* increment exiting_thread_count so that we don't get killed after 
+        /* increment exiting_thread_count so that we don't get killed after
          * thread_exit removes us from the all_threads list */
 #if !defined(X64) && defined(LINUX)
         /* PR 212290: avoid text relocations: get PIC base into callee-saved xdi.
@@ -569,7 +569,7 @@ cat_done_saving_dstack:
         /* PR 306421: xbx is callee-saved for all platforms, so don't push yet,
          * to maintain 16-byte stack alignment
          */
-        /* avoid sygate sysenter version as our stack may be static const at 
+        /* avoid sygate sysenter version as our stack may be static const at
          * that point, caller will take care of sygate hack */
         CALLC0(get_cleanup_and_terminate_global_do_syscall_entry)
         push     REG_XBX /* 16-byte aligned again */
@@ -583,15 +583,15 @@ cat_done_saving_dstack:
 cat_thread_only:
         CALLC0(dynamo_thread_exit)
 cat_no_thread:
-        /* now switch to initstack for cleanup of dstack 
-         * could use initstack for whole thing but that's too long 
+        /* now switch to initstack for cleanup of dstack
+         * could use initstack for whole thing but that's too long
          * of a time to hold global initstack_mutex */
         mov      ecx, 1
 #if !defined(X64) && defined(LINUX)
         /* PIC base is still in xdi */
 	lea      REG_XAX, VAR_VIA_GOT(REG_XDI, initstack_mutex)
 #endif
-cat_spin:       
+cat_spin:
 #if !defined(X64) && defined(LINUX)
         xchg     DWORD [REG_XAX], ecx
 #else
@@ -645,8 +645,8 @@ cat_have_lock:
         /* sys_arg2 unused */
 # endif
 #endif
-        /* give up initstack mutex -- potential problem here with a thread getting 
-         *   an asynch event that then uses initstack, but syscall should only care 
+        /* give up initstack mutex -- potential problem here with a thread getting
+         *   an asynch event that then uses initstack, but syscall should only care
          *   about ebx and edx */
 #ifdef WINDOWS
         /* PR 601533: the wow64 syscall writes to the stack b/c it
@@ -664,7 +664,7 @@ cat_have_lock:
 #else
         mov      DWORD SYMREF(initstack_mutex), 0 /* rip-relative on x64 */
 #endif
-        /* we are finished with all shared resources, decrement the  
+        /* we are finished with all shared resources, decrement the
          * exiting_thread_count (allows another thread to kill us) */
 #if !defined(X64) && defined(LINUX)
         /* PIC base is still in xdi */
@@ -708,8 +708,8 @@ GLOBAL_LABEL(global_do_syscall_int:)
 #ifdef WINDOWS
         DECLARE_FUNC(global_do_syscall_sygate_int)
 GLOBAL_LABEL(global_do_syscall_sygate_int:)
-        /* would be nicer to call so we could return to debug_infinite_loop on 
-         * failure, but on some paths (cleanup_and_terminate) we can no longer 
+        /* would be nicer to call so we could return to debug_infinite_loop on
+         * failure, but on some paths (cleanup_and_terminate) we can no longer
          * safetly use the stack */
         jmp      PTRSZ SYMREF(int_syscall_address)
         END_FUNC(global_do_syscall_sygate_int)
@@ -732,8 +732,8 @@ GLOBAL_LABEL(global_do_syscall_sysenter:)
         sysenter
 #endif
 #ifdef DEBUG
-        /* We'll never ever reach here, sysenter won't/can't return to this 
-         * address since it doesn't know it, but we'll put in a jmp to 
+        /* We'll never ever reach here, sysenter won't/can't return to this
+         * address since it doesn't know it, but we'll put in a jmp to
          * debug_infinite_loop just in case */
         jmp      debug_infinite_loop
 #endif
@@ -750,7 +750,7 @@ GLOBAL_LABEL(global_do_syscall_sysenter:)
         DECLARE_FUNC(global_do_syscall_sygate_sysenter)
 GLOBAL_LABEL(global_do_syscall_sygate_sysenter:)
         mov      REG_XSP, REG_XDX
-        /* move existing ret down a slot (note target address is 
+        /* move existing ret down a slot (note target address is
          * computed with already inc'ed esp [see intel docs]) */
         pop      PTRSZ [REG_XSP]
         push     PTRSZ SYMREF(sysenter_ret_address)
@@ -760,8 +760,8 @@ GLOBAL_LABEL(global_do_syscall_sygate_sysenter:)
         sysenter
 #endif
 #ifdef DEBUG
-        /* We'll never ever reach here, sysenter won't/can't return to this 
-         * address since it doesn't know it, but we'll put in a jmp to 
+        /* We'll never ever reach here, sysenter won't/can't return to this
+         * address since it doesn't know it, but we'll put in a jmp to
          * debug_infinite_loop just in case */
         jmp      debug_infinite_loop
 #endif
@@ -829,13 +829,13 @@ GLOBAL_LABEL(debug_infinite_loop:)
         jmp      debug_infinite_loop
         END_FUNC(debug_infinite_loop)
 #endif
-        
+
 #ifdef WINDOWS
 /* We use our own syscall wrapper for key win32 system calls.
  *
  * We would use a dynamically generated routine created by decoding
  * a real ntdll wrapper and tweaking it, but we need to use
- * this for our own syscalls and have a bootstrapping problem -- so 
+ * this for our own syscalls and have a bootstrapping problem -- so
  * rather than hacking to get the power to decode w/o a heap, we hardcode
  * the types we support here.
  *
@@ -849,20 +849,20 @@ GLOBAL_LABEL(debug_infinite_loop:)
  * ref case 5217, for Sygate compatibility the int needs to come from
  * ntdll.dll, we use a call to NtYieldExecution+9 (int 2e; ret;)
  *
- * 1)   mov immed, eax        mov 4(esp), eax  
- *      lea 4(esp), edx  ==>  lea 8(esp), edx  
- *      int 2e                  int 2e            
- *      ret 4*numargs          ret               
+ * 1)   mov immed, eax        mov 4(esp), eax
+ *      lea 4(esp), edx  ==>  lea 8(esp), edx
+ *      int 2e                  int 2e
+ *      ret 4*numargs          ret
  *
- * 2)   mov immed, eax               mov 4(esp), eax          
+ * 2)   mov immed, eax               mov 4(esp), eax
  *      mov 0x7ffe0300, edx          mov esp, edx
  *      call {edx,(edx)}             < juggle stack, see below >
  *         NOTE - to support the sygate case 5441 hack the actual instructions
  *              - we use are different, but the end up doing the same thing
- *    callee:                   ==>    sysenter                   
+ *    callee:                   ==>    sysenter
  *        mov esp, edx             our_ret:
- *        sysenter                     ret                    
- *        ret                                         
+ *        sysenter                     ret
+ *        ret
  *      ret 4*numargs
  *
  * => signature: dynamorio_syscall_{int2e,sysenter}(sysnum, arg1, arg2, ...)
@@ -882,13 +882,13 @@ GLOBAL_LABEL(dynamorio_syscall_sygate_int2e:)
         call     PTRSZ SYMREF(int_syscall_address)
         ret
         END_FUNC(dynamorio_syscall_sygate_int2e)
-        
+
         DECLARE_FUNC(dynamorio_syscall_sysenter)
 GLOBAL_LABEL(dynamorio_syscall_sysenter:)
-        /* esp + 0    return address 
-         *       4    syscall num 
-         *       8+   syscall args 
-         * Ref case 5461 edx serves as both the argument pointer (edx+8) and the 
+        /* esp + 0    return address
+         *       4    syscall num
+         *       8+   syscall args
+         * Ref case 5461 edx serves as both the argument pointer (edx+8) and the
          * top of stack for the kernel sysexit. */
         mov      eax, [4 + esp]
         mov      REG_XDX, REG_XSP
@@ -897,8 +897,8 @@ GLOBAL_LABEL(dynamorio_syscall_sysenter:)
 #else
         sysenter
 #endif
-        /* Kernel sends control to hardcoded location, which does ret, 
-         * which will return directly back to the caller.  Thus the following 
+        /* Kernel sends control to hardcoded location, which does ret,
+         * which will return directly back to the caller.  Thus the following
          * ret will never execute. */
         ret
         END_FUNC(dynamorio_syscall_sysenter)
@@ -906,35 +906,35 @@ GLOBAL_LABEL(dynamorio_syscall_sysenter:)
         DECLARE_GLOBAL(dynamorio_sysenter_fixup)
         DECLARE_FUNC(dynamorio_syscall_sygate_sysenter)
 GLOBAL_LABEL(dynamorio_syscall_sygate_sysenter:)
-        /* stack looks like: 
-         * esp + 0    return address 
-         *       4    syscall num 
-         *       8+   syscall args 
-         * Ref case 5461 edx serves as both the argument pointer (edx+8) and the 
-         * top  of stack for the kernel sysexit. While we could do nothing and 
-         * just have the sysenter return straight back to the caller, we use 
-         * sysenter_ret_address indirection to support the Sygate compatibility 
-         * fix for case 5441 where steal a ret from ntdll.dll so need to mangle 
-         * our stack to look like 
-         * esp + 0    sysenter_ret_address 
-         *       4    dynamorio_sysenter_fixup 
-         *       8+   syscall args 
-         * sysenter_tls_slot    return address 
-         * before we do the edx <- esp 
-         * 
-         * NOTE - we can NOT just have 
-         * esp + 0    sysenter_ret_address 
-         *       4    return address 
-         *       8    args 
-         * as even though this will go the right place, the stack will be one 
-         * off on the return (debug builds with frame ptr are ok, but not 
-         * release).  We could roll our own custom calling convention for this 
-         * but would be a pain given how this function is called.  So we use a 
-         * tls slot to store the return address around the system call since 
-         * there isn't room on the stack, thus is not re-entrant, but neither is 
-         * dr and we don't make alertable system calls.  An alternate scheme 
-         * kept the return address off the top of the stack which works fine 
-         * (nothing alertable), but just seemed too risky. 
+        /* stack looks like:
+         * esp + 0    return address
+         *       4    syscall num
+         *       8+   syscall args
+         * Ref case 5461 edx serves as both the argument pointer (edx+8) and the
+         * top  of stack for the kernel sysexit. While we could do nothing and
+         * just have the sysenter return straight back to the caller, we use
+         * sysenter_ret_address indirection to support the Sygate compatibility
+         * fix for case 5441 where steal a ret from ntdll.dll so need to mangle
+         * our stack to look like
+         * esp + 0    sysenter_ret_address
+         *       4    dynamorio_sysenter_fixup
+         *       8+   syscall args
+         * sysenter_tls_slot    return address
+         * before we do the edx <- esp
+         *
+         * NOTE - we can NOT just have
+         * esp + 0    sysenter_ret_address
+         *       4    return address
+         *       8    args
+         * as even though this will go the right place, the stack will be one
+         * off on the return (debug builds with frame ptr are ok, but not
+         * release).  We could roll our own custom calling convention for this
+         * but would be a pain given how this function is called.  So we use a
+         * tls slot to store the return address around the system call since
+         * there isn't room on the stack, thus is not re-entrant, but neither is
+         * dr and we don't make alertable system calls.  An alternate scheme
+         * kept the return address off the top of the stack which works fine
+         * (nothing alertable), but just seemed too risky.
          * FIXME - any perf impact from breaking hardware return predictor */
         pop      REG_XDX
         mov      eax, DWORD SYMREF(sysenter_tls_offset)
@@ -965,8 +965,8 @@ ADDRTAKEN_LABEL(dynamorio_sysenter_fixup:)
 
 # ifdef X64
 /* With the 1st 4 args in registers, we don't want the sysnum to shift them
- * all as it's not easy to un-shift.  So, we put the 1st arg last, and 
- * the SYS enum value first.  We use the syscall_argsz array to restore 
+ * all as it's not easy to un-shift.  So, we put the 1st arg last, and
+ * the SYS enum value first.  We use the syscall_argsz array to restore
  * the 1st arg.  Since the return value is never larger than 64 bits, we
  * never have to worry about a hidden 1st arg that shifts the rest.
  */
@@ -1009,7 +1009,7 @@ dynamorio_syscall_syscall_ready:
  * wow64cpu!X86SwitchTo64BitMode), which is a far jmp that switches to the
  * 64-bit cs segment (0x33 selector).  They pass in ecx an index into
  * a function table of argument conversion routines.
- *        
+ *
  * 3)   mov sysnum, eax
  *      mov tableidx, ecx
  *      call *fs:0xc0
@@ -1033,7 +1033,7 @@ GLOBAL_LABEL(dynamorio_syscall_wow64:)
         call     PTRSZ SEGMEM(fs,HEX(0c0))
         ret
         END_FUNC(dynamorio_syscall_wow64)
-      
+
 #endif /* WINDOWS */
 
 #endif /* !NOT_DYNAMORIO_CORE_PROPER */
@@ -1077,9 +1077,9 @@ syscall_ready:
         push     REG_XBP
         push     REG_XSI
         push     REG_XDI
-        /* add 16 to skip the 4 pushes 
-         * FIXME: rather than this dispatch, could have separate routines 
-         * for each #args, or could just blindly read upward on the stack. 
+        /* add 16 to skip the 4 pushes
+         * FIXME: rather than this dispatch, could have separate routines
+         * for each #args, or could just blindly read upward on the stack.
          * for dispatch, if assume size of mov instr can do single ind jmp */
         mov      ecx, [16+ 8 + esp] /* num_args */
         cmp      ecx, 0
@@ -1141,7 +1141,7 @@ GLOBAL_LABEL(dynamorio_sigreturn:)
          * FIXME: do better in release build! FIXME - why not an int3? */
         jmp      unexpected_return
         END_FUNC(dynamorio_sigreturn)
-        
+
 /* we need to exit without using any stack, to support
  * THREAD_SYNCH_TERMINATED_AND_CLEANED.
  */
@@ -1162,7 +1162,7 @@ GLOBAL_LABEL(dynamorio_sys_exit:)
          * FIXME: do better in release build! FIXME - why not an int3? */
         jmp      unexpected_return
         END_FUNC(dynamorio_sys_exit)
-        
+
 /* exit entire group without using any stack, in case something like
  * SYS_kill via cleanup_and_terminate fails
  */
@@ -1199,7 +1199,7 @@ GLOBAL_LABEL(dynamorio_nonrt_sigreturn:)
         jmp      unexpected_return
         END_FUNC(dynamorio_sigreturn)
 #endif
-        
+
 #if defined(X64) && defined(HAVE_SIGALTSTACK)
 /* PR 305020: for x64 we can't use args to get the original stack pointer,
  * so we use a stub routine here that adds a 4th arg to our C routine:
@@ -1218,7 +1218,7 @@ GLOBAL_LABEL(master_signal_handler:)
  * immediately, we can't copy over our own sig frame w/ the app's, and we
  * can't push the app's below ours and have continuation work.  One choice
  * is to copy the frame to pending and assume we'll deliver right away.
- * Instead we always swap to dstack, which also makes us a little more 
+ * Instead we always swap to dstack, which also makes us a little more
  * transparent wrt running out of app stack or triggering app stack guard
  * pages.  We do it in asm since it's ugly to swap stacks in the middle
  * of a C routine: have to fix up locals + frame ptr, or jmp to start of
@@ -1353,7 +1353,7 @@ dynamorio_clone_parent:
 #endif /* LINUX */
 
 
-#ifdef WINDOWS    
+#ifdef WINDOWS
 /*
  * nt_continue_dynamo_start -- invoked to give dynamo control over
  * exception handler continuation (after a call to NtContinue).
@@ -1362,14 +1362,14 @@ dynamorio_clone_parent:
  */
         DECLARE_FUNC(nt_continue_dynamo_start)
 GLOBAL_LABEL(nt_continue_dynamo_start:)
-        /* assume valid esp  
+        /* assume valid esp
          * FIXME: this routine should really not assume esp */
 
         /* grab exec state and pass as param in a dr_mcontext_t struct */
         PUSH_DR_MCONTEXT(0 /* for dr_mcontext_t.pc */)
         lea      REG_XAX, [REG_XSP] /* stack grew down, so dr_mcontext_t at tos */
 
-        /* Call nt_continue_setup passing the dr_mcontext_t.  It will 
+        /* Call nt_continue_setup passing the dr_mcontext_t.  It will
          * obtain and initialize this thread's dcontext pointer and
          * begin execution with the passed-in state.
          */
@@ -1387,14 +1387,14 @@ GLOBAL_LABEL(nt_continue_dynamo_start:)
  */
         DECLARE_FUNC(back_from_native)
 GLOBAL_LABEL(back_from_native:)
-        /* assume valid esp  
+        /* assume valid esp
          * FIXME: more robust if don't use app's esp -- should use initstack
          */
         /* grab exec state and pass as param in a dr_mcontext_t struct */
         PUSH_DR_MCONTEXT(0 /* for dr_mcontext_t.pc */)
         lea      REG_XAX, [REG_XSP] /* stack grew down, so dr_mcontext_t at tos */
 
-        /* Call back_from_native_C passing the dr_mcontext_t.  It will 
+        /* Call back_from_native_C passing the dr_mcontext_t.  It will
          * obtain this thread's dcontext pointer and
          * begin execution with the passed-in state.
          */
@@ -1403,7 +1403,7 @@ GLOBAL_LABEL(back_from_native:)
         jmp      unexpected_return
         END_FUNC(back_from_native)
 
-        
+
 #ifdef RETURN_STACK
 /*#############################################################################
  *#############################################################################
@@ -1634,7 +1634,7 @@ call_modcode_alt_stack_no_free:
 /*
  * void call_intr_excpt_alt_stack(dcontext_t *dcontext, EXCEPTION_RECORD *pExcptRec,
  *                                CONTEXT *cxt, byte *stack)
- *       
+ *
  * Routine to switch to a separate exception stack before calling
  * internal_exception_info().  This switch is useful if the dstack
  * is exhausted and we want to ensure we have enough space for
@@ -1711,7 +1711,7 @@ GLOBAL_LABEL(get_own_context_helper:)
         /* save argument register (PUSH_DR_MCONTEXT calls out to c code) */
         mov REG_XDI, ARG1
 #endif
-        
+
         /* grab exec state and pass as param in a dr_mcontext_t struct */
         PUSH_DR_MCONTEXT([(3 * ARG_SZ) + REG_XSP] /* use retaddr for pc */)
         /* we don't have enough registers to avoid parameter regs so we carefully
@@ -1824,7 +1824,7 @@ GLOBAL_LABEL(get_stack_ptr:)
         DECLARE_FUNC(load_dynamo)
 GLOBAL_LABEL(load_dynamo:)
     /* the code for this routine is copied into an allocation in the app
-       and invoked upon return from the injector. When it is invoked, 
+       and invoked upon return from the injector. When it is invoked,
        it expects the app's stack to look like this:
 
                 xsp-->| &LoadLibrary  |  for x64 xsp must be 16-aligned
@@ -1842,7 +1842,7 @@ GLOBAL_LABEL(load_dynamo:)
       &dynamo_entry-->|               |   |
                       | (dynamo entry)| "dynamo_auto_start"
                       |               |___|
-                      
+
 
         in separate allocation         ___
                       |               |   |
@@ -1856,14 +1856,14 @@ GLOBAL_LABEL(load_dynamo:)
         /* two byte NOP to satisfy third party braindead-ness documented in case 3821 */
         mov      edi, edi
 #ifdef LOAD_DYNAMO_DEBUGBREAK
-        /* having this code in front may hide the problem addressed with the 
+        /* having this code in front may hide the problem addressed with the
          * above padding */
-        /* giant loop so can attach debugger, then change ebx to 1 
+        /* giant loop so can attach debugger, then change ebx to 1
          * to step through rest of code */
         mov      ebx, HEX(7fffffff)
-load_dynamo_repeat_outer:       
+load_dynamo_repeat_outer:
         mov      eax, HEX(7fffffff)
-load_dynamo_repeatme:   
+load_dynamo_repeatme:
         dec      eax
         cmp      eax, 0
         jg       load_dynamo_repeatme
@@ -1902,7 +1902,7 @@ load_dynamo_success:
 
         /* jump to dynamo_auto_start (returned by GetProcAddress) */
         jmp      REG_XAX
-        /* dynamo_auto_start will take over or continue natively at the saved 
+        /* dynamo_auto_start will take over or continue natively at the saved
          * context via load_dynamo_failure.
         */
         END_FUNC(load_dynamo)
@@ -1913,22 +1913,22 @@ load_dynamo_success:
  * let other asm routines jump here.
  * targeted by load_dynamo and dynamo_auto_start by a jump, not a call,
  * when we should not take over and should go native instead.
- * Xref case 7654: we come here to the child's copy from dynamo_auto_start 
+ * Xref case 7654: we come here to the child's copy from dynamo_auto_start
  * instead of returning to the parent's copy post-load_dynamo to avoid
  * incompatibilites with stack layout accross dr versions.
  */
         DECLARE_FUNC(load_dynamo_failure)
 GLOBAL_LABEL(load_dynamo_failure:)
-        /* Would be nice if we could free our allocation here as well, but 
-         * that's too much of a pain (esp. here). 
-         * Note TOS has the saved context at this point, xref layout in 
+        /* Would be nice if we could free our allocation here as well, but
+         * that's too much of a pain (esp. here).
+         * Note TOS has the saved context at this point, xref layout in
          * auto_setup. Note this code is duplicated in dynamo_auto_start. */
         mov      REG_XAX, [MCONTEXT_XSP_OFFS + REG_XSP] /* load app xsp */
         mov      REG_XBX, [MCONTEXT_PC_OFFS + REG_XSP] /* load app start_pc */
         /* write app start_pc off top of app stack */
         mov      [-ARG_SZ + REG_XAX], REG_XBX
-        /* it's ok to write past app TOS since we're just overwriting part of 
-         * the dynamo_entry string which is dead at this point, won't affect 
+        /* it's ok to write past app TOS since we're just overwriting part of
+         * the dynamo_entry string which is dead at this point, won't affect
          * the popping of the saved context */
         POPALL /* we assume xmm0-5 do not need to be restored */
         POPF
@@ -1939,7 +1939,7 @@ GLOBAL_LABEL(load_dynamo_failure:)
 
         ret
         END_FUNC(load_dynamo_failure)
-        
+
 #endif /* WINDOWS */
 
 
@@ -2119,6 +2119,21 @@ GLOBAL_LABEL(dr_native_iret:)
         END_FUNC(dr_native_iret)
 #endif /* LINUX_KERNEL */
 
+//indirect_call_stub_kernel
+
+    DECLARE_FUNC(indirect_call_stub_kernel)
+GLOBAL_LABEL(indirect_call_stub_kernel:)
+    //push rdi
+    //pushf
+    //mov rdi, 0xffff800000000000
+    //or rcx, rdi
+    //popf
+    //pop rdi
+    //mov rcx, [rcx]
+    mov [rsp + 8], rcx
+    pop rcx
+    ret
+    END_FUNC(indirect_call_stub_kernel)
 
     DECLARE_FUNC(get_return_address)
 GLOBAL_LABEL(get_return_address:)

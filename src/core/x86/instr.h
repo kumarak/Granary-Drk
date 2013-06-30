@@ -2846,6 +2846,11 @@ DR_API
 bool
 instr_is_nop(instr_t *instr);
 
+
+DR_API
+bool 
+instr_is_jmp(instr_t *instr);
+
 DR_UNS_API
 /**
  * Convenience routine to create a nop of a certain size.  If \p raw

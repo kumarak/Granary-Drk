@@ -31,6 +31,8 @@ extern "C" {
     extern void *module_descriptor_table_alloc(unsigned long size);
     extern void *cfi_kmalloc(size_t size, gfp_t flags);
     extern void *cfi_kfree(void *ptr);
+    extern struct descriptor *descriptors_cache_alloc(void);
+    extern void descriptors_cache_free(void *ptr);
 
     extern function_t *wrapped_functions[];
 
@@ -53,212 +55,165 @@ enum {
 
 #include "cfi_region_allocator.hpp"
 
+#define MAX_COUNTER_INDEX 0x7FFFU
+#define MAX_PARTIAL_INDEX 0xFFU
+
+#define MAX_WATCHPOINTS 0x7F7F01ULL
+
+struct leak_check_descriptor;
+
 struct descriptor {
-    union {
-        uint64_t base_address;
-        uint64_t index;
-    };
+    uint64_t base_address;
     uint64_t limit;
-    uint64_t state;
-    volatile struct descriptor *next;
+    struct {
+        uint32_t state;
+        uint32_t index;
+    };
+    leak_check_descriptor *next;
 
 } __attribute__((packed));
 
+struct leak_check_descriptor {
+    union {
+        descriptor *leak_descriptor;
+        volatile leak_check_descriptor *next;
+    };
+};
+
+static descriptor* allocate(void) throw(){
+    return descriptors_cache_alloc();
+}
+
+/// Free a watchpoint descriptor.
+static void free(descriptor *ds) throw(){
+    descriptors_cache_free((void*)ds);
+}
+
 
 struct destriptor_table_info{
-    volatile struct descriptor *allocated_head;
-    volatile struct descriptor *free_head;
+    volatile struct leak_check_descriptor *allocated_head;
+    volatile struct leak_check_descriptor *free_head[MAX_PARTIAL_INDEX];
+    uint64_t max_counter_index[MAX_PARTIAL_INDEX];
     uint64_t count;
 };
 
-#define COUNTER_INDEX 256
-
-#define TABLE_SIZE 2048*PAGE_SIZE
+#define TABLE_SIZE 0x10000U*PAGE_SIZE
 
 
-struct descriptor_table : descriptor {
+struct descriptor_table : leak_check_descriptor {
 public:
 
-    static atomic_region_allocator<descriptor> entries;
+    static atomic_region_allocator<leak_check_descriptor> entries;
     static destriptor_table_info table_info;
 
-    static uint64_t* collected_watchpoints;
     static uint64_t max_active_index;
 
     static void init(){
-        collected_watchpoints = (uint64_t*)cfi_get_free_pages(2);
         void *start_address = module_descriptor_table_alloc(TABLE_SIZE);
         void *end_address = (void*)((uint64_t)start_address + TABLE_SIZE);
         max_active_index = 0;
-        table_info.allocated_head = NULL;
-        table_info.free_head = NULL;
         table_info.count = 0;
         entries.init((void *) start_address, (void *) end_address);
-       // kern_printk("collected watchpoints : %lx\n", collected_watchpoints);
         kern_printk("descriptor_table start : %llx : end %llx\n", start_address, end_address);
     }
 
     static uint64_t get_max_active_index(void){
         return max_active_index;
     }
-#if 1
-    static unsigned long get_next_free_index(){
-        uint64_t *base_ptr = 0x0ULL;
-        uint64_t next_index = 0x0ULL;
-        base_ptr = collected_watchpoints;
-        uint64_t counter = 0;
-        unsigned pos = 0;
-        uint64_t mask = 0x0ULL;
-        uint64_t base = 0x0ULL;
-        uint64_t newval, oldval;
 
-        base = (uint64_t)(*base_ptr);
-        kern_printk("get_next_free_watchpoints : %llx\n", base);
-
-        while((base & ALL_ONE_MASK) == ALL_ONE_MASK){
-            counter += 64;
-            base_ptr++;
-            base = (uint64_t)*base_ptr;
-        }
-
-        for(; pos < 64; pos++) {
-            mask = (0x1ULL << pos);
-            if(!(mask & (uint64_t)base)) {
-                oldval = base;
-                newval = (base | mask);
-                do {
-                    oldval = base;
-                }while(!__sync_bool_compare_and_swap(base_ptr, oldval, newval));
-                break;
-            }
-        }
-
-        //kern_printk("baseval : %llx, mask : %llx, newval : %llx, oldval : %llx\n", base, mask, newval, oldval);
-        next_index = counter+pos;
-        if(max_active_index < next_index) {
-            max_active_index = next_index;
-        }
-        return next_index;
-
+    static leak_check_descriptor *get_allocated_head(void){
+        return (leak_check_descriptor*)table_info.allocated_head;
     }
-#endif
-#if 0
+
     static bool is_active_index(unsigned long index){
-        uint64_t *base = (uint64_t*)collected_watchpoints;
-        unsigned long offset = index/64;
-        base = base+offset;
-        unsigned pos = index%64;
-        unsigned long mask = (0x1U << pos);
-        if ((*(base) & mask) == mask){
-            return 1;
+        leak_check_descriptor *descriptors(entries.get_index(index));
+        if(descriptors->leak_descriptor != NULL) {
+            if(descriptors->leak_descriptor->state & WP_DESCRIPTOR_ACTIVE)
+                return 1;
         }
-
-        return 0;
     }
-#else
-    static bool is_active_index(unsigned long index){
-        descriptor *descriptors(entries.get_index(index));
-        if(descriptors->state & WP_DESCRIPTOR_ACTIVE)
-            return 1;
-        else
-            return 0;
-    }
-#endif
-#if 0
-    static bool collect_free_index(unsigned long index){
-        uint64_t *base_ptr =  0x0ULL;
-        base_ptr =  collected_watchpoints;
-        unsigned long offset = index/64;
-        base_ptr = base_ptr+offset;
-        unsigned pos = index%64;
-        uint64_t mask = (0x1ULL << pos);
-        mask = ~mask;
-        uint64_t base = *(base_ptr);
-        uint64_t oldval = base;
-        uint64_t newval = (oldval & mask);
-        //kern_printk("index : %lx, base : %lx, newval : %lx, oldval : %lx\n", index, base, newval, oldval);
-        do {
-            oldval = base;
-        }while(!__sync_bool_compare_and_swap(base_ptr, oldval, newval));
 
-        return 1;
-    }
-#endif
-
-    static descriptor * get_next_free_descriptor(void){
-        descriptor *descriptors = NULL;
-        volatile struct descriptor *oldval = NULL;
-        volatile struct descriptor *newval = NULL;
-        if(NULL != table_info.free_head){
-            descriptors = (descriptor*)table_info.free_head;
-
+    template<typename T>
+    static leak_check_descriptor *get_next_free_descriptor(T *addr){
+        leak_check_descriptor *descriptors = NULL;
+        uint64_t p_index = ((uint64_t)addr & 0xFF00000ULL);
+        p_index >>= 20;
+        volatile struct leak_check_descriptor *oldval = NULL;
+        volatile struct leak_check_descriptor *newval = NULL;
+        if(NULL != table_info.free_head[p_index]){
             do {
-                oldval = table_info.free_head;
-                newval = table_info.free_head->next;
-            } while(!__sync_bool_compare_and_swap(&(table_info.free_head), oldval, newval));
-
-            descriptors->next = NULL;
+                descriptors = (leak_check_descriptor*)table_info.free_head[p_index];
+                oldval = table_info.free_head[p_index];
+                newval = descriptors;
+            }while(!__sync_bool_compare_and_swap(&(table_info.free_head[p_index]), oldval, newval));
         }
         return descriptors;
-
     }
+
     static bool collect_free_descriptor(unsigned long index){
-        descriptor *entry(entries.get_index(index));
+        leak_check_descriptor *entry(entries.get_index(index));
         uint64_t oldval = 0x0ULL;
         uint64_t newval = 0x0ULL;
-        entry->index = index;
-        entry->next = NULL;
-        do {
-            oldval = entry->state;
-            newval = entry->state & (~WP_DESCRIPTOR_ACTIVE);
-        } while(!__sync_bool_compare_and_swap(&(entry->state), oldval, newval));
-
-        entry->state &= ~WP_DESCRIPTOR_ACTIVE;
-        add_to_free_list(entry);
-
+        free(entry->leak_descriptor);
+        entry->leak_descriptor = NULL;
+        add_to_free_list(entry, index);
         return 1;
     }
 
-    static bool add_to_allocated_list(descriptor *descriptors){
-        volatile struct descriptor *oldval = NULL;
-        struct descriptor *newval = NULL;
-        descriptors->next = table_info.allocated_head;
+    static bool add_to_allocated_list(leak_check_descriptor *descriptors){
+        volatile struct leak_check_descriptor *oldval = NULL;
+        struct leak_check_descriptor *newval = NULL;
+        newval = descriptors;
 
         do {
             oldval = table_info.allocated_head;
-            newval = descriptors;
+            descriptors->leak_descriptor->next = (leak_check_descriptor*)table_info.allocated_head;
         } while(!__sync_bool_compare_and_swap(&(table_info.allocated_head), oldval, newval));
 
         return 0;
     }
 
-    static bool add_to_free_list(descriptor *descriptors){
-        volatile struct descriptor *oldval = NULL;
-        struct descriptor *newval = NULL;
-        descriptors->next = table_info.free_head;
+
+    static bool add_to_free_list(leak_check_descriptor *descriptors, unsigned int index){
+        volatile struct leak_check_descriptor *oldval = NULL;
+        struct leak_check_descriptor *newval = NULL;
+        unsigned int p_index = (index & 0xFF);
 
         do {
-            oldval = table_info.free_head;
+            descriptors = (leak_check_descriptor*)table_info.free_head[p_index];
+            oldval = table_info.free_head[p_index];
             newval = descriptors;
-        } while(!__sync_bool_compare_and_swap(&(table_info.free_head), oldval, newval));
+        } while(!__sync_bool_compare_and_swap(&(table_info.free_head[p_index]), oldval, newval));
 
         return 0;
     }
 
-    template <typename T>
-    static descriptor *allocate(T *address, unsigned long size) {
-        descriptor *descriptors = get_next_free_descriptor();
+
+    static leak_check_descriptor *allocate(void *address, unsigned long size) {
+        leak_check_descriptor *descriptors = get_next_free_descriptor(address);
         if(descriptors == NULL){
-            descriptors = entries.get_index(max_active_index);
-            max_active_index++;
+            uint64_t p_index = ((uint64_t)address & 0xFF00000ULL);
+            p_index >>= 20;
+            uint64_t index = table_info.max_counter_index[p_index];
+            index <<= 0x8;
+            index += p_index;
+            descriptors = entries.get_index(index);
+            table_info.max_counter_index[p_index]++;
+            if(table_info.max_counter_index[p_index] > max_active_index){
+                max_active_index = table_info.max_counter_index[p_index];
+            }
         }
         if(entries.is_allocated(descriptors)){
-            descriptors->base_address = (uint64_t)address;
-            descriptors->limit = (uint64_t)address + size;
-            descriptors->next = NULL;
-            descriptors->state |= WP_DESCRIPTOR_ACTIVE;
+            descriptors->leak_descriptor = ::allocate();
+            descriptors->leak_descriptor->base_address = (uint64_t)address;
+            descriptors->leak_descriptor->limit = (uint64_t)address + size;
+            descriptors->leak_descriptor->state |= WP_DESCRIPTOR_ACTIVE;
+            descriptors->leak_descriptor->index = entries.offset_of(descriptors);
+            descriptors->leak_descriptor->next = NULL;
+            add_to_allocated_list(descriptors);
             return descriptors;
         }else {
+            kern_printk("descriptor is null\n");
             return NULL;
         }
     }
@@ -266,10 +221,9 @@ public:
 
 
 uint64_t descriptor_table::max_active_index = 0;
-uint64_t *descriptor_table::collected_watchpoints = NULL;
 destriptor_table_info descriptor_table::table_info = {NULL, NULL, 0};
 /// static initialize the alias entries
-atomic_region_allocator<descriptor> descriptor_table::entries(
+atomic_region_allocator<leak_check_descriptor> descriptor_table::entries(
     (void *) 0,
     (void *) 0
 );
@@ -296,8 +250,11 @@ inline static bool decode_watchpoint_address(
         unsigned &entry_index,
         uint64_t &displacement
 ) {
+    unsigned p_index, c_index;
     if(is_watchpoint_address(addr)) {
-        entry_index = (addr & WP_ADDRESS_INDEX_MASK) >> WP_ADDRESS_INDEX_OFFSET;
+        c_index = (addr & WP_ADDRESS_INDEX_MASK) >> WP_ADDRESS_INDEX_OFFSET;
+        p_index = (addr & 0xFF00000ULL) >> 20;
+        entry_index = (c_index << 0x8) | p_index;
         displacement = (addr & WP_ADDRESS_DISPLACEMENT_MASK) | WP_ADDRESS_INDEX_MASK; // convert back into a raw address
         return true;
     } else {
@@ -316,8 +273,9 @@ inline T *to_watched_address(T *ptr) throw() {
     if(likely(is_watchpoint_address((uint64_t) ptr))) {
         return ptr;
     } else {
-        descriptor *entry(descriptor_table::allocate<T>(ptr, 0));
-        const uint64_t index(descriptor_table::entries.offset_of(entry));
+        leak_check_descriptor *entry(descriptor_table::allocate((void*)ptr, 0));
+        uint64_t index(descriptor_table::entries.offset_of(entry));
+        index = index >> 0x8;
         const uint64_t displacement_part(WP_ADDRESS_DISPLACEMENT_MASK & ((uint64_t) ptr));
         const uint64_t index_part(index << WP_ADDRESS_INDEX_OFFSET);
         return (T *) ((index_part | displacement_part) & WP_ADDRESS_ENABLED);
@@ -334,9 +292,10 @@ inline T *to_watched_heap_address(T *ptr, unsigned long size) throw() {
     if(likely(is_watchpoint_address((uint64_t) ptr))) {
         return ptr;
     } else {
-        descriptor *entry(descriptor_table::allocate<T>(ptr, size));
+        leak_check_descriptor *entry(descriptor_table::allocate((void*)ptr, size));
         if(entry != NULL) {
-            const uint64_t index(descriptor_table::entries.offset_of(entry));
+            uint64_t index(descriptor_table::entries.offset_of(entry));
+            index = index >> 0x8;
             const uint64_t displacement_part(WP_ADDRESS_DISPLACEMENT_MASK & ((uint64_t) ptr));
             const uint64_t index_part(index << WP_ADDRESS_INDEX_OFFSET);
             return (T *) ((index_part | displacement_part) & WP_ADDRESS_ENABLED);
@@ -355,12 +314,17 @@ descriptor *WATCHPOINT_META(T *ptr) throw() {
         return NULL;
     } else {
         if(likely(ptr && decode_watchpoint_address((uint64_t) ptr, index, displacement))) {
-            if(descriptor_table::is_active_index(index)) {
-                return  descriptor_table::entries.get_index(index);
+           if(descriptor_table::is_active_index(index)) {
+                leak_check_descriptor *ds = descriptor_table::entries.get_index(index);
+                return ds->leak_descriptor;
             }
         }
     }
     return 0;
+}
+
+leak_check_descriptor *DESCRIPTOR_HEAD(void) throw() {
+    return  descriptor_table::get_allocated_head();
 }
 
 template <typename T>
@@ -369,7 +333,8 @@ bool COLLECT_WATCHPOINT(T *ptr) throw() {
     uint64_t displacement(0);
     if(likely(ptr && decode_watchpoint_address((uint64_t) ptr, index, displacement))) {
         if(descriptor_table::is_active_index(index)) {
-            descriptor *meta_info = descriptor_table::entries.get_index(index);
+            leak_check_descriptor *ds = descriptor_table::entries.get_index(index);
+            descriptor *meta_info = ds->leak_descriptor;
             meta_info->base_address = 0;
             meta_info->limit = 0;
             descriptor_table::collect_free_descriptor(index);
@@ -380,9 +345,7 @@ bool COLLECT_WATCHPOINT(T *ptr) throw() {
 
 bool COLLECT_DESCRIPTOR(uint64_t index) throw() {
     if(descriptor_table::is_active_index(index)) {
-        descriptor *meta_info = descriptor_table::entries.get_index(index);
-        meta_info->base_address = 0;
-        meta_info->limit = 0;
+        leak_check_descriptor *meta_info = descriptor_table::entries.get_index(index);
         descriptor_table::collect_free_descriptor(index);
     }
     return 1;
@@ -442,7 +405,7 @@ inline T *to_watched_percpu_address(T *ptr, unsigned long size) throw() {
  /*   if(likely(is_watchpoint_address((uint64_t) ptr))) {
         return ptr;
     } else*/ {
-        descriptor *entry(descriptor_table::allocate<T>(ptr, size));
+        leak_check_descriptor *entry(descriptor_table::allocate((void*)ptr, size));
         if(entry != NULL) {
             const uint64_t index(descriptor_table::entries.offset_of(entry));
             const uint64_t displacement_part(WP_ADDRESS_DISPLACEMENT_MASK & ((uint64_t) ptr));
@@ -479,10 +442,12 @@ inline T *get_unwatched_address(T *ptr) throw() {
     if(likely(ptr && decode_watchpoint_address((uint64_t) ptr, index, displacement))) {
         if(descriptor_table::is_active_index(index)) {
             return (T*)(WP_ADDRESS_INDEX_MASK | ((uint64_t) ptr));
+        }else {
+            kern_printk("index is not active\n");
         }
     }
 
-  //  return (T*)(WP_ADDRESS_INDEX_MASK | ((uint64_t) ptr));
+    //return (T*)(WP_ADDRESS_INDEX_MASK | ((uint64_t) ptr));
     return ptr;
 }
 
@@ -559,6 +524,10 @@ extern "C" {
 
     void *get_descriptor_at_index(uint64_t index){
         return DESCRIPTOR_AT_INDEX(index);
+    }
+
+    void *get_descriptor_head(uint64_t index){
+        return (void*)DESCRIPTOR_HEAD();
     }
 
 }

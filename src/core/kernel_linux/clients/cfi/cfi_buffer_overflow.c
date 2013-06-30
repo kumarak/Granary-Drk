@@ -1522,32 +1522,6 @@ instrument_mem_instr_xadd(void *drcontext, instrlist_t *ilist,
     }
 }
 
-
-
-
-static void
-instrument_indirect_call(void *drcontext, instrlist_t *ilist, instr_t *instr, app_pc pc)
-{
-    unsigned long used_registers = 0;
-    reg_id_t dsts_reg;
-    opnd_t opnd_dsts;
-    opnd_t opnd_dsts_reg;
-    instr_t *emulated;
-
-    instr_t *begin_instrumenting = INSTR_CREATE_label(drcontext);
-    instr_t *done_instrumenting = INSTR_CREATE_label(drcontext);
-    instr_t *nop = INSTR_CREATE_nop(drcontext);
-
-    collect_regs(&used_registers, instr, instr_num_srcs, instr_get_src );
-    collect_regs(&used_registers, instr, instr_num_dsts, instr_get_dst );
-
-    reg_id_t reg_mask = get_next_free_reg(&used_registers);
-    opnd_t opnd_reg_mask = opnd_create_reg(reg_mask);
-
-}
-
-
-
 static bool inline is_kernel_text(app_pc pc){
     return (pc >= (app_pc) KERNEL_START_ADDR) && (pc < (app_pc) KERNEL_END_ADDR);
 }

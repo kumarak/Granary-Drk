@@ -146,6 +146,7 @@ obj-m += cfi.o
 ../../kernel_linux/clients/cfi/cfi_memleak_instr.o \
 ../../kernel_linux/clients/cfi/cfi_hotpatch.o	\
 ../../kernel_linux/clients/cfi/slub_interface.o	\
+../../kernel_linux/clients/cfi/descriptors_interface.o \
 ../../kernel_linux/clients/cfi/cfi_buffer_overflow.o
 #\
 ../../kernel_linux/clients/cfi/linux_wrapper/linux_wrapper.o

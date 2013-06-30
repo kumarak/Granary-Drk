@@ -136,8 +136,6 @@ void cfi_direct_call_to_kernel(void);
 void cfi_exit_direct_call_temp(void);
 void cfi_exit_return_to_kernel(void);
 uint64_t get_thread_private_extension(void);
-//void cfi_exit_direct_call(struct dcontext *dcontext,uint64_t next_module_address, uint64_t kernel_wrapper_addr );
-//void granary_debug_null_pointer();
 
 struct kernsym {
     void *addr; // orig addr
@@ -152,7 +150,30 @@ struct kernsym {
     void *run;
 };
 
+struct descriptor {
+    uint64_t base_address;
+    uint64_t limit;
+    struct {
+        uint32_t state;
+        uint32_t index;
+    };
+    volatile struct descriptor *next;
+
+} __attribute__((packed));
+
+struct leak_check_descriptor {
+    union {
+        struct descriptor *leak_descriptor;
+        uint64_t my_index;
+    };
+
+    volatile struct leak_check_descriptor *next;
+} __attribute__((packed));
+
 int
 cfi_print_symbol_name(void *symbol_addr);
+
+int
+init_descriptors_cache(void);
 
 #endif /* CFI_MODULE_H_ */
