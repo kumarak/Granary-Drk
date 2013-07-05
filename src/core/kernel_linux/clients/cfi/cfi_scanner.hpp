@@ -14,6 +14,39 @@
 #define USER_ADDRESS_OFFSET         0x00007fffffffffff
 
 
+void printBits(size_t const size, void const * const ptr)
+{
+    unsigned char *b = (unsigned char*) ptr;
+    unsigned char byte;
+    int i, j;
+
+    for (i=size-1;i>=0;i--){
+        for (j=7;j>=0;j--)
+        {
+            byte = b[i] & (1<<j);
+            byte >>= j;
+            kern_printk("%u", byte);
+        }
+    }
+    kern_printk("\t");
+}
+
+
+#include "linux_wrapper/kernel_types_ids.hpp"
+
+#define TRACES_WATCHPOINT(arg) {\
+        descriptor *meta_info = WATCHPOINT_META(arg);   \
+        meta_info->type_id = kernel_types<decltype(arg)>::ID;    \
+        if(meta_info->type_id == kernel_types<struct inode*>::ID){  \
+            kern_printk("type id : %lx\t", meta_info->type_id);  \
+            kern_printk("size : %llx, shadow_size : %llx", \
+                    (meta_info->limit-meta_info->base_address), meta_info->shadow_size);   \
+            kern_printk("read shadow : ");  \
+            printBits(meta_info->shadow_size, (void*)meta_info->read_shadow);   \
+            kern_printk("write shadow : ");  \
+            printBits(meta_info->shadow_size, (void*)meta_info->write_shadow);  \
+        } }
+
 /// used to more easily define scan function in terms of a type and a function body
 /// that operates on the 'arg' variable
 

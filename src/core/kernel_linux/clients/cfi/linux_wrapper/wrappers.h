@@ -9,6 +9,7 @@
 #define WRAPPERS_H_
 
 #define PRE_WRAP pre
+#define POST post
 #define POST_WRAP post
 #define ABORT_IF_FUNCTION_IS_WRAPPED(x)
 #define NO_PRE
@@ -21,19 +22,6 @@
 #define FUNCTION_WRAPPER_VOID FUNC_WRAPPER_VOID
 #define PRE_OUT_WRAP(x) WRAP_RECURSIVE(x)
 #define POST_OUT_WRAP(x) WRAP_RECURSIVE(x)
-/*
-TYPE_WRAPPER(struct inode, {
-        pre {
-            D( kern_printk("    inode\n"); )
-
-            WRAP_RECURSIVE_KERNEL(arg.i_sb);
-            WRAP_RECURSIVE_KERNEL(arg.i_op);
-            WRAP_RECURSIVE_KERNEL(arg.i_fop);
-            WRAP_RECURSIVE_KERNEL(arg.i_mapping);
-        }
-        no_post
-})
-*/
 
 #define WRAP_RECURSIVE_KERNEL(arg) \
     if(is_kernel_virtual_address_space((void*)arg)) { \
@@ -136,12 +124,26 @@ unsigned pagevec_lookup(struct pagevec *pvec, struct address_space *mapping,
             while(i < size){    \
                 uint64_t value = (uint64_t)(*ptr);  \
                 if(is_alias_address(value)) {   \
-                    cfi_collect_watcpoint(ptr, (void*)value);   \
+                    TRACES_WATCHPOINT(ptr);   \
                 }   \
                 ptr++;  \
                 i = i + sizeof(void*);  \
             }
 
+bool
+is_valid_address(void* addr){
+    if( (uint64_t)addr >> 0x30 == 0xffff){
+        return true;
+    } else if(is_alias_address((uint64_t)addr)){
+        return true;
+    }
+    return false;
+}
+
+#define IS_ARG_VALID(x)    \
+        if(!is_valid_address((void*)&x)) {  \
+            return; \
+        }
 
 #define PRE_WRAPPER_KERNEL(x) \
     if((uint64_t)x < 4096)  \
@@ -155,12 +157,23 @@ unsigned pagevec_lookup(struct pagevec *pvec, struct address_space *mapping,
         return; \
     }
 
+#define TRACES_IF_WATCHPOINT(arg)   \
+        if(is_alias_address((uint64_t)arg)){  \
+            TRACES_WATCHPOINT(arg); \
+        }
+
+#define TYPEID_ENUM_START \
+    enum type_id {  \
+        ID_START = 0x0ULL,
+
+#define TYPEID_ENUM_END \
+        }
+
 #include "wrapper_scanner.h"
 #include "kernel_scanners.h"
 #include "wrapper_filesystem.h"
 #include "wrapper_allocators.h"
 
-//#define PRE_WRAPPER_KERNEL(x)
 #define WRAPPER_FOR_struct_callback_head
 #define WRAPPER_FOR_struct_mutex
 
