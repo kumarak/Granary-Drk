@@ -275,11 +275,11 @@ def wrap_function(ctype, orig_ctype, func):
       O("    // TODO: variadic arguments")
     #O("    D( granary_fault(); )")
 
-    O("    kern_printk(\"", func, " is invoked.\\n\");" )
+    O("    kern_printk(\"#Kernal function ", func, " is invoked.\\n\");" )
     O("    PRE_WRAPPER_FUNC(", ", ".join(param_names), ");")
     O("    ", a, func, "(", ", ".join(param_names), ");")
     O("    POST_WRAPPER_FUNC(", ", ".join(param_names), ");")
-    O("    kern_printk(\"", func, " returned.\\n\");" )
+    O("    kern_printk(\"#Kernel function ", func, " returned.\\n\");" )
 
   if ctype.is_variadic:
     O("    va_end(args__);")

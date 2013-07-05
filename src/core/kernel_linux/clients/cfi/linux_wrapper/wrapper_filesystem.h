@@ -36,17 +36,18 @@ void printBits(size_t const size, void const * const ptr)
             kern_printk("%u", byte);
         }
     }
-    kern_printk("\n");
+    kern_printk(":");
 }
 
 #define TRACES_WATCHPOINT(arg) \
         if(is_alias_address((uint64_t)arg)){    \
             descriptor *meta_info = WATCHPOINT_META(arg);   \
-            kern_printk("type id : %lx\n", type_class<decltype(arg)>::get_size());  \
-            kern_printk("read shadow : ");  \
+            kern_printk("type id:%lx: ", type_class<decltype(arg)>::get_size());  \
+            kern_printk("read shadow:");  \
             printBits(meta_info->shadow_size, (void*)meta_info->read_shadow);   \
-            kern_printk("write shadow : ");  \
+            kern_printk("write shadow:");  \
             printBits(meta_info->shadow_size, (void*)meta_info->write_shadow);   \
+            kern_printk("\n"); \
         }
 
 /******************************************

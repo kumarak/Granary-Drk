@@ -30,6 +30,7 @@ extern "C" {
     extern void *cfi_get_free_pages(unsigned long count);
     extern void *module_descriptor_table_alloc(unsigned long size);
     extern void *cfi_kmalloc(size_t size, gfp_t flags);
+    extern void cfi_kfree(void*);
 
     extern function_t *wrapped_functions[];
 
@@ -225,9 +226,9 @@ public:
         uint64_t newval = 0x0ULL;
         entry->index = index;
         entry->next = NULL;
-        cfi_kfree(entry->read_shadow);
+        cfi_kfree((void*)entry->read_shadow);
         entry->read_shadow = NULL;
-        cfi_kfree(entry->write_shadow);
+        cfi_kfree((void*)entry->write_shadow);
         entry->write_shadow = NULL;
         do {
             oldval = entry->state;
