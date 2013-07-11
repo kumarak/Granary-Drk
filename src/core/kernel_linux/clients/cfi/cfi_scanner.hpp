@@ -13,13 +13,31 @@
 #define KERNEL_MEMORY_HOLE_END      0xffffc8ffffffffff
 #define USER_ADDRESS_OFFSET         0x00007fffffffffff
 
+extern "C" int bit_get(uint64_t *bitfield, uint64_t bit);
 
-void printBits(size_t const size, void const * const ptr)
+
+void printBits(register size_t size, register void* ptr)
 {
     unsigned char *b = (unsigned char*) ptr;
     unsigned char byte;
     int i, j;
 
+    for(i = 0; i < size; ++i) {
+        /*
+        __asm__ __volatile__(
+            "xor %%rax, %%rax;"
+            "btq %2, (%0);"
+            "setc %%al;"
+            "mov %%rax, %1;"
+            : "=r"(ptr) // output
+            , "=r"(bit)
+            : "r"(size) // input
+            : "%rax" // clobber
+        );*/
+        kern_printk("%d", bit_get((uint64_t*)ptr, i));
+    }
+
+/*
     for (i=size-1;i>=0;i--){
         for (j=7;j>=0;j--)
         {
@@ -28,6 +46,7 @@ void printBits(size_t const size, void const * const ptr)
             kern_printk("%u", byte);
         }
     }
+    */
     kern_printk("\t");
 }
 

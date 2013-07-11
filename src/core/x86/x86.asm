@@ -2119,6 +2119,13 @@ GLOBAL_LABEL(dr_native_iret:)
         END_FUNC(dr_native_iret)
 #endif /* LINUX_KERNEL */
 
+    DECLARE_FUNC(bit_get)
+GLOBAL_LABEL(bit_get:)
+  xor %rax, %rax;
+  btq %rsi,(%rdi);
+  setc %al;
+  ret
+  END_FUNC(bit_set)
 
     DECLARE_FUNC(get_return_address)
 GLOBAL_LABEL(get_return_address:)
