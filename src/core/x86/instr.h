@@ -506,6 +506,10 @@ opnd_t
 opnd_create_reg(reg_id_t r);
 
 DR_API
+int
+bit_get(uint64_t *bitfield, uint64_t bit);
+
+DR_API
 /**
  * Returns an immediate integer operand with value \p i and size
  * \p data_size; \p data_size must be a OPSZ_ constant.
