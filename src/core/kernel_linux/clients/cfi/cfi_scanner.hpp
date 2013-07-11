@@ -285,7 +285,8 @@ bool address_scanner_function(T* func_ptr) {
     //kern_printk("address scanner function one\n");
     uint64_t value = (uint64_t)(func_ptr);
     if(is_alias_address(value)) {
-        cfi_collect_watcpoint((void*)0, (void*)value);
+        TRACES_WATCHPOINT((void*)value);
+       // cfi_collect_watcpoint((void*)0, (void*)value);
     }
     return true;
 }
@@ -293,17 +294,21 @@ bool address_scanner_function(T* func_ptr) {
 template <typename T>
 bool address_scanner_function(T addr) {
     //kern_printk("address scanner function two\n");
+#if 0
     unsigned int size = type_class<T>::get_size();
     unsigned int i = 0;
     uint64_t *ptr = (uint64_t*)&addr;
-    uint64_t value = (uint64_t)(*ptr);
-    while(i <= size){
-        if(is_alias_address(value)) {
-            cfi_collect_watcpoint(ptr, (void*)value);
+    if((uint64_t)ptr > 0x7fffffffffffffULL) {
+        uint64_t value = (uint64_t)(*ptr);
+        while(i <= size){
+            if(is_alias_address(value)) {
+                TRACES_WATCHPOINT((void*)value);
+            }
+            ptr++;
+            i += 8;
         }
-        ptr++;
-        i += 8;
     }
+#endif
 }
 
 #endif /* CFI_SCANNER_HPP_ */

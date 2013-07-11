@@ -49,21 +49,12 @@ typedef int *(kernel_text_address_type)(unsigned long addr);
 #define HEAP_START  0x0000880000000000
 #define HEAP_END    0x0000c0ffffffffff
 
-struct watchpoint_descriptor {
-
-    uint64_t base_address;
-    uint64_t limit;
-    uint64_t state;
-    struct watchpoint_descriptor *next;
-
-} __attribute__((packed));
-
-
 extern void *get_watchpoint_meta(void *addr);
 extern void wrapper_collect_watchpoint(void *addr);
 extern void wrapper_collect_descriptor(uint64_t index);
 extern uint64_t get_descriptors_count(void);
 extern void *get_descriptor_at_index(uint64_t index);
+extern void *get_descriptor_head(void);
 
 
 
@@ -258,12 +249,14 @@ static __inline__ void cfi_list_update_base(struct cfi_list_head *list_head)
     uint64_t index_part;
     uint64_t displacement_part;
     uint64_t value;
-    struct watchpoint_descriptor *meta_info;
+    struct leak_check_descriptor *descriptors;
+    struct descriptor *meta_info;
 
     spin_lock(&(list_head->list_lock));
     ptr = list_head->head;
     while(ptr != NULL){
-        meta_info = (struct watchpoint_descriptor *)get_watchpoint_meta((void*)ptr->node);
+        descriptors = (struct leak_check_descriptor*)get_watchpoint_meta((void*)ptr->node);
+        meta_info = descriptors->leak_descriptor
         value = meta_info->base_address;
         displacement_part = (ALIAS_ADDRESS_DISPLACEMENT_MASK & ((uint64_t) value));
         index_part = (ALIAS_ADDRESS_INDEX_MASK & ((uint64_t)ptr->node));
@@ -276,11 +269,13 @@ static __inline__ void cfi_list_update_base(struct cfi_list_head *list_head)
 
 static inline uint64_t
 cfi_item_update_base(void *ptr){
-    struct watchpoint_descriptor *meta_info;
+    struct leak_check_descriptor *leak_check_ds;
+    struct descriptor *meta_info;
     uint64_t index_part;
     uint64_t displacement_part;
     uint64_t value;
-    meta_info = (struct watchpoint_descriptor *)get_watchpoint_meta((void*)ptr);
+    meta_info = (struct descriptor *)get_watchpoint_meta((void*)ptr);
+
     if((meta_info != NULL) && (meta_info >= MODULE_SHADOW_END ) && (meta_info < MODULE_SHADOW_END_EXTENDED)) {
         value = meta_info->base_address;
         displacement_part = (ALIAS_ADDRESS_DISPLACEMENT_MASK & ((uint64_t) value));
@@ -297,7 +292,8 @@ cfi_update_descriptor_state(void *ptr, uint64_t state){
     uint64_t index_part;
     uint64_t displacement_part;
     uint64_t value;
-    struct watchpoint_descriptor *meta_info = (struct watchpoint_descriptor *)get_watchpoint_meta((void*)ptr);
+    struct leak_check_descriptor *leak_check_ds;
+    struct descriptor *meta_info = (struct descriptor*)get_watchpoint_meta((void*)ptr);
     if((meta_info != NULL)
            /* && (meta_info >= MODULE_SHADOW_END )
             && (meta_info < MODULE_SHADOW_END_EXTENDED)*/
@@ -384,7 +380,8 @@ cfi_scan_rootsets(void){
     struct list_item *global_list;
     struct list_item *return_list;
     struct list_item *alloc_scan_list;
-    struct watchpoint_descriptor *meta_info;
+    struct leak_check_descriptor *leak_check_ds;
+    struct descriptor *meta_info;
     struct kernel_module *module_ptr;
 
     uint64_t stack_bottom;
@@ -503,13 +500,6 @@ cfi_scan_rootsets(void){
                 printk("object passed to the kernel : dest(%llx)\n", base);
                 cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base);
             }
-#if 0
-            void *base_ptr = cfi_item_update_base(value);
-            if(NULL != base_ptr){
-                printk("object passed to the kernel : dest(%lx)\n", base_ptr);
-                cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
-            }
-#endif
         }
         return_list = return_list->next;
     }
@@ -517,8 +507,8 @@ cfi_scan_rootsets(void){
 #if 1
     alloc_scan_list = module_alloc_list[CFI_ALLOC_GREY_LIST].head;
     while(alloc_scan_list != NULL){
-        struct watchpoint_descriptor *temp_meta;
-        meta_info = (struct watchpoint_descriptor *)get_watchpoint_meta((void*)alloc_scan_list->node);
+        struct descriptor *temp_meta;
+        meta_info = (struct descriptor *)get_watchpoint_meta((void*)alloc_scan_list->node);
         if((meta_info != NULL)){
             ptr = (uint64_t*)meta_info->base_address;
             if(ptr != NULL) {
@@ -532,16 +522,6 @@ cfi_scan_rootsets(void){
                                 cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base);
                             }
                         }
-#if 0
-                    	void *base_ptr = cfi_item_update_base(value);
-                    	if(NULL != base_pt            && !(meta_info->state & WP_MEMORY_ALLOCATED)) {
-r) {
-                        	if(base_ptr != alloc_scan_list->node) {
-                            	printk("scanning greylist object : src( %lx) \t dest( %lx)\n", (void*)alloc_scan_list->node, base_ptr);
-                            	cfi_list_append(&module_alloc_list[CFI_ALLOC_GREY_LIST], base_ptr);
-                        	}
-                    	}
-#endif
                  	}
                 ptr++;
             	}
@@ -555,8 +535,8 @@ r) {
 #if 0
     alloc_scan_list = watchpoint_scan_list.head;
     while(alloc_scan_list != NULL){
-        struct watchpoint_descriptor *temp_meta;
-        meta_info = (struct watchpoint_descriptor *)get_watchpoint_meta((void*)alloc_scan_list->node);
+        struct descriptor *temp_meta;
+        meta_info = (struct descriptor *)get_watchpoint_meta((void*)alloc_scan_list->node);
         if(meta_info != NULL){
             ptr = (uint64_t*)meta_info->base_address;
             while(ptr <= meta_info->limit ){
@@ -642,68 +622,65 @@ sweep_thread_init(void *arg)
     unsigned long local_flag;
     uint64_t i = 0;
     uint64_t max_index = 0;
-    struct watchpoint_descriptor *descriptor = NULL;
+    struct leak_check_descriptor *leak_check_ds = NULL;
+    struct descriptor *descriptors = NULL;
     uint64_t count = 0;
 
     while (!kthread_should_stop()){
         dr_printf("*******************************************************inside sweep_thread_init\n");
-#if 1
+
         stop_machine(copy_stack_callback, 0, 0);
 
         preempt_disable();
         raw_local_irq_save(flags);
-        do {
-            local_flag = flag_memory_snapshot;
-        }while(!__sync_bool_compare_and_swap(&flag_memory_snapshot, local_flag, 0x0));
 
         printk("\nkernel objects hashtable count : %lu\n", hashmap_get_item_count(kernel_pointer_hash));
         hashmap_iter(kernel_pointer_hash, htable_callback, NULL);
         cfi_scan_rootsets();
         hashmap_iter(hash_percpu_pointers, htable_callback_percpu, NULL);
 
-        count  = get_descriptors_count();
-        printk("descriptors count : %lu\n", count);
-        for(i = 0; i <= count; i++){
-            descriptor = get_descriptor_at_index(i);
-            if(NULL != descriptor){
-#ifdef DEBUG
-                if((descriptor->state & WP_MEMORY_ALLOCATED) /*&& !(descriptor->state & (WP_DESCRIPTOR_KERNEL_ALLOC))*/){
-                    printk("%llx(%lx)\t", descriptor->base_address, i);
-                    //cfi_list_append(&module_alloc_list[CFI_ALLOC_WHITE_LIST], descriptor->base_address);
-                }
-#endif
-                if((descriptor->state & WP_MEMORY_ALLOCATED)
-                        /*&& !(descriptor->state & WP_MEMORY_FREED)*/
-                        && !(descriptor->state & WP_MEMORY_REACHABLE)
-                        /*&& !(descriptor->state & (WP_DESCRIPTOR_KERNEL_ALLOC))*/){
-                      cfi_list_append(&module_alloc_list[CFI_LOST_REFERENCE], descriptor->base_address);
-                  }
+        leak_check_ds = get_descriptor_head();
+        if(leak_check_ds)
+            descriptors = leak_check_ds->leak_descriptor;
 
-                if(!(descriptor->state & WP_MEMORY_ALLOCATED)
-                        && !(descriptor->state & WP_MEMORY_REACHABLE)){
-                    wrapper_collect_descriptor(i);
-#ifdef DEBUG
-                    //cfi_list_append(&module_alloc_list[CFI_COLLECT_LIST], i);
-#endif
-                }
+        while(descriptors != NULL){
 
+
+            if((descriptors->state & WP_MEMORY_ALLOCATED)
+                    /*&& !(descriptor->state & (WP_DESCRIPTOR_KERNEL_ALLOC))*/){
+                printk("%llx(%lx)\t", descriptors->base_address, descriptors->index);
+            }
+
+            if((descriptors->state & WP_MEMORY_ALLOCATED)
+                    /*&& !(descriptor->state & WP_MEMORY_FREED)*/
+                    && !(descriptors->state & WP_MEMORY_REACHABLE)
+                    /*&& !(descriptor->state & (WP_DESCRIPTOR_KERNEL_ALLOC))*/){
+                  cfi_list_append(&module_alloc_list[CFI_LOST_REFERENCE], descriptors->base_address);
+            }
+
+            if(!(descriptors->state & WP_MEMORY_ALLOCATED)
+                    && !(descriptors->state & WP_MEMORY_REACHABLE)){
+                wrapper_collect_descriptor(descriptors->index);
+            }
+
+            {
                 uint64_t newval = 0x0ULL;
                 uint64_t oldval = 0x0ULL;
                 do {
-                    oldval = descriptor->state;
-                    newval = (descriptor->state & (~WP_MEMORY_REACHABLE));
-                }while(!__sync_bool_compare_and_swap(&(descriptor->state), oldval, newval));
-                //meta_info->state = meta_info->state | state;
-
-                //descriptor->state &= ~WP_MEMORY_REACHABLE;
+                    oldval = descriptors->state;
+                    newval = (descriptors->state & (~WP_MEMORY_REACHABLE));
+                }while(!__sync_bool_compare_and_swap(&(descriptors->state), oldval, newval));
             }
+
+            count++;
+            descriptors = descriptors->next;
         }
 
 #ifdef DEBUG
-        printk("white list count : %lu\n", cfi_get_list_count(&module_alloc_list[CFI_ALLOC_WHITE_LIST]));
-        cfi_for_each_item(&module_alloc_list[CFI_ALLOC_WHITE_LIST], &func_module_alloclist, NULL);
+        //printk("white list count : %lu\n", cfi_get_list_count(&module_alloc_list[CFI_ALLOC_WHITE_LIST]));
+        //cfi_for_each_item(&module_alloc_list[CFI_ALLOC_WHITE_LIST], &func_module_alloclist, NULL);
         //cfi_list_delete_all(&module_alloc_list[CFI_ALLOC_WHITE_LIST]);
-        printk("\n");
+        //printk("\n");
 
         printk("grey list count : %lu\n", cfi_get_list_count(&module_alloc_list[CFI_ALLOC_GREY_LIST]));
         cfi_for_each_item(&module_alloc_list[CFI_ALLOC_GREY_LIST], &func_module_print_greylist, NULL);
@@ -719,14 +696,9 @@ sweep_thread_init(void *arg)
         printk("\n");
 
         cfi_list_delete_all(&kernel_leaked_watchpoints);
-        cfi_list_delete_all(&module_alloc_list[CFI_COLLECT_LIST]);
 #endif
-        do {
-            local_flag = flag_memory_snapshot;
-        }while(!__sync_bool_compare_and_swap(&flag_memory_snapshot, local_flag, 0x1));
         raw_local_irq_restore(flags);
         preempt_enable();
-#endif
         set_current_state(TASK_INTERRUPTIBLE);
         schedule_timeout(100*HZ/*00*/);
     }
@@ -738,7 +710,7 @@ sweep_thread_init(void *arg)
 
 void cfi_return_to_kernel(void *ptr){
     uint64_t value = (uint64_t)(ptr);
-    struct watchpoint_descriptor *meta_info;
+    struct descriptor *meta_info;
     if((!((uint64_t)value & ALIAS_ADDRESS_NOT_ENABLED)) && ((uint64_t)value > USER_ADDRESS_OFFSET)){
         uint64_t temp_value = (value & (~KERNEL_ADDRESS_OFFSET));
         if((temp_value > HEAP_START) && (temp_value < HEAP_END)){
@@ -769,6 +741,6 @@ handle_free_percpu(const void *addr){
 void
 handle_free_object(const void *addr){
     unsigned int ret;
-   // ret = hashmap_delete(kernel_pointer_hash, addr);
+    ret = hashmap_delete(kernel_pointer_hash, addr);
 }
 

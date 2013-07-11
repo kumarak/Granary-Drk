@@ -31,6 +31,7 @@
 #include <asm/uaccess.h>
 
 #include "dr_api.h"
+#include "cfi_defines.h"
 
 #define OP_JMP_SIZE 5
 #define STACK_SIZE 10
@@ -136,8 +137,6 @@ void cfi_direct_call_to_kernel(void);
 void cfi_exit_direct_call_temp(void);
 void cfi_exit_return_to_kernel(void);
 uint64_t get_thread_private_extension(void);
-//void cfi_exit_direct_call(struct dcontext *dcontext,uint64_t next_module_address, uint64_t kernel_wrapper_addr );
-//void granary_debug_null_pointer();
 
 struct kernsym {
     void *addr; // orig addr
@@ -152,7 +151,47 @@ struct kernsym {
     void *run;
 };
 
+#ifndef CONFIG_TRACER
+struct descriptor {
+    union {
+        uint64_t base_address;
+        uint64_t index;
+    };
+    uint64_t limit;
+    uint64_t state;
+    volatile struct descriptor *next;
+
+} __attribute__((packed));
+#else
+struct descriptor {
+    union {
+        uint64_t base_address;
+        uint64_t index;
+    };
+    uint64_t limit;
+    uint64_t type_id;
+    uint64_t state;
+    uint64_t read_shadow;
+    uint64_t write_shadow;
+    uint64_t shadow_size;
+    volatile struct descriptor *next;
+
+} __attribute__((packed));
+#endif
+
+struct leak_check_descriptor {
+    union {
+        struct descriptor *leak_descriptor;
+        uint64_t my_index;
+    };
+
+    volatile struct leak_check_descriptor *next;
+} __attribute__((packed));
+
 int
 cfi_print_symbol_name(void *symbol_addr);
+
+int
+init_descriptors_cache(void);
 
 #endif /* CFI_MODULE_H_ */

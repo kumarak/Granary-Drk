@@ -51,6 +51,14 @@ void cfi_kfree(const void *x)
     }
 }
 
+void *cfi_kmem_cache_alloc(struct kmem_cache *s, gfp_t flags){
+    if(slub_allocator.kmem_cache_alloc != NULL) {
+        return slub_allocator.kmem_cache_alloc(s, flags);
+    } else {
+        return kmem_cache_alloc(s, flags);
+    }
+}
+
 __always_inline
 void cfi_kmem_cache_free(struct kmem_cache *s, void *x)
 {

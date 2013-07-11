@@ -10,21 +10,6 @@
 #include "cfi_insert_call.h"
 #include "cfi_hashtable.h"
 
-struct descriptor {
-    union {
-        uint64_t base_address;
-        uint64_t index;
-    };
-    uint64_t type_id;
-    uint64_t limit;
-    uint64_t state;
-    uint64_t read_shadow;
-    uint64_t write_shadow;
-    uint64_t data;
-    volatile struct descriptor *next;
-
-} __attribute__((packed));
-
 #define PRE     instrlist_meta_preinsert
 #define POST    instrlist_meta_postinsert
 #define APP     instrlist_append
@@ -74,6 +59,8 @@ static void cfi_debug_call(void *addr) {
     dr_printf("%s : %lx\n",__FUNCTION__, addr);
 }
 
+#define INHERITED_BIT_COUNT 0xff00000ULL
+
 #define UPDATE_WRITE_SHADOW_INSTRUMENTATION(ilist, instr, opnd_original_addr, opnd_watchpoint_addr) \
         {   \
             /* instrumentation for updating write shadow*/    \
@@ -89,9 +76,6 @@ static void cfi_debug_call(void *addr) {
             PRE(ilist, instr, INSTR_CREATE_mov_imm(drcontext, opnd_descriptor_start,\
                                         OPND_CREATE_INT64(descriptor_table_start)));\
                                                                                     \
-            PRE(ilist, instr, INSTR_CREATE_shr(drcontext, opnd_watchpoint_addr,     \
-                                                OPND_CREATE_INT8(SHIFT_BIT_COUNT)));\
-                                                                                    \
             {   \
                 reg_id_t reg_base_addr; \
                 opnd_t opnd_base_addr;  \
@@ -100,16 +84,31 @@ static void cfi_debug_call(void *addr) {
                 opnd_base_addr = opnd_create_reg(reg_base_addr);    \
                 PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_base_addr));    \
                         \
-                PRE(ilist, instr, INSTR_CREATE_shl(drcontext, opnd_watchpoint_addr,    \
-                                OPND_CREATE_INT8(0x3)));    \
+                PRE(ilist, instr, INSTR_CREATE_mov_ld(drcontext, opnd_base_addr,   \
+                                        opnd_watchpoint_addr));\
+                PRE(ilist, instr, INSTR_CREATE_and(drcontext, opnd_base_addr,    \
+                                        OPND_CREATE_INT32(INHERITED_BIT_COUNT)));   \
+                PRE(ilist, instr, INSTR_CREATE_shr(drcontext, opnd_base_addr,    \
+                                        OPND_CREATE_INT8(20)));   \
+                PRE(ilist, instr, INSTR_CREATE_shr(drcontext, opnd_watchpoint_addr,     \
+                                        OPND_CREATE_INT8(SHIFT_BIT_COUNT)));\
+                PRE(ilist, instr, INSTR_CREATE_shl(drcontext, opnd_watchpoint_addr,     \
+                                        OPND_CREATE_INT8(0x8)));\
+                PRE(ilist, instr, INSTR_CREATE_add(drcontext, opnd_watchpoint_addr,     \
+                                        opnd_base_addr));\
+                         \
+                /*PRE(ilist, instr, INSTR_CREATE_shl(drcontext, opnd_watchpoint_addr,*/    \
+                                /*OPND_CREATE_INT8(0x3))); */   \
                                 \
                 PRE(ilist, instr, INSTR_CREATE_mov_ld(drcontext, opnd_base_addr,    \
                                         opnd_create_base_disp(reg_descriptor_start, opnd_get_reg(opnd_watchpoint_addr),   \
                                                 sizeof(reg_t/*struct alias_meta*/), 0, OPSZ_PTR))); \
                                                 \
-                PRE(ilist, instr, INSTR_CREATE_sub(drcontext, opnd_original_addr, opnd_base_addr));  \
+                PRE(ilist, instr, INSTR_CREATE_sub(drcontext, opnd_original_addr,   \
+                        opnd_create_base_disp(reg_base_addr, REG_NULL,   \
+                        sizeof(reg_t/*struct alias_meta*/), 0, OPSZ_PTR)));  \
                                             \
-                PRE(ilist, instr, INSTR_CREATE_shr(drcontext, opnd_original_addr, OPND_CREATE_INT8(0x3)));   \
+                /*PRE(ilist, instr, INSTR_CREATE_shr(drcontext, opnd_original_addr, OPND_CREATE_INT8(0x3)));*/   \
                 \
                 {   \
                     /*get bit index for update*/    \
@@ -117,12 +116,12 @@ static void cfi_debug_call(void *addr) {
                     opnd_t opnd_bit_index = opnd_create_reg(reg_bit_index); \
                     \
                     PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_bit_index)); \
-                    PRE(ilist, instr, INSTR_CREATE_mov_ld(drcontext, opnd_bit_index, opnd_original_addr));    \
+                    PRE(ilist, instr, INSTR_CREATE_mov_ld(drcontext, opnd_bit_index, opnd_original_addr));   \
                     \
-                    PRE(ilist, instr, INSTR_CREATE_shr(drcontext, opnd_bit_index, OPND_CREATE_INT8(0x3)));   \
+                    PRE(ilist, instr, INSTR_CREATE_shr(drcontext, opnd_bit_index, OPND_CREATE_INT8(0x6))); \
                     \
                     PRE(ilist, instr, INSTR_CREATE_and(drcontext, opnd_original_addr,    \
-                                                                OPND_CREATE_INT32(0x7)));   \
+                                                                OPND_CREATE_INT32(0x3F)));   \
                     \
                     {   \
                         \
@@ -131,11 +130,11 @@ static void cfi_debug_call(void *addr) {
                         PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_shadow_base)); \
                         \
                         PRE(ilist, instr, INSTR_CREATE_mov_ld(drcontext, opnd_shadow_base, \
-                            opnd_create_base_disp(reg_descriptor_start, opnd_get_reg(opnd_watchpoint_addr),   \
+                            opnd_create_base_disp(reg_base_addr, REG_NULL,   \
                                     sizeof(reg_t), WRITE_SHADOW_OFFSET, OPSZ_PTR)));    \
                         \
                         PRE(ilist, instr, INSTR_CREATE_bts(drcontext, \
-                                opnd_create_base_disp(reg_shadow_base, reg_bit_index, \
+                                opnd_create_base_disp(reg_shadow_base/*reg_shadow_base*/, reg_bit_index, \
                                 sizeof(reg_t), 0, OPSZ_PTR), opnd_original_addr));   \
                         \
                         PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_shadow_base));  \
@@ -176,17 +175,31 @@ static void cfi_debug_call(void *addr) {
                 opnd_base_addr = opnd_create_reg(reg_base_addr);    \
                 PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_base_addr));    \
                         \
-                PRE(ilist, instr, INSTR_CREATE_shl(drcontext, opnd_watchpoint_addr,    \
-                                OPND_CREATE_INT8(0x3)));    \
-                                \
-                PRE(ilist, instr, INSTR_CREATE_mov_ld(drcontext, opnd_base_addr,    \
-                                        opnd_create_base_disp(reg_descriptor_start, opnd_get_reg(opnd_watchpoint_addr),   \
-                                                sizeof(reg_t/*struct alias_meta*/), 0, OPSZ_PTR))); \
-                                                \
-                PRE(ilist, instr, INSTR_CREATE_sub(drcontext, opnd_original_addr, opnd_base_addr));  \
+                        PRE(ilist, instr, INSTR_CREATE_mov_ld(drcontext, opnd_base_addr,   \
+                                                  opnd_watchpoint_addr));\
+                          PRE(ilist, instr, INSTR_CREATE_and(drcontext, opnd_base_addr,    \
+                                                  OPND_CREATE_INT32(INHERITED_BIT_COUNT)));   \
+                          PRE(ilist, instr, INSTR_CREATE_shr(drcontext, opnd_base_addr,    \
+                                                  OPND_CREATE_INT8(20)));   \
+                          PRE(ilist, instr, INSTR_CREATE_shr(drcontext, opnd_watchpoint_addr,     \
+                                                  OPND_CREATE_INT8(SHIFT_BIT_COUNT)));\
+                          PRE(ilist, instr, INSTR_CREATE_shl(drcontext, opnd_watchpoint_addr,     \
+                                                  OPND_CREATE_INT8(0x8)));\
+                          PRE(ilist, instr, INSTR_CREATE_add(drcontext, opnd_watchpoint_addr,     \
+                                                  opnd_base_addr));\
+                            /*PRE(ilist, instr, INSTR_CREATE_shl(drcontext, opnd_watchpoint_addr,*/    \
+                                                        /*OPND_CREATE_INT8(0x3))); */   \
+                                                                                 \
+                            PRE(ilist, instr, INSTR_CREATE_mov_ld(drcontext, opnd_base_addr,    \
+                                                        opnd_create_base_disp(reg_descriptor_start, opnd_get_reg(opnd_watchpoint_addr),   \
+                                                                    sizeof(reg_t/*struct alias_meta*/), 0, OPSZ_PTR))); \
+                                                                                                 \
+                             PRE(ilist, instr, INSTR_CREATE_sub(drcontext, opnd_original_addr,   \
+                                                opnd_create_base_disp(reg_base_addr, REG_NULL,   \
+                                                    sizeof(reg_t/*struct alias_meta*/), 0, OPSZ_PTR)));  \
                                             \
-                PRE(ilist, instr, INSTR_CREATE_shr(drcontext, opnd_original_addr, OPND_CREATE_INT8(0x3)));   \
-                \
+                              /*PRE(ilist, instr, INSTR_CREATE_shr(drcontext, opnd_original_addr, OPND_CREATE_INT8(0x3)));*/   \
+                     \
                 {   \
                     /*get bit index for update*/    \
                     reg_id_t reg_bit_index = get_next_free_reg(&used_registers); \
@@ -198,7 +211,7 @@ static void cfi_debug_call(void *addr) {
                     PRE(ilist, instr, INSTR_CREATE_shr(drcontext, opnd_bit_index, OPND_CREATE_INT8(0x3)));   \
                     \
                     PRE(ilist, instr, INSTR_CREATE_and(drcontext, opnd_original_addr,    \
-                                                                OPND_CREATE_INT32(0x7)));   \
+                                                                OPND_CREATE_INT32(0x3F)));   \
                     \
                     {   \
                         \
@@ -207,12 +220,13 @@ static void cfi_debug_call(void *addr) {
                         PRE(ilist, instr, INSTR_CREATE_push(drcontext, opnd_shadow_base)); \
                         \
                         PRE(ilist, instr, INSTR_CREATE_mov_ld(drcontext, opnd_shadow_base, \
-                            opnd_create_base_disp(reg_descriptor_start, opnd_get_reg(opnd_watchpoint_addr),   \
-                                    sizeof(reg_t), READ_SHADOW_OFFSET, OPSZ_PTR)));    \
-                        \
-                        PRE(ilist, instr, INSTR_CREATE_bts(drcontext, \
-                                opnd_create_base_disp(reg_shadow_base, reg_bit_index, \
-                                sizeof(reg_t), 0, OPSZ_PTR), opnd_original_addr));   \
+                              opnd_create_base_disp(reg_base_addr, REG_NULL,   \
+                                      sizeof(reg_t), WRITE_SHADOW_OFFSET, OPSZ_PTR)));    \
+                          \
+                          PRE(ilist, instr, INSTR_CREATE_bts(drcontext, \
+                                  opnd_create_base_disp(reg_shadow_base/*reg_shadow_base*/, reg_bit_index, \
+                                  sizeof(reg_t), 0, OPSZ_PTR), opnd_original_addr));   \
+                          \
                         \
                         PRE(ilist, instr, INSTR_CREATE_pop(drcontext, opnd_shadow_base));  \
                     }   \
@@ -845,7 +859,7 @@ instrument_near_base_disp(void *drcontext, instrlist_t *ilist, instr_t *instr,
         if(is_write == true){
             UPDATE_WRITE_SHADOW_INSTRUMENTATION(ilist, instr, opnd_unwatched_addr, opnd_watched_addr)
         }else {
-            UPDATE_READ_SHADOW_INSTRUMENTATION(ilist, instr, opnd_unwatched_addr, opnd_watched_addr)
+          //  UPDATE_READ_SHADOW_INSTRUMENTATION(ilist, instr, opnd_unwatched_addr, opnd_watched_addr)
         }
     }
     emulated = instr_clone(drcontext, instr);
@@ -946,7 +960,7 @@ instrument_far_base_disp(void *drcontext, instrlist_t *ilist, instr_t *instr,
         if(is_write == true){
             UPDATE_WRITE_SHADOW_INSTRUMENTATION(ilist, instr, opnd_unwatched_addr, opnd_watched_addr)
         }else {
-            UPDATE_READ_SHADOW_INSTRUMENTATION(ilist, instr, opnd_unwatched_addr, opnd_watched_addr)
+           // UPDATE_READ_SHADOW_INSTRUMENTATION(ilist, instr, opnd_unwatched_addr, opnd_watched_addr)
         }
     }
     emulated = instr_clone(drcontext, instr);
