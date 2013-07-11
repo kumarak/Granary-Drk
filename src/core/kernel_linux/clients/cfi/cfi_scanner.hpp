@@ -34,8 +34,19 @@ void printBits(size_t const size, void const * const ptr)
 
 #include "linux_wrapper/kernel_types_ids.hpp"
 
+bool
+is_valid(void* addr){
+    if( (uint64_t)addr >> 0x30 == 0xffff){
+        return true;
+    } else if(is_alias_address((uint64_t)addr)){
+        return true;
+    }
+    return false;
+}
+
 #define TRACES_WATCHPOINT(arg) {\
         descriptor *meta_info = WATCHPOINT_META(arg);   \
+        if(is_valid(meta_info)){    \
         meta_info->type_id = kernel_types<decltype(arg)>::ID;    \
         if(meta_info->type_id == kernel_types<struct inode*>::ID){  \
             kern_printk("type id : %lx\t", meta_info->type_id);  \
@@ -45,7 +56,7 @@ void printBits(size_t const size, void const * const ptr)
             printBits(meta_info->shadow_size, (void*)meta_info->read_shadow);   \
             kern_printk("write shadow : ");  \
             printBits(meta_info->shadow_size, (void*)meta_info->write_shadow);  \
-        } }
+        } } }
 
 /// used to more easily define scan function in terms of a type and a function body
 /// that operates on the 'arg' variable
