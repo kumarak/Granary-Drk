@@ -1,0 +1,44 @@
+digraph {
+node [shape=record];
+rb_insert_color [label = "{rb_insert_color | { {read }  | {write } } }"];
+seq_puts [label = "{seq_puts | { {read }  | {write } } }"];
+set_nlink [label = "{set_nlink | { {read }  | {write } } }"];
+init_ext2_fs [label = "{init_ext2_fs | { {read }  | {write } } }"];
+__init_rwsem [label = "{__init_rwsem | { {read }  | {write } } }"];
+__mutex_init [label = "{__mutex_init | { {read }  | {write } } }"];
+ext2_show_options [label = "{ext2_show_options | { {read }  | {write } } }"];
+d_make_root [label = "{d_make_root | { {read }  | {write } } }"];
+__brelse [label = "{__brelse | { {read }  | {write } } }"];
+ext2_fill_super [label = "{ext2_fill_super | { {read | struct inode:\nNone\ni_data.a_ops}  | {write | struct inode:\ni_writecount\ni_mtime.tv_nsec\ni_mutex.wait_list.next\nNone\ni_data.a_ops\ni_lru.next\ni_data.i_mmap_nonlinear.next\ni_sb\ni_dquot} } }"];
+ext2_mount [label = "{ext2_mount | { {read }  | {write } } }"];
+set_bh_page [label = "{set_bh_page | { {read }  | {write } } }"];
+ext2_alloc_inode [label = "{ext2_alloc_inode | { {read }  | {write } } }"];
+mark_buffer_dirty [label = "{mark_buffer_dirty | { {read }  | {write } } }"];
+sb_min_blocksize [label = "{sb_min_blocksize | { {read }  | {write } } }"];
+get_seconds [label = "{get_seconds | { {read }  | {write } } }"];
+get_random_bytes [label = "{get_random_bytes | { {read }  | {write } } }"];
+sync_dirty_buffer [label = "{sync_dirty_buffer | { {read }  | {write } } }"];
+dquot_writeback_dquots [label = "{dquot_writeback_dquots | { {read }  | {write } } }"];
+__percpu_counter_init [label = "{__percpu_counter_init | { {read }  | {write } } }"];
+init_once [label = "{init_once | { {read }  | {write } } }"];
+
+ext2_fill_super -> ext2_alloc_inode
+ext2_fill_super -> d_make_root
+ext2_fill_super -> set_nlink
+init_once -> __init_rwsem
+ext2_show_options -> seq_puts
+ext2_fill_super -> __mutex_init
+init_once -> __mutex_init
+ext2_fill_super -> sync_dirty_buffer
+ext2_fill_super -> __brelse
+ext2_alloc_inode -> init_once
+ext2_fill_super -> mark_buffer_dirty
+ext2_fill_super -> dquot_writeback_dquots
+ext2_fill_super -> __percpu_counter_init
+ext2_fill_super -> sb_min_blocksize
+ext2_mount -> ext2_fill_super
+ext2_fill_super -> set_bh_page
+ext2_fill_super -> get_random_bytes
+ext2_fill_super -> get_seconds
+ext2_fill_super -> rb_insert_color
+}

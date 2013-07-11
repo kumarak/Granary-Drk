@@ -1,0 +1,685 @@
+[    0.000000] Initializing cgroup subsys cpuset
+[    0.000000] Initializing cgroup subsys cpu
+[    0.000000] Linux version 3.8.22.6 (root@vortex) (gcc version 4.7.3 (Ubuntu/Linaro 4.7.3-2ubuntu1~12.04) ) #7 SMP Fri Jun 28 16:38:16 EDT 2013
+[    0.000000] Command line: BOOT_IMAGE=/boot/vmlinuz-3.8.22.6 root=UUID=878c244c-3b72-4761-924b-cfc2a568028f ro quiet splash vt.handoff=7
+[    0.000000] KERNEL supported cpus:
+[    0.000000]   Intel GenuineIntel
+[    0.000000]   AMD AuthenticAMD
+[    0.000000]   Centaur CentaurHauls
+[    0.000000] e820: BIOS-provided physical RAM map:
+[    0.000000] BIOS-e820: [mem 0x0000000000000000-0x000000000009f3ff] usable
+[    0.000000] BIOS-e820: [mem 0x000000000009f400-0x000000000009ffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000000f0000-0x00000000000fffff] reserved
+[    0.000000] BIOS-e820: [mem 0x0000000000100000-0x000000007fffcfff] usable
+[    0.000000] BIOS-e820: [mem 0x000000007fffd000-0x000000007fffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000feffc000-0x00000000feffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000fffc0000-0x00000000ffffffff] reserved
+[    0.000000] NX (Execute Disable) protection: active
+[    0.000000] SMBIOS 2.4 present.
+[    0.000000] DMI: Bochs Bochs, BIOS Bochs 01/01/2007
+[    0.000000] Hypervisor detected: KVM
+[    0.000000] e820: update [mem 0x00000000-0x0000ffff] usable ==> reserved
+[    0.000000] e820: remove [mem 0x000a0000-0x000fffff] usable
+[    0.000000] No AGP bridge found
+[    0.000000] e820: last_pfn = 0x7fffd max_arch_pfn = 0x400000000
+[    0.000000] MTRR default type: write-back
+[    0.000000] MTRR fixed ranges enabled:
+[    0.000000]   00000-9FFFF write-back
+[    0.000000]   A0000-BFFFF uncachable
+[    0.000000]   C0000-FFFFF write-protect
+[    0.000000] MTRR variable ranges enabled:
+[    0.000000]   0 base 00E0000000 mask FFE0000000 uncachable
+[    0.000000]   1 disabled
+[    0.000000]   2 disabled
+[    0.000000]   3 disabled
+[    0.000000]   4 disabled
+[    0.000000]   5 disabled
+[    0.000000]   6 disabled
+[    0.000000]   7 disabled
+[    0.000000] PAT not supported by CPU.
+[    0.000000] found SMP MP-table at [mem 0x000fdae0-0x000fdaef] mapped at [ffff8800000fdae0]
+[    0.000000] initial memory mapped: [mem 0x00000000-0x1fffffff]
+[    0.000000] Base memory trampoline at [ffff880000099000] 99000 size 24576
+[    0.000000] init_memory_mapping: [mem 0x00000000-0x7fffcfff]
+[    0.000000]  [mem 0x00000000-0x7fdfffff] page 2M
+[    0.000000]  [mem 0x7fe00000-0x7fffcfff] page 4k
+[    0.000000] kernel direct mapping tables up to 0x7fffcfff @ [mem 0x1fffc000-0x1fffffff]
+[    0.000000] RAMDISK: [mem 0x365c2000-0x372d8fff]
+[    0.000000] ACPI: RSDP 00000000000fd950 00014 (v00 BOCHS )
+[    0.000000] ACPI: RSDT 000000007fffd740 00034 (v01 BOCHS  BXPCRSDT 00000001 BXPC 00000001)
+[    0.000000] ACPI: FACP 000000007fffff80 00074 (v01 BOCHS  BXPCFACP 00000001 BXPC 00000001)
+[    0.000000] ACPI: DSDT 000000007fffd9b0 02589 (v01   BXPC   BXDSDT 00000001 INTL 20100528)
+[    0.000000] ACPI: FACS 000000007fffff40 00040
+[    0.000000] ACPI: SSDT 000000007fffd8b0 000FF (v01 BOCHS  BXPCSSDT 00000001 BXPC 00000001)
+[    0.000000] ACPI: APIC 000000007fffd7c0 0007A (v01 BOCHS  BXPCAPIC 00000001 BXPC 00000001)
+[    0.000000] ACPI: HPET 000000007fffd780 00038 (v01 BOCHS  BXPCHPET 00000001 BXPC 00000001)
+[    0.000000] ACPI: Local APIC address 0xfee00000
+[    0.000000] No NUMA configuration found
+[    0.000000] Faking a node at [mem 0x0000000000000000-0x000000007fffcfff]
+[    0.000000] Initmem setup node 0 [mem 0x00000000-0x7fffcfff]
+[    0.000000]   NODE_DATA [mem 0x7fff9000-0x7fffcfff]
+[    0.000000] kvm-clock: Using msrs 4b564d01 and 4b564d00
+[    0.000000] kvm-clock: cpu 0, msr 0:7fff5001, boot clock
+[    0.000000]  [ffffea0000000000-ffffea0001ffffff] PMD -> [ffff88007d600000-ffff88007f5fffff] on node 0
+[    0.000000] Zone ranges:
+[    0.000000]   DMA      [mem 0x00010000-0x00ffffff]
+[    0.000000]   DMA32    [mem 0x01000000-0xffffffff]
+[    0.000000]   Normal   empty
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x00010000-0x0009efff]
+[    0.000000]   node   0: [mem 0x00100000-0x7fffcfff]
+[    0.000000] On node 0 totalpages: 524172
+[    0.000000]   DMA zone: 64 pages used for memmap
+[    0.000000]   DMA zone: 6 pages reserved
+[    0.000000]   DMA zone: 3913 pages, LIFO batch:0
+[    0.000000]   DMA32 zone: 8128 pages used for memmap
+[    0.000000]   DMA32 zone: 512061 pages, LIFO batch:31
+[    0.000000] ACPI: PM-Timer IO Port: 0xb008
+[    0.000000] ACPI: Local APIC address 0xfee00000
+[    0.000000] ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
+[    0.000000] ACPI: LAPIC (acpi_id[0x01] lapic_id[0x01] enabled)
+[    0.000000] ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+[    0.000000] IOAPIC[0]: apic_id 2, version 17, address 0xfec00000, GSI 0-23
+[    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+[    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 5 global_irq 5 high level)
+[    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
+[    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 10 global_irq 10 high level)
+[    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 11 global_irq 11 high level)
+[    0.000000] ACPI: IRQ0 used by override.
+[    0.000000] ACPI: IRQ2 used by override.
+[    0.000000] ACPI: IRQ5 used by override.
+[    0.000000] ACPI: IRQ9 used by override.
+[    0.000000] ACPI: IRQ10 used by override.
+[    0.000000] ACPI: IRQ11 used by override.
+[    0.000000] Using ACPI (MADT) for SMP configuration information
+[    0.000000] ACPI: HPET id: 0x8086a201 base: 0xfed00000
+[    0.000000] smpboot: Allowing 2 CPUs, 0 hotplug CPUs
+[    0.000000] nr_irqs_gsi: 40
+[    0.000000] PM: Registered nosave memory: 000000000009f000 - 00000000000a0000
+[    0.000000] PM: Registered nosave memory: 00000000000a0000 - 00000000000f0000
+[    0.000000] PM: Registered nosave memory: 00000000000f0000 - 0000000000100000
+[    0.000000] e820: [mem 0x80000000-0xfeffbfff] available for PCI devices
+[    0.000000] Booting paravirtualized kernel on KVM
+[    0.000000] setup_percpu: NR_CPUS:256 nr_cpumask_bits:256 nr_cpu_ids:2 nr_node_ids:1
+[    0.000000] PERCPU: Embedded 28 pages/cpu @ffff88007fc00000 s84160 r8192 d22336 u1048576
+[    0.000000] pcpu-alloc: s84160 r8192 d22336 u1048576 alloc=1*2097152
+[    0.000000] pcpu-alloc: [0] 0 1 
+[    0.000000] kvm-clock: cpu 0, msr 0:7fff5001, primary cpu clock
+[    0.000000] KVM setup async PF for cpu 0
+[    0.000000] kvm-stealtime: cpu 0, msr 7fc0ef40
+[    0.000000] Built 1 zonelists in Node order, mobility grouping on.  Total pages: 515974
+[    0.000000] Policy zone: DMA32
+[    0.000000] Kernel command line: BOOT_IMAGE=/boot/vmlinuz-3.8.22.6 root=UUID=878c244c-3b72-4761-924b-cfc2a568028f ro quiet splash vt.handoff=7
+[    0.000000] PID hash table entries: 4096 (order: 3, 32768 bytes)
+[    0.000000] __ex_table already sorted, skipping sort
+[    0.000000] Checking aperture...
+[    0.000000] No AGP bridge found
+[    0.000000] Calgary: detecting Calgary via BIOS EBDA area
+[    0.000000] Calgary: Unable to locate Rio Grande table in EBDA - bailing!
+[    0.000000] Memory: 2039184k/2097140k available (5773k kernel code, 452k absent, 57504k reserved, 3120k data, 716k init)
+[    0.000000] SLUB: Genslabs=15, HWalign=64, Order=0-3, MinObjects=0, CPUs=2, Nodes=1
+[    0.000000] Hierarchical RCU implementation.
+[    0.000000] 	RCU dyntick-idle grace-period acceleration is enabled.
+[    0.000000] 	RCU restricting CPUs from NR_CPUS=256 to nr_cpu_ids=2.
+[    0.000000] NR_IRQS:16640 nr_irqs:512 16
+[    0.000000] Console: colour dummy device 80x25
+[    0.000000] console [tty0] enabled
+[    0.000000] hpet clockevent registered
+[    0.000000] tsc: Detected 3292.524 MHz processor
+[    0.008000] Calibrating delay loop (skipped) preset value.. 6585.04 BogoMIPS (lpj=13170096)
+[    0.008000] pid_max: default: 32768 minimum: 301
+[    0.008000] Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
+[    0.008000] Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes)
+[    0.008000] Mount-cache hash table entries: 256
+[    0.008000] Initializing cgroup subsys devices
+[    0.008000] Initializing cgroup subsys freezer
+[    0.008000] Initializing cgroup subsys blkio
+[    0.008000] Initializing cgroup subsys perf_event
+[    0.008000] mce: CPU supports 10 MCE banks
+[    0.008000] Last level iTLB entries: 4KB 0, 2MB 0, 4MB 0
+[    0.008000] Last level dTLB entries: 4KB 0, 2MB 0, 4MB 0
+[    0.008000] tlb_flushall_shift: 6
+[    0.008000] Freeing SMP alternatives: 20k freed
+[    0.009805] ACPI: Core revision 20121018
+[    0.011263] ..TIMER: vector=0x30 apic1=0 pin1=2 apic2=-1 pin2=-1
+[    0.011273] smpboot: CPU0: Intel QEMU Virtual CPU version 1.0 (fam: 06, model: 02, stepping: 03)
+[    0.012000] Performance Events: unsupported p6 CPU model 2 no PMU driver, software events only.
+[    0.012000] NMI watchdog: disabled (cpu0): hardware events not enabled
+[    0.012000] smpboot: Booting Node   0, Processors  #1 OK
+[    0.008000] kvm-clock: cpu 1, msr 0:7fff5041, secondary cpu clock
+[    0.024035] Brought up 2 CPUs
+[    0.024039] smpboot: Total of 2 processors activated (13170.09 BogoMIPS)
+[    0.024020] KVM setup async PF for cpu 1
+[    0.024020] kvm-stealtime: cpu 1, msr 7fd0ef40
+[    0.028086] devtmpfs: initialized
+[    0.028549] regulator-dummy: no parameters
+[    0.028549] RTC time: 22:21:12, date: 07/05/13
+[    0.028549] NET: Registered protocol family 16
+[    0.028549] ACPI: bus type pci registered
+[    0.028549] PCI: Using configuration type 1 for base access
+[    0.028912] bio: create slab <bio-0> at 0
+[    0.028912] ACPI: Added _OSI(Module Device)
+[    0.028912] ACPI: Added _OSI(Processor Device)
+[    0.028912] ACPI: Added _OSI(3.0 _SCP Extensions)
+[    0.028912] ACPI: Added _OSI(Processor Aggregator Device)
+[    0.028912] ACPI: EC: Look up EC in DSDT
+[    0.029447] ACPI: Interpreter enabled
+[    0.029449] ACPI: (supports S0 S3 S4 S5)
+[    0.029458] ACPI: Using IOAPIC for interrupt routing
+[    0.033591] ACPI: No dock devices found.
+[    0.033594] PCI: Ignoring host bridge windows from ACPI; if necessary, use "pci=use_crs" and report a bug
+[    0.033603] ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
+[    0.033604] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+[    0.033751] pci_root PNP0A03:00: ACPI _OSC support notification failed, disabling PCIe ASPM
+[    0.033753] pci_root PNP0A03:00: Unable to request _OSC control (_OSC support mask: 0x08)
+[    0.033762] pci_root PNP0A03:00: host bridge window [io  0x0000-0x0cf7] (ignored)
+[    0.033763] pci_root PNP0A03:00: host bridge window [io  0x0d00-0xffff] (ignored)
+[    0.033764] pci_root PNP0A03:00: host bridge window [mem 0x000a0000-0x000bffff] (ignored)
+[    0.033765] pci_root PNP0A03:00: host bridge window [mem 0xe0000000-0xfebfffff] (ignored)
+[    0.033767] PCI: root bus 00: using default resources
+[    0.033768] pci_root PNP0A03:00: fail to add MMCONFIG information, can't access extended PCI configuration space under this bridge.
+[    0.033786] PCI host bridge to bus 0000:00
+[    0.033788] pci_bus 0000:00: root bus resource [bus 00-ff]
+[    0.033789] pci_bus 0000:00: root bus resource [io  0x0000-0xffff]
+[    0.033790] pci_bus 0000:00: root bus resource [mem 0x00000000-0xffffffffff]
+[    0.033818] pci 0000:00:00.0: [8086:1237] type 00 class 0x060000
+[    0.034009] pci 0000:00:01.0: [8086:7000] type 00 class 0x060100
+[    0.034273] pci 0000:00:01.1: [8086:7010] type 00 class 0x010180
+[    0.034521] pci 0000:00:01.1: reg 20: [io  0xc020-0xc02f]
+[    0.034676] pci 0000:00:01.3: [8086:7113] type 00 class 0x068000
+[    0.034902] pci 0000:00:01.3: quirk: [io  0xb000-0xb03f] claimed by PIIX4 ACPI
+[    0.034909] pci 0000:00:01.3: quirk: [io  0xb100-0xb10f] claimed by PIIX4 SMB
+[    0.035000] pci 0000:00:02.0: [1013:00b8] type 00 class 0x030000
+[    0.036331] pci 0000:00:02.0: reg 10: [mem 0xfc000000-0xfdffffff pref]
+[    0.036803] pci 0000:00:02.0: reg 14: [mem 0xfebf0000-0xfebf0fff]
+[    0.038358] pci 0000:00:02.0: reg 30: [mem 0xfebd0000-0xfebdffff pref]
+[    0.038500] pci 0000:00:03.0: [1af4:1000] type 00 class 0x020000
+[    0.038608] pci 0000:00:03.0: reg 10: [io  0xc000-0xc01f]
+[    0.038683] pci 0000:00:03.0: reg 14: [mem 0xfebf1000-0xfebf1fff]
+[    0.039048] pci 0000:00:03.0: reg 30: [mem 0xfebe0000-0xfebeffff pref]
+[    0.040086] ACPI _OSC control for PCIe not granted, disabling ASPM
+[    0.042346] ACPI: PCI Interrupt Link [LNKA] (IRQs 5 *10 11)
+[    0.042452] ACPI: PCI Interrupt Link [LNKB] (IRQs 5 *10 11)
+[    0.042512] ACPI: PCI Interrupt Link [LNKC] (IRQs 5 10 *11)
+[    0.042571] ACPI: PCI Interrupt Link [LNKD] (IRQs 5 10 *11)
+[    0.042630] ACPI: PCI Interrupt Link [LNKS] (IRQs 9) *0
+[    0.042865] vgaarb: device added: PCI:0000:00:02.0,decodes=io+mem,owns=io+mem,locks=none
+[    0.042865] vgaarb: loaded
+[    0.042865] vgaarb: bridge control possible 0000:00:02.0
+[    0.042865] SCSI subsystem initialized
+[    0.042865] ACPI: bus type scsi registered
+[    0.042865] libata version 3.00 loaded.
+[    0.042865] ACPI: bus type usb registered
+[    0.042865] usbcore: registered new interface driver usbfs
+[    0.042865] usbcore: registered new interface driver hub
+[    0.042865] usbcore: registered new device driver usb
+[    0.042865] PCI: Using ACPI for IRQ routing
+[    0.042865] PCI: pci_cache_line_size set to 64 bytes
+[    0.042865] e820: reserve RAM buffer [mem 0x0009f400-0x0009ffff]
+[    0.042865] e820: reserve RAM buffer [mem 0x7fffd000-0x7fffffff]
+[    0.044046] HPET: 3 timers in total, 0 timers will be used for per-cpu timer
+[    0.044062] hpet0: at MMIO 0xfed00000, IRQs 2, 8, 0
+[    0.044065] hpet0: 3 comparators, 64-bit 100.000000 MHz counter
+[    0.048099] Switching to clocksource kvm-clock
+[    0.048132] pnp: PnP ACPI init
+[    0.048146] ACPI: bus type pnp registered
+[    0.048288] pnp 00:00: Plug and Play ACPI device, IDs PNP0b00 (active)
+[    0.048344] pnp 00:01: Plug and Play ACPI device, IDs PNP0303 (active)
+[    0.048381] pnp 00:02: Plug and Play ACPI device, IDs PNP0f13 (active)
+[    0.048407] pnp 00:03: [dma 2]
+[    0.048421] pnp 00:03: Plug and Play ACPI device, IDs PNP0700 (active)
+[    0.048489] pnp 00:04: Plug and Play ACPI device, IDs PNP0400 (active)
+[    0.048550] pnp 00:05: Plug and Play ACPI device, IDs PNP0501 (active)
+[    0.048622] pnp 00:06: Plug and Play ACPI device, IDs PNP0103 (active)
+[    0.048712] pnp: PnP ACPI: found 7 devices
+[    0.048714] ACPI: ACPI bus type pnp unregistered
+[    0.056383] pci_bus 0000:00: resource 4 [io  0x0000-0xffff]
+[    0.056385] pci_bus 0000:00: resource 5 [mem 0x00000000-0xffffffffff]
+[    0.056429] NET: Registered protocol family 2
+[    0.056577] TCP established hash table entries: 16384 (order: 6, 262144 bytes)
+[    0.056676] TCP bind hash table entries: 16384 (order: 6, 262144 bytes)
+[    0.056881] TCP: Hash tables configured (established 16384 bind 16384)
+[    0.056987] TCP: reno registered
+[    0.056992] UDP hash table entries: 1024 (order: 3, 32768 bytes)
+[    0.057008] UDP-Lite hash table entries: 1024 (order: 3, 32768 bytes)
+[    0.057077] NET: Registered protocol family 1
+[    0.057093] pci 0000:00:00.0: Limiting direct PCI/PCI transfers
+[    0.057108] pci 0000:00:01.0: PIIX3: Enabling Passive Release
+[    0.057122] pci 0000:00:01.0: Activating ISA DMA hang workarounds
+[    0.057145] pci 0000:00:02.0: Boot video device
+[    0.057158] PCI: CLS 0 bytes, default 64
+[    0.057210] Trying to unpack rootfs image as initramfs...
+[    0.223378] Freeing initrd memory: 13404k freed
+[    0.225402] audit: initializing netlink socket (disabled)
+[    0.225414] type=2000 audit(1373062872.224:1): initialized
+[    0.240456] HugeTLB registered 2 MB page size, pre-allocated 0 pages
+[    0.241409] VFS: Disk quotas dquot_6.5.2
+[    0.241438] Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+[    0.241726] fuse init (API version 7.20)
+[    0.241778] msgmni has been set to 4009
+[    0.242152] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 252)
+[    0.242248] io scheduler noop registered
+[    0.242250] io scheduler deadline registered
+[    0.242254] io scheduler cfq registered (default)
+[    0.242313] pci_hotplug: PCI Hot Plug PCI Core version: 0.5
+[    0.242321] pciehp: PCI Express Hot Plug Controller Driver version: 0.4
+[    0.242364] efifb: probing for efifb
+[    0.242425] efifb: framebuffer at 0xfc000000, mapped to 0xffffc90000400000, using 1408k, total 1408k
+[    0.242426] efifb: mode is 800x600x24, linelength=2400, pages=1
+[    0.242427] efifb: scrolling: redraw
+[    0.242428] efifb: Truecolor: size=0:8:8:8, shift=0:16:8:0
+[    0.243885] Console: switching to colour frame buffer device 100x37
+[    0.244960] fb0: EFI VGA frame buffer device
+[    0.244966] intel_idle: does not run on family 6 model 2
+[    0.245022] input: Power Button as /devices/LNXSYSTM:00/LNXPWRBN:00/input/input0
+[    0.245026] ACPI: Power Button [PWRF]
+[    0.246296] GHES: HEST is not enabled!
+[    0.246469] ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 11
+[    0.246504] virtio-pci 0000:00:03.0: setting latency timer to 64
+[    0.246639] Serial: 8250/16550 driver, 32 ports, IRQ sharing enabled
+[    0.284285] 00:05: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+[    0.286653] Linux agpgart interface v0.103
+[    0.287936] brd: module loaded
+[    0.288313] loop: module loaded
+[    0.288403] ata_piix 0000:00:01.1: version 2.13
+[    0.288465] ata_piix 0000:00:01.1: setting latency timer to 64
+[    0.288709] scsi0 : ata_piix
+[    0.288774] scsi1 : ata_piix
+[    0.288793] ata1: PATA max MWDMA2 cmd 0x1f0 ctl 0x3f6 bmdma 0xc020 irq 14
+[    0.288794] ata2: PATA max MWDMA2 cmd 0x170 ctl 0x376 bmdma 0xc028 irq 15
+[    0.288954] libphy: Fixed MDIO Bus: probed
+[    0.288964] tun: Universal TUN/TAP device driver, 1.6
+[    0.288964] tun: (C) 1999-2004 Max Krasnyansky <maxk@qualcomm.com>
+[    0.289121] virtio-pci 0000:00:03.0: irq 40 for MSI/MSI-X
+[    0.289133] virtio-pci 0000:00:03.0: irq 41 for MSI/MSI-X
+[    0.289146] virtio-pci 0000:00:03.0: irq 42 for MSI/MSI-X
+[    0.400275] PPP generic driver version 2.4.2
+[    0.400359] ehci_hcd: USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+[    0.400360] ehci-pci: EHCI PCI platform driver
+[    0.400374] ohci_hcd: USB 1.1 'Open' Host Controller (OHCI) Driver
+[    0.400378] uhci_hcd: USB Universal Host Controller Interface driver
+[    0.400424] i8042: PNP: PS/2 Controller [PNP0303:KBD,PNP0f13:MOU] at 0x60,0x64 irq 1,12
+[    0.400968] serio: i8042 KBD port at 0x60,0x64 irq 1
+[    0.400978] serio: i8042 AUX port at 0x60,0x64 irq 12
+[    0.401278] mousedev: PS/2 mouse device common for all mice
+[    0.401593] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input1
+[    0.401888] rtc_cmos 00:00: RTC can wake from S4
+[    0.402153] rtc_cmos 00:00: rtc core: registered rtc_cmos as rtc0
+[    0.402235] rtc0: alarms up to one day, 114 bytes nvram, hpet irqs
+[    0.402294] device-mapper: uevent: version 1.0.3
+[    0.402397] device-mapper: ioctl: 4.23.1-ioctl (2012-12-18) initialised: dm-devel@redhat.com
+[    0.402403] cpuidle: using governor ladder
+[    0.402404] cpuidle: using governor menu
+[    0.402406] EFI Variables Facility v0.08 2004-May-17
+[    0.402460] TCP: cubic registered
+[    0.402523] NET: Registered protocol family 10
+[    0.402677] NET: Registered protocol family 17
+[    0.402690] Key type dns_resolver registered
+[    0.403151] PM: Hibernation image not present or could not be loaded.
+[    0.403161] registered taskstats version 1
+[    0.404884] Key type trusted registered
+[    0.406198] Key type encrypted registered
+[    0.407472]   Magic number: 5:538:400
+[    0.407571] rtc_cmos 00:00: setting system clock to 2013-07-05 22:21:13 UTC (1373062873)
+[    0.407590] BIOS EDD facility v0.16 2004-Jun-25, 0 devices found
+[    0.407590] EDD information not available.
+[    0.444308] ata1.01: NODEV after polling detection
+[    0.444520] ata1.00: ATA-7: QEMU HARDDISK, 1.0, max UDMA/100
+[    0.444521] ata1.00: 41943040 sectors, multi 16: LBA48 
+[    0.444848] ata1.00: configured for MWDMA2
+[    0.444959] scsi 0:0:0:0: Direct-Access     ATA      QEMU HARDDISK    1.0  PQ: 0 ANSI: 5
+[    0.445135] sd 0:0:0:0: [sda] 41943040 512-byte logical blocks: (21.4 GB/20.0 GiB)
+[    0.445145] sd 0:0:0:0: Attached scsi generic sg0 type 0
+[    0.445208] sd 0:0:0:0: [sda] Write Protect is off
+[    0.445210] sd 0:0:0:0: [sda] Mode Sense: 00 3a 00 00
+[    0.445222] sd 0:0:0:0: [sda] Write cache: disabled, read cache: enabled, doesn't support DPO or FUA
+[    0.445922]  sda: sda1 sda2 < sda5 >
+[    0.446084] sd 0:0:0:0: [sda] Attached SCSI disk
+[    0.556324] ata2.01: NODEV after polling detection
+[    0.556533] ata2.00: ATAPI: QEMU DVD-ROM, 1.0, max UDMA/100
+[    0.556859] ata2.00: configured for MWDMA2
+[    0.557325] scsi 1:0:0:0: CD-ROM            QEMU     QEMU DVD-ROM     1.0  PQ: 0 ANSI: 5
+[    0.557824] sr0: scsi3-mmc drive: 4x/4x cd/rw xa/form2 tray
+[    0.557828] cdrom: Uniform CD-ROM driver Revision: 3.20
+[    0.558011] sr 1:0:0:0: Attached scsi CD-ROM sr0
+[    0.558178] sr 1:0:0:0: Attached scsi generic sg1 type 5
+[    0.558393] Freeing unused kernel memory: 716k freed
+[    0.569764] udevd[94]: starting version 175
+[    0.652481] FDC 0 is a S82078B
+[    0.681932] EXT4-fs (sda1): mounted filesystem with ordered data mode. Opts: (null)
+[    0.799055] init: ureadahead main process (256) terminated with status 5
+[    0.883730] Adding 594940k swap on /dev/sda5.  Priority:-1 extents:1 across:594940k 
+[    0.961754] EXT4-fs (sda1): re-mounted. Opts: errors=remount-ro
+[    1.140627] udevd[461]: starting version 175
+[    1.219734] lp: driver loaded but no devices found
+[    1.224363] tsc: Refined TSC clocksource calibration: 3292.528 MHz
+[    1.257621] piix4_smbus 0000:00:01.3: SMBus Host Controller at 0xb100, revision 0
+[    1.342339] parport_pc 00:04: reported by Plug and Play ACPI
+[    1.342417] parport0: PC-style at 0x378, irq 7 [PCSPP,TRISTATE]
+[    1.353884] microcode: CPU0 sig=0x623, pf=0x0, revision=0x1
+[    1.415505] microcode: CPU1 sig=0x623, pf=0x0, revision=0x1
+[    1.418867] microcode: Microcode Update Driver: v2.00 <tigran@aivazian.fsnet.co.uk>, Peter Oruba
+[    1.422714] ppdev: user-space parallel port driver
+[    1.425706] lp0: using parport0 (interrupt-driven).
+[    1.515894] Bluetooth: Core ver 2.16
+[    1.515906] NET: Registered protocol family 31
+[    1.515907] Bluetooth: HCI device and connection manager initialized
+[    1.515913] Bluetooth: HCI socket layer initialized
+[    1.515914] Bluetooth: L2CAP socket layer initialized
+[    1.515917] Bluetooth: SCO socket layer initialized
+[    1.531615] Bluetooth: RFCOMM TTY layer initialized
+[    1.531624] Bluetooth: RFCOMM socket layer initialized
+[    1.531625] Bluetooth: RFCOMM ver 1.11
+[    1.531797] Bluetooth: BNEP (Ethernet Emulation) ver 1.3
+[    1.531799] Bluetooth: BNEP filters: protocol multicast
+[    1.531803] Bluetooth: BNEP socket layer initialized
+[    1.655158] init: failsafe main process (704) killed by TERM signal
+[    1.720677] input: ImExPS/2 Generic Explorer Mouse as /devices/platform/i8042/serio1/input/input2
+[    2.477098] init: plymouth-stop pre-start process (1067) terminated with status 1
+[  120.904931] Registered device name=dynamorio_controller, major=250.
+[  120.946755] descriptor_table start : ffffffffb0825000 : end ffffffffb1025000
+[  120.946766] shadow_allocator : ffffffffa01bf000 - ffffffffa01ff000
+[  120.946768] target name of the module : cfi
+[  120.946769] module start address : ffffffffb06ad820
+[  120.946769] module text start address : ffffffffb0438000
+[  120.946770] module is loaded now
+[  200.563315] init and takeover
+[  200.563385] init and takeover
+[  200.567382] drinit cfi 0
+[  200.755506] inside set_kernel_rw
+[  200.755508] begin : ffffffff8112e, end: ffffffff8112f
+[  200.755718] smp_hotpatch_callback
+[  200.755720] cfi_hotpatch_kernel
+[  200.755722] cfi_hotpatch_init : ffffffffa038db68
+[  200.755723] !!!!!!!!!!!!!update_function_bounds!!!!!!!!!!!!!!! : 7
+[  200.756245] function name : kfree, size : c0
+[  200.756782] function name : __kmalloc, size : 120
+[  200.757285] function name : free_percpu, size : 140
+[  200.757752] function name : __alloc_percpu, size : 10
+[  200.758295] function name : kmem_cache_alloc, size : d0
+[  200.758811] function name : kmem_cache_free, size : f0
+[  204.712115] __alloc_percpu wrapper  : 1bbd0, 10
+[  204.712725] target name of the module : ext2
+[  204.712729] module start address : ffffffffa00dad20
+[  204.712731] module text start address : ffffffffa00cd000
+[  204.712732] module start address : ffffffffa00dad20
+[  204.712734] module text start address : ffffffffa00cd000
+[  204.712740] DYNAMIC WRAPPER 
+[  204.712741] #Module Function is Called, module name : ext2 , symbol address : ffffffffa0030000 , name : init_ext2_fs
+[  204.712746] module name : ext2 , symbol address : ffffffffa0030000 , name : 
+[  204.712748] module name : ext2 , symbol address : ffffffffa0030000 , name : init_module
+[  204.712971] kmem_cache_create wrapper
+[  204.713051] __alloc_percpu wrapper  : 1bbe0, 20
+[  204.713216] #Module Function Returned, module name : ext2 , symbol address : ffffffffa0030000 , name : init_ext2_fs
+[  204.713228] module name : ext2 , symbol address : ffffffffa0030000 , name : 
+[  204.713229] module name : ext2 , symbol address : ffffffffa0030000 , name : init_module
+[  204.713232] target name of the module : ext2
+[  204.713233] module start address : ffffffffa00dad20
+[  204.713234] module text start address : ffffffffa00cd000
+[  204.713236] 
+[  204.713236] module name : ext2
+[  204.713238] core size : fc30	 core_text_size : b790	 core_ro_size dc7c
+[  204.713240] name : .data 	 address : ffffffffa00dac80name : .bss 	 address : ffffffffa00daf50module is loaded now
+[  204.713416] __alloc_percpu wrapper  : 1bc00, 8
+[  204.713418] DYNAMIC WRAPPER
+[  204.713419] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3cc0 , name : ext2_mount
+[  204.713423] dynamic wrapper struct file_system_type
+[  204.713475] debug_mount_bdev
+[  204.713493] __alloc_percpu wrapper  : 1bc08, 10
+[  204.713496] __alloc_percpu wrapper  : 1bb7c, 4
+[  204.713500] __alloc_percpu wrapper  : 1bc18, 4
+[  204.713503] __alloc_percpu wrapper  : 1bc1c, 4
+[  204.713506] DYNAMIC WRAPPER
+[  204.713507] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d5120 , name : ext2_fill_super
+[  204.713509] dynamic wrapper struct super_block
+[  204.713616] kmem_cache_alloc wrapper : 880036b6e200  : 200
+[  204.713655] kmem_cache_alloc wrapper : 188007c232000  : 2000
+[  204.714601] kernel wrapperstruct super_block
+[  204.714608] kernel wrapperstruct backing_dev_info
+[  204.714611] #Kernal function sb_min_blocksize is invoked.
+[  204.714613] #Kernel function sb_min_blocksize returned.
+[  204.715113] ADD_WATCHPOINT with this pointer : 288007ae19478
+[  204.716155] #Kernal function set_bh_page is invoked.
+[  204.716368] #Kernel function set_bh_page returned.
+[  204.724936] __kmalloc wrapper  : 3880036dab010, 8
+[  204.725466] __kmalloc wrapper  : 4880036dab028, 1
+[  204.726263] ADD_WATCHPOINT with this pointer : 58800364e4180
+[  204.737809] #Kernal function get_random_bytes is invoked.
+[  204.737876] #Kernel function get_random_bytes returned.
+[  204.739279] #Kernal function rb_insert_color is invoked.
+[  204.739489] #Kernel function rb_insert_color returned.
+[  204.740084] #Kernal function __percpu_counter_init is invoked.
+[  204.740296] __alloc_percpu wrapper  : 1bc20, 4
+[  204.740820] #Kernel function __percpu_counter_init returned.
+[  204.741378] #Kernal function __percpu_counter_init is invoked.
+[  204.741390] __alloc_percpu wrapper  : 1bc24, 4
+[  204.741696] #Kernel function __percpu_counter_init returned.
+[  204.742252] #Kernal function __percpu_counter_init is invoked.
+[  204.742256] __alloc_percpu wrapper  : 1bc28, 4
+[  204.742259] #Kernel function __percpu_counter_init returned.
+[  204.742774] DYNAMIC WRAPPER
+[  204.742775] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3d60 , name : ext2_alloc_inode
+[  204.742777] dynamic wrapper struct super_block
+[  204.742808] DYNAMIC WRAPPER 
+[  204.742809] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.742935] #Kernal function __init_rwsem is invoked.
+[  204.742936] #Kernel function __init_rwsem returned.
+[  204.742947] #Kernal function __mutex_init is invoked.
+[  204.742948] #Kernel function __mutex_init returned.
+[  204.742969] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.742971] DYNAMIC WRAPPER 
+[  204.742971] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.742974] #Kernal function __init_rwsem is invoked.
+[  204.742974] #Kernel function __init_rwsem returned.
+[  204.742976] #Kernal function __mutex_init is invoked.
+[  204.742976] #Kernel function __mutex_init returned.
+[  204.742978] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.742979] DYNAMIC WRAPPER 
+[  204.742979] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.742984] #Kernal function __init_rwsem is invoked.
+[  204.742985] #Kernel function __init_rwsem returned.
+[  204.742986] #Kernal function __mutex_init is invoked.
+[  204.742987] #Kernel function __mutex_init returned.
+[  204.742988] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.742989] DYNAMIC WRAPPER 
+[  204.742990] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.742991] #Kernal function __init_rwsem is invoked.
+[  204.742992] #Kernel function __init_rwsem returned.
+[  204.742993] #Kernal function __mutex_init is invoked.
+[  204.742993] #Kernel function __mutex_init returned.
+[  204.742994] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.742996] DYNAMIC WRAPPER 
+[  204.742996] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.742997] #Kernal function __init_rwsem is invoked.
+[  204.742998] #Kernel function __init_rwsem returned.
+[  204.742999] #Kernal function __mutex_init is invoked.
+[  204.743000] #Kernel function __mutex_init returned.
+[  204.743001] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743002] DYNAMIC WRAPPER 
+[  204.743003] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743004] #Kernal function __init_rwsem is invoked.
+[  204.743005] #Kernel function __init_rwsem returned.
+[  204.743005] #Kernal function __mutex_init is invoked.
+[  204.743006] #Kernel function __mutex_init returned.
+[  204.743007] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743008] DYNAMIC WRAPPER 
+[  204.743009] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743010] #Kernal function __init_rwsem is invoked.
+[  204.743011] #Kernel function __init_rwsem returned.
+[  204.743012] #Kernal function __mutex_init is invoked.
+[  204.743012] #Kernel function __mutex_init returned.
+[  204.743014] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743015] DYNAMIC WRAPPER 
+[  204.743015] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743017] #Kernal function __init_rwsem is invoked.
+[  204.743017] #Kernel function __init_rwsem returned.
+[  204.743018] #Kernal function __mutex_init is invoked.
+[  204.743019] #Kernel function __mutex_init returned.
+[  204.743020] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743021] DYNAMIC WRAPPER 
+[  204.743022] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743023] #Kernal function __init_rwsem is invoked.
+[  204.743024] #Kernel function __init_rwsem returned.
+[  204.743025] #Kernal function __mutex_init is invoked.
+[  204.743025] #Kernel function __mutex_init returned.
+[  204.743026] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743028] DYNAMIC WRAPPER 
+[  204.743028] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743030] #Kernal function __init_rwsem is invoked.
+[  204.743030] #Kernel function __init_rwsem returned.
+[  204.743031] #Kernal function __mutex_init is invoked.
+[  204.743032] #Kernel function __mutex_init returned.
+[  204.743033] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743034] DYNAMIC WRAPPER 
+[  204.743035] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743038] #Kernal function __init_rwsem is invoked.
+[  204.743038] #Kernel function __init_rwsem returned.
+[  204.743039] #Kernal function __mutex_init is invoked.
+[  204.743040] #Kernel function __mutex_init returned.
+[  204.743041] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743042] DYNAMIC WRAPPER 
+[  204.743043] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743044] #Kernal function __init_rwsem is invoked.
+[  204.743045] #Kernel function __init_rwsem returned.
+[  204.743046] #Kernal function __mutex_init is invoked.
+[  204.743046] #Kernel function __mutex_init returned.
+[  204.743048] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743049] DYNAMIC WRAPPER 
+[  204.743049] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743051] #Kernal function __init_rwsem is invoked.
+[  204.743051] #Kernel function __init_rwsem returned.
+[  204.743052] #Kernal function __mutex_init is invoked.
+[  204.743053] #Kernel function __mutex_init returned.
+[  204.743054] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743055] DYNAMIC WRAPPER 
+[  204.743056] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743057] #Kernal function __init_rwsem is invoked.
+[  204.743058] #Kernel function __init_rwsem returned.
+[  204.743059] #Kernal function __mutex_init is invoked.
+[  204.743059] #Kernel function __mutex_init returned.
+[  204.743060] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743061] DYNAMIC WRAPPER 
+[  204.743062] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743063] #Kernal function __init_rwsem is invoked.
+[  204.743064] #Kernel function __init_rwsem returned.
+[  204.743065] #Kernal function __mutex_init is invoked.
+[  204.743065] #Kernel function __mutex_init returned.
+[  204.743067] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743068] DYNAMIC WRAPPER 
+[  204.743068] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743070] #Kernal function __init_rwsem is invoked.
+[  204.743070] #Kernel function __init_rwsem returned.
+[  204.743071] #Kernal function __mutex_init is invoked.
+[  204.743072] #Kernel function __mutex_init returned.
+[  204.743073] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743074] DYNAMIC WRAPPER 
+[  204.743075] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743076] #Kernal function __init_rwsem is invoked.
+[  204.743077] #Kernel function __init_rwsem returned.
+[  204.743078] #Kernal function __mutex_init is invoked.
+[  204.743078] #Kernel function __mutex_init returned.
+[  204.743079] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743080] DYNAMIC WRAPPER 
+[  204.743081] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743082] #Kernal function __init_rwsem is invoked.
+[  204.743083] #Kernel function __init_rwsem returned.
+[  204.743084] #Kernal function __mutex_init is invoked.
+[  204.743084] #Kernel function __mutex_init returned.
+[  204.743086] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743087] DYNAMIC WRAPPER 
+[  204.743087] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743089] #Kernal function __init_rwsem is invoked.
+[  204.743091] #Kernel function __init_rwsem returned.
+[  204.743092] #Kernal function __mutex_init is invoked.
+[  204.743093] #Kernel function __mutex_init returned.
+[  204.743094] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743095] DYNAMIC WRAPPER 
+[  204.743096] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743097] #Kernal function __init_rwsem is invoked.
+[  204.743098] #Kernel function __init_rwsem returned.
+[  204.743099] #Kernal function __mutex_init is invoked.
+[  204.743099] #Kernel function __mutex_init returned.
+[  204.743100] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743102] DYNAMIC WRAPPER 
+[  204.743102] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743104] #Kernal function __init_rwsem is invoked.
+[  204.743104] #Kernel function __init_rwsem returned.
+[  204.743105] #Kernal function __mutex_init is invoked.
+[  204.743106] #Kernel function __mutex_init returned.
+[  204.743107] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743108] DYNAMIC WRAPPER 
+[  204.743109] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743110] #Kernal function __init_rwsem is invoked.
+[  204.743111] #Kernel function __init_rwsem returned.
+[  204.743111] #Kernal function __mutex_init is invoked.
+[  204.743112] #Kernel function __mutex_init returned.
+[  204.743113] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743114] DYNAMIC WRAPPER 
+[  204.743115] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743116] #Kernal function __init_rwsem is invoked.
+[  204.743117] #Kernel function __init_rwsem returned.
+[  204.743118] #Kernal function __mutex_init is invoked.
+[  204.743118] #Kernel function __mutex_init returned.
+[  204.743120] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743122] DYNAMIC WRAPPER 
+[  204.743122] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.743124] #Kernal function __init_rwsem is invoked.
+[  204.743506] #Kernel function __init_rwsem returned.
+[  204.743508] #Kernal function __mutex_init is invoked.
+[  204.743984] #Kernel function __mutex_init returned.
+[  204.745988] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3da0 , name : init_once
+[  204.745991] kmem_cache_alloc wrapper : 68800591a4000  : 2e8
+[  204.746205] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3d60 , name : ext2_alloc_inode
+[  204.748269] #Kernal function __mutex_init is invoked.
+[  204.748271] #Kernel function __mutex_init returned.
+[  204.752666] ADD_WATCHPOINT with this pointer : 788007ae19208
+[  204.752671] ADD_WATCHPOINT with this pointer : 888007ae191a0
+[  204.752674] ADD_WATCHPOINT with this pointer : 988007ae19138
+[  204.752677] ADD_WATCHPOINT with this pointer : a88007ae190d0
+[  204.754373] ADD_WATCHPOINT with this pointer : b8800364e4180
+[  204.758744] kernel wrapperstruct super_block
+[  204.758747] type id:f1:read shadow:00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000:write shadow:00000000000000000000000000000000000000000000001100000000000000000000000000000000000000000000000000000000111111110000000000000000000000000000000000000000000000000000000011111101000000000000000000000000000000000000000000000000000000001111111100000000000000000000000000000000000000000000000000000000110111100000000000000000000000000000000000000000000000000000000011111111000000000000000000000000000000000000000000000000000000001111111100000000000000000000000000000000000000000000000000000000110000000000000000000000000000000000000000000000000000000000000011111111000000000000000000000000000000000000000000000000000000001111111100000000000000000000000000000000000000000000000000000000111010000000000000000000000000000000000000000000000000000000000000000000:
+[  204.759027] #Kernal function set_nlink is invoked.
+[  204.759241] #Kernel function set_nlink returned.
+[  204.764195] #Kernal function __brelse is invoked.
+[  204.764404] #Kernel function __brelse returned.
+[  204.764741] type id:f1:read shadow:00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001011000000000000000000000000000000000000000000000000000000000001100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000:write shadow:00000000000000000000000000000000000000000000001100000000000000000000000000000000000000000000000000000000111111110000000000000000000000000000000000000000000000000000000011111101000000000000000000000000000000000000000000000000000000001111111100000000000000000000000000000000000000000000000000000000110111100000000000000000000000000000000000000000000000000000000011111111000000000000000000000000000000000000000000000000000000001111111100000000000000000000000000000000000000000000000000000000111111110000000000000000000000000000000000000000000000000000000011111111000000000000000000000000000000000000000000000000000000001111111100000000000000000000000000000000000000000000000000000000111111110000000000000000000000000000000000000000000000000000000011111111:
+[  204.765019] kernel wrapperstruct super_block
+[  204.765021] kernel wrapperstruct backing_dev_info
+[  204.765599] kernel wrapperstruct super_block
+[  204.765601] type id:f1:read shadow:00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000011011000000000000000000000000000000000000000000000000000000000001100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000:write shadow:00000000000000000000000000000000000000000000001100000000000000000000000000000000000000000000000000000000111111110000000000000000000000000000000000000000000000000000000011111101000000000000000000000000000000000000000000000000000000001111111100000000000000000000000000000000000000000000000000000000110111100000000000000000000000000000000000000000000000000000000011111111000000000000000000000000000000000000000000000000000000001111111100000000000000000000000000000000000000000000000000000000111111110000000000000000000000000000000000000000000000000000000011111111000000000000000000000000000000000000000000000000000000001111111100000000000000000000000000000000000000000000000000000000111111110000000000000000000000000000000000000000000000000000000011111111:
+[  204.765881] #Kernal function d_make_root is invoked.
+[  204.767023] ADD_WATCHPOINT with this pointer : c88007ae180c0
+[  204.769916] calling unwrapped function 'd_set_d_op' ffffffff8114fa10
+[  204.771603] #Kernel function d_make_root returned.
+[  204.773326] kernel wrapperstruct super_block
+[  204.773329] kernel wrapperstruct backing_dev_info
+[  204.773330] #Kernal function dquot_writeback_dquots is invoked.
+[  204.773331] #Kernel function dquot_writeback_dquots returned.
+[  204.774076] #Kernal function get_seconds is invoked.
+[  204.774077] #Kernel function get_seconds returned.
+[  204.774480] #Kernal function mark_buffer_dirty is invoked.
+[  204.774482] #Kernel function mark_buffer_dirty returned.
+[  204.774690] #Kernal function sync_dirty_buffer is invoked.
+[  204.774692] ADD_WATCHPOINT with this pointer : d8800364e4180
+[  204.774715] #Kernel function sync_dirty_buffer returned.
+[  204.774780] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d5120 , name : ext2_fill_super
+[  204.774905] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d3cc0 , name : ext2_mount
+[  204.776039] calling unwrapped function 'lg_global_unlock' ffffffff8106eae0
+[  204.777045] spill_slot was NULL!!!!!!!!!!!!!!!
+[  204.777361] DYNAMIC WRAPPER
+[  204.777362] #Module Function is Called, module name : ext2 , symbol address : ffffffffa00d4400 , name : ext2_show_options
+[  204.777364] dynamic wrapper struct seq_file
+[  204.777365] dynamic wrapper struct dentry
+[  204.778736] kernel wrapperstruct seq_file
+[  204.778738] #Kernal function seq_puts is invoked.
+[  204.778739] #Kernel function seq_puts returned.
+[  204.778977] kernel wrapperstruct seq_file
+[  204.778978] #Kernal function seq_puts is invoked.
+[  204.778979] #Kernel function seq_puts returned.
+[  204.779196] kernel wrapperstruct seq_file
+[  204.779197] #Kernal function seq_puts is invoked.
+[  204.779198] #Kernel function seq_puts returned.
+[  204.779746] #Module Function Returned, module name : ext2 , symbol address : ffffffffa00d4400 , name : ext2_show_options
+[  234.664398] spill_slot was NULL!!!!!!!!!!!!!!!
